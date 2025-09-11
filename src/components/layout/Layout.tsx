@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import AuthButton from "../auth/AuthButton";
 
 export default function Layout({
   children,
@@ -15,6 +16,7 @@ export default function Layout({
             <div className="nav-links">
               <Link to="/">Home</Link>
               <Link to="/dashboard">Dashboard</Link>
+              <AuthButton />
             </div>
           </nav>
         </div>

@@ -2,6 +2,8 @@ import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { cors } from "hono/cors";
+import { clerkMiddleware } from "./lib/auth/clerk.js";
+import authRoutes from "./routes/api/auth.js";
 import providersRoutes from "./routes/api/providers.js";
 import cronJobsRoutes from "./routes/api/cron-jobs.js";
 
@@ -12,12 +14,19 @@ app.use(
   "*",
   cors({
     origin:
-      process.env.NODE_ENV === "development" ? "http://localhost:5173" : true,
+      process.env.NODE_ENV === "development" ? "http://localhost:5173" : "*",
     credentials: true,
   })
 );
 
-// API routes
+// Public auth routes (no middleware)
+app.route("/api/auth", authRoutes);
+
+// Authentication middleware for protected API routes
+app.use("/api/providers/*", clerkMiddleware());
+app.use("/api/cron-jobs/*", clerkMiddleware());
+
+// Protected API routes
 app.route("/api/providers", providersRoutes);
 app.route("/api/cron-jobs", cronJobsRoutes);
 

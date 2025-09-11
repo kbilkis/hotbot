@@ -1,4 +1,4 @@
-import { eq, and, lte, desc } from "drizzle-orm";
+import { eq, and, desc } from "drizzle-orm";
 import { db } from "../client.js";
 import {
   cronJobs,
