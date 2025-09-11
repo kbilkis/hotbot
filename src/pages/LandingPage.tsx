@@ -158,7 +158,7 @@ export default function LandingPage(): React.ReactElement {
         <div className="container">
           <div className="testimonial-content">
             <blockquote>
-              "GitBot cut down our review response time by 60%. We're getting
+              "HotBot cut down our review response time by 60%. We're getting
               reviews faster and shipping features more consistently than ever
               before."
             </blockquote>

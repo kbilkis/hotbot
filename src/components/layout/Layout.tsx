@@ -11,7 +11,15 @@ export default function Layout({
     <div className="app-layout">
       <header>
         <nav>
-          <div className="logo">GitBot</div>
+          <div className="logo">
+            <Link to="/">
+              <img
+                src="/images/logo-horizontal.jpg"
+                alt="Git Messaging Scheduler"
+                className="logo-image"
+              />
+            </Link>
+          </div>
           <div className="nav-links">
             <Link to="/">Home</Link>
             <Link to="/dashboard">Dashboard</Link>
@@ -24,7 +32,10 @@ export default function Layout({
 
       <footer>
         <div className="container">
-          <p>&copy; 2024 GitBot. Never wait for a code review again.</p>
+          <p>
+            &copy; 2025 Git Messaging Scheduler. Never wait for a code review
+            again.
+          </p>
         </div>
       </footer>
     </div>

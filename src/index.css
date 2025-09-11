@@ -55,6 +55,19 @@ header nav {
   font-size: 1.5rem;
   font-weight: bold;
   color: #ff8000;
+  display: flex;
+  align-items: center;
+}
+
+.logo-image {
+  height: 40px;
+  width: auto;
+  object-fit: contain;
+  transition: transform 0.2s ease;
+}
+
+.logo-image:hover {
+  transform: scale(1.15);
 }
 
 .nav-links {
@@ -937,7 +950,7 @@ footer {
 /* Dashboard Styles */
 .dashboard {
   min-height: calc(100vh - 80px);
-  padding-top: 100px;
+  padding-top: 120px;
   background: transparent;
 }
 
