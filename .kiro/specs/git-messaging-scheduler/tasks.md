@@ -28,7 +28,7 @@
   - Create authentication components for login/logout flows
   - _Requirements: 2.1, 2.2, 2.3, 2.4_
 
-- [ ] 4. Create landing page with modern design
+- [x] 4. Create landing page with modern design
 
   - Design and implement hero section with value proposition
   - Create features section showcasing git and messaging provider integrations
@@ -62,7 +62,7 @@
   - Write unit tests for Slack integration
   - _Requirements: 4.1, 4.2, 4.3, 7.3, 7.4_
 
-- [ ] 8. Create dashboard layout and provider connection UI
+- [x] 8. Create dashboard layout and provider connection UI
 
   - Build dashboard layout with navigation and user menu
   - Create provider connection cards showing connection status
