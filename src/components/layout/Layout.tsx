@@ -10,23 +10,21 @@ export default function Layout({
   return (
     <div className="app-layout">
       <header>
-        <div className="container">
-          <nav>
-            <div className="logo">Git Messaging Scheduler</div>
-            <div className="nav-links">
-              <Link to="/">Home</Link>
-              <Link to="/dashboard">Dashboard</Link>
-              <AuthButton />
-            </div>
-          </nav>
-        </div>
+        <nav>
+          <div className="logo">GitBot</div>
+          <div className="nav-links">
+            <Link to="/">Home</Link>
+            <Link to="/dashboard">Dashboard</Link>
+            <AuthButton />
+          </div>
+        </nav>
       </header>
 
-      <main className="container">{children}</main>
+      <main>{children}</main>
 
       <footer>
         <div className="container">
-          <p>&copy; 2024 Git Messaging Scheduler. Built for developers.</p>
+          <p>&copy; 2024 GitBot. Never wait for a code review again.</p>
         </div>
       </footer>
     </div>

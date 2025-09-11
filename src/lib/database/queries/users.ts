@@ -9,6 +9,14 @@ export async function upsertUser(userData: {
   clerkId: string;
   email: string;
 }): Promise<User> {
+  // First check if user exists and if data has changed
+  const existingUser = await getUserByClerkId(userData.clerkId);
+
+  if (existingUser && existingUser.email === userData.email) {
+    // No changes needed, return existing user
+    return existingUser;
+  }
+
   const [user] = await db
     .insert(users)
     .values({

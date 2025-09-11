@@ -31,7 +31,7 @@ export function ClerkProvider({ children }: { children: React.ReactNode }) {
         // Expose Clerk globally for API client
         (window as any).__clerk = clerk;
 
-        // Sync session with backend if user is already logged in
+        // Sync session with backend if user is already logged in (only once)
         if (clerk.user && clerk.session) {
           syncSessionWithBackend();
         }
@@ -46,9 +46,14 @@ export function ClerkProvider({ children }: { children: React.ReactNode }) {
             setUser(clerk.user);
             setIsSignedIn(!!clerk.user);
 
-            // Sync with backend when session is created
+            // Only sync with backend when session is created
             if (event.type === "session:created" && clerk.session) {
               syncSessionWithBackend();
+            }
+
+            // Clear synced session ID when session is removed
+            if (event.type === "session:removed") {
+              localStorage.removeItem("lastSyncedSession");
             }
           }
         });
@@ -61,22 +66,31 @@ export function ClerkProvider({ children }: { children: React.ReactNode }) {
     const syncSessionWithBackend = async () => {
       try {
         if (clerk.session) {
-          const token = await clerk.session.getToken();
-          if (token) {
-            const response = await fetch("/api/auth/session", {
-              method: "POST",
-              headers: {
-                "Content-Type": "application/json",
-              },
-              body: JSON.stringify({ sessionToken: token }),
-            });
+          const sessionId = clerk.session.id;
+          const lastSyncedSession = localStorage.getItem("lastSyncedSession");
 
-            if (response.ok) {
-              const data = await response.json();
-              console.log("User synced with backend:", data.user);
-            } else {
-              console.error("Failed to sync session with backend");
+          // Only sync if this is a new session
+          if (sessionId !== lastSyncedSession) {
+            const token = await clerk.session.getToken();
+            if (token) {
+              const response = await fetch("/api/auth/session", {
+                method: "POST",
+                headers: {
+                  "Content-Type": "application/json",
+                },
+                body: JSON.stringify({ sessionToken: token }),
+              });
+
+              if (response.ok) {
+                const data = await response.json();
+                console.log("User synced with backend:", data.user);
+                localStorage.setItem("lastSyncedSession", sessionId);
+              } else {
+                console.error("Failed to sync session with backend");
+              }
             }
+          } else {
+            console.log("Session already synced, skipping...");
           }
         }
       } catch (error) {
@@ -98,8 +112,9 @@ export function ClerkProvider({ children }: { children: React.ReactNode }) {
   const signOut = async () => {
     try {
       await clerk.signOut();
-      // Clear session cookie
+      // Clear session cookie and localStorage
       await fetch("/api/auth/logout", { method: "POST" });
+      localStorage.removeItem("lastSyncedSession");
     } catch (error) {
       console.error("Sign out error:", error);
     }
