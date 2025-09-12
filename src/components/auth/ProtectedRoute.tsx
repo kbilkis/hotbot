@@ -1,5 +1,5 @@
 import React from "react";
-import { useClerk } from "../../lib/auth/ClerkProvider";
+import { useAuth, useClerk } from "@clerk/clerk-react";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -10,7 +10,8 @@ export default function ProtectedRoute({
   children,
   fallback,
 }: ProtectedRouteProps) {
-  const { isLoaded, isSignedIn, signIn } = useClerk();
+  const { isLoaded, isSignedIn } = useAuth();
+  const clerk = useClerk();
 
   if (!isLoaded) {
     return (
@@ -26,7 +27,10 @@ export default function ProtectedRoute({
         <div className="auth-required">
           <h2>Authentication Required</h2>
           <p>Please sign in to access this page.</p>
-          <button className="auth-button sign-in" onClick={signIn}>
+          <button
+            className="auth-button sign-in"
+            onClick={() => clerk.openSignIn()}
+          >
             Sign In
           </button>
         </div>

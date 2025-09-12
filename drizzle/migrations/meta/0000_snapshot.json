@@ -1,5 +1,5 @@
 {
-  "id": "672a327c-8713-4a9b-aeb6-78716cd9d981",
+  "id": "19498fa7-0a2a-41a9-8a51-f2e86e214fd1",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -10,13 +10,14 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "user_id": {
           "name": "user_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -34,19 +35,19 @@
         },
         "git_provider_id": {
           "name": "git_provider_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
         "messaging_provider_id": {
           "name": "messaging_provider_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
         "escalation_provider_id": {
           "name": "escalation_provider_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": false
         },
@@ -165,13 +166,14 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "cron_job_id": {
           "name": "cron_job_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -244,13 +246,14 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "cron_job_id": {
           "name": "cron_job_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
@@ -263,7 +266,8 @@
         },
         "status": {
           "name": "status",
-          "type": "text",
+          "type": "execution_status",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
@@ -329,19 +333,21 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "user_id": {
           "name": "user_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
         "provider": {
           "name": "provider",
-          "type": "text",
+          "type": "git_provider",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
@@ -412,19 +418,21 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "user_id": {
           "name": "user_id",
-          "type": "integer",
+          "type": "uuid",
           "primaryKey": false,
           "notNull": true
         },
         "provider": {
           "name": "provider",
-          "type": "text",
+          "type": "messaging_provider",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": true
         },
@@ -501,9 +509,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "serial",
+          "type": "uuid",
           "primaryKey": true,
-          "notNull": true
+          "notNull": true,
+          "default": "gen_random_uuid()"
         },
         "clerk_id": {
           "name": "clerk_id",
@@ -549,7 +558,35 @@
       "isRLSEnabled": false
     }
   },
-  "enums": {},
+  "enums": {
+    "public.execution_status": {
+      "name": "execution_status",
+      "schema": "public",
+      "values": [
+        "success",
+        "error",
+        "partial"
+      ]
+    },
+    "public.git_provider": {
+      "name": "git_provider",
+      "schema": "public",
+      "values": [
+        "github",
+        "bitbucket",
+        "gitlab"
+      ]
+    },
+    "public.messaging_provider": {
+      "name": "messaging_provider",
+      "schema": "public",
+      "values": [
+        "slack",
+        "teams",
+        "discord"
+      ]
+    }
+  },
   "schemas": {},
   "sequences": {},
   "roles": {},

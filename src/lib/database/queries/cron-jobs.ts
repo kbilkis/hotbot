@@ -1,5 +1,5 @@
 import { eq, and, desc } from "drizzle-orm";
-import { db } from "../client.js";
+import { db } from "../client";
 import {
   cronJobs,
   executionLogs,
@@ -10,7 +10,7 @@ import {
   type NewExecutionLog,
   type EscalationTracking,
   type NewEscalationTracking,
-} from "../schema.js";
+} from "../schema";
 
 // Cron Job Queries
 

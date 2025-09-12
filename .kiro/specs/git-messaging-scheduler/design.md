@@ -228,9 +228,9 @@ The application runs as a single Hono server in both development and production:
   "type": "module",
   "scripts": {
     "dev": "tsx watch src/server.ts",
-    "build": "node esbuild.config.js",
-    "start": "node dist/server.js",
-    "cron": "node dist/cron.js",
+    "build": "node esbuild.config",
+    "start": "node dist/server",
+    "cron": "node dist/cron",
     "test": "vitest",
     "test:e2e": "playwright test",
     "db:generate": "drizzle-kit generate",
@@ -433,7 +433,7 @@ export type UpdateCronJobData = typeof UpdateCronJobSchema.infer;
 // src/routes/providers.ts - Hono RPC routes
 import { Hono } from "hono";
 import { type } from "arktype";
-import { getAuthUrl, exchangeCodeForTokens } from "../lib/providers/index.js";
+import { getAuthUrl, exchangeCodeForTokens } from "../lib/providers/index";
 
 const ProviderSchema = type(
   "'github'|'slack'|'teams'|'discord'|'bitbucket'|'gitlab'"
@@ -503,13 +503,13 @@ import { Hono } from "hono";
 import {
   CreateCronJobSchema,
   UpdateCronJobSchema,
-} from "../lib/validation/schemas.js";
+} from "../lib/validation/schemas";
 import {
   createCronJob,
   getUserCronJobs,
   updateCronJob,
   deleteCronJob,
-} from "../lib/database/queries/cron-jobs.js";
+} from "../lib/database/queries/cron-jobs";
 import { type } from "arktype";
 
 const app = new Hono()
@@ -579,9 +579,9 @@ export default app;
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
-import { clerkMiddleware } from "./lib/auth/clerk.js";
-import providersRoutes from "./routes/providers.js";
-import cronJobsRoutes from "./routes/cron-jobs.js";
+import { clerkMiddleware } from "./lib/auth/clerk";
+import providersRoutes from "./routes/providers";
+import cronJobsRoutes from "./routes/cron-jobs";
 
 const app = new Hono();
 
@@ -643,7 +643,7 @@ import {
   CreateCronJobSchema,
   UpdateCronJobSchema,
   ConnectProviderSchema,
-} from "../validation/schemas.js";
+} from "../validation/schemas";
 
 // Extract TypeScript types from arktype schemas
 export type CreateCronJobRequest = typeof CreateCronJobSchema.infer;
@@ -664,7 +664,7 @@ export interface CronJobResponse extends CreateCronJobRequest {
 
 // src/frontend/hooks/useApi.ts - Type-safe Hono RPC client
 import { hc } from "hono/client";
-import type { ApiRoutes } from "../../server.js";
+import type { ApiRoutes } from "../../server";
 
 const client = hc<ApiRoutes>("/api");
 
@@ -713,8 +713,8 @@ export const useApi = () => {
 
 // src/frontend/components/cron-jobs/CronJobForm.tsx - Type-safe frontend usage
 import React from "react";
-import { useApi } from "../../hooks/useApi.js";
-import type { CreateCronJobRequest } from "../../../lib/types/api.js";
+import { useApi } from "../../hooks/useApi";
+import type { CreateCronJobRequest } from "../../../lib/types/api";
 
 export default function CronJobForm() {
   const { createCronJob } = useApi();

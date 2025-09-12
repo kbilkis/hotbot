@@ -1,6 +1,6 @@
 import { drizzle } from "drizzle-orm/neon-serverless";
 import { Pool } from "@neondatabase/serverless";
-import * as schema from "./schema.js";
+import * as schema from "./schema";
 
 // Create the connection string from environment variables
 const connectionString = process.env.DATABASE_URL;

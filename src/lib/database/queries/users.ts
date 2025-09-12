@@ -1,6 +1,6 @@
 import { eq } from "drizzle-orm";
-import { db } from "../client.js";
-import { users, type User, type NewUser } from "../schema.js";
+import { db } from "../client";
+import { users, type User } from "../schema";
 
 /**
  * Create a new user or update existing user based on Clerk ID
@@ -82,5 +82,5 @@ export async function updateUser(
  */
 export async function deleteUser(id: number): Promise<boolean> {
   const result = await db.delete(users).where(eq(users.id, id));
-  return result.rowCount > 0;
+  return (result.rowCount ?? 0) > 0;
 }

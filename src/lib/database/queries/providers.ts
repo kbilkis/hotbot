@@ -1,5 +1,5 @@
 import { eq, and } from "drizzle-orm";
-import { db } from "../client.js";
+import { db } from "../client";
 import {
   gitProviders,
   messagingProviders,
@@ -7,7 +7,7 @@ import {
   type NewGitProvider,
   type MessagingProvider,
   type NewMessagingProvider,
-} from "../schema.js";
+} from "../schema";
 
 // Git Provider Queries
 
@@ -119,7 +119,7 @@ export async function deleteGitProvider(
       and(eq(gitProviders.userId, userId), eq(gitProviders.provider, provider))
     );
 
-  return result.rowCount > 0;
+  return (result.rowCount ?? 0) > 0;
 }
 
 // Messaging Provider Queries
@@ -250,5 +250,5 @@ export async function deleteMessagingProvider(
 
   const result = await db.delete(messagingProviders).where(and(...conditions));
 
-  return result.rowCount > 0;
+  return (result.rowCount ?? 0) > 0;
 }

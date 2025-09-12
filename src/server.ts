@@ -2,10 +2,7 @@ import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
 import { cors } from "hono/cors";
-import { clerkMiddleware } from "./lib/auth/clerk.js";
-import authRoutes from "./routes/api/auth.js";
-import providersRoutes from "./routes/api/providers.js";
-import cronJobsRoutes from "./routes/api/cron-jobs.js";
+import apiRoutes from "./api/index";
 
 const app = new Hono();
 
@@ -19,20 +16,12 @@ app.use(
   })
 );
 
-// Public auth routes (no middleware)
-app.route("/api/auth", authRoutes);
-
-// Authentication middleware for protected API routes
-app.use("/api/providers/*", clerkMiddleware());
-app.use("/api/cron-jobs/*", clerkMiddleware());
-
-// Protected API routes
-app.route("/api/providers", providersRoutes);
-app.route("/api/cron-jobs", cronJobsRoutes);
+// Mount API routes
+app.route("/api", apiRoutes);
 
 // Export the API routes type for RPC client
-const apiRoutes = app.basePath("/api");
-export type ApiRoutes = typeof apiRoutes;
+const apiRoutesTyped = app.basePath("/api");
+export type ApiRoutes = typeof apiRoutesTyped;
 
 // Only serve static files in production
 if (process.env.NODE_ENV === "production") {
@@ -53,9 +42,6 @@ if (process.env.NODE_ENV === "production") {
 const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 
 console.log(`🚀 Server running on http://localhost:${port}`);
-if (process.env.NODE_ENV === "development") {
-  console.log(`🎨 Frontend running on http://localhost:5173`);
-}
 
 serve({
   fetch: app.fetch,

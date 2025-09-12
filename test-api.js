@@ -12,14 +12,14 @@ async function testAPI() {
     console.log("✅ Providers:", providers.providers.length, "providers found");
 
     // Test cron jobs endpoint
-    console.log("📡 Testing GET /api/cron-jobs");
-    const jobsResponse = await fetch(`${baseUrl}/api/cron-jobs`);
+    console.log("📡 Testing GET /api/schedules");
+    const jobsResponse = await fetch(`${baseUrl}/api/schedules`);
     const jobs = await jobsResponse.json();
     console.log("✅ Cron Jobs:", jobs.jobs.length, "jobs found");
 
     // Test creating a cron job
-    console.log("📡 Testing POST /api/cron-jobs");
-    const createResponse = await fetch(`${baseUrl}/api/cron-jobs`, {
+    console.log("📡 Testing POST /api/schedules");
+    const createResponse = await fetch(`${baseUrl}/api/schedules`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({

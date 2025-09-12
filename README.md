@@ -1,4 +1,4 @@
-# Git Messaging Scheduler
+# HotBot
 
 A web application that integrates git providers (GitHub, Bitbucket, GitLab) with messaging providers (Slack, MS Teams, Discord) to send scheduled reminders about open pull requests.
 

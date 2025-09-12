@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface ScheduleModalProps {
   onClose: () => void;
@@ -16,6 +16,17 @@ export default function ScheduleModal({
   const [cronExpression, setCronExpression] = useState("");
   const [escalationDays, setEscalationDays] = useState("");
   const [escalationChannel, setEscalationChannel] = useState("");
+
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+    return () => document.removeEventListener("keydown", handleEscKey);
+  }, [onClose]);
 
   const handleSave = () => {
     // Handle save logic here

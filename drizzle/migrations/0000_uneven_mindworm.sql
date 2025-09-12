@@ -1,11 +1,14 @@
+CREATE TYPE "public"."execution_status" AS ENUM('success', 'error', 'partial');--> statement-breakpoint
+CREATE TYPE "public"."git_provider" AS ENUM('github', 'bitbucket', 'gitlab');--> statement-breakpoint
+CREATE TYPE "public"."messaging_provider" AS ENUM('slack', 'teams', 'discord');--> statement-breakpoint
 CREATE TABLE "cron_jobs" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
 	"name" text NOT NULL,
 	"cron_expression" text NOT NULL,
-	"git_provider_id" integer NOT NULL,
-	"messaging_provider_id" integer NOT NULL,
-	"escalation_provider_id" integer,
+	"git_provider_id" uuid NOT NULL,
+	"messaging_provider_id" uuid NOT NULL,
+	"escalation_provider_id" uuid,
 	"escalation_days" integer DEFAULT 3,
 	"pr_filters" jsonb,
 	"send_when_empty" boolean DEFAULT false,
@@ -16,8 +19,8 @@ CREATE TABLE "cron_jobs" (
 );
 --> statement-breakpoint
 CREATE TABLE "escalation_tracking" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"cron_job_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"cron_job_id" uuid NOT NULL,
 	"pull_request_id" text NOT NULL,
 	"pull_request_url" text NOT NULL,
 	"first_escalated_at" timestamp DEFAULT now(),
@@ -27,10 +30,10 @@ CREATE TABLE "escalation_tracking" (
 );
 --> statement-breakpoint
 CREATE TABLE "execution_logs" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"cron_job_id" integer NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"cron_job_id" uuid NOT NULL,
 	"executed_at" timestamp DEFAULT now(),
-	"status" text NOT NULL,
+	"status" "execution_status" NOT NULL,
 	"pull_requests_found" integer DEFAULT 0,
 	"messages_sent" integer DEFAULT 0,
 	"error_message" text,
@@ -39,9 +42,9 @@ CREATE TABLE "execution_logs" (
 );
 --> statement-breakpoint
 CREATE TABLE "git_providers" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" integer NOT NULL,
-	"provider" text NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
+	"provider" "git_provider" NOT NULL,
 	"access_token" text NOT NULL,
 	"refresh_token" text,
 	"expires_at" timestamp,
@@ -51,9 +54,9 @@ CREATE TABLE "git_providers" (
 );
 --> statement-breakpoint
 CREATE TABLE "messaging_providers" (
-	"id" serial PRIMARY KEY NOT NULL,
-	"user_id" integer NOT NULL,
-	"provider" text NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
+	"user_id" uuid NOT NULL,
+	"provider" "messaging_provider" NOT NULL,
 	"access_token" text NOT NULL,
 	"refresh_token" text,
 	"channel_id" text NOT NULL,
@@ -64,7 +67,7 @@ CREATE TABLE "messaging_providers" (
 );
 --> statement-breakpoint
 CREATE TABLE "users" (
-	"id" serial PRIMARY KEY NOT NULL,
+	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
 	"clerk_id" text NOT NULL,
 	"email" text NOT NULL,
 	"created_at" timestamp DEFAULT now(),

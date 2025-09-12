@@ -1,78 +1,7 @@
 import { Context, Next } from "hono";
-import { upsertUser } from "../database/queries/users.js";
-
-// Clerk session token verification
-export async function verifyClerkToken(token: string): Promise<any> {
-  if (!process.env.CLERK_SECRET_KEY) {
-    throw new Error("CLERK_SECRET_KEY is not configured");
-  }
-
-  try {
-    // Use the correct Clerk API endpoint for JWT verification
-    const response = await fetch(
-      `https://api.clerk.com/v1/sessions/${token}/verify`,
-      {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
-          "Content-Type": "application/json",
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Clerk verification failed: ${response.status}`);
-    }
-
-    return await response.json();
-  } catch (error) {
-    console.error("Clerk token verification error:", error);
-    throw error;
-  }
-}
-
-// Get user from Clerk session
-export async function getClerkUser(sessionId: string): Promise<any> {
-  if (!process.env.CLERK_SECRET_KEY) {
-    throw new Error("CLERK_SECRET_KEY is not configured");
-  }
-
-  try {
-    const response = await fetch(
-      `https://api.clerk.com/v1/sessions/${sessionId}`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
-        },
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to get Clerk session: ${response.status}`);
-    }
-
-    const session = await response.json();
-
-    // Get user details
-    const userResponse = await fetch(
-      `https://api.clerk.com/v1/users/${session.user_id}`,
-      {
-        headers: {
-          Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
-        },
-      }
-    );
-
-    if (!userResponse.ok) {
-      throw new Error(`Failed to get Clerk user: ${userResponse.status}`);
-    }
-
-    return await userResponse.json();
-  } catch (error) {
-    console.error("Clerk user fetch error:", error);
-    throw error;
-  }
-}
+import { getAuth } from "@hono/clerk-auth";
+import { upsertUser, getUserByClerkId } from "../database/queries/users";
+import type { User } from "../database/schema";
 
 // Get user by ID from Clerk
 export async function getClerkUserById(userId: string): Promise<any> {
@@ -98,61 +27,71 @@ export async function getClerkUserById(userId: string): Promise<any> {
   }
 }
 
-// Create or update user in database
-export async function createOrUpdateUser(clerkUser: any) {
+// Create user in database (only called when user doesn't exist)
+async function createUserInDatabase(clerkUser: any) {
   const email = clerkUser.email_addresses?.[0]?.email_address;
 
   if (!email) {
     throw new Error("User email not found in Clerk data");
   }
 
-  try {
-    console.log("🔄 Upserting user:", { clerkId: clerkUser.id, email });
-    const result = await upsertUser({
-      clerkId: clerkUser.id,
-      email,
-    });
-    console.log("✅ User upserted successfully:", result);
-    return result;
-  } catch (error) {
-    console.error("❌ Database user creation/update error:", error);
-    throw error;
-  }
+  console.log("🔄 Creating user in database:", {
+    clerkId: clerkUser.id,
+    email,
+  });
+  const result = await upsertUser({
+    clerkId: clerkUser.id,
+    email,
+  });
+  console.log("✅ User created successfully:", result);
+  return result;
 }
 
-// Authentication middleware for protected routes
-export function clerkMiddleware() {
+// Define the context variables that our auth middleware adds
+export type AuthVariables = {
+  user: User;
+  clerkUserId: string;
+};
+
+// Custom middleware to ensure user exists in our database
+export function requireAuth() {
   return async (c: Context, next: Next) => {
     try {
-      // Get session token from Authorization header
-      const authHeader = c.req.header("Authorization");
-      const sessionToken = authHeader?.replace("Bearer ", "");
+      // Get auth from Clerk middleware (must be used after clerkMiddleware)
+      const auth = getAuth(c);
 
-      if (!sessionToken) {
+      if (!auth?.userId) {
         return c.json({ error: "Authentication required" }, 401);
       }
 
-      // Verify the session token with Clerk
-      const sessionData = await verifyClerkToken(sessionToken);
+      // Try to get user from our database first
+      let dbUser = await getUserByClerkId(auth.userId);
 
-      if (!sessionData || !sessionData.user_id) {
-        return c.json({ error: "Invalid session" }, 401);
+      if (!dbUser) {
+        // User doesn't exist in our DB, create them
+        console.log("User not found in DB, creating...", auth.userId);
+
+        // Get user details from Clerk
+        // Since we're behind clerkMiddleware, the user should exist in Clerk
+        const clerkUser = await getClerkUserById(auth.userId);
+
+        // This should rarely happen, but handle gracefully if it does
+        if (!clerkUser) {
+          console.error(
+            "User authenticated by Clerk but not found in Clerk API:",
+            auth.userId
+          );
+          return c.json({ error: "Authentication error" }, 500);
+        }
+
+        // Create user in our database
+        dbUser = await createUserInDatabase(clerkUser);
       }
-
-      // Get user details from Clerk
-      const clerkUser = await getClerkUserById(sessionData.user_id);
-
-      if (!clerkUser) {
-        return c.json({ error: "User not found" }, 401);
-      }
-
-      // Create or update user in our database
-      const dbUser = await createOrUpdateUser(clerkUser);
 
       // Add user information to context
       c.set("user", dbUser);
-      c.set("clerkUser", clerkUser);
       c.set("userId", dbUser.id);
+      c.set("clerkUserId", auth.userId);
 
       await next();
     } catch (error) {
@@ -164,10 +103,10 @@ export function clerkMiddleware() {
 
 // Helper to get current user from context
 export function getCurrentUser(c: Context) {
-  return c.get("user");
+  return c.get("user") as User;
 }
 
 // Helper to get current user ID from context
-export function getCurrentUserId(c: Context): number {
-  return c.get("userId");
+export function getCurrentUserId(c: Context) {
+  return c.get("userId") as number;
 }

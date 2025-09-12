@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 interface Provider {
   id: string;
@@ -19,6 +19,17 @@ export default function ProviderConnectionModal({
 }: ProviderConnectionModalProps): React.ReactElement {
   const [selectedProviderType, setSelectedProviderType] = useState("");
   const [apiKey, setApiKey] = useState("");
+
+  useEffect(() => {
+    const handleEscKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") {
+        onClose();
+      }
+    };
+
+    document.addEventListener("keydown", handleEscKey);
+    return () => document.removeEventListener("keydown", handleEscKey);
+  }, [onClose]);
 
   const gitProviders = [
     { id: "github", name: "GitHub" },

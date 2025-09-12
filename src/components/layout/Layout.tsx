@@ -14,8 +14,8 @@ export default function Layout({
           <div className="logo">
             <Link to="/">
               <img
-                src="/images/logo-horizontal.jpg"
-                alt="Git Messaging Scheduler"
+                src="/images/hotbot-l.svg"
+                alt="HotBot"
                 className="logo-image"
               />
             </Link>
@@ -32,10 +32,7 @@ export default function Layout({
 
       <footer>
         <div className="container">
-          <p>
-            &copy; 2025 Git Messaging Scheduler. Never wait for a code review
-            again.
-          </p>
+          <p>&copy; 2025 HotBot. Never wait for a code review again.</p>
         </div>
       </footer>
     </div>

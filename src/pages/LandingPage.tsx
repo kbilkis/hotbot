@@ -1,4 +1,5 @@
 import React, { useEffect } from "react";
+import { Link } from "react-router-dom";
 
 export default function LandingPage(): React.ReactElement {
   useEffect(() => {
@@ -24,7 +25,9 @@ export default function LandingPage(): React.ReactElement {
             <h1>Never miss a code review again.</h1>
             <p>Automate pull request nudges across your tools.</p>
             <div className="hero-buttons">
-              <button className="cta-primary">Schedule nudges</button>
+              <Link to="/dashboard">
+                <button className="cta-primary">Schedule nudges</button>
+              </Link>
               <button className="cta-secondary">Learn more</button>
             </div>
             <p className="hero-subtitle">Free trial - No credit card</p>
@@ -67,7 +70,15 @@ export default function LandingPage(): React.ReactElement {
       {/* How It Works Section */}
       <section className="how-it-works">
         <div className="container">
-          <h2>How HotBot Works</h2>
+          <h2 className="hero-title">
+            How
+            <img
+              src="/images/hotbot-h.svg"
+              alt="HotBot"
+              className="logo-image-inline"
+            />
+            Works
+          </h2>
 
           <div className="steps">
             <div className="step">

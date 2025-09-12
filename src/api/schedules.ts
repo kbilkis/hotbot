@@ -2,7 +2,7 @@ import { Hono } from "hono";
 
 const app = new Hono();
 
-// GET /api/cron-jobs - List all cron jobs
+// GET /api/schedules - List all cron jobs
 app.get("/", (c) => {
   return c.json({
     jobs: [
@@ -19,7 +19,7 @@ app.get("/", (c) => {
   });
 });
 
-// POST /api/cron-jobs - Create a new cron job
+// POST /api/schedules - Create a new cron job
 app.post("/", async (c) => {
   const body = await c.req.json();
   return c.json(
@@ -36,7 +36,7 @@ app.post("/", async (c) => {
   );
 });
 
-// PUT /api/cron-jobs/:id - Update a cron job
+// PUT /api/schedules/:id - Update a cron job
 app.put("/:id", async (c) => {
   const id = c.req.param("id");
   const body = await c.req.json();
@@ -46,7 +46,7 @@ app.put("/:id", async (c) => {
   });
 });
 
-// DELETE /api/cron-jobs/:id - Delete a cron job
+// DELETE /api/schedules/:id - Delete a cron job
 app.delete("/:id", (c) => {
   const id = c.req.param("id");
   return c.json({
@@ -54,7 +54,7 @@ app.delete("/:id", (c) => {
   });
 });
 
-// POST /api/cron-jobs/:id/toggle - Enable/disable a cron job
+// POST /api/schedules/:id/toggle - Enable/disable a cron job
 app.post("/:id/toggle", (c) => {
   const id = c.req.param("id");
   return c.json({
