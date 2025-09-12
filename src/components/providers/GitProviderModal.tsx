@@ -11,10 +11,20 @@ export default function GitProviderModal({
   provider,
   onClose,
 }: GitProviderModalProps): React.ReactElement {
-  const [accessToken, setAccessToken] = useState("");
-  const [repositoryUrl, setRepositoryUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [repositories, setRepositories] = useState<string[]>([]);
+  const [repositoriesLoading, setRepositoriesLoading] = useState(false);
+  const [repositoriesError, setRepositoriesError] = useState<string | null>(
+    null
+  );
+  const [showAllRepositories, setShowAllRepositories] = useState(false);
+  const [connectionMethod, setConnectionMethod] = useState<"oauth" | "manual">(
+    "oauth"
+  );
+  const [showManualOption, setShowManualOption] = useState(false);
+  const [accessToken, setAccessToken] = useState("");
+  const [isConnected, setIsConnected] = useState(provider.connected);
 
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
@@ -27,6 +37,67 @@ export default function GitProviderModal({
     return () => document.removeEventListener("keydown", handleEscKey);
   }, [onClose]);
 
+  // Fetch repositories when modal opens for connected providers
+  useEffect(() => {
+    if (isConnected) {
+      fetchRepositories();
+    }
+  }, [isConnected]);
+
+  const getFineGrainedTokenUrl = () => {
+    const urls = {
+      github: "https://github.com/settings/personal-access-tokens/new",
+      gitlab: "https://gitlab.com/-/profile/personal_access_tokens",
+      bitbucket: "https://bitbucket.org/account/settings/app-passwords/new",
+    };
+    return urls[provider.provider];
+  };
+
+  const getClassicTokenUrl = () => {
+    const urls = {
+      github:
+        "https://github.com/settings/tokens/new?scopes=repo,read:user,read:org&description=Git%20Messaging%20Scheduler",
+      gitlab: "https://gitlab.com/-/profile/personal_access_tokens",
+      bitbucket: "https://bitbucket.org/account/settings/app-passwords/new",
+    };
+    return urls[provider.provider];
+  };
+
+  const fetchRepositories = async () => {
+    try {
+      setRepositoriesLoading(true);
+      setRepositoriesError(null);
+
+      const response = await fetch(
+        `/api/providers/git/${provider.provider}/repositories`
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = `Request failed: ${response.status}`;
+
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch {
+          errorMessage = errorText || errorMessage;
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      setRepositories(data.data?.repositories || []);
+    } catch (err) {
+      console.error("Failed to fetch repositories:", err);
+      setRepositoriesError(
+        err instanceof Error ? err.message : "Failed to fetch repositories"
+      );
+    } finally {
+      setRepositoriesLoading(false);
+    }
+  };
+
   const providerConfig = {
     github: { name: "GitHub", placeholder: "ghp_xxxxxxxxxxxxxxxxxxxx" },
     gitlab: { name: "GitLab", placeholder: "glpat-xxxxxxxxxxxxxxxxxxxx" },
@@ -35,7 +106,58 @@ export default function GitProviderModal({
 
   const config = providerConfig[provider.provider];
 
-  const handleConnect = async () => {
+  const handleOAuthConnect = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Get the current URL for redirect
+      const redirectUri = `${window.location.origin}/auth/callback/${provider.provider}`;
+
+      // Get OAuth authorization URL
+      const response = await fetch(
+        `/api/providers/git/${provider.provider}/auth-url`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            redirectUri,
+            scopes: ["repo", "read:user", "read:org"], // Full access including private repos and org info
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log("AUTH_URL RESP BAD", errorText);
+        let errorMessage = `Request failed: ${response.status}`;
+
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch {
+          errorMessage = errorText || errorMessage;
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      console.log("AUTH_URL RESP GOOD", data);
+      // Redirect to GitHub OAuth page
+      window.location.href = data.authUrl;
+    } catch (err) {
+      console.error("Failed to initiate OAuth:", err);
+      setError(
+        err instanceof Error ? err.message : "Failed to connect provider"
+      );
+      setLoading(false);
+    }
+  };
+
+  const handleManualConnect = async () => {
     if (!accessToken.trim()) {
       setError("Access token is required");
       return;
@@ -45,9 +167,9 @@ export default function GitProviderModal({
       setLoading(true);
       setError(null);
 
-      // Call the connect API endpoint
+      // Call the manual connect API endpoint (we need to create this)
       const response = await fetch(
-        `/api/providers/git/${provider.provider}/connect`,
+        `/api/providers/git/${provider.provider}/connect-manual`,
         {
           method: "POST",
           headers: {
@@ -55,7 +177,6 @@ export default function GitProviderModal({
           },
           body: JSON.stringify({
             accessToken: accessToken.trim(),
-            repositoryUrl: repositoryUrl.trim() || undefined,
           }),
         }
       );
@@ -80,7 +201,15 @@ export default function GitProviderModal({
       // Invalidate SWR cache to refresh provider data
       await mutate("/api/providers/git");
 
-      onClose();
+      // Update local connection state to show manage view
+      setIsConnected(true);
+
+      // Don't close modal automatically - let user see repositories
+      // Clear the token input for security
+      setAccessToken("");
+
+      // Fetch repositories to show what we have access to
+      fetchRepositories();
     } catch (err) {
       console.error("Failed to connect git provider:", err);
       setError(
@@ -98,7 +227,7 @@ export default function GitProviderModal({
 
       // Call the disconnect API endpoint
       const response = await fetch(
-        `/api/providers/git/${provider.provider}/disconnect`,
+        `/api/providers/git/disconnect?type=${provider.provider}`,
         {
           method: "DELETE",
         }
@@ -124,6 +253,10 @@ export default function GitProviderModal({
       // Invalidate SWR cache to refresh provider data
       await mutate("/api/providers/git");
 
+      // Update local connection state
+      setIsConnected(false);
+      setRepositories([]);
+
       onClose();
     } catch (err) {
       console.error("Failed to disconnect git provider:", err);
@@ -147,67 +280,210 @@ export default function GitProviderModal({
 
         <div className="modal-body">
           <p className="modal-description">
-            {provider.connected
+            {isConnected
               ? `Manage your ${config.name} connection and settings.`
               : `Connect your ${config.name} account to receive notifications for pull requests and repository events.`}
           </p>
 
-          {error && <div className="error-message">{error}</div>}
-
           <div className="form-group">
             <div className="provider-display">
-              {provider.connected && (
+              {isConnected && (
                 <span className="connection-status connected">✓ Connected</span>
               )}
             </div>
           </div>
 
-          {!provider.connected && (
+          {isConnected && (
             <div className="form-group">
-              <label htmlFor="access-token">
-                Access Token <span className="required">*</span>
-              </label>
-              <div className="input-with-icon">
-                <span className="input-icon">🔑</span>
-                <input
-                  id="access-token"
-                  type="password"
-                  className="form-input"
-                  placeholder={config.placeholder}
-                  value={accessToken}
-                  onChange={(e) => setAccessToken(e.target.value)}
-                />
+              <label>Accessible Repositories</label>
+              <div className="repositories-section">
+                {repositoriesLoading && (
+                  <div className="repositories-loading">
+                    <span>Loading repositories...</span>
+                  </div>
+                )}
+
+                {repositoriesError && (
+                  <div className="repositories-error">
+                    <span>Error loading repositories: {repositoriesError}</span>
+                    <button
+                      className="retry-button"
+                      onClick={fetchRepositories}
+                      disabled={repositoriesLoading}
+                    >
+                      Retry
+                    </button>
+                  </div>
+                )}
+
+                {!repositoriesLoading &&
+                  !repositoriesError &&
+                  repositories.length > 0 && (
+                    <div className="repositories-list">
+                      <div className="repositories-count">
+                        {repositories.length} repositories accessible
+                      </div>
+                      <div className="repositories-container">
+                        {(showAllRepositories
+                          ? repositories
+                          : repositories.slice(0, 10)
+                        ).map((repo) => (
+                          <div key={repo} className="repository-item">
+                            <span className="repo-icon">📁</span>
+                            <span className="repo-name">{repo}</span>
+                          </div>
+                        ))}
+                        {repositories.length > 10 && !showAllRepositories && (
+                          <button
+                            className="show-more-button"
+                            onClick={() => setShowAllRepositories(true)}
+                          >
+                            ⋯ Show {repositories.length - 10} more repositories
+                          </button>
+                        )}
+                        {showAllRepositories && repositories.length > 10 && (
+                          <button
+                            className="show-less-button"
+                            onClick={() => setShowAllRepositories(false)}
+                          >
+                            Show less
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                {!repositoriesLoading &&
+                  !repositoriesError &&
+                  repositories.length === 0 && (
+                    <div className="repositories-empty">
+                      <span>No repositories found</span>
+                    </div>
+                  )}
               </div>
-              <small className="form-help">
-                Generate a personal access token from your {config.name}{" "}
-                settings
-              </small>
             </div>
           )}
 
-          <div className="form-group">
-            <label htmlFor="repository-url">
-              Repository URL <span className="optional">(Optional)</span>
-            </label>
-            <div className="input-with-icon">
-              <span className="input-icon">📁</span>
-              <input
-                id="repository-url"
-                type="url"
-                className="form-input"
-                placeholder="https://github.com/username/repository"
-                value={repositoryUrl}
-                onChange={(e) => setRepositoryUrl(e.target.value)}
-              />
+          {!isConnected && (
+            <div className="form-group">
+              {/* Primary OAuth connection - always visible */}
+              <div className="primary-connection-section">
+                {error && connectionMethod === "oauth" && (
+                  <div className="error-message prominent-error">{error}</div>
+                )}
+                <button
+                  className="oauth-connect-button primary"
+                  onClick={handleOAuthConnect}
+                  disabled={loading}
+                >
+                  {loading
+                    ? "Redirecting to GitHub..."
+                    : `Continue with ${config.name}`}
+                </button>
+                <small className="form-help oauth-help">
+                  🔒 Secure OAuth 2.0 authorization - you'll be redirected to{" "}
+                  {config.name} to grant repository access permissions.
+                </small>
+              </div>
+
+              {/* Alternative connection option - hidden by default */}
+              <div className="alternative-connection-section">
+                {!showManualOption ? (
+                  <button
+                    className="show-alternative-button"
+                    onClick={() => {
+                      setShowManualOption(true);
+                      setConnectionMethod("manual");
+                    }}
+                    disabled={loading}
+                  >
+                    Use personal access token instead
+                  </button>
+                ) : (
+                  <div className="manual-connection-wrapper">
+                    <div className="alternative-header">
+                      <span>Alternative: Personal Access Token</span>
+                      <button
+                        className="hide-alternative-button"
+                        onClick={() => {
+                          setShowManualOption(false);
+                          setConnectionMethod("oauth");
+                          setAccessToken("");
+                          setError(null);
+                        }}
+                        disabled={loading}
+                      >
+                        ← Back to OAuth
+                      </button>
+                    </div>
+
+                    <div className="manual-connect-section">
+                      <div className="token-input-group">
+                        <label htmlFor="access-token">
+                          Personal Access Token{" "}
+                          <span className="required">*</span>
+                        </label>
+                        <div className="input-with-icon">
+                          <span className="input-icon">🔑</span>
+                          <input
+                            id="access-token"
+                            type="password"
+                            className="form-input"
+                            placeholder={config.placeholder}
+                            value={accessToken}
+                            onChange={(e) => setAccessToken(e.target.value)}
+                          />
+                        </div>
+                        <div className="token-help">
+                          <div className="token-option">
+                            <strong>Option 1 (Recommended):</strong>{" "}
+                            <a
+                              href={getFineGrainedTokenUrl()}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="help-link"
+                            >
+                              Create a fine-grained token
+                            </a>{" "}
+                            with repository access and Contents, Metadata, and
+                            Pull requests permissions.
+                          </div>
+                          <div className="token-option">
+                            <strong>Option 2 (Quick):</strong>{" "}
+                            <a
+                              href={getClassicTokenUrl()}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="help-link"
+                            >
+                              Create a classic token
+                            </a>{" "}
+                            (pre-configured with required scopes).
+                          </div>
+                        </div>
+                      </div>
+                      {error && connectionMethod === "manual" && (
+                        <div className="error-message prominent-error">
+                          {error}
+                        </div>
+                      )}
+                      <button
+                        className="manual-connect-button"
+                        onClick={handleManualConnect}
+                        disabled={!accessToken.trim() || loading}
+                      >
+                        {loading ? "Connecting..." : `Connect with Token`}
+                      </button>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
-            <small className="form-help">
-              Leave empty to monitor all repositories you have access to
-            </small>
-          </div>
+          )}
         </div>
 
         <div className="modal-footer">
-          {provider.connected ? (
+          {isConnected ? (
             <button
               className="disconnect-button"
               onClick={handleDisconnect}
@@ -217,11 +493,11 @@ export default function GitProviderModal({
             </button>
           ) : (
             <button
-              className="connect-button-modal"
-              onClick={handleConnect}
-              disabled={!accessToken.trim() || loading}
+              className="cancel-button"
+              onClick={onClose}
+              disabled={loading}
             >
-              {loading ? "Connecting..." : `Connect ${config.name}`}
+              Cancel
             </button>
           )}
         </div>

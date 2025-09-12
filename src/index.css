@@ -1458,6 +1458,448 @@ footer {
   cursor: not-allowed;
 }
 
+.oauth-connect-section {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.oauth-connect-button {
+  background: #24292f;
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+}
+
+.oauth-connect-button:hover:not(:disabled) {
+  background: #1c2128;
+  transform: translateY(-1px);
+}
+
+.oauth-connect-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.oauth-connect-button.primary {
+  background: #10b981;
+}
+
+.oauth-connect-button.primary:hover:not(:disabled) {
+  background: #059669;
+}
+
+.access-level-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.access-level-info {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.access-option {
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.access-option:last-child {
+  margin-bottom: 0;
+}
+
+.access-option strong {
+  color: #374151;
+}
+
+/* Repositories Section */
+.repositories-section {
+  margin-top: 0.5rem;
+}
+
+.repositories-loading,
+.repositories-error,
+.repositories-empty {
+  padding: 1rem;
+  text-align: center;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.repositories-error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+.retry-button {
+  margin-left: 0.5rem;
+  padding: 0.25rem 0.5rem;
+  background: #dc2626;
+  color: white;
+  border: none;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.retry-button:hover:not(:disabled) {
+  background: #b91c1c;
+}
+
+.retry-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.repositories-count {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin-bottom: 0.75rem;
+}
+
+.repositories-container {
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.repository-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  font-size: 0.875rem;
+  transition: background 0.2s;
+}
+
+.repository-item:hover {
+  background: #f8fafc;
+}
+
+.repository-item:last-child {
+  border-bottom: none;
+}
+
+.show-more-button,
+.show-less-button {
+  width: 100%;
+  padding: 0.75rem;
+  margin-top: 0.5rem;
+  background: transparent;
+  color: #64748b;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.show-more-button:hover,
+.show-less-button:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #475569;
+}
+
+/* Primary Connection Section */
+.primary-connection-section {
+  margin-bottom: 1.5rem;
+}
+
+.oauth-connect-button.primary {
+  width: 100%;
+  background: #24292f;
+  color: white;
+  border: 1px solid #1f2328;
+  padding: 0.875rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+  position: relative;
+}
+
+.oauth-connect-button.primary::before {
+  content: "🐙";
+  font-size: 1.125rem;
+}
+
+.oauth-connect-button.primary:hover:not(:disabled) {
+  background: #32383f;
+  border-color: #424a53;
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.16), 0 3px 6px rgba(0, 0, 0, 0.23);
+  transform: translateY(-1px);
+}
+
+.oauth-connect-button.primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
+}
+
+.oauth-connect-button.primary:disabled {
+  background: #8b949e;
+  border-color: #8b949e;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.oauth-help {
+  display: block;
+  text-align: center;
+  margin-top: 0.75rem;
+  color: #656d76;
+  font-weight: 400;
+  font-size: 0.875rem;
+}
+
+/* Alternative Connection Section */
+.alternative-connection-section {
+  border-top: 1px solid #e5e7eb;
+  padding-top: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.show-alternative-button {
+  width: 100%;
+  background: transparent;
+  color: #6b7280;
+  border: 1px dashed #d1d5db;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.show-alternative-button:hover:not(:disabled) {
+  border-color: #9ca3af;
+  color: #4b5563;
+  background: #f9fafb;
+}
+
+.show-alternative-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.manual-connection-wrapper {
+  animation: slideDown 0.3s ease-out;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.alternative-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.alternative-header span {
+  font-weight: 600;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.hide-alternative-button {
+  background: transparent;
+  color: #6b7280;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.hide-alternative-button:hover:not(:disabled) {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.hide-alternative-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+/* Manual Connect Section */
+.manual-connect-section {
+  margin-top: 1rem;
+}
+
+.token-help {
+  margin-top: 0.5rem;
+}
+
+.token-option {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.token-option:last-child {
+  margin-bottom: 0;
+}
+
+.token-input-group {
+  margin-bottom: 1rem;
+}
+
+.manual-connect-button {
+  width: 100%;
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.manual-connect-button:hover:not(:disabled) {
+  background: #059669;
+  transform: translateY(-1px);
+}
+
+.manual-connect-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.help-link {
+  color: #10b981;
+  text-decoration: none;
+}
+
+.help-link:hover {
+  text-decoration: underline;
+}
+
+.repo-icon {
+  font-size: 1rem;
+  flex-shrink: 0;
+}
+
+.repo-name {
+  font-family: "SF Mono", "Monaco", "Inconsolata", "Roboto Mono", monospace;
+  font-size: 0.8125rem;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* Error Message Styles */
+.error-message {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.75rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  margin-bottom: 1rem;
+}
+
+.error-message.prominent-error {
+  background: #fee2e2;
+  border: 2px solid #fca5a5;
+  color: #b91c1c;
+  font-weight: 500;
+  box-shadow: 0 4px 6px -1px rgba(220, 38, 38, 0.1);
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-4px);
+  }
+  75% {
+    transform: translateX(4px);
+  }
+}
+
+/* Auth Callback Styles */
+.auth-callback-container {
+  min-height: calc(100vh - 160px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.auth-callback-content {
+  text-align: center;
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 1rem;
+  padding: 3rem;
+  max-width: 500px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+}
+
+.auth-callback-content h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 1rem 0;
+}
+
+.auth-callback-content p {
+  color: #6b7280;
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+.loading-spinner,
+.success-icon,
+.error-icon {
+  font-size: 3rem;
+  margin-bottom: 1rem;
+}
+
 /* Responsive Dashboard */
 @media (max-width: 768px) {
   .section-header {

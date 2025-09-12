@@ -8,6 +8,7 @@ import {
   jsonb,
   uuid,
   pgEnum,
+  unique,
 } from "drizzle-orm/pg-core";
 
 // Define enums
@@ -37,35 +38,53 @@ export const users = pgTable("users", {
 });
 
 // Git provider connections
-export const gitProviders = pgTable("git_providers", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  provider: gitProviderEnum("provider").notNull(),
-  accessToken: text("access_token").notNull(),
-  refreshToken: text("refresh_token"),
-  expiresAt: timestamp("expires_at"),
-  repositories: jsonb("repositories").$type<string[]>(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+export const gitProviders = pgTable(
+  "git_providers",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    provider: gitProviderEnum("provider").notNull(),
+    accessToken: text("access_token").notNull(),
+    refreshToken: text("refresh_token"),
+    expiresAt: timestamp("expires_at"),
+    repositories: jsonb("repositories").$type<string[]>(),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (table) => ({
+    // Unique constraint: one provider per user
+    userProviderUnique: unique().on(table.userId, table.provider),
+  })
+);
 
 // Messaging provider connections
-export const messagingProviders = pgTable("messaging_providers", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  provider: messagingProviderEnum("provider").notNull(),
-  accessToken: text("access_token").notNull(),
-  refreshToken: text("refresh_token"),
-  channelId: text("channel_id").notNull(),
-  channelName: text("channel_name"),
-  expiresAt: timestamp("expires_at"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+export const messagingProviders = pgTable(
+  "messaging_providers",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    userId: uuid("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    provider: messagingProviderEnum("provider").notNull(),
+    accessToken: text("access_token").notNull(),
+    refreshToken: text("refresh_token"),
+    channelId: text("channel_id").notNull(),
+    channelName: text("channel_name"),
+    expiresAt: timestamp("expires_at"),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (table) => ({
+    // Unique constraint: one provider+channel per user
+    userProviderChannelUnique: unique().on(
+      table.userId,
+      table.provider,
+      table.channelId
+    ),
+  })
+);
 
 // PR filters type definition
 export interface PRFilters {
@@ -120,18 +139,25 @@ export const executionLogs = pgTable("execution_logs", {
 });
 
 // Escalation tracking - prevents duplicate escalation notifications
-export const escalationTracking = pgTable("escalation_tracking", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  cronJobId: uuid("cron_job_id")
-    .references(() => cronJobs.id, { onDelete: "cascade" })
-    .notNull(),
-  pullRequestId: text("pull_request_id").notNull(), // External PR ID from git provider
-  pullRequestUrl: text("pull_request_url").notNull(),
-  firstEscalatedAt: timestamp("first_escalated_at").defaultNow(),
-  lastEscalatedAt: timestamp("last_escalated_at").defaultNow(),
-  escalationCount: integer("escalation_count").default(1),
-  createdAt: timestamp("created_at").defaultNow(),
-});
+export const escalationTracking = pgTable(
+  "escalation_tracking",
+  {
+    id: uuid("id").defaultRandom().primaryKey(),
+    cronJobId: uuid("cron_job_id")
+      .references(() => cronJobs.id, { onDelete: "cascade" })
+      .notNull(),
+    pullRequestId: text("pull_request_id").notNull(), // External PR ID from git provider
+    pullRequestUrl: text("pull_request_url").notNull(),
+    firstEscalatedAt: timestamp("first_escalated_at").defaultNow(),
+    lastEscalatedAt: timestamp("last_escalated_at").defaultNow(),
+    escalationCount: integer("escalation_count").default(1),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (table) => ({
+    // Unique constraint: one escalation tracking per cron job + pull request
+    cronJobPullRequestUnique: unique().on(table.cronJobId, table.pullRequestId),
+  })
+);
 
 // Export types for use in application
 export type User = typeof users.$inferSelect;

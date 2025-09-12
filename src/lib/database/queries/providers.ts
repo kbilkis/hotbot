@@ -42,7 +42,7 @@ export async function upsertGitProvider(
  * Get all git providers for a user
  */
 export async function getUserGitProviders(
-  userId: number
+  userId: string
 ): Promise<GitProvider[]> {
   return await db
     .select()
@@ -54,7 +54,7 @@ export async function getUserGitProviders(
  * Get specific git provider for a user
  */
 export async function getUserGitProvider(
-  userId: number,
+  userId: string,
   provider: "github" | "bitbucket" | "gitlab"
 ): Promise<GitProvider | null> {
   const [result] = await db
@@ -72,7 +72,7 @@ export async function getUserGitProvider(
  * Get git provider by ID
  */
 export async function getGitProviderById(
-  id: number
+  id: string
 ): Promise<GitProvider | null> {
   const [provider] = await db
     .select()
@@ -87,7 +87,7 @@ export async function getGitProviderById(
  * Update git provider tokens
  */
 export async function updateGitProviderTokens(
-  id: number,
+  id: string,
   tokens: {
     accessToken: string;
     refreshToken?: string;
@@ -110,7 +110,7 @@ export async function updateGitProviderTokens(
  * Delete git provider connection
  */
 export async function deleteGitProvider(
-  userId: number,
+  userId: string,
   provider: "github" | "bitbucket" | "gitlab"
 ): Promise<boolean> {
   const result = await db
@@ -159,7 +159,7 @@ export async function upsertMessagingProvider(
  * Get all messaging providers for a user
  */
 export async function getUserMessagingProviders(
-  userId: number
+  userId: string
 ): Promise<MessagingProvider[]> {
   return await db
     .select()
@@ -171,7 +171,7 @@ export async function getUserMessagingProviders(
  * Get specific messaging provider for a user
  */
 export async function getUserMessagingProvider(
-  userId: number,
+  userId: string,
   provider: "slack" | "teams" | "discord",
   channelId?: string
 ): Promise<MessagingProvider | null> {
@@ -197,7 +197,7 @@ export async function getUserMessagingProvider(
  * Get messaging provider by ID
  */
 export async function getMessagingProviderById(
-  id: number
+  id: string
 ): Promise<MessagingProvider | null> {
   const [provider] = await db
     .select()
@@ -212,7 +212,7 @@ export async function getMessagingProviderById(
  * Update messaging provider tokens
  */
 export async function updateMessagingProviderTokens(
-  id: number,
+  id: string,
   tokens: {
     accessToken: string;
     refreshToken?: string;
@@ -235,7 +235,7 @@ export async function updateMessagingProviderTokens(
  * Delete messaging provider connection
  */
 export async function deleteMessagingProvider(
-  userId: number,
+  userId: string,
   provider: "slack" | "teams" | "discord",
   channelId?: string
 ): Promise<boolean> {

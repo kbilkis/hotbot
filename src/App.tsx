@@ -4,6 +4,7 @@ import { SWRConfig } from "swr";
 import Layout from "./components/layout/Layout";
 import LandingPage from "./pages/LandingPage";
 import Dashboard from "./pages/Dashboard";
+import AuthCallback from "./pages/AuthCallback";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 
 function App() {
@@ -29,6 +30,14 @@ function App() {
                 element={
                   <ProtectedRoute>
                     <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/auth/callback/:provider"
+                element={
+                  <ProtectedRoute>
+                    <AuthCallback />
                   </ProtectedRoute>
                 }
               />

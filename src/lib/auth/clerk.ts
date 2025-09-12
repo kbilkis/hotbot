@@ -108,5 +108,5 @@ export function getCurrentUser(c: Context) {
 
 // Helper to get current user ID from context
 export function getCurrentUserId(c: Context) {
-  return c.get("userId") as number;
+  return c.get("userId") as string;
 }

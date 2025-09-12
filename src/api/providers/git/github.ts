@@ -1,17 +1,15 @@
 // GitHub provider API routes - simple functional approach
 
 import { Hono } from "hono";
-import { type } from "arktype";
+
 import { arktypeValidator } from "@hono/arktype-validator";
 import {
   GitHubAuthUrlSchema,
   GitHubTokenExchangeSchema,
   GitHubFetchPRsSchema,
-  AuthUrlResponseSchema,
-  TokenResponseSchema,
   ErrorResponseSchema,
   SuccessResponseSchema,
-} from "../../lib/validation/provider-schemas";
+} from "../../../lib/validation/provider-schemas";
 import {
   getGitHubAuthUrl,
   exchangeGitHubToken,
@@ -19,7 +17,7 @@ import {
   getGitHubPullRequests,
   getGitHubUserInfo,
   validateGitHubToken,
-} from "../../lib/github";
+} from "../../../lib/github";
 import { getCurrentUserId } from "@/lib/auth/clerk";
 
 const app = new Hono();
@@ -45,22 +43,6 @@ function generateState(userId: string, redirectUri: string): string {
   return state;
 }
 
-function validateState(state: string) {
-  const stateData = oauthStates.get(state);
-  if (!stateData) return null;
-
-  // Check if expired
-  const now = new Date();
-  if (now.getTime() - stateData.createdAt.getTime() > 10 * 60 * 1000) {
-    oauthStates.delete(state);
-    return null;
-  }
-
-  // Remove after validation
-  oauthStates.delete(state);
-  return stateData;
-}
-
 // Routes
 app.post(
   "/auth-url",
@@ -73,9 +55,9 @@ app.post(
       // No need for manual validation since arktypeValidator handles it
 
       const state = generateState(userId.toString(), body.redirectUri);
-      const authUrl = getGitHubAuthUrl(state, body.redirectUri);
+      const authUrl = getGitHubAuthUrl(state, body.redirectUri, body.scopes);
 
-      return c.json(AuthUrlResponseSchema({ authUrl, state }));
+      return c.json({ authUrl, state });
     } catch (error) {
       console.error("GitHub auth URL generation failed:", error);
       return c.json(
@@ -95,21 +77,46 @@ app.post(
   async (c) => {
     try {
       const body = c.req.valid("json");
+      const userId = getCurrentUserId(c);
 
+      // Step 1: Exchange code for token with GitHub
       const tokenResponse = await exchangeGitHubToken(
         body.code,
         body.redirectUri
       );
 
-      return c.json(
-        TokenResponseSchema({
-          accessToken: tokenResponse.accessToken,
-          refreshToken: tokenResponse.refreshToken,
-          expiresAt: tokenResponse.expiresAt?.toISOString(),
-          scope: tokenResponse.scope,
-          tokenType: tokenResponse.tokenType,
-        })
+      // Step 2: Store token in database
+      const { upsertGitProvider } = await import(
+        "../../../lib/database/queries/providers"
       );
+
+      const providerData = {
+        userId,
+        provider: "github" as const,
+        accessToken: tokenResponse.accessToken,
+        refreshToken: tokenResponse.refreshToken || null,
+        expiresAt: tokenResponse.expiresAt || null,
+        repositories: null, // Will be set later in schedule configuration
+      };
+
+      const savedProvider = await upsertGitProvider(providerData);
+
+      // Step 3: Return success with provider data
+      return c.json({
+        success: true,
+        message: "Successfully connected to GitHub",
+        accessToken: tokenResponse.accessToken,
+        refreshToken: tokenResponse.refreshToken,
+        expiresAt: tokenResponse.expiresAt?.toISOString(),
+        scope: tokenResponse.scope,
+        tokenType: tokenResponse.tokenType,
+        provider: {
+          id: savedProvider.id,
+          provider: savedProvider.provider,
+          connected: true,
+          connectedAt: savedProvider.createdAt?.toISOString(),
+        },
+      });
     } catch (error) {
       console.error("GitHub token exchange failed:", error);
       return c.json(
@@ -125,6 +132,77 @@ app.post(
     }
   }
 );
+
+app.post("/connect-manual", async (c) => {
+  try {
+    const body = await c.req.json();
+    const userId = getCurrentUserId(c);
+
+    if (!body.accessToken) {
+      return c.json(
+        ErrorResponseSchema({
+          error: "Missing access token",
+          message: "Access token is required",
+        }),
+        400
+      );
+    }
+
+    // Validate the token by making a test API call
+    const testResponse = await fetch("https://api.github.com/user", {
+      headers: {
+        Authorization: `Bearer ${body.accessToken}`,
+        "User-Agent": "git-messaging-scheduler/1.0",
+      },
+    });
+
+    if (!testResponse.ok) {
+      return c.json(
+        ErrorResponseSchema({
+          error: "Invalid token",
+          message: "The provided access token is invalid or expired",
+        }),
+        401
+      );
+    }
+
+    // Store the token in database
+    const { upsertGitProvider } = await import(
+      "../../../lib/database/queries/providers"
+    );
+
+    const providerData = {
+      userId,
+      provider: "github" as const,
+      accessToken: body.accessToken,
+      refreshToken: null,
+      expiresAt: null,
+      repositories: null,
+    };
+
+    const savedProvider = await upsertGitProvider(providerData);
+
+    return c.json({
+      success: true,
+      message: "Successfully connected to GitHub",
+      provider: {
+        id: savedProvider.id,
+        provider: savedProvider.provider,
+        connected: true,
+        connectedAt: savedProvider.createdAt?.toISOString(),
+      },
+    });
+  } catch (error) {
+    console.error("GitHub manual connection failed:", error);
+    return c.json(
+      ErrorResponseSchema({
+        error: "Connection failed",
+        message: "Failed to connect with provided token",
+      }),
+      500
+    );
+  }
+});
 
 app.post("/validate-token", async (c) => {
   try {
@@ -164,19 +242,25 @@ app.post("/validate-token", async (c) => {
 
 app.get("/repositories", async (c) => {
   try {
-    const authHeader = c.req.header("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const userId = getCurrentUserId(c);
+
+    // Get the user's GitHub provider connection
+    const { getUserGitProvider } = await import(
+      "../../../lib/database/queries/providers"
+    );
+    const gitProvider = await getUserGitProvider(userId, "github");
+
+    if (!gitProvider) {
       return c.json(
         ErrorResponseSchema({
-          error: "Missing token",
-          message: "Authorization header with Bearer token required",
+          error: "Provider not connected",
+          message: "GitHub provider is not connected for this user",
         }),
-        401
+        404
       );
     }
 
-    const token = authHeader.substring(7);
-    const repositories = await getGitHubRepositories(token);
+    const repositories = await getGitHubRepositories(gitProvider.accessToken);
 
     return c.json(
       SuccessResponseSchema({

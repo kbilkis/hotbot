@@ -16,6 +16,10 @@ export interface GitHubPR {
   status: "open" | "closed" | "merged";
   reviewers?: string[];
   assignees?: string[];
+  reviewStates?: Record<string, string>; // reviewer -> APPROVED/CHANGES_REQUESTED/etc
+  hasApprovals?: boolean;
+  hasChangesRequested?: boolean;
+  checksStatus?: "pending" | "success" | "failure" | "error";
 }
 
 export interface PRFilters {
@@ -29,11 +33,15 @@ export interface PRFilters {
 }
 
 // Generate GitHub OAuth URL
-export function getGitHubAuthUrl(state: string, redirectUri: string): string {
+export function getGitHubAuthUrl(
+  state: string,
+  redirectUri: string,
+  scopes: string[] = ["repo", "read:user", "read:org"]
+): string {
   const params = new URLSearchParams({
     client_id: GITHUB_CLIENT_ID,
     redirect_uri: redirectUri,
-    scope: "repo read:user",
+    scope: scopes.join(" "),
     state,
     response_type: "code",
   });
@@ -143,21 +151,36 @@ export async function getGitHubPullRequests(
         token
       );
 
-      const mappedPRs: GitHubPR[] = prs.map((pr: any) => ({
-        id: pr.id.toString(),
-        title: pr.title,
-        author: pr.user.login,
-        url: pr.html_url,
-        createdAt: pr.created_at,
-        updatedAt: pr.updated_at,
-        repository: repo,
-        labels: pr.labels.map((label: any) => label.name),
-        tags: extractTagsFromPR(pr),
-        status: "open",
-        reviewers:
-          pr.requested_reviewers?.map((reviewer: any) => reviewer.login) || [],
-        assignees: pr.assignees?.map((assignee: any) => assignee.login) || [],
-      }));
+      const mappedPRs: GitHubPR[] = await Promise.all(
+        prs.map(async (pr: any) => {
+          // Get detailed review information
+          const reviews = await getDetailedReviewInfo(token, repo, pr.number);
+
+          return {
+            id: pr.id.toString(),
+            title: pr.title,
+            author: pr.user.login,
+            url: pr.html_url,
+            createdAt: pr.created_at,
+            updatedAt: pr.updated_at,
+            repository: repo,
+            labels: pr.labels.map((label: any) => label.name),
+            tags: extractTagsFromPR(pr),
+            status: determineStatus(pr, reviews),
+            reviewers: [
+              ...(pr.requested_reviewers?.map(
+                (reviewer: any) => reviewer.login
+              ) || []),
+              ...reviews.reviewers,
+            ],
+            assignees:
+              pr.assignees?.map((assignee: any) => assignee.login) || [],
+            reviewStates: reviews.reviewStates,
+            hasApprovals: reviews.hasApprovals,
+            hasChangesRequested: reviews.hasChangesRequested,
+          };
+        })
+      );
 
       allPRs.push(...mappedPRs);
     } catch (error) {
@@ -166,6 +189,62 @@ export async function getGitHubPullRequests(
   }
 
   return applyPRFilters(allPRs, filters);
+}
+
+// Get detailed review information
+async function getDetailedReviewInfo(
+  token: string,
+  repo: string,
+  prNumber: number
+) {
+  try {
+    const [reviews, checks] = await Promise.all([
+      githubApiRequest(`/repos/${repo}/pulls/${prNumber}/reviews`, token),
+      githubApiRequest(
+        `/repos/${repo}/pulls/${prNumber}/requested_reviewers`,
+        token
+      ).catch(() => ({ users: [], teams: [] })),
+    ]);
+
+    const reviewers = new Set<string>();
+    const reviewStates: Record<string, string> = {};
+
+    // Process reviews to get latest state from each reviewer
+    reviews.forEach((review: any) => {
+      if (review.user && review.state !== "COMMENTED") {
+        reviewers.add(review.user.login);
+        reviewStates[review.user.login] = review.state;
+      }
+    });
+
+    // Add requested reviewers
+    checks.users?.forEach((user: any) => reviewers.add(user.login));
+    checks.teams?.forEach((team: any) => reviewers.add(`team:${team.name}`));
+
+    return {
+      reviewers: Array.from(reviewers),
+      reviewStates,
+      hasApprovals: Object.values(reviewStates).includes("APPROVED"),
+      hasChangesRequested:
+        Object.values(reviewStates).includes("CHANGES_REQUESTED"),
+    };
+  } catch (error) {
+    console.warn(`Failed to fetch review info for ${repo}#${prNumber}:`, error);
+    return {
+      reviewers: [],
+      reviewStates: {},
+      hasApprovals: false,
+      hasChangesRequested: false,
+    };
+  }
+}
+
+// Determine PR status based on reviews and checks
+function determineStatus(pr: any, reviews: any): "open" | "closed" | "merged" {
+  if (pr.state === "closed") {
+    return pr.merged ? "merged" : "closed";
+  }
+  return "open";
 }
 
 // Extract tags from PR title and branch name
