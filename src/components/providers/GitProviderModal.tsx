@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { mutate } from "swr";
 import { GitProviderData } from "../../lib/validation/provider-schemas";
 
 interface GitProviderModalProps {
@@ -76,6 +77,9 @@ export default function GitProviderModal({
       const data = await response.json();
       console.log("Successfully connected git provider:", data);
 
+      // Invalidate SWR cache to refresh provider data
+      await mutate("/api/providers/git");
+
       onClose();
     } catch (err) {
       console.error("Failed to connect git provider:", err);
@@ -87,11 +91,55 @@ export default function GitProviderModal({
     }
   };
 
+  const handleDisconnect = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Call the disconnect API endpoint
+      const response = await fetch(
+        `/api/providers/git/${provider.provider}/disconnect`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = `Request failed: ${response.status}`;
+
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch {
+          errorMessage = errorText || errorMessage;
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      console.log("Successfully disconnected git provider:", data);
+
+      // Invalidate SWR cache to refresh provider data
+      await mutate("/api/providers/git");
+
+      onClose();
+    } catch (err) {
+      console.error("Failed to disconnect git provider:", err);
+      setError(
+        err instanceof Error ? err.message : "Failed to disconnect provider"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="modal-content" onClick={(e) => e.stopPropagation()}>
         <div className="modal-header">
-          <h2>Connect Git Provider</h2>
+          <h2>Connect {config.name} Provider</h2>
           <button className="modal-close" onClick={onClose}>
             ×
           </button>
@@ -107,9 +155,7 @@ export default function GitProviderModal({
           {error && <div className="error-message">{error}</div>}
 
           <div className="form-group">
-            <label htmlFor="git-provider-display">Git Provider</label>
             <div className="provider-display">
-              <span className="provider-name">{config.name}</span>
               {provider.connected && (
                 <span className="connection-status connected">✓ Connected</span>
               )}
@@ -162,14 +208,13 @@ export default function GitProviderModal({
 
         <div className="modal-footer">
           {provider.connected ? (
-            <div className="connected-actions">
-              <button className="disconnect-button" disabled={loading}>
-                Disconnect
-              </button>
-              <button className="update-button" disabled={loading}>
-                Update Settings
-              </button>
-            </div>
+            <button
+              className="disconnect-button"
+              onClick={handleDisconnect}
+              disabled={loading}
+            >
+              {loading ? "Disconnecting..." : "Disconnect"}
+            </button>
           ) : (
             <button
               className="connect-button-modal"

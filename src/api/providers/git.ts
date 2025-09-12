@@ -7,7 +7,10 @@ import {
   ErrorResponseSchema,
 } from "../../lib/validation/provider-schemas";
 import { getCurrentUserId } from "../../lib/auth/clerk";
-import { getUserGitProviders } from "../../lib/database/queries/providers";
+import {
+  getUserGitProviders,
+  deleteGitProvider,
+} from "../../lib/database/queries/providers";
 import githubRoutes from "./github";
 
 const app = new Hono();
@@ -123,16 +126,7 @@ app.post(
         },
       };
 
-      const validatedResponse = GitProviderResponseSchema(responseData);
-      if (validatedResponse instanceof GitProviderResponseSchema.errors) {
-        console.error("Response validation failed:", validatedResponse);
-        return c.json(
-          ErrorResponseSchema({ error: "Internal validation error" }),
-          500
-        );
-      }
-
-      return c.json(validatedResponse);
+      return c.json(responseData);
     } catch (error) {
       console.error("Git provider connection failed:", error);
 
@@ -144,5 +138,51 @@ app.post(
     }
   }
 );
+
+// DELETE /api/providers/git/:type/disconnect - Disconnect git provider
+app.delete("/:type/disconnect", async (c) => {
+  try {
+    const type = c.req.param("type");
+    const userId = getCurrentUserId(c);
+    const validation = GitProviderTypeSchema(type);
+
+    if (!validation || typeof validation !== "string") {
+      const errorData = {
+        error: "Invalid git provider",
+        message: `Unsupported git provider type: ${type}`,
+      };
+      return c.json(ErrorResponseSchema(errorData), 400);
+    }
+
+    // Delete the provider connection from database
+    const deleted = await deleteGitProvider(userId, validation);
+
+    if (!deleted) {
+      const errorData = {
+        error: "Provider not found",
+        message: `No connection found for ${validation}`,
+      };
+      return c.json(ErrorResponseSchema(errorData), 404);
+    }
+
+    const responseData = {
+      success: true,
+      message: `Successfully disconnected from ${validation}`,
+      data: {
+        providers: [],
+      },
+    };
+
+    return c.json(responseData);
+  } catch (error) {
+    console.error("Git provider disconnection failed:", error);
+
+    const errorData = {
+      error: "Disconnection failed",
+      message: "Failed to disconnect git provider",
+    };
+    return c.json(ErrorResponseSchema(errorData), 500);
+  }
+});
 
 export default app;

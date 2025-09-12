@@ -26,8 +26,7 @@ export default function GitProviders({}: GitProvidersProps): React.ReactElement 
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedProvider(null);
-    // Refresh providers after modal closes (in case connection status changed)
-    refetch();
+    // No need to refetch here - the modal already invalidates SWR cache after successful operations
   };
 
   if (loading) {

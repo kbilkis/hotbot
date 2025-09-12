@@ -1087,11 +1087,6 @@ footer {
   transition: all 0.2s;
 }
 
-.provider-card:hover {
-  border-color: rgba(255, 128, 0, 0.3);
-  transform: translateY(-1px);
-}
-
 .provider-info {
   display: flex;
   align-items: center;
@@ -1120,6 +1115,19 @@ footer {
 
 .connect-button:hover {
   background: #059669;
+  transform: translateY(-1px);
+}
+
+.connect-button.connected {
+  background: white;
+  color: #10b981;
+  border: 1px solid #10b981;
+  font-weight: 500;
+}
+
+.connect-button.connected:hover {
+  color: #059669;
+  border-color: #059669;
   transform: translateY(-1px);
 }
 
@@ -1425,6 +1433,27 @@ footer {
 }
 
 .save-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.disconnect-button {
+  background: #ef4444;
+  color: white;
+  border: none;
+  padding: 0.75rem 2rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.disconnect-button:hover:not(:disabled) {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+.disconnect-button:disabled {
   background: #9ca3af;
   cursor: not-allowed;
 }

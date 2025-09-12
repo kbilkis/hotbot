@@ -1,64 +1,49 @@
-import { useState, useEffect } from "react";
+import useSWR from "swr";
 import {
   GitProviderData,
   GitProviderResponseData,
 } from "../lib/validation/provider-schemas";
 
-export function useGitProviders() {
-  const [providers, setProviders] = useState<GitProviderData[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+const fetcher = async (url: string): Promise<GitProviderData[]> => {
+  const response = await fetch(url, {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
-  const fetchProviders = async () => {
+  if (!response.ok) {
+    const errorText = await response.text();
+    let errorMessage = `Request failed: ${response.status}`;
+
     try {
-      setLoading(true);
-      setError(null);
-
-      const response = await fetch("/api/providers/git", {
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorMessage = `Request failed: ${response.status}`;
-
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.error || errorData.message || errorMessage;
-        } catch {
-          errorMessage = errorText || errorMessage;
-        }
-
-        throw new Error(errorMessage);
-      }
-
-      const data: GitProviderResponseData = await response.json();
-
-      if (data.success && data.data) {
-        setProviders(data.data.providers);
-      } else {
-        throw new Error("Invalid response format");
-      }
-    } catch (err) {
-      console.error("Failed to fetch git providers:", err);
-      setError(
-        err instanceof Error ? err.message : "Failed to fetch providers"
-      );
-    } finally {
-      setLoading(false);
+      const errorData = JSON.parse(errorText);
+      errorMessage = errorData.error || errorData.message || errorMessage;
+    } catch {
+      errorMessage = errorText || errorMessage;
     }
-  };
 
-  useEffect(() => {
-    fetchProviders();
-  }, []);
+    throw new Error(errorMessage);
+  }
+
+  const data: GitProviderResponseData = await response.json();
+
+  if (data.success && data.data) {
+    return data.data.providers;
+  } else {
+    throw new Error("Invalid response format");
+  }
+};
+
+export function useGitProviders(shouldFetch: boolean = true) {
+  const { data, error, isLoading, mutate } = useSWR(
+    shouldFetch ? "/api/providers/git" : null,
+    fetcher
+  );
 
   return {
-    providers,
-    loading,
-    error,
-    refetch: fetchProviders,
+    providers: data || [],
+    loading: isLoading,
+    error: error?.message || null,
+    refetch: () => mutate(),
   };
 }

@@ -1,7 +1,15 @@
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
+import { useAuth } from "@clerk/clerk-react";
+import { useGitProviders } from "../hooks/useGitProviders";
 
 export default function LandingPage(): React.ReactElement {
+  const { isLoaded, isSignedIn } = useAuth();
+
+  // Preload git providers data if user is signed in for faster dashboard loads
+  // Only fetch if user is loaded and signed in to avoid unnecessary API calls
+  useGitProviders(isLoaded && isSignedIn);
+
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       const { clientX, clientY } = e;
