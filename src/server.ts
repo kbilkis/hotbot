@@ -1,5 +1,4 @@
 import { serve } from "@hono/node-server";
-import { serveStatic } from "@hono/node-server/serve-static";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
 
@@ -23,24 +22,24 @@ app.route("/api", apiRoutes);
 // Only serve static files in production
 if (process.env.NODE_ENV === "production") {
   // Serve static assets
-  app.use("/assets/*", serveStatic({ root: "./dist" }));
-
+  // app.use("/assets/*", serveStatic({ root: "./dist" }));
   // Serve index.html for SPA routes (catch-all)
-  app.get("*", serveStatic({ path: "./dist/index.html" }));
+  // app.get("*", serveStatic({ path: "./dist/index.html" }));
 } else {
   // In development, just return a simple message for non-API routes
-  app.get("*", (c) => {
-    return c.text(
-      "API server running. Frontend is served by Vite on port 5173."
-    );
+  // app.get("*", (c) => {
+  //   return c.text(
+  //     "API server running. Frontend is served by Vite on port 5173."
+  //   );
+  // });
+}
+export default app;
+
+if (process.env.NODE_ENV === "development") {
+  const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+  console.log(`🚀 Server running on http://localhost:${port}`);
+  serve({
+    fetch: app.fetch,
+    port,
   });
 }
-
-const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
-
-console.log(`🚀 Server running on http://localhost:${port}`);
-
-serve({
-  fetch: app.fetch,
-  port,
-});

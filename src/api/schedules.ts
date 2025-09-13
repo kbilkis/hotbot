@@ -160,6 +160,4 @@ app.post(
   }
 );
 
-// Note: Next execution time is now calculated in the UI using cron-parser
-
 export default app;

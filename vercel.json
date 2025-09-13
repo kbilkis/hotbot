@@ -1,0 +1,27 @@
+{
+  "version": 2,
+  "buildCommand": "npm run build:server && npm run build",
+  "builds": [
+    {
+      "src": "dist_hono/server.js",
+      "use": "@vercel/node"
+    },
+    {
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "dist"
+      }
+    }
+  ],
+  "rewrites": [
+    {
+      "source": "/((?!api).*)",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/api/(.*)",
+      "destination": "/dist_hono/server.js"
+    }
+  ]
+}

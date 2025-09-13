@@ -4,7 +4,7 @@ import { build } from "esbuild";
 await build({
   entryPoints: ["src/server.ts"],
   bundle: true,
-  outdir: "dist",
+  outdir: "dist_hono",
   platform: "node",
   target: "node22",
   format: "esm",

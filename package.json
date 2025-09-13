@@ -26,7 +26,6 @@
     "@clerk/clerk-react": "^5.46.2",
     "@hono/arktype-validator": "^2.0.1",
     "@hono/clerk-auth": "^3.0.3",
-    "@hono/node-server": "^1.19.2",
     "@neondatabase/serverless": "^1.0.1",
     "arktype": "^2.1.22",
     "cron-parser": "^5.3.1",
@@ -41,6 +40,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.35.0",
+    "@hono/node-server": "^1.19.2",
     "@testing-library/jest-dom": "^6.8.0",
     "@testing-library/react": "^14.1.0",
     "@types/node": "^22.18.1",
