@@ -1,4 +1,5 @@
 import React from "react";
+
 import IntegrationsSection from "../components/integrations/IntegrationsSection";
 import SchedulesSection from "../components/schedules/SchedulesSection";
 

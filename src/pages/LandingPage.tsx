@@ -1,6 +1,7 @@
+import { useAuth } from "@clerk/clerk-react";
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { useAuth } from "@clerk/clerk-react";
+
 import { useGitProviders } from "../hooks/useGitProviders";
 
 export default function LandingPage(): React.ReactElement {
@@ -177,9 +178,9 @@ export default function LandingPage(): React.ReactElement {
         <div className="container">
           <div className="testimonial-content">
             <blockquote>
-              "HotBot cut down our review response time by 60%. We're getting
+              {`"HotBot cut down our review response time by 60%. We're getting
               reviews faster and shipping features more consistently than ever
-              before."
+              before."`}
             </blockquote>
             <div className="testimonial-author">
               <div className="author-avatar"></div>
@@ -199,7 +200,7 @@ export default function LandingPage(): React.ReactElement {
         <div className="container">
           <h2>Simple, transparent pricing</h2>
           <p className="section-subtitle">
-            Choose the plan that fits your team's needs.
+            {`Choose the plan that fits your team's needs.`}
           </p>
 
           <div className="pricing-grid">

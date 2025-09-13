@@ -1,6 +1,8 @@
 import React, { useState } from "react";
-import ScheduleModal from "./ScheduleModal";
+
 import { Schedule } from "../../types/dashboard";
+
+import ScheduleModal from "./ScheduleModal";
 
 export default function SchedulesSection(): React.ReactElement {
   const [showScheduleModal, setShowScheduleModal] = useState(false);

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { mutate } from "swr";
+
 import { GitProviderData } from "../../lib/validation/provider-schemas";
 
 interface GitProviderModalProps {
@@ -377,12 +378,12 @@ export default function GitProviderModal({
                   disabled={loading}
                 >
                   {loading
-                    ? "Redirecting to GitHub..."
-                    : `Continue with ${config.name}`}
+                    ? `Redirecting to ${config.name}...`
+                    : `Sign in with ${config.name}`}
                 </button>
                 <small className="form-help oauth-help">
-                  🔒 Secure OAuth 2.0 authorization - you'll be redirected to{" "}
-                  {config.name} to grant repository access permissions.
+                  {`🔒 Secure OAuth 2.0 authorization - you'll be redirected to{" "}
+                  {config.name} to grant repository access permissions.`}
                 </small>
               </div>
 

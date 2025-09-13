@@ -1663,6 +1663,149 @@ footer {
 .oauth-connect-button.primary:disabled {
   background: #8b949e;
   border-color: #8b949e;
+}
+
+/* Slack-specific button styling */
+.oauth-connect-button.slack-button {
+  background: #4a154b;
+  border-color: #4a154b;
+}
+
+.oauth-connect-button.slack-button::before {
+  content: "💬";
+  font-size: 1.125rem;
+}
+
+.oauth-connect-button.slack-button:hover:not(:disabled) {
+  background: #611f69;
+  border-color: #611f69;
+}
+
+.oauth-connect-button.slack-button:active:not(:disabled) {
+  background: #3a0e3e;
+  border-color: #3a0e3e;
+}
+
+/* Slack channels display */
+.channels-section {
+  margin-top: 0.5rem;
+}
+
+.channels-loading,
+.channels-error,
+.channels-empty {
+  padding: 1rem;
+  text-align: center;
+  color: #6b7280;
+  background: #f9fafb;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+}
+
+.channels-error {
+  background: #fef2f2;
+  border-color: #fecaca;
+  color: #dc2626;
+}
+
+.channels-list {
+  background: #f9fafb;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  padding: 1rem;
+}
+
+.channels-count {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin-bottom: 0.75rem;
+  font-weight: 500;
+}
+
+.channels-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.channel-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  background: white;
+  border-radius: 0.375rem;
+  border: 1px solid #e5e7eb;
+}
+
+.channel-icon {
+  font-size: 1rem;
+  width: 1.25rem;
+  text-align: center;
+}
+
+.channel-name {
+  font-weight: 500;
+  color: #374151;
+  flex: 1;
+}
+
+.channel-members {
+  font-size: 0.75rem;
+  color: #6b7280;
+  background: #f3f4f6;
+  padding: 0.125rem 0.375rem;
+  border-radius: 0.25rem;
+}
+
+.team-name {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-left: 0.5rem;
+}
+
+/* Loading section for modals */
+.loading-section {
+  padding: 2rem;
+  text-align: center;
+  color: #6b7280;
+}
+
+.loading-section p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* Provider setup info sections */
+.teams-setup-info,
+.discord-setup-info {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.teams-setup-info h3,
+.discord-setup-info h3 {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #374151;
+}
+
+.teams-setup-info ol,
+.discord-setup-info ol {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.teams-setup-info li,
+.discord-setup-info li {
+  margin-bottom: 0.25rem;
+}
   cursor: not-allowed;
   transform: none;
   box-shadow: none;

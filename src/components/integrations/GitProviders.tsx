@@ -1,9 +1,8 @@
 import React, { useState } from "react";
-import { GitProviderData } from "../../lib/validation/provider-schemas";
-import { useGitProviders } from "../../hooks/useGitProviders";
-import GitProviderModal from "../providers/GitProviderModal";
 
-interface GitProvidersProps {}
+import { useGitProviders } from "../../hooks/useGitProviders";
+import { GitProviderData } from "../../lib/validation/provider-schemas";
+import GitProviderModal from "../providers/GitProviderModal";
 
 // Provider icons mapping
 const providerIcons: Record<string, string> = {
@@ -12,7 +11,7 @@ const providerIcons: Record<string, string> = {
   bitbucket: "🪣",
 };
 
-export default function GitProviders({}: GitProvidersProps): React.ReactElement {
+export default function GitProviders(): React.ReactElement {
   const [showModal, setShowModal] = useState(false);
   const [selectedProvider, setSelectedProvider] =
     useState<GitProviderData | null>(null);

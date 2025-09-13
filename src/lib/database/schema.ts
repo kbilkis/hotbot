@@ -1,6 +1,5 @@
 import {
   pgTable,
-  serial,
   text,
   integer,
   timestamp,
@@ -70,19 +69,13 @@ export const messagingProviders = pgTable(
     provider: messagingProviderEnum("provider").notNull(),
     accessToken: text("access_token").notNull(),
     refreshToken: text("refresh_token"),
-    channelId: text("channel_id").notNull(),
-    channelName: text("channel_name"),
     expiresAt: timestamp("expires_at"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
   },
   (table) => ({
-    // Unique constraint: one provider+channel per user
-    userProviderChannelUnique: unique().on(
-      table.userId,
-      table.provider,
-      table.channelId
-    ),
+    // Unique constraint: one provider per user
+    userProviderUnique: unique().on(table.userId, table.provider),
   })
 );
 

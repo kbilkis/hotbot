@@ -1,4 +1,5 @@
 import { eq, and, desc } from "drizzle-orm";
+
 import { db } from "../client";
 import {
   cronJobs,
@@ -18,7 +19,7 @@ import {
  * Create a new cron job
  */
 export async function createCronJob(
-  userId: number,
+  userId: string,
   jobData: Omit<NewCronJob, "userId">
 ): Promise<CronJob> {
   const [job] = await db
@@ -35,7 +36,7 @@ export async function createCronJob(
 /**
  * Get all cron jobs for a user
  */
-export async function getUserCronJobs(userId: number): Promise<CronJob[]> {
+export async function getUserCronJobs(userId: string): Promise<CronJob[]> {
   return await db
     .select()
     .from(cronJobs)
@@ -47,8 +48,8 @@ export async function getUserCronJobs(userId: number): Promise<CronJob[]> {
  * Get cron job by ID (with user ownership check)
  */
 export async function getCronJobById(
-  id: number,
-  userId?: number
+  id: string,
+  userId?: string
 ): Promise<CronJob | null> {
   const conditions = [eq(cronJobs.id, id)];
 
@@ -76,8 +77,8 @@ export async function getActiveJobsForExecution(): Promise<CronJob[]> {
  * Update cron job
  */
 export async function updateCronJob(
-  id: number,
-  userId: number,
+  id: string,
+  userId: string,
   updates: Partial<Omit<CronJob, "id" | "userId" | "createdAt">>
 ): Promise<CronJob | null> {
   const [job] = await db
@@ -96,7 +97,7 @@ export async function updateCronJob(
  * Update last executed timestamp
  */
 export async function updateJobLastExecuted(
-  id: number,
+  id: string,
   executedAt: Date = new Date()
 ): Promise<void> {
   await db
@@ -112,8 +113,8 @@ export async function updateJobLastExecuted(
  * Toggle cron job active status
  */
 export async function toggleCronJobStatus(
-  id: number,
-  userId: number,
+  id: string,
+  userId: string,
   isActive: boolean
 ): Promise<CronJob | null> {
   const [job] = await db
@@ -132,8 +133,8 @@ export async function toggleCronJobStatus(
  * Delete cron job
  */
 export async function deleteCronJob(
-  id: number,
-  userId: number
+  id: string,
+  userId: string
 ): Promise<boolean> {
   const result = await db
     .delete(cronJobs)
@@ -159,7 +160,7 @@ export async function createExecutionLog(
  * Get execution logs for a cron job
  */
 export async function getCronJobExecutionLogs(
-  cronJobId: number,
+  cronJobId: string,
   limit: number = 50
 ): Promise<ExecutionLog[]> {
   return await db
@@ -174,7 +175,7 @@ export async function getCronJobExecutionLogs(
  * Get recent execution logs across all jobs for a user
  */
 export async function getUserExecutionLogs(
-  userId: number,
+  userId: string,
   limit: number = 100
 ): Promise<(ExecutionLog & { jobName: string })[]> {
   return await db
@@ -224,7 +225,7 @@ export async function upsertEscalationTracking(
  * Get escalation tracking for a specific PR
  */
 export async function getEscalationTracking(
-  cronJobId: number,
+  cronJobId: string,
   pullRequestId: string
 ): Promise<EscalationTracking | null> {
   const [tracking] = await db
@@ -245,7 +246,7 @@ export async function getEscalationTracking(
  * Get all escalation tracking for a cron job
  */
 export async function getCronJobEscalationTracking(
-  cronJobId: number
+  cronJobId: string
 ): Promise<EscalationTracking[]> {
   return await db
     .select()
@@ -258,7 +259,7 @@ export async function getCronJobEscalationTracking(
  * Clean up old escalation tracking (for closed PRs)
  */
 export async function cleanupEscalationTracking(
-  cronJobId: number,
+  cronJobId: string,
   activePullRequestIds: string[]
 ): Promise<number> {
   if (activePullRequestIds.length === 0) {

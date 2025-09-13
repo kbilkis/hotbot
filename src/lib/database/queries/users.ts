@@ -1,4 +1,5 @@
 import { eq } from "drizzle-orm";
+
 import { db } from "../client";
 import { users, type User } from "../schema";
 
@@ -52,7 +53,7 @@ export async function getUserByClerkId(clerkId: string): Promise<User | null> {
 /**
  * Get user by database ID
  */
-export async function getUserById(id: number): Promise<User | null> {
+export async function getUserById(id: string): Promise<User | null> {
   const [user] = await db.select().from(users).where(eq(users.id, id)).limit(1);
 
   return user || null;
@@ -62,7 +63,7 @@ export async function getUserById(id: number): Promise<User | null> {
  * Update user information
  */
 export async function updateUser(
-  id: number,
+  id: string,
   updates: Partial<Pick<User, "email">>
 ): Promise<User | null> {
   const [user] = await db
@@ -80,7 +81,7 @@ export async function updateUser(
 /**
  * Delete user and all associated data (cascading delete)
  */
-export async function deleteUser(id: number): Promise<boolean> {
+export async function deleteUser(id: string): Promise<boolean> {
   const result = await db.delete(users).where(eq(users.id, id));
   return (result.rowCount ?? 0) > 0;
 }

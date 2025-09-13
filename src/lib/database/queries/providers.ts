@@ -1,4 +1,5 @@
 import { eq, and } from "drizzle-orm";
+
 import { db } from "../client";
 import {
   gitProviders,
@@ -137,15 +138,10 @@ export async function upsertMessagingProvider(
       updatedAt: new Date(),
     })
     .onConflictDoUpdate({
-      target: [
-        messagingProviders.userId,
-        messagingProviders.provider,
-        messagingProviders.channelId,
-      ],
+      target: [messagingProviders.userId, messagingProviders.provider],
       set: {
         accessToken: providerData.accessToken,
         refreshToken: providerData.refreshToken,
-        channelName: providerData.channelName,
         expiresAt: providerData.expiresAt,
         updatedAt: new Date(),
       },
@@ -172,22 +168,17 @@ export async function getUserMessagingProviders(
  */
 export async function getUserMessagingProvider(
   userId: string,
-  provider: "slack" | "teams" | "discord",
-  channelId?: string
+  provider: "slack" | "teams" | "discord"
 ): Promise<MessagingProvider | null> {
-  const conditions = [
-    eq(messagingProviders.userId, userId),
-    eq(messagingProviders.provider, provider),
-  ];
-
-  if (channelId) {
-    conditions.push(eq(messagingProviders.channelId, channelId));
-  }
-
   const [result] = await db
     .select()
     .from(messagingProviders)
-    .where(and(...conditions))
+    .where(
+      and(
+        eq(messagingProviders.userId, userId),
+        eq(messagingProviders.provider, provider)
+      )
+    )
     .limit(1);
 
   return result || null;
@@ -236,19 +227,16 @@ export async function updateMessagingProviderTokens(
  */
 export async function deleteMessagingProvider(
   userId: string,
-  provider: "slack" | "teams" | "discord",
-  channelId?: string
+  provider: "slack" | "teams" | "discord"
 ): Promise<boolean> {
-  const conditions = [
-    eq(messagingProviders.userId, userId),
-    eq(messagingProviders.provider, provider),
-  ];
-
-  if (channelId) {
-    conditions.push(eq(messagingProviders.channelId, channelId));
-  }
-
-  const result = await db.delete(messagingProviders).where(and(...conditions));
+  const result = await db
+    .delete(messagingProviders)
+    .where(
+      and(
+        eq(messagingProviders.userId, userId),
+        eq(messagingProviders.provider, provider)
+      )
+    );
 
   return (result.rowCount ?? 0) > 0;
 }

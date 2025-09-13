@@ -1,6 +1,8 @@
-import { Hono } from "hono";
-import { requireAuth } from "../lib/auth/clerk";
 import { clerkMiddleware } from "@hono/clerk-auth";
+import { Hono } from "hono";
+
+import { requireAuth } from "../lib/auth/clerk";
+
 import authRoutes from "./auth";
 import providersRoutes from "./providers";
 import schedulesRoutes from "./schedules";

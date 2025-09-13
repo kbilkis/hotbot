@@ -1,0 +1,13 @@
+{
+  "name": "Lint Fix on Save",
+  "description": "Automatically run lint:fix on the specific file being saved",
+  "trigger": {
+    "type": "file_save",
+    "filePattern": "**/*.{ts,tsx,js,jsx}"
+  },
+  "action": {
+    "type": "command",
+    "command": "npx eslint --fix ${filePath}"
+  },
+  "enabled": true
+}

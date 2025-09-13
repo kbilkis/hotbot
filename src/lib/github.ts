@@ -82,7 +82,6 @@ export async function exchangeGitHubToken(code: string, redirectUri: string) {
   return {
     accessToken: data.access_token,
     refreshToken: data.refresh_token,
-    expiresAt: undefined, // GitHub tokens don't expire
     scope: data.scope,
     tokenType: data.token_type || "Bearer",
   };
@@ -166,7 +165,7 @@ export async function getGitHubPullRequests(
             repository: repo,
             labels: pr.labels.map((label: any) => label.name),
             tags: extractTagsFromPR(pr),
-            status: determineStatus(pr, reviews),
+            status: determineStatus(pr),
             reviewers: [
               ...(pr.requested_reviewers?.map(
                 (reviewer: any) => reviewer.login
@@ -240,7 +239,7 @@ async function getDetailedReviewInfo(
 }
 
 // Determine PR status based on reviews and checks
-function determineStatus(pr: any, reviews: any): "open" | "closed" | "merged" {
+function determineStatus(pr: any): "open" | "closed" | "merged" {
   if (pr.state === "closed") {
     return pr.merged ? "merged" : "closed";
   }

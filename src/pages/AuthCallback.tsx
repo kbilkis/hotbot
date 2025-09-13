@@ -30,21 +30,26 @@ export default function AuthCallback(): React.ReactElement {
           throw new Error("Missing provider parameter");
         }
 
+        // Determine provider type and API endpoint
+        const isMessagingProvider = ["slack", "teams", "discord"].includes(
+          provider
+        );
+        const apiEndpoint = isMessagingProvider
+          ? `/api/providers/messaging/${provider}/exchange-token`
+          : `/api/providers/git/${provider}/exchange-token`;
+
         // Exchange code for token AND store in database (single API call)
         const redirectUri = `${window.location.origin}/auth/callback/${provider}`;
-        const response = await fetch(
-          `/api/providers/git/${provider}/exchange-token`,
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              code,
-              redirectUri,
-            }),
-          }
-        );
+        const response = await fetch(apiEndpoint, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            code,
+            redirectUri,
+          }),
+        });
 
         if (!response.ok) {
           const errorText = await response.text();
@@ -66,7 +71,10 @@ export default function AuthCallback(): React.ReactElement {
         console.log("Successfully connected provider:", result);
 
         // Invalidate SWR cache to refresh provider data
-        await mutate("/api/providers/git");
+        const cacheKey = isMessagingProvider
+          ? "/api/providers/messaging"
+          : "/api/providers/git";
+        await mutate(cacheKey);
 
         setStatus("success");
         setMessage(`Successfully connected ${provider}!`);

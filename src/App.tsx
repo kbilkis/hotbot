@@ -1,11 +1,12 @@
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { ClerkProvider } from "@clerk/clerk-react";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { SWRConfig } from "swr";
-import Layout from "./components/layout/Layout";
-import LandingPage from "./pages/LandingPage";
-import Dashboard from "./pages/Dashboard";
-import AuthCallback from "./pages/AuthCallback";
+
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import Layout from "./components/layout/Layout";
+import AuthCallback from "./pages/AuthCallback";
+import Dashboard from "./pages/Dashboard";
+import LandingPage from "./pages/LandingPage";
 
 function App() {
   return (

@@ -134,6 +134,79 @@ export const GitProviderResponseSchema = type({
   data: GitProvidersListSchema,
 });
 
+// Slack specific schemas
+export const SlackAuthUrlSchema = type({
+  redirectUri: "string",
+  scopes: "string[]?",
+});
+
+export const SlackTokenExchangeSchema = type({
+  code: "string",
+  redirectUri: "string",
+});
+
+export const SlackSendMessageSchema = type({
+  channel: "string",
+  message: "string",
+});
+
+export const SlackChannelSchema = type({
+  id: "string",
+  name: "string",
+  type: "'public'|'private'|'direct'",
+  memberCount: "number?",
+  isArchived: "boolean?",
+  isMember: "boolean?",
+});
+
+export const SlackChannelsListSchema = type({
+  channels: SlackChannelSchema.array(),
+});
+
+// Provider type validation for route parameters and queries
+export const ProviderTypeParamSchema = type({
+  type: "string",
+});
+
+export const GitProviderQuerySchema = type({
+  type: "'github'|'bitbucket'|'gitlab'",
+});
+
+export const MessagingProviderQuerySchema = type({
+  type: "'slack'|'teams'|'discord'",
+});
+
+export const MessagingProviderParamSchema = type({
+  type: "'slack'|'teams'|'discord'",
+});
+
+// Manual connection schemas
+export const ManualTokenSchema = type({
+  accessToken: "string",
+});
+
+// Messaging provider schemas
+export const MessagingProviderTypeSchema = type("'slack'|'teams'|'discord'");
+
+export const MessagingProviderSchema = type({
+  id: "number",
+  provider: MessagingProviderTypeSchema,
+  name: "string",
+  connected: "boolean",
+  connectedAt: "string?", // ISO date string
+  channels: SlackChannelSchema.array().optional(),
+});
+
+export const MessagingProvidersListSchema = type({
+  providers: MessagingProviderSchema.array(),
+});
+
+export const MessagingProviderResponseSchema = type({
+  success: "boolean",
+  message: "string?",
+  data: MessagingProvidersListSchema,
+});
+
 // Extract TypeScript types from arktype schemas
 export type OAuthStateData = typeof OAuthStateSchema.infer;
 export type OAuthCallbackData = typeof OAuthCallbackSchema.infer;
@@ -142,6 +215,11 @@ export type GitHubAuthUrlData = typeof GitHubAuthUrlSchema.infer;
 export type GitHubTokenExchangeData = typeof GitHubTokenExchangeSchema.infer;
 export type GitHubPRFiltersData = typeof GitHubPRFiltersSchema.infer;
 export type GitHubFetchPRsData = typeof GitHubFetchPRsSchema.infer;
+export type SlackAuthUrlData = typeof SlackAuthUrlSchema.infer;
+export type SlackTokenExchangeData = typeof SlackTokenExchangeSchema.infer;
+export type SlackSendMessageData = typeof SlackSendMessageSchema.infer;
+export type SlackChannelData = typeof SlackChannelSchema.infer;
+export type SlackChannelsListData = typeof SlackChannelsListSchema.infer;
 export type AuthUrlResponseData = typeof AuthUrlResponseSchema.infer;
 export type TokenResponseData = typeof TokenResponseSchema.infer;
 export type PullRequestData = typeof PullRequestSchema.infer;
@@ -153,3 +231,10 @@ export type GitProviderTypeData = typeof GitProviderTypeSchema.infer;
 export type GitProviderData = typeof GitProviderSchema.infer;
 export type GitProvidersListData = typeof GitProvidersListSchema.infer;
 export type GitProviderResponseData = typeof GitProviderResponseSchema.infer;
+export type MessagingProviderTypeData =
+  typeof MessagingProviderTypeSchema.infer;
+export type MessagingProviderData = typeof MessagingProviderSchema.infer;
+export type MessagingProvidersListData =
+  typeof MessagingProvidersListSchema.infer;
+export type MessagingProviderResponseData =
+  typeof MessagingProviderResponseSchema.infer;

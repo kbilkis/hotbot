@@ -1,5 +1,6 @@
-import { Context, Next } from "hono";
 import { getAuth } from "@hono/clerk-auth";
+import { Context, Next } from "hono";
+
 import { upsertUser, getUserByClerkId } from "../database/queries/users";
 import type { User } from "../database/schema";
 

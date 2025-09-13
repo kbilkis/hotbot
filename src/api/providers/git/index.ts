@@ -1,13 +1,16 @@
+import { arktypeValidator } from "@hono/arktype-validator";
 import { Hono } from "hono";
-import {
-  GitProviderTypeSchema,
-  ErrorResponseSchema,
-} from "../../../lib/validation/provider-schemas";
+
 import { getCurrentUserId } from "../../../lib/auth/clerk";
 import {
   getUserGitProviders,
   deleteGitProvider,
 } from "../../../lib/database/queries/providers";
+import {
+  GitProviderQuerySchema,
+  ErrorResponseSchema,
+} from "../../../lib/validation/provider-schemas";
+
 import githubRoutes from "./github";
 
 const app = new Hono();
@@ -68,58 +71,44 @@ app.get("/", async (c) => {
 });
 
 // DELETE /api/providers/git/disconnect?type=github - Disconnect git provider
-app.delete("/disconnect", async (c) => {
-  try {
-    const type = c.req.query("type");
-    const userId = getCurrentUserId(c);
+app.delete(
+  "/disconnect",
+  arktypeValidator("query", GitProviderQuerySchema),
+  async (c) => {
+    try {
+      const { type } = c.req.valid("query");
+      const userId = getCurrentUserId(c);
 
-    if (!type) {
-      const errorData = {
-        error: "Missing provider type",
-        message: "Provider type is required as query parameter",
+      // Delete the provider connection from database
+      const deleted = await deleteGitProvider(userId, type);
+
+      if (!deleted) {
+        const errorData = {
+          error: "Provider not found",
+          message: `No connection found for ${type}`,
+        };
+        return c.json(ErrorResponseSchema(errorData), 404);
+      }
+
+      const responseData = {
+        success: true,
+        message: `Successfully disconnected from ${type}`,
+        data: {
+          providers: [],
+        },
       };
-      return c.json(ErrorResponseSchema(errorData), 400);
-    }
 
-    const validation = GitProviderTypeSchema(type);
+      return c.json(responseData);
+    } catch (error) {
+      console.error("Git provider disconnection failed:", error);
 
-    if (!validation || typeof validation !== "string") {
       const errorData = {
-        error: "Invalid git provider",
-        message: `Unsupported git provider type: ${type}`,
+        error: "Disconnection failed",
+        message: "Failed to disconnect git provider",
       };
-      return c.json(ErrorResponseSchema(errorData), 400);
+      return c.json(ErrorResponseSchema(errorData), 500);
     }
-
-    // Delete the provider connection from database
-    const deleted = await deleteGitProvider(userId, validation);
-
-    if (!deleted) {
-      const errorData = {
-        error: "Provider not found",
-        message: `No connection found for ${validation}`,
-      };
-      return c.json(ErrorResponseSchema(errorData), 404);
-    }
-
-    const responseData = {
-      success: true,
-      message: `Successfully disconnected from ${validation}`,
-      data: {
-        providers: [],
-      },
-    };
-
-    return c.json(responseData);
-  } catch (error) {
-    console.error("Git provider disconnection failed:", error);
-
-    const errorData = {
-      error: "Disconnection failed",
-      message: "Failed to disconnect git provider",
-    };
-    return c.json(ErrorResponseSchema(errorData), 500);
   }
-});
+);
 
 export default app;

@@ -1,7 +1,8 @@
-import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { serveStatic } from "@hono/node-server/serve-static";
+import { Hono } from "hono";
 import { cors } from "hono/cors";
+
 import apiRoutes from "./api/index";
 
 const app = new Hono();
@@ -18,10 +19,6 @@ app.use(
 
 // Mount API routes
 app.route("/api", apiRoutes);
-
-// Export the API routes type for RPC client
-const apiRoutesTyped = app.basePath("/api");
-export type ApiRoutes = typeof apiRoutesTyped;
 
 // Only serve static files in production
 if (process.env.NODE_ENV === "production") {

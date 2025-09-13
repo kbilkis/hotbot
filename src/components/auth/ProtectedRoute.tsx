@@ -1,5 +1,5 @@
-import React from "react";
 import { useAuth, useClerk } from "@clerk/clerk-react";
+import React from "react";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;

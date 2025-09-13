@@ -1,4 +1,4 @@
-// GitHub provider API routes - simple functional approach
+// Slack messaging provider API routes
 
 import { arktypeValidator } from "@hono/arktype-validator";
 import { Hono } from "hono";
@@ -6,19 +6,24 @@ import { Hono } from "hono";
 import { getCurrentUserId } from "@/lib/auth/clerk";
 
 import {
-  getGitHubAuthUrl,
-  exchangeGitHubToken,
-  getGitHubRepositories,
-  getGitHubPullRequests,
-  getGitHubUserInfo,
-} from "../../../lib/github";
+  getUserMessagingProvider,
+  upsertMessagingProvider,
+} from "../../../lib/database/queries/providers";
 import {
-  GitHubAuthUrlSchema,
-  GitHubTokenExchangeSchema,
-  GitHubFetchPRsSchema,
-  ManualTokenSchema,
+  getSlackAuthUrl,
+  exchangeSlackToken,
+  getSlackChannels,
+  sendSlackMessage,
+  validateSlackToken,
+  getSlackUserInfo,
+} from "../../../lib/slack";
+import {
+  SlackAuthUrlSchema,
+  SlackTokenExchangeSchema,
+  SlackSendMessageSchema,
   ErrorResponseSchema,
   SuccessResponseSchema,
+  ManualTokenSchema,
 } from "../../../lib/validation/provider-schemas";
 
 const app = new Hono();
@@ -44,21 +49,21 @@ function generateState(userId: string, redirectUri: string): string {
   return state;
 }
 
-// Routes
+// Generate Slack OAuth authorization URL
 app.post(
   "/auth-url",
-  arktypeValidator("json", GitHubAuthUrlSchema),
+  arktypeValidator("json", SlackAuthUrlSchema),
   async (c) => {
     try {
       const body = c.req.valid("json");
       const userId = getCurrentUserId(c);
 
       const state = generateState(userId.toString(), body.redirectUri);
-      const authUrl = getGitHubAuthUrl(state, body.redirectUri, body.scopes);
+      const authUrl = getSlackAuthUrl(state, body.redirectUri, body.scopes);
 
       return c.json({ authUrl, state });
     } catch (error) {
-      console.error("GitHub auth URL generation failed:", error);
+      console.error("Slack auth URL generation failed:", error);
       return c.json(
         ErrorResponseSchema({
           error: "Internal server error",
@@ -70,42 +75,48 @@ app.post(
   }
 );
 
+// Exchange authorization code for access token
 app.post(
   "/exchange-token",
-  arktypeValidator("json", GitHubTokenExchangeSchema),
+  arktypeValidator("json", SlackTokenExchangeSchema),
   async (c) => {
     try {
       const body = c.req.valid("json");
       const userId = getCurrentUserId(c);
 
-      // Step 1: Exchange code for token with GitHub
-      const tokenResponse = await exchangeGitHubToken(
+      // Step 1: Exchange code for token with Slack
+      const tokenResponse = await exchangeSlackToken(
         body.code,
         body.redirectUri
       );
 
-      // Step 2: Store token in database
-      const { upsertGitProvider } = await import(
-        "../../../lib/database/queries/providers"
-      );
+      // Step 2: Store token in database (single provider entry)
 
       const providerData = {
         userId,
-        provider: "github" as const,
+        provider: "slack" as const,
         accessToken: tokenResponse.accessToken,
         refreshToken: tokenResponse.refreshToken || null,
-        repositories: null, // Will be set later in schedule configuration
+        expiresAt: tokenResponse.expiresAt || null,
       };
 
-      const savedProvider = await upsertGitProvider(providerData);
-      // Step 3: Return success with provider data
+      const savedProvider = await upsertMessagingProvider(providerData);
+
+      // Step 3: Get available channels (for display purposes)
+      const channels = await getSlackChannels(tokenResponse.accessToken);
+
+      // Step 4: Return success with provider data
       return c.json({
         success: true,
-        message: "Successfully connected to GitHub",
+        message: "Successfully connected to Slack",
         accessToken: tokenResponse.accessToken,
         refreshToken: tokenResponse.refreshToken,
+        expiresAt: tokenResponse.expiresAt?.toISOString(),
         scope: tokenResponse.scope,
         tokenType: tokenResponse.tokenType,
+        teamId: tokenResponse.teamId,
+        teamName: tokenResponse.teamName,
+        channels: channels,
         provider: {
           id: savedProvider.id,
           provider: savedProvider.provider,
@@ -114,7 +125,7 @@ app.post(
         },
       });
     } catch (error) {
-      console.error("GitHub token exchange failed:", error);
+      console.error("Slack token exchange failed:", error);
       return c.json(
         ErrorResponseSchema({
           error: "Token exchange failed",
@@ -129,6 +140,7 @@ app.post(
   }
 );
 
+// Manual token connection (for testing or direct token input)
 app.post(
   "/connect-manual",
   arktypeValidator("json", ManualTokenSchema),
@@ -138,14 +150,8 @@ app.post(
       const userId = getCurrentUserId(c);
 
       // Validate the token by making a test API call
-      const testResponse = await fetch("https://api.github.com/user", {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "User-Agent": "git-messaging-scheduler/1.0",
-        },
-      });
-
-      if (!testResponse.ok) {
+      const isValid = await validateSlackToken(accessToken);
+      if (!isValid) {
         return c.json(
           ErrorResponseSchema({
             error: "Invalid token",
@@ -155,25 +161,32 @@ app.post(
         );
       }
 
-      // Store the token in database
-      const { upsertGitProvider } = await import(
+      // Get channels and user info
+      const [channels, userInfo] = await Promise.all([
+        getSlackChannels(accessToken),
+        getSlackUserInfo(accessToken),
+      ]);
+
+      // Store the token in database (single provider entry)
+      const { upsertMessagingProvider } = await import(
         "../../../lib/database/queries/providers"
       );
 
       const providerData = {
         userId,
-        provider: "github" as const,
+        provider: "slack" as const,
         accessToken: accessToken,
         refreshToken: null,
         expiresAt: null,
-        repositories: null,
       };
 
-      const savedProvider = await upsertGitProvider(providerData);
+      const savedProvider = await upsertMessagingProvider(providerData);
 
       return c.json({
         success: true,
-        message: "Successfully connected to GitHub",
+        message: "Successfully connected to Slack",
+        userInfo,
+        channels,
         provider: {
           id: savedProvider.id,
           provider: savedProvider.provider,
@@ -182,7 +195,7 @@ app.post(
         },
       });
     } catch (error) {
-      console.error("GitHub manual connection failed:", error);
+      console.error("Slack manual connection failed:", error);
       return c.json(
         ErrorResponseSchema({
           error: "Connection failed",
@@ -194,53 +207,50 @@ app.post(
   }
 );
 
-app.get("/repositories", async (c) => {
+// Get available channels for the user
+app.get("/channels", async (c) => {
   try {
     const userId = getCurrentUserId(c);
 
-    // Get the user's GitHub provider connection
-    const { getUserGitProvider } = await import(
-      "../../../lib/database/queries/providers"
-    );
-    const gitProvider = await getUserGitProvider(userId, "github");
+    // Get the user's Slack provider connection
+    const messagingProvider = await getUserMessagingProvider(userId, "slack");
 
-    if (!gitProvider) {
+    if (!messagingProvider) {
       return c.json(
         ErrorResponseSchema({
           error: "Provider not connected",
-          message: "GitHub provider is not connected for this user",
+          message: "Slack provider is not connected for this user",
         }),
         404
       );
     }
 
-    const repositories = await getGitHubRepositories(gitProvider.accessToken);
+    const channels = await getSlackChannels(messagingProvider.accessToken);
 
     return c.json(
       SuccessResponseSchema({
         success: true,
-        message: "Repositories fetched successfully",
-        data: { repositories },
+        message: "Channels fetched successfully",
+        data: { channels },
       })
     );
   } catch (error) {
-    console.error("GitHub repositories fetch failed:", error);
+    console.error("Slack channels fetch failed:", error);
     return c.json(
       ErrorResponseSchema({
-        error: "Repositories fetch failed",
+        error: "Channels fetch failed",
         message:
-          error instanceof Error
-            ? error.message
-            : "Failed to fetch repositories",
+          error instanceof Error ? error.message : "Failed to fetch channels",
       }),
       500
     );
   }
 });
 
+// Send message to Slack channel
 app.post(
-  "/pull-requests",
-  arktypeValidator("json", GitHubFetchPRsSchema),
+  "/send-message",
+  arktypeValidator("json", SlackSendMessageSchema),
   async (c) => {
     try {
       const authHeader = c.req.header("Authorization");
@@ -256,31 +266,26 @@ app.post(
 
       const body = c.req.valid("json");
       const token = authHeader.substring(7);
-      const pullRequests = await getGitHubPullRequests(
-        token,
-        body.repositories,
-        body.filters
-      );
+
+      await sendSlackMessage(token, body.channel, body.message);
 
       return c.json(
         SuccessResponseSchema({
           success: true,
-          message: "Pull requests fetched successfully",
+          message: "Message sent successfully",
           data: {
-            pullRequests,
-            count: pullRequests.length,
+            channel: body.channel,
+            message: body.message,
           },
         })
       );
     } catch (error) {
-      console.error("GitHub pull requests fetch failed:", error);
+      console.error("Slack message send failed:", error);
       return c.json(
         ErrorResponseSchema({
-          error: "Pull requests fetch failed",
+          error: "Message send failed",
           message:
-            error instanceof Error
-              ? error.message
-              : "Failed to fetch pull requests",
+            error instanceof Error ? error.message : "Failed to send message",
         }),
         500
       );
@@ -288,21 +293,25 @@ app.post(
   }
 );
 
+// Get user info
 app.get("/user", async (c) => {
   try {
-    const authHeader = c.req.header("Authorization");
-    if (!authHeader || !authHeader.startsWith("Bearer ")) {
+    const userId = getCurrentUserId(c);
+
+    // Get the user's Slack provider connection
+    const messagingProvider = await getUserMessagingProvider(userId, "slack");
+
+    if (!messagingProvider) {
       return c.json(
         ErrorResponseSchema({
-          error: "Missing token",
-          message: "Authorization header with Bearer token required",
+          error: "Provider not connected",
+          message: "Slack provider is not connected for this user",
         }),
-        401
+        404
       );
     }
 
-    const token = authHeader.substring(7);
-    const userInfo = await getGitHubUserInfo(token);
+    const userInfo = await getSlackUserInfo(messagingProvider.accessToken);
 
     return c.json(
       SuccessResponseSchema({
@@ -312,7 +321,7 @@ app.get("/user", async (c) => {
       })
     );
   } catch (error) {
-    console.error("GitHub user info fetch failed:", error);
+    console.error("Slack user info fetch failed:", error);
     return c.json(
       ErrorResponseSchema({
         error: "User info fetch failed",

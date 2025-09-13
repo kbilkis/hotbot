@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+
 import { getCurrentUser } from "../lib/auth/clerk";
 
 const app = new Hono();
