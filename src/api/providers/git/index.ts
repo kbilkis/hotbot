@@ -70,9 +70,9 @@ app.get("/", async (c) => {
   }
 });
 
-// DELETE /api/providers/git/disconnect?type=github - Disconnect git provider
+// DELETE /api/providers/git - Disconnect git provider
 app.delete(
-  "/disconnect",
+  "/",
   arktypeValidator("query", GitProviderQuerySchema),
   async (c) => {
     try {

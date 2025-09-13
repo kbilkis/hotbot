@@ -1,0 +1,1 @@
+ALTER TABLE "cron_jobs" ADD COLUMN "repositories" jsonb NOT NULL;

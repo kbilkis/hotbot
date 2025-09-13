@@ -1,43 +1,117 @@
+import { CronExpressionParser } from "cron-parser";
+import cronstrue from "cronstrue";
 import React, { useState } from "react";
 
-import { Schedule } from "../../types/dashboard";
+import { useSchedules } from "../../hooks/useSchedules";
+import { CronJob } from "../../types/dashboard";
 
 import ScheduleModal from "./ScheduleModal";
 
+const calculateNextExecution = (cronExpression: string): string | undefined => {
+  try {
+    const interval = CronExpressionParser.parse(cronExpression);
+    return interval.next().toDate().toLocaleString();
+  } catch (error) {
+    console.error("Error calculating next execution:", error);
+    return undefined;
+  }
+};
+
+const getCronDescription = (cronExpression: string): string => {
+  try {
+    return cronstrue.toString(cronExpression);
+  } catch (error) {
+    return cronExpression; // Fallback to raw expression if cronstrue fails
+  }
+};
+
 export default function SchedulesSection(): React.ReactElement {
   const [showScheduleModal, setShowScheduleModal] = useState(false);
+  const [editingSchedule, setEditingSchedule] = useState<CronJob | null>(null);
 
-  const schedules: Schedule[] = [
-    {
-      id: "1",
-      name: "Frontend Team Reminders",
-      status: "active",
-      lastRun: "2024-07-26 10:00 UTC",
-      nextRun: "2024-07-27 10:30 UTC",
-    },
-    {
-      id: "2",
-      name: "Backend Team Escalations",
-      status: "paused",
-      lastRun: "2024-07-26 14:30 UTC",
-    },
-    {
-      id: "3",
-      name: "Daily Standup Summary",
-      status: "error",
-      lastRun: "2024-06-26 07:00 UTC",
-      nextRun: "2024-07-27 09:00 UTC",
-    },
-  ];
+  // Use SWR hook for schedules data
+  const { schedules, loading, error, refetch } = useSchedules();
+
+  const handleCreateSchedule = () => {
+    setEditingSchedule(null);
+    setShowScheduleModal(true);
+  };
+
+  const handleEditSchedule = (schedule: CronJob) => {
+    setEditingSchedule(schedule);
+    setShowScheduleModal(true);
+  };
+
+  const handleDeleteSchedule = async (scheduleId: string) => {
+    if (!confirm("Are you sure you want to delete this schedule?")) {
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/schedules/${scheduleId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete schedule: ${response.statusText}`);
+      }
+
+      // Refetch data using SWR
+      refetch();
+    } catch (err) {
+      console.error("Failed to delete schedule:", err);
+      alert("Failed to delete schedule");
+    }
+  };
+
+  const handleToggleSchedule = async (scheduleId: string) => {
+    try {
+      const schedule = schedules.find((s) => s.id === scheduleId);
+      if (!schedule) return;
+
+      const newActiveState = schedule.status !== "active";
+
+      const response = await fetch("/api/schedules/toggle", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          id: scheduleId,
+          isActive: newActiveState,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to toggle schedule: ${response.statusText}`);
+      }
+
+      // Refetch data using SWR
+      refetch();
+    } catch (err) {
+      console.error("Failed to toggle schedule:", err);
+      alert("Failed to toggle schedule");
+    }
+  };
+
+  const handleCloseModal = (shouldRefresh = false) => {
+    setShowScheduleModal(false);
+    setEditingSchedule(null);
+
+    // Refresh schedules if a schedule was created or updated
+    if (shouldRefresh) {
+      refetch();
+    }
+  };
 
   const getStatusColor = (status: string) => {
     switch (status) {
       case "active":
-        return "text-green-600";
+        return "status-active";
       case "paused":
-        return "text-yellow-600";
+        return "status-paused";
       case "error":
-        return "text-red-600";
+        return "status-error";
       default:
         return "text-gray-600";
     }
@@ -56,6 +130,49 @@ export default function SchedulesSection(): React.ReactElement {
     }
   };
 
+  if (loading) {
+    return (
+      <div className="section">
+        <div className="section-header">
+          <div className="section-content">
+            <h1>Schedules</h1>
+            <p>Manage your notification schedules and create new ones.</p>
+          </div>
+        </div>
+        <div className="schedules-section">
+          <div className="loading-section">
+            <p>Loading schedules...</p>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="section">
+        <div className="section-header">
+          <div className="section-content">
+            <h1>Schedules</h1>
+            <p>Manage your notification schedules and create new ones.</p>
+          </div>
+        </div>
+        <div className="schedules-section">
+          <div className="error-message">
+            {error}
+            <button
+              onClick={() => refetch()}
+              className="retry-button"
+              style={{ marginLeft: "10px" }}
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="section">
       <div className="section-header">
@@ -65,45 +182,103 @@ export default function SchedulesSection(): React.ReactElement {
         </div>
         <button
           className="create-schedule-button"
-          onClick={() => setShowScheduleModal(true)}
+          onClick={handleCreateSchedule}
         >
           + Create Schedule
         </button>
       </div>
 
       <div className="schedules-section">
-        <div className="schedules-table">
-          <div className="table-header">
-            <div>Status</div>
-            <div>Name</div>
-            <div>Last Run</div>
-            <div>Next Run</div>
-            <div></div>
+        {schedules.length === 0 ? (
+          <div className="empty-state">
+            <p>
+              No schedules created yet. Create your first schedule to get
+              started.
+            </p>
           </div>
-          {schedules.map((schedule) => (
-            <div key={schedule.id} className="table-row">
-              <div className="status-cell">
-                <div
-                  className={`status-dot ${getStatusDot(schedule.status)}`}
-                ></div>
-                <span className={getStatusColor(schedule.status)}>
-                  {schedule.status.charAt(0).toUpperCase() +
-                    schedule.status.slice(1)}
-                </span>
-              </div>
-              <div>{schedule.name}</div>
-              <div>{schedule.lastRun || "-"}</div>
-              <div>{schedule.nextRun || "-"}</div>
-              <div className="actions-cell">
-                <button className="action-button">⋯</button>
-              </div>
+        ) : (
+          <div className="schedules-table">
+            <div className="table-header">
+              <div>Status</div>
+              <div>Name</div>
+              <div>Schedule</div>
+              <div>Last Run</div>
+              <div>Next Run</div>
+              <div>Actions</div>
             </div>
-          ))}
-        </div>
+            {schedules.map((schedule) => (
+              <div key={schedule.id} className="table-row">
+                <div className="status-cell">
+                  <div
+                    className={`status-dot ${getStatusDot(schedule.status)}`}
+                  ></div>
+                  <span className={getStatusColor(schedule.status)}>
+                    {schedule.status.charAt(0).toUpperCase() +
+                      schedule.status.slice(1)}
+                  </span>
+                </div>
+                <div>
+                  <div className="schedule-name">{schedule.name}</div>
+                  <div className="schedule-details">
+                    {schedule.repositories.length} repositories
+                  </div>
+                </div>
+                <div className="schedule-description">
+                  <div className="cron-description">
+                    {getCronDescription(schedule.cronExpression)}
+                  </div>
+                  <div className="cron-expression">
+                    {schedule.cronExpression}
+                  </div>
+                </div>
+                <div>{schedule.lastRun || "-"}</div>
+                <div className="next-run-time">
+                  {schedule.status === "active"
+                    ? calculateNextExecution(schedule.cronExpression) || "-"
+                    : "-"}
+                </div>
+                <div className="actions-cell">
+                  <div className="schedule-actions">
+                    <button
+                      className="edit-button"
+                      onClick={() => handleEditSchedule(schedule)}
+                      title="Edit schedule"
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      className={`toggle-button ${
+                        schedule.status === "paused" ? "paused" : ""
+                      }`}
+                      onClick={() => handleToggleSchedule(schedule.id)}
+                      title={
+                        schedule.status === "active"
+                          ? "Pause schedule"
+                          : "Resume schedule"
+                      }
+                    >
+                      {schedule.status === "active" ? "⏸️" : "▶️"}
+                    </button>
+                    <button
+                      className="delete-button"
+                      onClick={() => handleDeleteSchedule(schedule.id)}
+                      title="Delete schedule"
+                    >
+                      🗑️
+                    </button>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
       {showScheduleModal && (
-        <ScheduleModal onClose={() => setShowScheduleModal(false)} />
+        <ScheduleModal
+          onClose={handleCloseModal}
+          schedule={editingSchedule || undefined}
+        />
       )}
     </div>
   );

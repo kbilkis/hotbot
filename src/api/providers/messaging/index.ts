@@ -35,28 +35,25 @@ app.get("/", async (c) => {
 
     const messagingProviders = [
       {
-        id: 4,
+        id: providersByType.slack?.id || null,
         type: "slack",
         name: "Slack",
         connected: !!providersByType.slack,
         connectedAt: providersByType.slack?.createdAt?.toISOString(),
-        providerId: providersByType.slack?.id,
       },
       {
-        id: 5,
+        id: providersByType.teams?.id || null,
         type: "teams",
         name: "Microsoft Teams",
         connected: !!providersByType.teams,
         connectedAt: providersByType.teams?.createdAt?.toISOString(),
-        providerId: providersByType.teams?.id,
       },
       {
-        id: 6,
+        id: providersByType.discord?.id || null,
         type: "discord",
         name: "Discord",
         connected: !!providersByType.discord,
         connectedAt: providersByType.discord?.createdAt?.toISOString(),
-        providerId: providersByType.discord?.id,
       },
     ];
 
@@ -80,9 +77,9 @@ app.get("/", async (c) => {
   }
 });
 
-// DELETE /api/providers/messaging/disconnect - Disconnect messaging provider
+// DELETE /api/providers/messaging - Disconnect messaging provider
 app.delete(
-  "/disconnect",
+  "/",
   arktypeValidator("query", MessagingProviderQuerySchema),
   async (c) => {
     try {

@@ -37,7 +37,6 @@ export const GitHubTokenExchangeSchema = type({
 export const GitHubPRFiltersSchema = type({
   repositories: "string[]?",
   labels: "string[]?",
-  tags: "string[]?",
   titleKeywords: "string[]?",
   excludeAuthors: "string[]?",
   minAge: "number?",
@@ -72,7 +71,6 @@ export const PullRequestSchema = type({
   updatedAt: "string", // ISO date string
   repository: "string",
   labels: "string[]",
-  tags: "string[]",
   status: "'open'|'closed'|'merged'",
   reviewers: "string[]?",
   assignees: "string[]?",
@@ -116,7 +114,7 @@ export const ProviderStatusSchema = type({
 export const GitProviderTypeSchema = type("'github'|'bitbucket'|'gitlab'");
 
 export const GitProviderSchema = type({
-  id: "number",
+  id: "string",
   provider: GitProviderTypeSchema,
   name: "string",
   connected: "boolean",

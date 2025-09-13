@@ -1239,7 +1239,7 @@ footer {
 }
 
 .schedule-modal {
-  max-width: 600px;
+  max-width: 800px;
 }
 
 .modal-header {
@@ -1663,6 +1663,9 @@ footer {
 .oauth-connect-button.primary:disabled {
   background: #8b949e;
   border-color: #8b949e;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
 }
 
 /* Slack-specific button styling */
@@ -1805,10 +1808,6 @@ footer {
 .teams-setup-info li,
 .discord-setup-info li {
   margin-bottom: 0.25rem;
-}
-  cursor: not-allowed;
-  transform: none;
-  box-shadow: none;
 }
 
 .oauth-help {
@@ -2082,4 +2081,542 @@ footer {
     margin: 1rem;
     width: calc(100% - 2rem);
   }
+}
+
+/* Cron Job Management Styles */
+.error-message {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #dc2626;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+}
+
+.field-error {
+  color: #dc2626;
+  font-size: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.form-input.error,
+.form-select.error {
+  border-color: #dc2626;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+/* Cron Builder Styles */
+.cron-builder {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.cron-builder-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.cron-builder .form-group {
+  margin-bottom: 0.75rem;
+}
+
+.cron-builder .form-group:last-child {
+  margin-bottom: 0;
+}
+
+.cron-builder label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.25rem;
+}
+
+/* Filter Builder Styles */
+.filter-builder {
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.filter-input-group {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.filter-input-group .form-input {
+  flex: 1;
+}
+
+.add-filter-button {
+  background: #10b981;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.add-filter-button:hover {
+  background: #059669;
+}
+
+.remove-tag {
+  background: none;
+  border: none;
+  color: #1e40af;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 0.25rem;
+  font-weight: bold;
+  transition: color 0.2s;
+}
+
+.remove-tag:hover {
+  color: #dc2626;
+}
+
+/* Checkbox Label Styles */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+}
+
+.checkbox-label input[type="checkbox"] {
+  width: 1rem;
+  height: 1rem;
+  accent-color: #ff8000;
+}
+
+/* Enhanced Schedule Table Styles */
+.schedules-table .table-row:hover {
+  background: #f8fafc;
+}
+
+.schedule-actions {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.edit-button,
+.delete-button,
+.toggle-button {
+  background: none;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.edit-button {
+  color: #3b82f6;
+}
+
+.edit-button:hover {
+  background: rgba(59, 130, 246, 0.1);
+}
+
+.delete-button {
+  color: #ef4444;
+}
+
+.delete-button:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
+
+.toggle-button {
+  color: #10b981;
+}
+
+.toggle-button:hover {
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.toggle-button.paused {
+  color: #f59e0b;
+}
+
+.toggle-button.paused:hover {
+  background: rgba(245, 158, 11, 0.1);
+}
+
+/* Status indicators */
+.status-active {
+  color: #10b981;
+}
+
+.status-paused {
+  color: #f59e0b;
+}
+
+.status-error {
+  color: #ef4444;
+}
+
+/* Next run time formatting */
+.next-run-time {
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Responsive adjustments for cron builder */
+@media (max-width: 768px) {
+  .cron-builder-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .filter-input-group {
+    flex-direction: column;
+  }
+
+  .add-filter-button {
+    align-self: flex-start;
+  }
+}
+
+/* Loading states */
+.form-input:disabled,
+.form-select:disabled {
+  background: #f3f4f6;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.save-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Validation success states */
+.form-input.valid {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+}
+
+.form-select.valid {
+  border-color: #10b981;
+  box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+} /* E
+nhanced Schedule Table Styles */
+.schedules-table .table-header {
+  grid-template-columns: 1fr 2fr 1.5fr 1.5fr 1.5fr 1fr;
+}
+
+.schedules-table .table-row {
+  grid-template-columns: 1fr 2fr 1.5fr 1.5fr 1.5fr 1fr;
+}
+
+.schedule-name {
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+
+.schedule-details {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.empty-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #6b7280;
+}
+
+.empty-state p {
+  margin: 0;
+  font-size: 1rem;
+}
+
+/* Responsive table adjustments */
+@media (max-width: 1024px) {
+  .schedules-table .table-header,
+  .schedules-table .table-row {
+    grid-template-columns: 1fr 2fr 1fr 1fr;
+  }
+
+  .schedules-table .table-header div:nth-child(3),
+  .schedules-table .table-row div:nth-child(3),
+  .schedules-table .table-header div:nth-child(4),
+  .schedules-table .table-row div:nth-child(4) {
+    display: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .schedules-table .table-header,
+  .schedules-table .table-row {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .schedules-table .table-header div:nth-child(n + 3),
+  .schedules-table .table-row div:nth-child(n + 3) {
+    display: none;
+  }
+
+  .schedule-actions {
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+} /* Cron 
+Builder Presets */
+.cron-presets {
+  margin-bottom: 1rem;
+}
+
+.cron-presets label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+  margin-bottom: 0.5rem;
+}
+
+.preset-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.preset-button {
+  background: white;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.preset-button:hover {
+  border-color: #ff8000;
+  color: #ff8000;
+}
+
+.preset-button.active {
+  background: #ff8000;
+  border-color: #ff8000;
+  color: white;
+}
+
+/* Filter Builder Styles */
+.filter-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.common-filters {
+  margin: 0.5rem 0;
+}
+
+.common-filters small {
+  color: #6b7280;
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+  display: block;
+}
+
+.common-filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+}
+
+.common-filter-button {
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  color: #374151;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.common-filter-button:hover:not(:disabled) {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.common-filter-button:disabled {
+  background: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.filter-preview {
+  background: #f0f9ff;
+  border: 1px solid #bae6fd;
+  border-radius: 0.5rem;
+  padding: 1rem;
+  margin-top: 1rem;
+}
+
+.filter-preview h4 {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0c4a6e;
+}
+
+.filter-preview p {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.875rem;
+  color: #0c4a6e;
+}
+
+.filter-preview ul {
+  margin: 0;
+  padding-left: 1.25rem;
+  font-size: 0.875rem;
+  color: #0c4a6e;
+}
+
+.filter-preview li {
+  margin-bottom: 0.25rem;
+}
+
+/* Enhanced button states */
+.add-filter-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* Responsive adjustments for filter builder */
+@media (max-width: 768px) {
+  .preset-buttons {
+    flex-direction: column;
+  }
+
+  .preset-button {
+    width: 100%;
+    text-align: center;
+  }
+
+  .common-filter-buttons {
+    justify-content: flex-start;
+  }
+}
+/* Filter Builder Styles */
+.filter-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  background: #f3f4f6;
+  border: 1px solid #d1d5db;
+  border-radius: 0.375rem;
+  padding: 0.375rem 0.75rem;
+  font-size: 0.875rem;
+  color: #374151;
+  margin: 0.25rem 0.25rem 0.25rem 0;
+  transition: all 0.2s ease;
+}
+
+.filter-item:hover {
+  background: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+.remove-tag {
+  background: none;
+  border: none;
+  color: #6b7280;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  padding: 0;
+  margin-left: 0.25rem;
+  border-radius: 50%;
+  width: 1.25rem;
+  height: 1.25rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.remove-tag:hover {
+  background: #dc2626;
+  color: white;
+}
+
+.filter-items {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  margin-top: 0.5rem;
+}
+/* Common Filter Suggestions */
+.common-filters {
+  margin-top: 0.75rem;
+  margin-bottom: 1rem;
+}
+
+.common-filters small {
+  display: block;
+  color: #6b7280;
+  font-size: 0.75rem;
+  font-weight: 500;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.common-filter-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.common-filter-button {
+  background: transparent;
+  border: 1px dashed #d1d5db;
+  color: #6b7280;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-weight: 400;
+}
+
+.common-filter-button:hover:not(:disabled) {
+  background: #f9fafb;
+  border-color: #9ca3af;
+  color: #374151;
+  border-style: solid;
+}
+
+.common-filter-button:disabled {
+  background: #f3f4f6;
+  border-color: #e5e7eb;
+  color: #9ca3af;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.common-filter-button:disabled::after {
+  content: " ✓";
+  color: #10b981;
+  font-weight: 600;
 }

@@ -224,7 +224,6 @@ interface PullRequest {
   hasChangesRequested?: boolean;
   reviewers?: string[];
   labels?: string[];
-  tags?: string[];
 }
 
 // Format pull request notifications for Slack
@@ -324,8 +323,8 @@ export function formatSlackPRMessage(
         },
       });
 
-      // Add labels and tags if present
-      const labels = [...(pr.labels || []), ...(pr.tags || [])];
+      // Add labels if present
+      const labels = pr.labels || [];
       if (labels.length > 0) {
         blocks.push({
           type: "context",

@@ -3,13 +3,18 @@ import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 import { useGitProviders } from "../hooks/useGitProviders";
+import { useMessagingProviders } from "../hooks/useMessagingProviders";
+import { useSchedules } from "../hooks/useSchedules";
 
 export default function LandingPage(): React.ReactElement {
   const { isLoaded, isSignedIn } = useAuth();
 
-  // Preload git providers data if user is signed in for faster dashboard loads
+  // Preload data if user is signed in for faster dashboard loads
   // Only fetch if user is loaded and signed in to avoid unnecessary API calls
-  useGitProviders(isLoaded && isSignedIn);
+  const shouldFetch = isLoaded && isSignedIn;
+  useGitProviders(shouldFetch);
+  useMessagingProviders(shouldFetch);
+  useSchedules(shouldFetch);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {

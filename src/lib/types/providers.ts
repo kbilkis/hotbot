@@ -5,7 +5,6 @@ export type MessagingProviderType = "slack" | "teams" | "discord";
 
 // Pull request filtering interface
 export interface PRFilters {
-  tags?: string[];
   labels?: string[];
   titleKeywords?: string[];
   excludeAuthors?: string[];
@@ -33,7 +32,6 @@ export interface PullRequest {
   updatedAt: Date;
   repository: string;
   labels: string[];
-  tags: string[];
   status: "open" | "closed" | "merged";
   reviewers?: string[];
   assignees?: string[];

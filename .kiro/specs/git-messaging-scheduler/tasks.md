@@ -71,7 +71,7 @@
   - Display available channels for connected messaging providers
   - _Requirements: 3.1, 3.4, 4.1, 4.4_
 
-- [ ] 9. Build cron job management interface
+- [x] 9. Build cron job management interface
 
   - Create cron job list/table view with create/edit/delete actions
   - Implement cron expression builder with validation
@@ -80,7 +80,7 @@
   - Create form validation and error handling
   - _Requirements: 5.1, 5.2, 5.3, 5.5, 8.3, 8.4_
 
-- [ ] 10. Implement cron job CRUD operations
+- [x] 10. Implement cron job CRUD operations
 
   - Create Hono RPC routes with arktype validation for cron job creation,
     update, and deletion

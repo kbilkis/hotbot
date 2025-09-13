@@ -140,7 +140,7 @@ export async function deleteCronJob(
     .delete(cronJobs)
     .where(and(eq(cronJobs.id, id), eq(cronJobs.userId, userId)));
 
-  return result.rowCount > 0;
+  return (result.rowCount ?? 0) > 0;
 }
 
 // Execution Log Queries
@@ -185,7 +185,7 @@ export async function getUserExecutionLogs(
       executedAt: executionLogs.executedAt,
       status: executionLogs.status,
       pullRequestsFound: executionLogs.pullRequestsFound,
-      messagessent: executionLogs.messagessent,
+      messagesSent: executionLogs.messagesSent,
       errorMessage: executionLogs.errorMessage,
       executionTimeMs: executionLogs.executionTimeMs,
       escalationsTriggered: executionLogs.escalationsTriggered,
@@ -268,7 +268,7 @@ export async function cleanupEscalationTracking(
       .delete(escalationTracking)
       .where(eq(escalationTracking.cronJobId, cronJobId));
 
-    return result.rowCount;
+    return result.rowCount ?? 0;
   }
 
   // Clean up tracking for PRs that are no longer active
@@ -280,5 +280,5 @@ export async function cleanupEscalationTracking(
     )
   );
 
-  return result.rowCount;
+  return result.rowCount ?? 0;
 }

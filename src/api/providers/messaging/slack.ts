@@ -167,11 +167,6 @@ app.post(
         getSlackUserInfo(accessToken),
       ]);
 
-      // Store the token in database (single provider entry)
-      const { upsertMessagingProvider } = await import(
-        "../../../lib/database/queries/providers"
-      );
-
       const providerData = {
         userId,
         provider: "slack" as const,

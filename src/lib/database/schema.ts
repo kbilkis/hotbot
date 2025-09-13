@@ -81,7 +81,6 @@ export const messagingProviders = pgTable(
 
 // PR filters type definition
 export interface PRFilters {
-  tags?: string[];
   labels?: string[];
   titleKeywords?: string[];
   excludeAuthors?: string[];
@@ -100,13 +99,16 @@ export const cronJobs = pgTable("cron_jobs", {
   gitProviderId: uuid("git_provider_id")
     .references(() => gitProviders.id, { onDelete: "cascade" })
     .notNull(),
+  repositories: jsonb("repositories").$type<string[]>().notNull(),
   messagingProviderId: uuid("messaging_provider_id")
     .references(() => messagingProviders.id, { onDelete: "cascade" })
     .notNull(),
+  messagingChannelId: text("messaging_channel_id").notNull(), // Channel/room ID where notifications are sent
   escalationProviderId: uuid("escalation_provider_id").references(
     () => messagingProviders.id,
     { onDelete: "set null" }
   ),
+  escalationChannelId: text("escalation_channel_id"), // Channel/room ID for escalation notifications
   escalationDays: integer("escalation_days").default(3),
   prFilters: jsonb("pr_filters").$type<PRFilters>(),
   sendWhenEmpty: boolean("send_when_empty").default(false),
@@ -125,7 +127,7 @@ export const executionLogs = pgTable("execution_logs", {
   executedAt: timestamp("executed_at").defaultNow(),
   status: executionStatusEnum("status").notNull(),
   pullRequestsFound: integer("pull_requests_found").default(0),
-  messagessent: integer("messages_sent").default(0),
+  messagesSent: integer("messages_sent").default(0),
   errorMessage: text("error_message"),
   executionTimeMs: integer("execution_time_ms"),
   escalationsTriggered: integer("escalations_triggered").default(0),

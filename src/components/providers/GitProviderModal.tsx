@@ -228,7 +228,7 @@ export default function GitProviderModal({
 
       // Call the disconnect API endpoint
       const response = await fetch(
-        `/api/providers/git/disconnect?type=${provider.provider}`,
+        `/api/providers/git?type=${provider.provider}`,
         {
           method: "DELETE",
         }

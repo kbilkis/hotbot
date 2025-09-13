@@ -3,6 +3,72 @@
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID!;
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET!;
 
+// GitHub API response types
+interface GitHubLabel {
+  id: number;
+  name: string;
+  color: string;
+  description?: string;
+}
+
+interface GitHubUser {
+  login: string;
+  id: number;
+  avatar_url: string;
+  type: string;
+}
+
+interface GitHubTeam {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+interface GitHubRepository {
+  id: number;
+  full_name: string;
+  name: string;
+  private: boolean;
+  archived: boolean;
+  disabled: boolean;
+}
+
+interface GitHubPullRequestFromAPI {
+  id: number;
+  number: number;
+  title: string;
+  body: string;
+  state: "open" | "closed";
+  merged: boolean;
+  html_url: string;
+  created_at: string;
+  updated_at: string;
+  user: GitHubUser;
+  labels: GitHubLabel[];
+  assignees: GitHubUser[];
+  requested_reviewers: GitHubUser[];
+  head: {
+    ref: string;
+    sha: string;
+  };
+  base: {
+    ref: string;
+    sha: string;
+  };
+}
+
+interface GitHubReview {
+  id: number;
+  user: GitHubUser;
+  state: "APPROVED" | "CHANGES_REQUESTED" | "COMMENTED" | "DISMISSED";
+  submitted_at: string;
+}
+
+interface GitHubRequestedReviewers {
+  users: GitHubUser[];
+  teams: GitHubTeam[];
+}
+
 export interface GitHubPR {
   id: string;
   title: string;
@@ -12,7 +78,6 @@ export interface GitHubPR {
   updatedAt: string;
   repository: string;
   labels: string[];
-  tags: string[];
   status: "open" | "closed" | "merged";
   reviewers?: string[];
   assignees?: string[];
@@ -25,7 +90,6 @@ export interface GitHubPR {
 export interface PRFilters {
   repositories?: string[];
   labels?: string[];
-  tags?: string[];
   titleKeywords?: string[];
   excludeAuthors?: string[];
   minAge?: number;
@@ -121,14 +185,14 @@ export async function githubApiRequest(
 
 // Get user repositories
 export async function getGitHubRepositories(token: string): Promise<string[]> {
-  const repos = await githubApiRequest(
+  const repos: GitHubRepository[] = await githubApiRequest(
     "/user/repos?type=all&sort=updated&per_page=100",
     token
   );
 
   return repos
-    .filter((repo: any) => !repo.archived && !repo.disabled)
-    .map((repo: any) => repo.full_name);
+    .filter((repo) => !repo.archived && !repo.disabled)
+    .map((repo) => repo.full_name);
 }
 
 // Get pull requests for repositories
@@ -145,13 +209,13 @@ export async function getGitHubPullRequests(
   // Fetch PRs from each repository
   for (const repo of reposToCheck) {
     try {
-      const prs = await githubApiRequest(
+      const prs: GitHubPullRequestFromAPI[] = await githubApiRequest(
         `/repos/${repo}/pulls?state=open&per_page=100`,
         token
       );
 
       const mappedPRs: GitHubPR[] = await Promise.all(
-        prs.map(async (pr: any) => {
+        prs.map(async (pr) => {
           // Get detailed review information
           const reviews = await getDetailedReviewInfo(token, repo, pr.number);
 
@@ -163,17 +227,14 @@ export async function getGitHubPullRequests(
             createdAt: pr.created_at,
             updatedAt: pr.updated_at,
             repository: repo,
-            labels: pr.labels.map((label: any) => label.name),
-            tags: extractTagsFromPR(pr),
+            labels: pr.labels.map((label) => label.name),
             status: determineStatus(pr),
             reviewers: [
-              ...(pr.requested_reviewers?.map(
-                (reviewer: any) => reviewer.login
-              ) || []),
+              ...(pr.requested_reviewers?.map((reviewer) => reviewer.login) ||
+                []),
               ...reviews.reviewers,
             ],
-            assignees:
-              pr.assignees?.map((assignee: any) => assignee.login) || [],
+            assignees: pr.assignees?.map((assignee) => assignee.login) || [],
             reviewStates: reviews.reviewStates,
             hasApprovals: reviews.hasApprovals,
             hasChangesRequested: reviews.hasChangesRequested,
@@ -198,18 +259,24 @@ async function getDetailedReviewInfo(
 ) {
   try {
     const [reviews, checks] = await Promise.all([
-      githubApiRequest(`/repos/${repo}/pulls/${prNumber}/reviews`, token),
+      githubApiRequest(
+        `/repos/${repo}/pulls/${prNumber}/reviews`,
+        token
+      ) as Promise<GitHubReview[]>,
       githubApiRequest(
         `/repos/${repo}/pulls/${prNumber}/requested_reviewers`,
         token
-      ).catch(() => ({ users: [], teams: [] })),
+      ).catch(() => ({
+        users: [],
+        teams: [],
+      })) as Promise<GitHubRequestedReviewers>,
     ]);
 
     const reviewers = new Set<string>();
     const reviewStates: Record<string, string> = {};
 
     // Process reviews to get latest state from each reviewer
-    reviews.forEach((review: any) => {
+    reviews.forEach((review) => {
       if (review.user && review.state !== "COMMENTED") {
         reviewers.add(review.user.login);
         reviewStates[review.user.login] = review.state;
@@ -217,8 +284,8 @@ async function getDetailedReviewInfo(
     });
 
     // Add requested reviewers
-    checks.users?.forEach((user: any) => reviewers.add(user.login));
-    checks.teams?.forEach((team: any) => reviewers.add(`team:${team.name}`));
+    checks.users?.forEach((user) => reviewers.add(user.login));
+    checks.teams?.forEach((team) => reviewers.add(`team:${team.name}`));
 
     return {
       reviewers: Array.from(reviewers),
@@ -239,34 +306,13 @@ async function getDetailedReviewInfo(
 }
 
 // Determine PR status based on reviews and checks
-function determineStatus(pr: any): "open" | "closed" | "merged" {
+function determineStatus(
+  pr: GitHubPullRequestFromAPI
+): "open" | "closed" | "merged" {
   if (pr.state === "closed") {
     return pr.merged ? "merged" : "closed";
   }
   return "open";
-}
-
-// Extract tags from PR title and branch name
-function extractTagsFromPR(pr: any): string[] {
-  const tags: string[] = [];
-
-  // Extract tags from title (e.g., [HOTFIX], [URGENT])
-  const titleTags = pr.title.match(/\[([^\]]+)\]/g);
-  if (titleTags) {
-    tags.push(
-      ...titleTags.map((tag: string) => tag.slice(1, -1).toUpperCase())
-    );
-  }
-
-  // Extract tags from branch name
-  const branchName = pr.head.ref;
-  if (branchName.includes("hotfix")) tags.push("HOTFIX");
-  if (branchName.includes("urgent")) tags.push("URGENT");
-  if (branchName.includes("feature")) tags.push("FEATURE");
-  if (branchName.includes("bugfix") || branchName.includes("fix"))
-    tags.push("BUGFIX");
-
-  return [...new Set(tags)]; // Remove duplicates
 }
 
 // Apply PR filters
@@ -282,14 +328,6 @@ function applyPRFilters(
       if (!filters.repositories.includes(pr.repository)) {
         return false;
       }
-    }
-
-    // Filter by tags
-    if (filters.tags && filters.tags.length > 0) {
-      const hasMatchingTag = filters.tags.some((tag) =>
-        pr.tags.some((prTag) => prTag.toLowerCase().includes(tag.toLowerCase()))
-      );
-      if (!hasMatchingTag) return false;
     }
 
     // Filter by labels
@@ -339,7 +377,8 @@ function applyPRFilters(
 export async function getGitHubUserInfo(
   token: string
 ): Promise<{ login: string; name: string; email: string }> {
-  const user = await githubApiRequest("/user", token);
+  const user: GitHubUser & { name?: string; email?: string } =
+    await githubApiRequest("/user", token);
 
   return {
     login: user.login,

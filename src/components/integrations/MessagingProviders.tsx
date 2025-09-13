@@ -1,12 +1,11 @@
 import React, { useState } from "react";
-import useSWR from "swr";
+
+import { useMessagingProviders } from "@/hooks/useMessagingProviders";
 
 import { Provider } from "../../types/dashboard";
 import DiscordProviderModal from "../providers/DiscordProviderModal";
 import SlackProviderModal from "../providers/SlackProviderModal";
 import TeamsProviderModal from "../providers/TeamsProviderModal";
-
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 export default function MessagingProviders(): React.ReactElement {
   const [showModal, setShowModal] = useState(false);
@@ -15,10 +14,7 @@ export default function MessagingProviders(): React.ReactElement {
   );
 
   // Fetch messaging providers data
-  const { data, error, isLoading } = useSWR(
-    "/api/providers/messaging",
-    fetcher
-  );
+  const { providers, loading, error } = useMessagingProviders();
 
   const handleConnectProvider = (provider: Provider) => {
     setSelectedProvider(provider);
@@ -35,21 +31,21 @@ export default function MessagingProviders(): React.ReactElement {
     {
       id: "slack",
       name: "Slack",
-      type: "messaging" as const,
+      type: "slack" as const,
       connected: false,
       icon: "💬",
     },
     {
       id: "teams",
       name: "Microsoft Teams",
-      type: "messaging" as const,
+      type: "teams" as const,
       connected: false,
       icon: "👥",
     },
     {
       id: "discord",
       name: "Discord",
-      type: "messaging" as const,
+      type: "discord" as const,
       connected: false,
       icon: "🎮",
     },
@@ -58,19 +54,17 @@ export default function MessagingProviders(): React.ReactElement {
   // Merge API data with default structure
   const messagingProviders: Provider[] = defaultProviders.map(
     (defaultProvider) => {
-      const apiProvider = data?.data?.providers?.find(
-        (p: any) => p.type === defaultProvider.id
-      );
+      const apiProvider = providers.find((p) => p.type === defaultProvider.id);
       return {
         ...defaultProvider,
+        id: apiProvider?.id || defaultProvider.id,
         connected: apiProvider?.connected || false,
         connectedAt: apiProvider?.connectedAt,
-        providerId: apiProvider?.providerId,
       };
     }
   );
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="provider-section">
         <h2>Messaging Providers</h2>
@@ -116,19 +110,19 @@ export default function MessagingProviders(): React.ReactElement {
 
       {showModal && selectedProvider && (
         <>
-          {selectedProvider.id === "slack" && (
+          {selectedProvider.type === "slack" && (
             <SlackProviderModal
               onClose={handleCloseModal}
               isConnected={selectedProvider.connected}
             />
           )}
-          {selectedProvider.id === "teams" && (
+          {selectedProvider.type === "teams" && (
             <TeamsProviderModal
               onClose={handleCloseModal}
               isConnected={selectedProvider.connected}
             />
           )}
-          {selectedProvider.id === "discord" && (
+          {selectedProvider.type === "discord" && (
             <DiscordProviderModal
               onClose={handleCloseModal}
               isConnected={selectedProvider.connected}

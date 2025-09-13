@@ -233,13 +233,10 @@ export default function SlackProviderModal({
       setLoading(true);
       setError(null);
 
-      // Call the disconnect API endpoint (we need to implement this)
-      const response = await fetch(
-        "/api/providers/messaging/disconnect?type=slack",
-        {
-          method: "DELETE",
-        }
-      );
+      // Call the disconnect API endpoint
+      const response = await fetch("/api/providers/messaging?type=slack", {
+        method: "DELETE",
+      });
 
       if (!response.ok) {
         const errorText = await response.text();

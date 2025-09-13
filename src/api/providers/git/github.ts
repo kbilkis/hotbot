@@ -6,6 +6,10 @@ import { Hono } from "hono";
 import { getCurrentUserId } from "@/lib/auth/clerk";
 
 import {
+  getUserGitProvider,
+  upsertGitProvider,
+} from "../../../lib/database/queries/providers";
+import {
   getGitHubAuthUrl,
   exchangeGitHubToken,
   getGitHubRepositories,
@@ -84,11 +88,6 @@ app.post(
         body.redirectUri
       );
 
-      // Step 2: Store token in database
-      const { upsertGitProvider } = await import(
-        "../../../lib/database/queries/providers"
-      );
-
       const providerData = {
         userId,
         provider: "github" as const,
@@ -155,11 +154,6 @@ app.post(
         );
       }
 
-      // Store the token in database
-      const { upsertGitProvider } = await import(
-        "../../../lib/database/queries/providers"
-      );
-
       const providerData = {
         userId,
         provider: "github" as const,
@@ -198,10 +192,6 @@ app.get("/repositories", async (c) => {
   try {
     const userId = getCurrentUserId(c);
 
-    // Get the user's GitHub provider connection
-    const { getUserGitProvider } = await import(
-      "../../../lib/database/queries/providers"
-    );
     const gitProvider = await getUserGitProvider(userId, "github");
 
     if (!gitProvider) {
