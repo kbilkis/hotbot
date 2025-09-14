@@ -3,31 +3,59 @@ import cronstrue from "cronstrue";
 import React, { useState } from "react";
 
 import { useSchedules } from "../../hooks/useSchedules";
+import PauseSvg from "../../icons/pause-circle.svg?react";
+import PencilSvg from "../../icons/pencil-square.svg?react";
+import PlaySvg from "../../icons/play.svg?react";
+import TrashSvg from "../../icons/trash.svg?react";
 import { CronJob } from "../../types/dashboard";
 
 import ScheduleModal from "./ScheduleModal";
 
-const calculateNextExecution = (cronExpression: string): string | undefined => {
+const calculateNextExecution = (
+  utcCronExpression: string
+): string | undefined => {
   try {
-    const interval = CronExpressionParser.parse(cronExpression);
-    return interval.next().toDate().toLocaleString();
+    // Parse as UTC since that's how it's stored
+    const interval = CronExpressionParser.parse(utcCronExpression, {
+      tz: "UTC",
+    });
+    const nextRun = interval.next().toDate();
+
+    // Format in user's local timezone for better UX
+    const date = nextRun.toLocaleDateString("en-US", {
+      weekday: "short",
+      month: "short",
+      day: "numeric",
+      timeZoneName: "short",
+    });
+
+    const time = nextRun.toLocaleTimeString("en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+      hour12: false,
+    });
+
+    return `${date}, ${time}`;
   } catch (error) {
     console.error("Error calculating next execution:", error);
     return undefined;
   }
 };
 
-const getCronDescription = (cronExpression: string): string => {
+const getCronDescription = (utcCronExpression: string): string => {
   try {
-    return cronstrue.toString(cronExpression);
+    return cronstrue.toString(utcCronExpression);
   } catch (error) {
-    return cronExpression; // Fallback to raw expression if cronstrue fails
+    return utcCronExpression; // Fallback to raw expression if conversion fails
   }
 };
 
 export default function SchedulesSection(): React.ReactElement {
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<CronJob | null>(null);
+  const [togglingScheduleId, setTogglingScheduleId] = useState<string | null>(
+    null
+  );
 
   // Use SWR hook for schedules data
   const { schedules, loading, error, refetch } = useSchedules();
@@ -65,7 +93,11 @@ export default function SchedulesSection(): React.ReactElement {
   };
 
   const handleToggleSchedule = async (scheduleId: string) => {
+    if (togglingScheduleId) return; // Prevent multiple simultaneous toggles
+
     try {
+      setTogglingScheduleId(scheduleId);
+
       const schedule = schedules.find((s) => s.id === scheduleId);
       if (!schedule) return;
 
@@ -91,6 +123,8 @@ export default function SchedulesSection(): React.ReactElement {
     } catch (err) {
       console.error("Failed to toggle schedule:", err);
       alert("Failed to toggle schedule");
+    } finally {
+      setTogglingScheduleId(null);
     }
   };
 
@@ -202,7 +236,6 @@ export default function SchedulesSection(): React.ReactElement {
               <div>Status</div>
               <div>Name</div>
               <div>Schedule</div>
-              <div>Last Run</div>
               <div>Next Run</div>
               <div>Actions</div>
             </div>
@@ -224,14 +257,11 @@ export default function SchedulesSection(): React.ReactElement {
                   </div>
                 </div>
                 <div className="schedule-description">
-                  <div className="cron-description">
-                    {getCronDescription(schedule.cronExpression)}
-                  </div>
-                  <div className="cron-expression">
-                    {schedule.cronExpression}
+                  <div>
+                    {schedule.cronExpression}{" "}
+                    <span className="schedule-utc0">(UTC+0)</span>
                   </div>
                 </div>
-                <div>{schedule.lastRun || "-"}</div>
                 <div className="next-run-time">
                   {schedule.status === "active"
                     ? calculateNextExecution(schedule.cronExpression) || "-"
@@ -244,27 +274,36 @@ export default function SchedulesSection(): React.ReactElement {
                       onClick={() => handleEditSchedule(schedule)}
                       title="Edit schedule"
                     >
-                      ✏️
+                      <PencilSvg className="schedule-action-icon" />
                     </button>
                     <button
                       className={`toggle-button ${
                         schedule.status === "paused" ? "paused" : ""
-                      }`}
+                      } ${togglingScheduleId === schedule.id ? "loading" : ""}`}
                       onClick={() => handleToggleSchedule(schedule.id)}
+                      disabled={togglingScheduleId === schedule.id}
                       title={
-                        schedule.status === "active"
+                        togglingScheduleId === schedule.id
+                          ? "Processing..."
+                          : schedule.status === "active"
                           ? "Pause schedule"
                           : "Resume schedule"
                       }
                     >
-                      {schedule.status === "active" ? "⏸️" : "▶️"}
+                      {togglingScheduleId === schedule.id ? (
+                        <div className="loading-spinner-button" />
+                      ) : schedule.status === "active" ? (
+                        <PauseSvg className="schedule-action-icon" />
+                      ) : (
+                        <PlaySvg className="schedule-action-icon" />
+                      )}
                     </button>
                     <button
                       className="delete-button"
                       onClick={() => handleDeleteSchedule(schedule.id)}
                       title="Delete schedule"
                     >
-                      🗑️
+                      <TrashSvg className="schedule-action-icon" />
                     </button>
                   </div>
                 </div>

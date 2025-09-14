@@ -95,7 +95,7 @@ export const cronJobs = pgTable("cron_jobs", {
     .references(() => users.id, { onDelete: "cascade" })
     .notNull(),
   name: text("name").notNull(),
-  cronExpression: text("cron_expression").notNull(),
+  cronExpression: text("cron_expression").notNull(), // Always stored in UTC
   gitProviderId: uuid("git_provider_id")
     .references(() => gitProviders.id, { onDelete: "cascade" })
     .notNull(),

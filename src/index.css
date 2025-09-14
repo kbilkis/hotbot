@@ -952,9 +952,24 @@ footer {
   min-height: 200px;
 }
 
-.loading-spinner {
-  font-size: 1.125rem;
-  color: #6b7280;
+.loading-spinner-button {
+  width: 14px;
+  height: 14px;
+  border: 2px solid #e5e7eb;
+  border-top: 2px solid #6b7280;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin-bottom: 0px;
+  width: 12px;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /* Update nav-links to handle auth button */
@@ -2224,6 +2239,10 @@ footer {
   transition: all 0.2s;
 }
 
+.schedule-action-icon {
+  width: 18px;
+}
+
 .edit-button {
   color: #3b82f6;
 }
@@ -2254,6 +2273,15 @@ footer {
 
 .toggle-button.paused:hover {
   background: rgba(245, 158, 11, 0.1);
+}
+
+.toggle-button.loading {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.toggle-button.loading:hover {
+  background: none;
 }
 
 /* Status indicators */
@@ -2333,6 +2361,11 @@ nhanced Schedule Table Styles */
 .schedule-details {
   font-size: 0.75rem;
   color: #6b7280;
+}
+
+.schedule-utc0 {
+  font-size: 0.7rem;
+  color: "#666";
 }
 
 .empty-state {

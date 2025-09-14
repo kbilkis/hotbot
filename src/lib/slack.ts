@@ -214,7 +214,7 @@ export async function sendSlackMessage(
   });
 }
 
-interface PullRequest {
+export interface PullRequest {
   repository: string;
   title: string;
   url: string;

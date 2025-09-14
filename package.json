@@ -10,7 +10,7 @@
     "build:client": "vite build",
     "build:server": "node esbuild.config.js",
     "start": "NODE_ENV=production node dist/server.js",
-    "cron": "node dist/cron.js",
+    "cron": "node --env-file=.env dist/cron.js",
     "test": "vitest --run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
@@ -19,8 +19,7 @@
     "db:studio": "drizzle-kit studio",
     "lint": "eslint src --ext .ts,.tsx",
     "lint:fix": "eslint src --ext .ts,.tsx --fix",
-    "type-check": "tsc --noEmit",
-    "test:api": "node test-api.js"
+    "type-check": "tsc --noEmit"
   },
   "dependencies": {
     "@clerk/clerk-react": "^5.46.2",
@@ -65,6 +64,7 @@
     "tsx": "^4.20.5",
     "typescript": "^5.9.2",
     "vite": "^7.1.5",
+    "vite-plugin-svgr": "^4.5.0",
     "vitest": "^3.2.4"
   }
 }

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 
 import { usePrefetchChannels } from "@/hooks/useChannels";
 import { usePrefetchRepositories } from "@/hooks/useRepositories";
+import { getUserTimezoneOrFallback } from "@/lib/utils/timezone";
 
 import { useGitProviders } from "../../hooks/useGitProviders";
 import { useMessagingProviders } from "../../hooks/useMessagingProviders";
@@ -33,7 +34,8 @@ interface ScheduleModalProps {
 
 interface CronJobFormData {
   name: string;
-  cronExpression: string;
+  cronExpression: string; // Always stored as UTC
+  timezone: string; // User's display timezone
   gitProviderId: string;
   repositories: string[];
   messagingProviderId: string;
@@ -59,6 +61,7 @@ export default function ScheduleModal({
   const [formData, setFormData] = useState<CronJobFormData>({
     name: "",
     cronExpression: "",
+    timezone: getUserTimezoneOrFallback(), // Default to user's timezone or closest match
     gitProviderId: "",
     repositories: [],
     messagingProviderId: "",
@@ -115,9 +118,12 @@ export default function ScheduleModal({
   // Initialize form data if editing
   useEffect(() => {
     if (schedule) {
+      const userTimezone = getUserTimezoneOrFallback();
+
       setFormData({
         name: schedule.name || "",
-        cronExpression: schedule.cronExpression || "",
+        cronExpression: schedule.cronExpression || "", // Keep as UTC, CronBuilder will handle display conversion
+        timezone: userTimezone, // User's current timezone for display
         gitProviderId: schedule.gitProviderId || "",
         repositories: schedule.repositories || [],
         messagingProviderId: schedule.messagingProviderId || "",
@@ -136,7 +142,8 @@ export default function ScheduleModal({
 
   const validateCronExpression = (expression: string): boolean => {
     try {
-      CronExpressionParser.parse(expression);
+      // Validate as UTC since that's how it's stored
+      CronExpressionParser.parse(expression, { tz: "UTC" });
       return true;
     } catch (error) {
       return false;
@@ -194,10 +201,10 @@ export default function ScheduleModal({
 
     setIsSubmitting(true);
     try {
-      // Prepare the data for API
+      // Prepare the data for API - cronExpression is already in UTC
       const apiData = {
         name: formData.name.trim(),
-        cronExpression: formData.cronExpression.trim(),
+        cronExpression: formData.cronExpression.trim(), // Already in UTC from CronBuilder
         gitProviderId: formData.gitProviderId,
         repositories: formData.repositories,
         messagingProviderId: formData.messagingProviderId,
@@ -495,6 +502,10 @@ export default function ScheduleModal({
                 setFormData((prev) => ({ ...prev, cronExpression: expression }))
               }
               error={errors.cronExpression}
+              timezone={formData.timezone}
+              onTimezoneChange={(timezone) =>
+                setFormData((prev) => ({ ...prev, timezone }))
+              }
             />
           </div>
 

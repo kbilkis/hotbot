@@ -13,7 +13,7 @@ export const PRFiltersSchema = type({
 // Base cron job data schema
 export const CronJobDataSchema = type({
   name: "string",
-  cronExpression: "string",
+  cronExpression: "string", // Always in UTC from client
   gitProviderId: "string",
   repositories: "string[]",
   messagingProviderId: "string",
@@ -31,9 +31,9 @@ export const CronJobDataSchema = type({
   "sendWhenEmpty?": "boolean",
   "isActive?": "boolean",
 }).pipe((data, ctx) => {
-  // Validate cron expression format using cron-parser
+  // Validate cron expression format using cron-parser (assume UTC)
   try {
-    CronExpressionParser.parse(data.cronExpression);
+    CronExpressionParser.parse(data.cronExpression, { tz: "UTC" });
   } catch {
     return ctx.error(
       "Invalid cron expression format. Expected format: 'minute hour day month dayOfWeek'"
@@ -84,7 +84,7 @@ export const CreateCronJobSchema = CronJobDataSchema;
 export const UpdateCronJobSchema = type({
   id: "string",
   name: "string",
-  cronExpression: "string",
+  cronExpression: "string", // Always in UTC from client
   gitProviderId: "string",
   repositories: "string[]",
   messagingProviderId: "string",
@@ -102,9 +102,9 @@ export const UpdateCronJobSchema = type({
   "sendWhenEmpty?": "boolean",
   "isActive?": "boolean",
 }).pipe((data, ctx) => {
-  // Validate cron expression format using cron-parser
+  // Validate cron expression format using cron-parser (assume UTC)
   try {
-    CronExpressionParser.parse(data.cronExpression);
+    CronExpressionParser.parse(data.cronExpression, { tz: "UTC" });
   } catch {
     return ctx.error(
       "Invalid cron expression format. Expected format: 'minute hour day month dayOfWeek'"

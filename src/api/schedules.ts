@@ -66,7 +66,7 @@ app.post("/", arktypeValidator("json", CreateCronJobSchema), async (c) => {
     const userId = getCurrentUserId(c);
     const jobData = c.req.valid("json");
 
-    // Create the cron job
+    // Cron expression is already in UTC from the client
     const job = await createCronJob(userId, jobData);
 
     return c.json(
@@ -94,7 +94,7 @@ app.put("/:id", arktypeValidator("json", UpdateCronJobSchema), async (c) => {
       return c.json({ error: "ID mismatch" }, 400);
     }
 
-    // Extract the update data (excluding id)
+    // Extract the update data (excluding id) - cron expression is already in UTC
     const { id: _, ...jobUpdates } = updateData;
 
     // Update the cron job

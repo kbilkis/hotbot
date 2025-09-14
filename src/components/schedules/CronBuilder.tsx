@@ -1,10 +1,20 @@
 import cronstrue from "cronstrue";
-import React from "react";
+import React, { useEffect } from "react";
+
+import {
+  getUserTimezoneOrFallback,
+  getAllTimezones,
+  convertCronToUTC,
+  convertCronFromUTC,
+} from "../../lib/utils/timezone";
+import Tooltip from "../ui/Tooltip";
 
 interface CronBuilderProps {
-  value: string;
-  onChange: (expression: string) => void;
+  value: string; // This is always the UTC cron expression
+  onChange: (expression: string) => void; // This always sends UTC cron expression
   error?: string;
+  timezone?: string;
+  onTimezoneChange?: (timezone: string) => void;
 }
 
 interface CronParts {
@@ -19,7 +29,41 @@ export default function CronBuilder({
   value,
   onChange,
   error,
+  timezone = "UTC",
+  onTimezoneChange,
 }: CronBuilderProps): React.ReactElement {
+  // Convert UTC cron expression to display timezone for editing
+  const getDisplayCronExpression = (utcCron: string): string => {
+    if (!utcCron || timezone === "UTC+0") return utcCron;
+    try {
+      return convertCronFromUTC(utcCron, timezone);
+    } catch (error) {
+      console.warn("Failed to convert cron from UTC for display:", error);
+      return utcCron;
+    }
+  };
+
+  // Convert display cron expression back to UTC for storage
+  const convertToUTCAndNotify = (displayCron: string): void => {
+    if (!displayCron) {
+      onChange("");
+      return;
+    }
+
+    if (timezone === "UTC+0") {
+      onChange(displayCron);
+      return;
+    }
+
+    try {
+      const utcCron = convertCronToUTC(displayCron, timezone);
+      onChange(utcCron);
+    } catch (error) {
+      console.warn("Failed to convert cron to UTC:", error);
+      onChange(displayCron); // Fallback to original
+    }
+  };
+
   const parseCronExpression = (expression: string): CronParts => {
     const parts = expression.split(" ");
     if (parts.length !== 5) {
@@ -44,16 +88,32 @@ export default function CronBuilder({
     return `${parts.minute} ${parts.hour} ${parts.dayOfMonth} ${parts.month} ${parts.dayOfWeek}`;
   };
 
-  const cronParts = parseCronExpression(value);
+  // Work with display cron expression (in user's timezone)
+  const displayCronExpression = getDisplayCronExpression(value);
+  const cronParts = parseCronExpression(displayCronExpression);
+
+  // Convert current UTC cron to display timezone when timezone changes
+  useEffect(() => {
+    if (value) {
+      // When timezone changes, we need to update the display but keep the same UTC time
+      // The display will automatically update via getDisplayCronExpression
+      // No need to call onChange here as the UTC value shouldn't change
+    }
+  }, [timezone]);
 
   const updateCronPart = (field: keyof CronParts, newValue: string) => {
     const newParts = { ...cronParts, [field]: newValue };
-    onChange(buildCronExpression(newParts));
+    const newDisplayCron = buildCronExpression(newParts);
+    convertToUTCAndNotify(newDisplayCron);
   };
 
   const getCronDescription = (expression: string): string => {
     try {
-      return cronstrue.toString(expression);
+      // Show description for the display cron expression (in user's timezone)
+      const description = cronstrue.toString(
+        displayCronExpression || expression
+      );
+      return `${description} (${timezone})`;
     } catch (error) {
       return "Invalid cron expression";
     }
@@ -68,6 +128,11 @@ export default function CronBuilder({
     { label: "Monthly on 1st at 9 AM", value: "0 9 1 * *" },
   ];
 
+  const handlePresetClick = (presetValue: string) => {
+    // Preset values are in display timezone, convert to UTC
+    convertToUTCAndNotify(presetValue);
+  };
+
   return (
     <div className="cron-builder">
       <div className="cron-presets">
@@ -78,9 +143,9 @@ export default function CronBuilder({
               key={preset.value}
               type="button"
               className={`preset-button ${
-                value === preset.value ? "active" : ""
+                displayCronExpression === preset.value ? "active" : ""
               }`}
-              onClick={() => onChange(preset.value)}
+              onClick={() => handlePresetClick(preset.value)}
             >
               {preset.label}
             </button>
@@ -148,17 +213,43 @@ export default function CronBuilder({
         </div>
       </div>
 
+      {onTimezoneChange && (
+        <div className="form-group">
+          <label htmlFor="timezone">
+            Timezone{" "}
+            <Tooltip text="Schedule will run at the specified time in this timezone" />
+          </label>
+          <select
+            id="timezone"
+            className="form-select"
+            value={timezone || getUserTimezoneOrFallback()}
+            onChange={(e) => onTimezoneChange(e.target.value)}
+          >
+            {getAllTimezones().map((tz) => (
+              <option key={tz.value} value={tz.value}>
+                {tz.label}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+
       <div className="form-group">
-        <label htmlFor="cron-expression">Cron Expression</label>
+        <label htmlFor="cron-expression">
+          Cron Expression{" "}
+          <span className="schedule-utc0">(formatted to UTC+0)</span>
+        </label>
         <input
           id="cron-expression"
           type="text"
           className={`form-input ${error ? "error" : ""}`}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => convertToUTCAndNotify(e.target.value)}
           placeholder="0 9 * * 1-5"
         />
-        <small className="form-help">{getCronDescription(value)}</small>
+        <small className="form-help">
+          {getCronDescription(displayCronExpression)}
+        </small>
         {error && <div className="field-error">{error}</div>}
       </div>
     </div>

@@ -1,9 +1,12 @@
 /// <reference types="vite/client" />
 
-interface ImportMetaEnv {
-  readonly VITE_CLERK_PUBLISHABLE_KEY: string;
+declare module "*.svg?react" {
+  import React from "react";
+  const ReactComponent: React.FunctionComponent<React.SVGProps<SVGSVGElement>>;
+  export default ReactComponent;
 }
 
-interface ImportMeta {
-  readonly env: ImportMetaEnv;
+declare module "*.svg" {
+  const src: string;
+  export default src;
 }

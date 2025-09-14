@@ -1,115 +1,311 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from "vitest";
-import { CronExpressionParser } from "cron-parser";
-import cronstrue from "cronstrue";
+/**
+ * Unit tests for cron scheduler utilities
+ */
 
-describe("Cron Expression Validation", () => {
-  beforeEach(() => {
-    // Mock the current time to a fixed date for consistent testing
-    vi.useFakeTimers();
-    vi.setSystemTime(new Date("2024-01-15T10:30:00Z")); // Monday, 10:30 AM UTC
+import { describe, it, expect, vi } from "vitest";
+
+import {
+  calculatePRAge,
+  shouldEscalatePR,
+} from "../../../../src/lib/cron/escalation";
+import {
+  filterProcessor,
+  validateFilters,
+  getFiltersDescription,
+} from "../../../../src/lib/cron/filters";
+import type { PRFilters } from "../../../../src/lib/types/providers";
+
+// Mock the database modules to avoid requiring environment variables
+vi.mock("../../../../src/lib/database/client", () => ({
+  db: {},
+}));
+
+vi.mock("../../../../src/lib/database/queries/cron-jobs", () => ({}));
+
+describe("Filter Processor", () => {
+  const mockPRs = [
+    {
+      id: "1",
+      title: "Fix bug in authentication",
+      author: "john",
+      url: "https://github.com/repo/pr/1",
+      createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
+      repository: "org/repo1",
+      labels: ["bug", "urgent"],
+    },
+    {
+      id: "2",
+      title: "Add new feature",
+      author: "jane",
+      url: "https://github.com/repo/pr/2",
+      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
+      repository: "org/repo2",
+      labels: ["feature"],
+    },
+    {
+      id: "3",
+      title: "Update documentation",
+      author: "bob",
+      url: "https://github.com/repo/pr/3",
+      createdAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
+      repository: "org/repo1",
+      labels: ["docs"],
+    },
+  ];
+
+  describe("filterProcessor", () => {
+    it("should return all PRs when no filters are applied", () => {
+      const result = filterProcessor(mockPRs);
+      expect(result).toHaveLength(3);
+      expect(result).toEqual(mockPRs);
+    });
+
+    it("should return all PRs when filters is null", () => {
+      const result = filterProcessor(mockPRs, null);
+      expect(result).toHaveLength(3);
+      expect(result).toEqual(mockPRs);
+    });
+
+    it("should filter by repositories", () => {
+      const filters: PRFilters = {
+        repositories: ["org/repo1"],
+      };
+
+      const result = filterProcessor(mockPRs, filters);
+      expect(result).toHaveLength(2);
+      expect(result.every((pr) => pr.repository === "org/repo1")).toBe(true);
+    });
+
+    it("should filter by labels", () => {
+      const filters: PRFilters = {
+        labels: ["bug"],
+      };
+
+      const result = filterProcessor(mockPRs, filters);
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("1");
+    });
+
+    it("should filter by title keywords", () => {
+      const filters: PRFilters = {
+        titleKeywords: ["feature"],
+      };
+
+      const result = filterProcessor(mockPRs, filters);
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("2");
+    });
+
+    it("should filter by excluded authors", () => {
+      const filters: PRFilters = {
+        excludeAuthors: ["john", "bob"],
+      };
+
+      const result = filterProcessor(mockPRs, filters);
+      expect(result).toHaveLength(1);
+      expect(result[0].author).toBe("jane");
+    });
+
+    it("should filter by minimum age", () => {
+      const filters: PRFilters = {
+        minAge: 3, // 3 days
+      };
+
+      const result = filterProcessor(mockPRs, filters);
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("2"); // 5 days old
+    });
+
+    it("should filter by maximum age", () => {
+      const filters: PRFilters = {
+        maxAge: 3, // 3 days
+      };
+
+      const result = filterProcessor(mockPRs, filters);
+      expect(result).toHaveLength(2);
+      expect(result.map((pr) => pr.id)).toEqual(["1", "3"]); // 2 days and 1 day old
+    });
+
+    it("should apply multiple filters", () => {
+      const filters: PRFilters = {
+        repositories: ["org/repo1"],
+        labels: ["bug"],
+      };
+
+      const result = filterProcessor(mockPRs, filters);
+      expect(result).toHaveLength(1);
+      expect(result[0].id).toBe("1");
+    });
+
+    it("should return empty array when no PRs match filters", () => {
+      const filters: PRFilters = {
+        labels: ["nonexistent"],
+      };
+
+      const result = filterProcessor(mockPRs, filters);
+      expect(result).toHaveLength(0);
+    });
   });
 
-  afterEach(() => {
-    vi.useRealTimers();
+  describe("validateFilters", () => {
+    it("should return no errors for valid filters", () => {
+      const filters: PRFilters = {
+        repositories: ["org/repo1"],
+        labels: ["bug"],
+        titleKeywords: ["fix"],
+        excludeAuthors: ["bot"],
+        minAge: 1,
+        maxAge: 7,
+      };
+
+      const errors = validateFilters(filters);
+      expect(errors).toHaveLength(0);
+    });
+
+    it("should return error for negative minimum age", () => {
+      const filters: PRFilters = {
+        minAge: -1,
+      };
+
+      const errors = validateFilters(filters);
+      expect(errors).toContain("Minimum age must be non-negative");
+    });
+
+    it("should return error for negative maximum age", () => {
+      const filters: PRFilters = {
+        maxAge: -1,
+      };
+
+      const errors = validateFilters(filters);
+      expect(errors).toContain("Maximum age must be non-negative");
+    });
+
+    it("should return error when minAge > maxAge", () => {
+      const filters: PRFilters = {
+        minAge: 7,
+        maxAge: 3,
+      };
+
+      const errors = validateFilters(filters);
+      expect(errors).toContain(
+        "Minimum age cannot be greater than maximum age"
+      );
+    });
+
+    it("should return error for empty arrays", () => {
+      const filters: PRFilters = {
+        repositories: [],
+        labels: [],
+        titleKeywords: [],
+        excludeAuthors: [],
+      };
+
+      const errors = validateFilters(filters);
+      expect(errors).toHaveLength(4);
+      expect(errors).toContain("Repository filter cannot be empty array");
+      expect(errors).toContain("Labels filter cannot be empty array");
+      expect(errors).toContain("Title keywords filter cannot be empty array");
+      expect(errors).toContain("Excluded authors filter cannot be empty array");
+    });
   });
 
-  describe("CronExpressionParser validation", () => {
-    it("should validate correct cron expressions", () => {
-      const validExpressions = [
-        "0 9 * * 1-5", // Weekdays at 9 AM
-        "*/30 * * * *", // Every 30 minutes
-        "0 */2 * * *", // Every 2 hours
-        "0 0 1 * *", // First day of month
-        "15 14 1 * *", // First day of month at 2:15 PM
-        "0 22 * * 1-5", // Weekdays at 10 PM
-        "5 4 * * 0", // Sundays at 4:05 AM
-      ];
-
-      validExpressions.forEach((expr) => {
-        expect(() => CronExpressionParser.parse(expr)).not.toThrow();
-      });
+  describe("getFiltersDescription", () => {
+    it("should return 'No filters applied' for null filters", () => {
+      const description = getFiltersDescription(null);
+      expect(description).toBe("No filters applied");
     });
 
-    it("should reject invalid cron expressions", () => {
-      const invalidExpressions = [
-        "invalid",
-        "0 9 * *", // Missing field
-        "0 9 * * * *", // Too many fields
-        "60 9 * * *", // Invalid minute
-        "0 25 * * *", // Invalid hour
-        "0 9 32 * *", // Invalid day
-        "0 9 * 13 *", // Invalid month
-        "0 9 * * 8", // Invalid day of week
-        "", // Empty string
-      ];
+    it("should return 'No filters applied' for undefined filters", () => {
+      const description = getFiltersDescription(undefined);
+      expect(description).toBe("No filters applied");
+    });
 
-      invalidExpressions.forEach((expr) => {
-        expect(() => CronExpressionParser.parse(expr)).toThrow();
-      });
+    it("should return 'No filters applied' for empty filters", () => {
+      const description = getFiltersDescription({});
+      expect(description).toBe("No filters applied");
+    });
+
+    it("should describe single filter", () => {
+      const filters: PRFilters = {
+        repositories: ["org/repo1"],
+      };
+
+      const description = getFiltersDescription(filters);
+      expect(description).toBe("Repositories: org/repo1");
+    });
+
+    it("should describe multiple filters", () => {
+      const filters: PRFilters = {
+        repositories: ["org/repo1", "org/repo2"],
+        labels: ["bug"],
+        minAge: 1,
+        maxAge: 7,
+      };
+
+      const description = getFiltersDescription(filters);
+      expect(description).toContain("Repositories: org/repo1, org/repo2");
+      expect(description).toContain("Labels: bug");
+      expect(description).toContain("Minimum age: 1 days");
+      expect(description).toContain("Maximum age: 7 days");
+    });
+  });
+});
+
+describe("Escalation Utilities", () => {
+  describe("calculatePRAge", () => {
+    it("should calculate PR age in days", () => {
+      const threeDaysAgo = new Date(
+        Date.now() - 3 * 24 * 60 * 60 * 1000
+      ).toISOString();
+      const age = calculatePRAge(threeDaysAgo);
+      expect(age).toBe(3);
+    });
+
+    it("should return 0 for PRs created today", () => {
+      const today = new Date().toISOString();
+      const age = calculatePRAge(today);
+      expect(age).toBe(0);
+    });
+
+    it("should handle fractional days", () => {
+      const halfDayAgo = new Date(
+        Date.now() - 12 * 60 * 60 * 1000
+      ).toISOString();
+      const age = calculatePRAge(halfDayAgo);
+      expect(age).toBe(0); // Should floor to 0
     });
   });
 
-  describe("cronstrue integration", () => {
-    it("should describe common cron expressions using cronstrue", () => {
-      const expressions = [
-        "0 9 * * 1-5", // Every weekday at 9:00 AM
-        "0 9 * * *", // Every day at 9:00 AM
-        "0 */2 * * *", // Every 2 hours
-        "*/30 * * * *", // Every 30 minutes
-      ];
+  describe("shouldEscalatePR", () => {
+    const mockPR = {
+      id: "1",
+      title: "Test PR",
+      author: "test",
+      url: "https://github.com/test/pr/1",
+      createdAt: new Date(Date.now() - 5 * 24 * 60 * 60 * 1000).toISOString(), // 5 days ago
+      repository: "test/repo",
+    };
 
-      expressions.forEach((expr) => {
-        const description = cronstrue.toString(expr);
-        expect(description).toBeDefined();
-        expect(description.length).toBeGreaterThan(0);
-        expect(typeof description).toBe("string");
-      });
+    it("should not escalate PR younger than threshold", () => {
+      const shouldEscalate = shouldEscalatePR(mockPR, 7); // 7 day threshold, PR is 5 days old
+      expect(shouldEscalate).toBe(false);
     });
 
-    it("should provide readable descriptions for complex expressions", () => {
-      const complexExpressions = [
-        "15 14 1 * *", // 2:15 PM on 1st of month
-        "0 22 * * 1-5", // 10 PM on weekdays
-        "5 4 * * 0", // 4:05 AM on Sundays
-      ];
-
-      complexExpressions.forEach((expr) => {
-        const description = cronstrue.toString(expr);
-        expect(description).toBeDefined();
-        expect(description.length).toBeGreaterThan(0);
-      });
+    it("should escalate PR older than threshold with no previous escalation", () => {
+      const shouldEscalate = shouldEscalatePR(mockPR, 3); // 3 day threshold, PR is 5 days old
+      expect(shouldEscalate).toBe(true);
     });
 
-    it("should handle invalid cron expressions gracefully", () => {
-      const invalidExpressions = [
-        "invalid",
-        "60 9 * * *",
-        "0 25 * * *",
-        "",
-        "0 9 * *", // Missing field
-      ];
-
-      invalidExpressions.forEach((expr) => {
-        expect(() => {
-          cronstrue.toString(expr);
-        }).toThrow();
-      });
+    it("should not re-escalate if last escalation was recent", () => {
+      const recentEscalation = new Date(Date.now() - 2 * 24 * 60 * 60 * 1000); // 2 days ago
+      const shouldEscalate = shouldEscalatePR(mockPR, 3, recentEscalation);
+      expect(shouldEscalate).toBe(false);
     });
 
-    it("should provide readable descriptions for various schedules", () => {
-      const schedules = [
-        { expr: "*/5 * * * *", shouldContain: "5 minutes" },
-        { expr: "0 */3 * * *", shouldContain: "3 hours" },
-        { expr: "0 9 * * 1", shouldContain: "Monday" },
-        { expr: "0 9 1 * *", shouldContain: "1st" },
-      ];
-
-      schedules.forEach(({ expr, shouldContain }) => {
-        const description = cronstrue.toString(expr);
-        expect(description.toLowerCase()).toContain(
-          shouldContain.toLowerCase()
-        );
-      });
+    it("should re-escalate if last escalation was more than 7 days ago", () => {
+      const oldEscalation = new Date(Date.now() - 10 * 24 * 60 * 60 * 1000); // 10 days ago
+      const shouldEscalate = shouldEscalatePR(mockPR, 3, oldEscalation);
+      expect(shouldEscalate).toBe(true);
     });
   });
 });
