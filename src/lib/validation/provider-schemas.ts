@@ -161,6 +161,48 @@ export const SlackChannelsListSchema = type({
   channels: SlackChannelSchema.array(),
 });
 
+// Discord specific schemas
+export const DiscordAuthUrlSchema = type({
+  redirectUri: "string",
+  scopes: "string[]?",
+});
+
+export const DiscordTokenExchangeSchema = type({
+  code: "string",
+  redirectUri: "string",
+});
+
+export const DiscordSendMessageSchema = type({
+  webhookUrl: "string",
+  message: "string",
+});
+
+export const DiscordGuildSchema = type({
+  id: "string",
+  name: "string",
+  icon: "string?",
+  owner: "boolean",
+  permissions: "string",
+});
+
+export const DiscordChannelSchema = type({
+  id: "string",
+  name: "string",
+  type: "number",
+  guild_id: "string?",
+  position: "number?",
+  nsfw: "boolean?",
+  parent_id: "string?",
+});
+
+export const DiscordGuildsListSchema = type({
+  guilds: DiscordGuildSchema.array(),
+});
+
+export const DiscordChannelsListSchema = type({
+  channels: DiscordChannelSchema.array(),
+});
+
 // Provider type validation for route parameters and queries
 export const ProviderTypeParamSchema = type({
   type: "string",
@@ -218,6 +260,13 @@ export type SlackTokenExchangeData = typeof SlackTokenExchangeSchema.infer;
 export type SlackSendMessageData = typeof SlackSendMessageSchema.infer;
 export type SlackChannelData = typeof SlackChannelSchema.infer;
 export type SlackChannelsListData = typeof SlackChannelsListSchema.infer;
+export type DiscordAuthUrlData = typeof DiscordAuthUrlSchema.infer;
+export type DiscordTokenExchangeData = typeof DiscordTokenExchangeSchema.infer;
+export type DiscordSendMessageData = typeof DiscordSendMessageSchema.infer;
+export type DiscordGuildData = typeof DiscordGuildSchema.infer;
+export type DiscordChannelData = typeof DiscordChannelSchema.infer;
+export type DiscordGuildsListData = typeof DiscordGuildsListSchema.infer;
+export type DiscordChannelsListData = typeof DiscordChannelsListSchema.infer;
 export type AuthUrlResponseData = typeof AuthUrlResponseSchema.infer;
 export type TokenResponseData = typeof TokenResponseSchema.infer;
 export type PullRequestData = typeof PullRequestSchema.infer;

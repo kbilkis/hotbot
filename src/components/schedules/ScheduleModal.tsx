@@ -59,8 +59,8 @@ export default function ScheduleModal({
   schedule,
 }: ScheduleModalProps): React.ReactElement {
   const [formData, setFormData] = useState<CronJobFormData>({
-    name: "",
-    cronExpression: "",
+    name: "Daily reminder for open Pull Requests",
+    cronExpression: "0 16 * * *", // Default to 4 PM daily
     timezone: getUserTimezoneOrFallback(), // Default to user's timezone or closest match
     gitProviderId: "",
     repositories: [],
@@ -78,6 +78,7 @@ export default function ScheduleModal({
 
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [repositorySearchTerm, setRepositorySearchTerm] = useState("");
   // Use SWR hooks for provider data
   const { providers: gitProviders, loading: loadingGitProviders } =
     useGitProviders();
@@ -97,6 +98,11 @@ export default function ScheduleModal({
   const availableChannels = formData.messagingProviderId
     ? channelsByProvider[formData.messagingProviderId] || []
     : [];
+
+  // Filter repositories based on search term
+  const filteredRepositories = availableRepositories.filter((repo) =>
+    repo.toLowerCase().includes(repositorySearchTerm.toLowerCase())
+  );
 
   // Loading states
   const loadingRepositories = loadingAllRepositories;
@@ -139,6 +145,23 @@ export default function ScheduleModal({
       });
     }
   }, [schedule]);
+
+  // Auto-select first providers when creating a new schedule
+  useEffect(() => {
+    if (!schedule && !loadingProviders) {
+      const connectedGitProviders = gitProviders.filter((p) => p.connected);
+      const connectedMessagingProviders = messagingProviders.filter(
+        (p) => p.connected
+      );
+
+      setFormData((prev) => ({
+        ...prev,
+        gitProviderId: prev.gitProviderId || connectedGitProviders[0]?.id || "",
+        messagingProviderId:
+          prev.messagingProviderId || connectedMessagingProviders[0]?.id || "",
+      }));
+    }
+  }, [schedule, loadingProviders, gitProviders, messagingProviders]);
 
   const validateCronExpression = (expression: string): boolean => {
     try {
@@ -355,41 +378,59 @@ export default function ScheduleModal({
                   {loadingRepositories && formData.gitProviderId ? (
                     <div className="loading-text">Loading repositories...</div>
                   ) : availableRepositories.length > 0 ? (
-                    <div
-                      className="checkbox-group"
-                      style={{
-                        maxHeight: "200px",
-                        overflowY: "auto",
-                        border: "1px solid #ddd",
-                        padding: "8px",
-                        borderRadius: "4px",
-                      }}
-                    >
-                      {availableRepositories.map((repo) => (
-                        <label key={repo} className="checkbox-label">
-                          <input
-                            type="checkbox"
-                            checked={formData.repositories.includes(repo)}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  repositories: [...prev.repositories, repo],
-                                }));
-                              } else {
-                                setFormData((prev) => ({
-                                  ...prev,
-                                  repositories: prev.repositories.filter(
-                                    (r) => r !== repo
-                                  ),
-                                }));
-                              }
-                            }}
-                          />
-                          {repo}
-                        </label>
-                      ))}
-                    </div>
+                    <>
+                      <input
+                        type="text"
+                        className="form-input"
+                        placeholder="Search repositories..."
+                        value={repositorySearchTerm}
+                        onChange={(e) =>
+                          setRepositorySearchTerm(e.target.value)
+                        }
+                        style={{ marginBottom: "8px" }}
+                      />
+                      <div
+                        className="checkbox-group"
+                        style={{
+                          maxHeight: "200px",
+                          overflowY: "auto",
+                          border: "1px solid #ddd",
+                          padding: "8px",
+                          borderRadius: "4px",
+                        }}
+                      >
+                        {filteredRepositories.map((repo) => (
+                          <label key={repo} className="checkbox-label">
+                            <input
+                              type="checkbox"
+                              checked={formData.repositories.includes(repo)}
+                              onChange={(e) => {
+                                if (e.target.checked) {
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    repositories: [...prev.repositories, repo],
+                                  }));
+                                } else {
+                                  setFormData((prev) => ({
+                                    ...prev,
+                                    repositories: prev.repositories.filter(
+                                      (r) => r !== repo
+                                    ),
+                                  }));
+                                }
+                              }}
+                            />
+                            {repo}
+                          </label>
+                        ))}
+                        {filteredRepositories.length === 0 &&
+                          repositorySearchTerm && (
+                            <div className="no-repositories">
+                              No repositories match your search
+                            </div>
+                          )}
+                      </div>
+                    </>
                   ) : formData.gitProviderId ? (
                     <div className="no-repositories">
                       No repositories found for this provider

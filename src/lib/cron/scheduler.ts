@@ -12,13 +12,14 @@ import {
   createExecutionLog,
 } from "../database/queries/cron-jobs";
 import {
+  GitProvider,
   gitProviders,
   MessagingProvider,
   messagingProviders,
   type CronJob,
 } from "../database/schema";
 import { getGitHubPullRequests } from "../github";
-import { sendSlackMessage, formatSlackPRMessage, PullRequest } from "../slack";
+import { formatSlackPRMessage, PullRequest, sendSlackMessage } from "../slack";
 import type { PRFilters } from "../types/providers";
 
 import { escalationProcessor } from "./escalation";
@@ -126,7 +127,9 @@ function filterDueJobs(jobs: CronJob[]): CronJob[] {
       // 2. Either it has never run, or last run was before this scheduled time
       const isDue =
         prevRunMinute.getTime() === currentMinute.getTime() &&
-        (!job.lastExecuted || job.lastExecuted < prevRun);
+        (!job.lastExecuted ||
+          (job.lastExecuted !== null &&
+            (job.lastExecuted as Date).getTime() < prevRun.getTime()));
 
       if (isDue) {
         console.log(
@@ -240,7 +243,7 @@ async function processJob(job: CronJob): Promise<void> {
 /**
  * Fetch pull requests from git provider
  */
-async function fetchPullRequests(job: CronJob, gitProvider: any) {
+async function fetchPullRequests(job: CronJob, gitProvider: GitProvider) {
   // Currently only GitHub is implemented
   if (gitProvider.provider === "github") {
     return await getGitHubPullRequests(
@@ -276,13 +279,9 @@ async function sendNotification(
       );
     }
 
-    const message = formatSlackPRMessage(pullRequests, undefined, isEscalation);
 
-    await sendSlackMessage(
-      messagingProvider.accessToken,
-      channelId,
-      message.text
-    );
+    const message = formatSlackPRMessage(pullRequests, undefined, isEscalation);
+    await sendSlackMessage(messagingProvider.accessToken, channelId, message);
 
     console.log(
       `Sent ${

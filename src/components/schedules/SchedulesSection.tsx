@@ -1,5 +1,4 @@
 import { CronExpressionParser } from "cron-parser";
-import cronstrue from "cronstrue";
 import React, { useState } from "react";
 
 import { useSchedules } from "../../hooks/useSchedules";
@@ -39,14 +38,6 @@ const calculateNextExecution = (
   } catch (error) {
     console.error("Error calculating next execution:", error);
     return undefined;
-  }
-};
-
-const getCronDescription = (utcCronExpression: string): string => {
-  try {
-    return cronstrue.toString(utcCronExpression);
-  } catch (error) {
-    return utcCronExpression; // Fallback to raw expression if conversion fails
   }
 };
 

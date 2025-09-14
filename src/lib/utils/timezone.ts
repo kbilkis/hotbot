@@ -65,7 +65,6 @@ export function getAllTimezones(): Array<{ value: string; label: string }> {
     { value: "UTC+3", label: "UTC+3 (Helsinki, Istanbul)" },
     { value: "UTC+4", label: "UTC+4 (Dubai, Baku)" },
     { value: "UTC+5", label: "UTC+5 (Karachi, Tashkent)" },
-    { value: "UTC+5:30", label: "UTC+5:30 (India, Sri Lanka)" },
     { value: "UTC+6", label: "UTC+6 (Dhaka, Almaty)" },
     { value: "UTC+7", label: "UTC+7 (Bangkok, Jakarta)" },
     { value: "UTC+8", label: "UTC+8 (Beijing, Singapore)" },
@@ -97,16 +96,29 @@ export function convertCronToUTC(
   }
 
   try {
+    // If hour is a wildcard or interval, don't convert - it doesn't make sense
+    if (parts[1] === "*" || parts[1].includes("/")) {
+      return cronExpression;
+    }
+
+    // Handle ranges (e.g., "9-17") and lists (e.g., "9,12,15")
+    if (parts[1].includes("-") || parts[1].includes(",")) {
+      return convertComplexHourExpression(cronExpression, fromTimezone, -1);
+    }
+
     // Parse the UTC offset from the timezone string
     const offset = parseUTCOffset(fromTimezone);
 
-    // Get the hour and minute from the cron expression
-    const minute = parseInt(parts[0]) || 0;
-    const hour = parseInt(parts[1]) || 0;
+    // Get the hour from the cron expression (minute stays the same)
+    const hour = parseInt(parts[1]);
+
+    // Validate hour is a valid number
+    if (isNaN(hour)) {
+      return cronExpression;
+    }
 
     // Convert to UTC by subtracting the offset
     let utcHour = hour - offset;
-    const utcMinute = minute;
 
     // Handle hour overflow/underflow
     if (utcHour < 0) {
@@ -115,8 +127,8 @@ export function convertCronToUTC(
       utcHour -= 24;
     }
 
-    // Replace minute and hour with UTC equivalents, keep other parts
-    return `${utcMinute} ${utcHour} ${parts[2]} ${parts[3]} ${parts[4]}`;
+    // Replace only the hour, keep minute and other parts unchanged
+    return `${parts[0]} ${utcHour} ${parts[2]} ${parts[3]} ${parts[4]}`;
   } catch (error) {
     console.error("Error converting cron to UTC:", error);
     throw new Error("Invalid cron expression or timezone");
@@ -141,6 +153,60 @@ export function parseUTCOffset(timezone: string): number {
 }
 
 /**
+ * Convert hour values in ranges and lists, handling timezone conversion
+ */
+function convertHourValue(hour: number, offset: number): number {
+  let convertedHour = hour + offset;
+
+  // Handle hour overflow/underflow
+  if (convertedHour < 0) {
+    convertedHour += 24;
+  } else if (convertedHour >= 24) {
+    convertedHour -= 24;
+  }
+
+  return convertedHour;
+}
+
+/**
+ * Convert complex hour expressions (ranges and lists) with timezone conversion
+ */
+function convertComplexHourExpression(
+  cronExpression: string,
+  timezone: string,
+  direction: number // -1 for toUTC, +1 for fromUTC
+): string {
+  const parts = cronExpression.trim().split(/\s+/);
+  const offset = parseUTCOffset(timezone) * direction;
+  const hourPart = parts[1];
+
+  let convertedHourPart: string;
+
+  if (hourPart.includes(",")) {
+    // Handle lists like "9,12,15"
+    const hours = hourPart.split(",").map((h) => {
+      const hour = parseInt(h.trim());
+      return isNaN(hour) ? h : convertHourValue(hour, offset).toString();
+    });
+    convertedHourPart = hours.join(",");
+  } else if (hourPart.includes("-")) {
+    // Handle ranges like "9-17"
+    const [start, end] = hourPart.split("-").map((h) => parseInt(h.trim()));
+    if (!isNaN(start) && !isNaN(end)) {
+      const convertedStart = convertHourValue(start, offset);
+      const convertedEnd = convertHourValue(end, offset);
+      convertedHourPart = `${convertedStart}-${convertedEnd}`;
+    } else {
+      convertedHourPart = hourPart; // Keep original if parsing fails
+    }
+  } else {
+    convertedHourPart = hourPart; // Fallback
+  }
+
+  return `${parts[0]} ${convertedHourPart} ${parts[2]} ${parts[3]} ${parts[4]}`;
+}
+
+/**
  * Convert a UTC cron expression back to a specific timezone
  * This handles displaying stored UTC cron in user's local timezone when editing
  */
@@ -159,16 +225,29 @@ export function convertCronFromUTC(
   }
 
   try {
+    // If hour is a wildcard or interval, don't convert - it doesn't make sense
+    if (parts[1] === "*" || parts[1].includes("/")) {
+      return utcCronExpression;
+    }
+
+    // Handle ranges (e.g., "9-17") and lists (e.g., "9,12,15")
+    if (parts[1].includes("-") || parts[1].includes(",")) {
+      return convertComplexHourExpression(utcCronExpression, toTimezone, 1);
+    }
+
     // Parse the UTC offset from the timezone string
     const offset = parseUTCOffset(toTimezone);
 
-    // Get the hour and minute from the UTC cron expression
-    const minute = parseInt(parts[0]) || 0;
-    const hour = parseInt(parts[1]) || 0;
+    // Get the hour from the UTC cron expression (minute stays the same)
+    const hour = parseInt(parts[1]);
+
+    // Validate hour is a valid number
+    if (isNaN(hour)) {
+      return utcCronExpression;
+    }
 
     // Convert from UTC by adding the offset
     let localHour = hour + offset;
-    const localMinute = minute;
 
     // Handle hour overflow/underflow
     if (localHour < 0) {
@@ -177,8 +256,8 @@ export function convertCronFromUTC(
       localHour -= 24;
     }
 
-    // Replace minute and hour with local equivalents, keep other parts
-    return `${localMinute} ${localHour} ${parts[2]} ${parts[3]} ${parts[4]}`;
+    // Replace only the hour, keep minute and other parts unchanged
+    return `${parts[0]} ${localHour} ${parts[2]} ${parts[3]} ${parts[4]}`;
   } catch (error) {
     console.error("Error converting cron from UTC:", error);
     return utcCronExpression; // Return original if conversion fails

@@ -111,7 +111,8 @@ export default function CronBuilder({
     try {
       // Show description for the display cron expression (in user's timezone)
       const description = cronstrue.toString(
-        displayCronExpression || expression
+        displayCronExpression || expression,
+        { use24HourTimeFormat: true }
       );
       return `${description} (${timezone})`;
     } catch (error) {
@@ -237,19 +238,19 @@ export default function CronBuilder({
       <div className="form-group">
         <label htmlFor="cron-expression">
           Cron Expression{" "}
-          <span className="schedule-utc0">(formatted to UTC+0)</span>
+          <span className="schedule-utc0">
+            (UTC format - no timezone conversion)
+          </span>
         </label>
         <input
           id="cron-expression"
           type="text"
           className={`form-input ${error ? "error" : ""}`}
           value={value}
-          onChange={(e) => convertToUTCAndNotify(e.target.value)}
+          onChange={(e) => onChange(e.target.value)}
           placeholder="0 9 * * 1-5"
         />
-        <small className="form-help">
-          {getCronDescription(displayCronExpression)}
-        </small>
+        <small className="form-help">{getCronDescription(value)}</small>
         {error && <div className="field-error">{error}</div>}
       </div>
     </div>

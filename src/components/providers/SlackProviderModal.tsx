@@ -30,7 +30,10 @@ export default function SlackProviderModal({
   const [channels, setChannels] = useState<SlackChannel[]>([]);
   const [channelsLoading, setChannelsLoading] = useState(false);
   const [channelsError, setChannelsError] = useState<string | null>(null);
-  const [showAllChannels, setShowAllChannels] = useState(false);
+  const [testingChannel, setTestingChannel] = useState<string | null>(null);
+  const [testResults, setTestResults] = useState<
+    Record<string, { success: boolean; message: string }>
+  >({});
   const [connectionMethod, setConnectionMethod] = useState<"oauth" | "manual">(
     "oauth"
   );
@@ -234,6 +237,67 @@ export default function SlackProviderModal({
     }
   };
 
+  const handleTestChannel = async (channelId: string, channelName: string) => {
+    try {
+      setTestingChannel(channelId);
+      setError(null);
+
+      const response = await fetch(
+        "/api/providers/messaging/slack/test-channel",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            channelId,
+            message: `🧪 Test message from Git Messaging Scheduler - connection successful! (${new Date().toLocaleTimeString()})`,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = `Request failed: ${response.status}`;
+
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch {
+          errorMessage = errorText || errorMessage;
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      console.log("Successfully sent test message:", data);
+
+      // Store test result
+      setTestResults((prev) => ({
+        ...prev,
+        [channelId]: {
+          success: true,
+          message: `✅ Test message sent successfully to #${channelName}`,
+        },
+      }));
+    } catch (err) {
+      console.error("Failed to send test message:", err);
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to send test message";
+
+      setTestResults((prev) => ({
+        ...prev,
+        [channelId]: {
+          success: false,
+          message: `❌ Failed to send test message: ${errorMessage}`,
+        },
+      }));
+    } finally {
+      setTestingChannel(null);
+    }
+  };
+
   const handleDisconnect = async () => {
     try {
       setLoading(true);
@@ -283,7 +347,7 @@ export default function SlackProviderModal({
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div
-        className="modal-content"
+        className="modal-content slack-modal"
         onClick={(e) => e.stopPropagation()}
         style={
           {
@@ -351,14 +415,41 @@ export default function SlackProviderModal({
                     <div className="channels-container scrollable">
                       {channels.map((channel) => (
                         <div key={channel.id} className="channel-item">
-                          <span className="channel-icon">
-                            {channel.type === "private" ? "🔒" : "#"}
-                          </span>
-                          <span className="channel-name">{channel.name}</span>
-                          {channel.memberCount && (
-                            <span className="channel-members">
-                              {channel.memberCount} members
+                          <div className="channel-info">
+                            <span className="channel-icon">
+                              {channel.type === "private" ? "🔒" : "#"}
                             </span>
+                            <span className="channel-name">{channel.name}</span>
+                            <div className="channel-meta">
+                              {channel.memberCount && (
+                                <span className="channel-members">
+                                  {channel.memberCount} members
+                                </span>
+                              )}
+                              <button
+                                className="test-channel-button"
+                                onClick={() =>
+                                  handleTestChannel(channel.id, channel.name)
+                                }
+                                disabled={testingChannel === channel.id}
+                                title={`Send test message to #${channel.name}`}
+                              >
+                                {testingChannel === channel.id
+                                  ? "Sending..."
+                                  : "Test message"}
+                              </button>
+                            </div>
+                          </div>
+                          {testResults[channel.id] && (
+                            <div
+                              className={`test-result ${
+                                testResults[channel.id].success
+                                  ? "success"
+                                  : "error"
+                              }`}
+                            >
+                              {testResults[channel.id].message}
+                            </div>
                           )}
                         </div>
                       ))}
@@ -392,7 +483,7 @@ export default function SlackProviderModal({
                     <span className="oauth-button-content">
                       Redirecting to{" "}
                       <img
-                        src="images/providers/slack/SLA-Slack-from-Salesforce-logo-inverse.png"
+                        src="/images/providers/slack/SLA-appIcon-iOS.png"
                         alt="Slack"
                         className="oauth-button-content-slack"
                       />
@@ -401,7 +492,7 @@ export default function SlackProviderModal({
                     <span className="oauth-button-content">
                       Sign in with{" "}
                       <img
-                        src="images/providers/slack/SLA-Slack-from-Salesforce-logo-inverse.png"
+                        src="/images/providers/slack/SLA-appIcon-iOS.png"
                         alt="Slack"
                         className="oauth-button-content-slack"
                       />

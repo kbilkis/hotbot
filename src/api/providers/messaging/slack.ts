@@ -262,7 +262,10 @@ app.post(
       const body = c.req.valid("json");
       const token = authHeader.substring(7);
 
-      await sendSlackMessage(token, body.channel, body.message);
+      await sendSlackMessage(token, body.channel, {
+        channel: body.channel,
+        text: body.message,
+      });
 
       return c.json(
         SuccessResponseSchema({
@@ -287,6 +290,66 @@ app.post(
     }
   }
 );
+
+// Test channel by sending a test message
+app.post("/test-channel", async (c) => {
+  try {
+    const userId = getCurrentUserId(c);
+    const body = await c.req.json();
+
+    if (!body.channelId || !body.message) {
+      return c.json(
+        ErrorResponseSchema({
+          error: "Missing parameters",
+          message: "channelId and message are required",
+        }),
+        400
+      );
+    }
+
+    // Get the user's Slack provider connection
+    const messagingProvider = await getUserMessagingProvider(userId, "slack");
+
+    if (!messagingProvider) {
+      return c.json(
+        ErrorResponseSchema({
+          error: "Provider not connected",
+          message: "Slack provider is not connected for this user",
+        }),
+        404
+      );
+    }
+
+    await sendSlackMessage(
+      messagingProvider.accessToken,
+      body.channelId,
+      body.message
+    );
+
+    return c.json(
+      SuccessResponseSchema({
+        success: true,
+        message: "Test message sent successfully",
+        data: {
+          channelId: body.channelId,
+          message: body.message,
+        },
+      })
+    );
+  } catch (error) {
+    console.error("Slack test message failed:", error);
+    return c.json(
+      ErrorResponseSchema({
+        error: "Test message failed",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to send test message",
+      }),
+      500
+    );
+  }
+});
 
 // Get user info
 app.get("/user", async (c) => {

@@ -139,7 +139,7 @@ async function sendEscalationNotification(
     await sendSlackMessage(
       escalationProvider.accessToken,
       job.escalationChannelId,
-      message.text
+      message
     );
 
     return;
