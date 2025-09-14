@@ -32,22 +32,22 @@
   - Add subscription status synchronization methods
   - _Requirements: 2.5, 3.5, 4.2, 4.3_
 
-- [ ] 3. Implement subscription management API endpoints
-- [ ] 3.1 Create checkout session endpoint
+- [x] 3. Implement subscription management API endpoints
+- [x] 3.1 Create checkout session endpoint
 
   - Implement POST /api/subscriptions/checkout endpoint
   - Handle Stripe checkout session creation for Pro tier upgrade
   - Add proper error handling and validation
   - _Requirements: 3.2, 6.1, 6.2_
 
-- [ ] 3.2 Create billing portal endpoint
+- [x] 3.2 Create billing portal endpoint
 
   - Implement POST /api/subscriptions/portal endpoint
   - Generate Stripe Customer Portal sessions for subscription management
   - Add authentication and user validation
   - _Requirements: 3.3, 3.4_
 
-- [ ] 3.3 Create subscription status endpoint
+- [x] 3.3 Create subscription status endpoint
 
   - Implement GET /api/subscriptions/current endpoint
   - Return current subscription tier, status, and billing information

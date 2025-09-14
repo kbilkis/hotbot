@@ -284,7 +284,6 @@ export async function getSubscriptionsCancelingAtPeriodEnd(): Promise<
  * Get subscriptions with expired periods (for cleanup/downgrade processing)
  */
 export async function getExpiredSubscriptions(): Promise<Subscription[]> {
-  const now = new Date();
   return await db
     .select()
     .from(subscriptions)

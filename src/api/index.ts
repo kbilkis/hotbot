@@ -6,6 +6,7 @@ import { requireAuth } from "../lib/auth/clerk";
 import authRoutes from "./auth";
 import providersRoutes from "./providers";
 import schedulesRoutes from "./schedules";
+import subscriptionsRoutes from "./subscriptions";
 
 const api = new Hono();
 
@@ -25,6 +26,7 @@ api.get("/health", (c) => {
 // Apply requireAuth middleware only to routes that need authentication
 api.use("/providers/*", requireAuth());
 api.use("/schedules/*", requireAuth());
+api.use("/subscriptions/*", requireAuth());
 api.use("/auth/me", requireAuth()); // Protect the /me endpoint
 
 // Public and protected auth routes
@@ -33,5 +35,6 @@ api.route("/auth", authRoutes);
 // Protected API routes
 api.route("/providers", providersRoutes);
 api.route("/schedules", schedulesRoutes);
+api.route("/subscriptions", subscriptionsRoutes);
 
 export default api;
