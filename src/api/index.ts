@@ -7,6 +7,7 @@ import authRoutes from "./auth";
 import providersRoutes from "./providers";
 import schedulesRoutes from "./schedules";
 import subscriptionsRoutes from "./subscriptions";
+import webhooksRoutes from "./webhooks";
 
 const api = new Hono();
 
@@ -36,5 +37,8 @@ api.route("/auth", authRoutes);
 api.route("/providers", providersRoutes);
 api.route("/schedules", schedulesRoutes);
 api.route("/subscriptions", subscriptionsRoutes);
+
+// Public webhook routes (no auth required for Stripe webhooks)
+api.route("/webhooks", webhooksRoutes);
 
 export default api;

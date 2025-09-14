@@ -54,15 +54,15 @@
   - Include usage limits and current usage counts
   - _Requirements: 3.1, 5.1, 5.2, 5.3_
 
-- [ ] 4. Implement Stripe webhook handling
-- [ ] 4.1 Create webhook endpoint and signature verification
+- [x] 4. Implement Stripe webhook handling
+- [x] 4.1 Create webhook endpoint and signature verification
 
   - Implement POST /api/webhooks/stripe endpoint
   - Add Stripe webhook signature verification
   - Create webhook event routing system
   - _Requirements: 4.1, 4.5_
 
-- [ ] 4.2 Handle subscription lifecycle events
+- [x] 4.2 Handle subscription lifecycle events
 
   - Process subscription created, updated, and deleted events
   - Update user subscription tier based on Stripe events
