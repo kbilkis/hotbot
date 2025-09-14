@@ -36,6 +36,20 @@
       "when": 1757769912437,
       "tag": "0004_yummy_orphan",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1757875802287,
+      "tag": "0005_charming_ultimates",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1757876179611,
+      "tag": "0006_secret_shinobi_shaw",
+      "breakpoints": true
     }
   ]
 }

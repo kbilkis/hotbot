@@ -26,6 +26,19 @@ export const executionStatusEnum = pgEnum("execution_status", [
   "error",
   "partial",
 ]);
+export const subscriptionTierEnum = pgEnum("subscription_tier", [
+  "free",
+  "pro",
+]);
+export const subscriptionStatusEnum = pgEnum("subscription_status", [
+  "active",
+  "canceled",
+  "incomplete",
+  "incomplete_expired",
+  "past_due",
+  "trialing",
+  "unpaid",
+]);
 
 // Users table - stores Clerk user information
 export const users = pgTable("users", {
@@ -154,6 +167,37 @@ export const escalationTracking = pgTable(
   })
 );
 
+// Subscriptions - tracks user subscription tiers and Stripe data
+export const subscriptions = pgTable("subscriptions", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull()
+    .unique(), // One subscription per user
+  stripeCustomerId: text("stripe_customer_id").notNull().unique(),
+  stripeSubscriptionId: text("stripe_subscription_id").unique(),
+  tier: subscriptionTierEnum("tier").notNull().default("free"),
+  status: subscriptionStatusEnum("status").notNull().default("active"),
+  currentPeriodStart: timestamp("current_period_start"),
+  currentPeriodEnd: timestamp("current_period_end"),
+  cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
+  createdAt: timestamp("created_at").defaultNow(),
+  updatedAt: timestamp("updated_at").defaultNow(),
+});
+
+// Usage tracking - tracks resource usage for tier limits
+export const usageTracking = pgTable("usage_tracking", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  userId: uuid("user_id")
+    .references(() => users.id, { onDelete: "cascade" })
+    .notNull()
+    .unique(), // One usage record per user
+  gitProvidersCount: integer("git_providers_count").default(0),
+  messagingProvidersCount: integer("messaging_providers_count").default(0),
+  cronJobsCount: integer("cron_jobs_count").default(0),
+  lastUpdated: timestamp("last_updated").defaultNow(),
+});
+
 // Export types for use in application
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -172,3 +216,9 @@ export type NewExecutionLog = typeof executionLogs.$inferInsert;
 
 export type EscalationTracking = typeof escalationTracking.$inferSelect;
 export type NewEscalationTracking = typeof escalationTracking.$inferInsert;
+
+export type Subscription = typeof subscriptions.$inferSelect;
+export type NewSubscription = typeof subscriptions.$inferInsert;
+
+export type UsageTracking = typeof usageTracking.$inferSelect;
+export type NewUsageTracking = typeof usageTracking.$inferInsert;

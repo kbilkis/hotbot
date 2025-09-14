@@ -1,5 +1,7 @@
 import useSWR from "swr";
 
+import { DiscordGuild } from "@/lib/discord";
+
 import { MessagingProvider } from "./useMessagingProviders";
 
 interface Channel {
@@ -11,7 +13,7 @@ interface Channel {
 
 // Discord interfaces are inferred from API responses
 
-const fetcher = async (url: string): Promise<unknown> => {
+const fetcher = async (url: string) => {
   const response = await fetch(url, {
     headers: {
       "Content-Type": "application/json",
@@ -47,7 +49,10 @@ export function useDiscordGuilds(shouldFetch: boolean = true) {
     ? "/api/providers/messaging/discord/guilds"
     : null;
 
-  const { data, error, isLoading, mutate } = useSWR(endpoint, fetcher);
+  const { data, error, isLoading, mutate } = useSWR<{ guilds: DiscordGuild[] }>(
+    endpoint,
+    fetcher
+  );
 
   return {
     guilds: data?.guilds || [],
