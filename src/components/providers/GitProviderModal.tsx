@@ -2,6 +2,11 @@ import React, { useState, useEffect } from "react";
 import { mutate } from "swr";
 
 import { GitProviderData } from "../../lib/validation/provider-schemas";
+import {
+  getProviderColor,
+  getProviderBgColor,
+  getProviderAccentColor,
+} from "../../utils/providerColors";
 
 interface GitProviderModalProps {
   provider: GitProviderData;
@@ -100,9 +105,54 @@ export default function GitProviderModal({
   };
 
   const providerConfig = {
-    github: { name: "GitHub", placeholder: "ghp_xxxxxxxxxxxxxxxxxxxx" },
-    gitlab: { name: "GitLab", placeholder: "glpat-xxxxxxxxxxxxxxxxxxxx" },
-    bitbucket: { name: "Bitbucket", placeholder: "ATBB-xxxxxxxxxxxxxxxxxxxx" },
+    github: {
+      name: "GitHub",
+      logo: (
+        <img
+          src="/images/providers/github/GitHub_Lockup_Light.svg"
+          alt="GitHub"
+          className="provider-logo-button"
+        />
+      ),
+      logoDark: (
+        <img
+          src="/images/providers/github/GitHub_Lockup_Dark.svg"
+          alt="GitHub"
+          className="provider-logo-button"
+        />
+      ),
+      placeholder: "ghp_xxxxxxxxxxxxxxxxxxxx",
+    },
+    gitlab: {
+      name: "GitLab",
+      logo: (
+        <img
+          src="/images/providers/gitlab/gitlab-logo-200-rgb.svg"
+          alt="GitLab"
+          className="provider-logo-button gitlab"
+        />
+      ),
+      logoDark: null,
+      placeholder: "glpat-xxxxxxxxxxxxxxxxxxxx",
+    },
+    bitbucket: {
+      name: "Bitbucket",
+      logo: (
+        <img
+          src="/images/providers/bitbucket/Bitbucket_attribution_dark.svg"
+          alt="Bitbucket"
+          className="provider-logo-button"
+        />
+      ),
+      logoDark: (
+        <img
+          src="/images/providers/bitbucket/Bitbucket_attribution_light.svg"
+          alt="Bitbucket"
+          className="provider-logo-button"
+        />
+      ),
+      placeholder: "ATBB-xxxxxxxxxxxxxxxxxxxx",
+    },
   };
 
   const config = providerConfig[provider.provider];
@@ -271,7 +321,19 @@ export default function GitProviderModal({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-content"
+        onClick={(e) => e.stopPropagation()}
+        style={
+          {
+            "--provider-color": getProviderColor(provider.provider),
+            "--provider-bg-color": getProviderBgColor(provider.provider),
+            "--provider-accent-color": getProviderAccentColor(
+              provider.provider
+            ),
+          } as React.CSSProperties
+        }
+      >
         <div className="modal-header">
           <h2>Connect {config.name} Provider</h2>
           <button className="modal-close" onClick={onClose}>
@@ -373,16 +435,22 @@ export default function GitProviderModal({
                   <div className="error-message prominent-error">{error}</div>
                 )}
                 <button
-                  className="oauth-connect-button primary"
+                  className="oauth-connect-button primary provider-branded"
                   onClick={handleOAuthConnect}
                   disabled={loading}
                 >
-                  {loading
-                    ? `Redirecting to ${config.name}...`
-                    : `Sign in with ${config.name}`}
+                  {loading ? (
+                    <span className="oauth-button-content">
+                      Redirecting to {config.logoDark || config.logo}
+                    </span>
+                  ) : (
+                    <span className="oauth-button-content">
+                      Sign in with {config.logo}
+                    </span>
+                  )}
                 </button>
                 <small className="form-help oauth-help">
-                  {`🔒 Secure OAuth 2.0 authorization - you'll be redirected to{" "}
+                  {`🔒 Secure OAuth 2.0 authorization - you'll be redirected to
                   {config.name} to grant repository access permissions.`}
                 </small>
               </div>

@@ -3,7 +3,6 @@ export interface Provider {
   name: string;
   type: "slack" | "teams" | "discord";
   connected: boolean;
-  icon: string;
 }
 
 export interface Schedule {

@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
 
+import {
+  getProviderColor,
+  getProviderBgColor,
+  getProviderAccentColor,
+} from "../../utils/providerColors";
+
 interface DiscordProviderModalProps {
   onClose: () => void;
   isConnected?: boolean;
@@ -66,7 +72,17 @@ export default function DiscordProviderModal({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-content"
+        onClick={(e) => e.stopPropagation()}
+        style={
+          {
+            "--provider-color": getProviderColor("discord"),
+            "--provider-bg-color": getProviderBgColor("discord"),
+            "--provider-accent-color": getProviderAccentColor("discord"),
+          } as React.CSSProperties
+        }
+      >
         <div className="modal-header">
           <h2>Connect Discord</h2>
           <button className="modal-close" onClick={onClose}>
@@ -163,7 +179,7 @@ export default function DiscordProviderModal({
                 Cancel
               </button>
               <button
-                className="connect-button-modal"
+                className="connect-button-modal provider-branded"
                 onClick={handleConnect}
                 disabled={!webhookUrl.trim() || loading}
               >

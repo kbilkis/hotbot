@@ -1,5 +1,11 @@
 import React, { useState, useEffect } from "react";
 
+import {
+  getProviderColor,
+  getProviderBgColor,
+  getProviderAccentColor,
+} from "../../utils/providerColors";
+
 interface TeamsProviderModalProps {
   onClose: () => void;
   isConnected?: boolean;
@@ -65,7 +71,17 @@ export default function TeamsProviderModal({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-content"
+        onClick={(e) => e.stopPropagation()}
+        style={
+          {
+            "--provider-color": getProviderColor("teams"),
+            "--provider-bg-color": getProviderBgColor("teams"),
+            "--provider-accent-color": getProviderAccentColor("teams"),
+          } as React.CSSProperties
+        }
+      >
         <div className="modal-header">
           <h2>Connect Microsoft Teams</h2>
           <button className="modal-close" onClick={onClose}>
@@ -143,7 +159,7 @@ export default function TeamsProviderModal({
                 Cancel
               </button>
               <button
-                className="connect-button-modal"
+                className="connect-button-modal provider-branded"
                 onClick={handleConnect}
                 disabled={!webhookUrl.trim() || loading}
               >

@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { mutate } from "swr";
 
+import {
+  getProviderColor,
+  getProviderBgColor,
+  getProviderAccentColor,
+} from "../../utils/providerColors";
+
 interface SlackProviderModalProps {
   onClose: () => void;
   isConnected?: boolean;
@@ -276,7 +282,17 @@ export default function SlackProviderModal({
 
   return (
     <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+      <div
+        className="modal-content"
+        onClick={(e) => e.stopPropagation()}
+        style={
+          {
+            "--provider-color": getProviderColor("slack"),
+            "--provider-bg-color": getProviderBgColor("slack"),
+            "--provider-accent-color": getProviderAccentColor("slack"),
+          } as React.CSSProperties
+        }
+      >
         <div className="modal-header">
           <h2>Connect Slack</h2>
           <button className="modal-close" onClick={onClose}>
@@ -332,38 +348,20 @@ export default function SlackProviderModal({
                     <div className="channels-count">
                       {channels.length} channels available
                     </div>
-                    <div className="channels-container">
-                      {(showAllChannels ? channels : channels.slice(0, 10)).map(
-                        (channel) => (
-                          <div key={channel.id} className="channel-item">
-                            <span className="channel-icon">
-                              {channel.type === "private" ? "🔒" : "#"}
+                    <div className="channels-container scrollable">
+                      {channels.map((channel) => (
+                        <div key={channel.id} className="channel-item">
+                          <span className="channel-icon">
+                            {channel.type === "private" ? "🔒" : "#"}
+                          </span>
+                          <span className="channel-name">{channel.name}</span>
+                          {channel.memberCount && (
+                            <span className="channel-members">
+                              {channel.memberCount} members
                             </span>
-                            <span className="channel-name">{channel.name}</span>
-                            {channel.memberCount && (
-                              <span className="channel-members">
-                                {channel.memberCount} members
-                              </span>
-                            )}
-                          </div>
-                        )
-                      )}
-                      {channels.length > 10 && !showAllChannels && (
-                        <button
-                          className="show-more-button"
-                          onClick={() => setShowAllChannels(true)}
-                        >
-                          ⋯ Show {channels.length - 10} more channels
-                        </button>
-                      )}
-                      {showAllChannels && channels.length > 10 && (
-                        <button
-                          className="show-less-button"
-                          onClick={() => setShowAllChannels(false)}
-                        >
-                          Show less
-                        </button>
-                      )}
+                          )}
+                        </div>
+                      ))}
                     </div>
                   </div>
                 )}
@@ -386,11 +384,29 @@ export default function SlackProviderModal({
                   <div className="error-message prominent-error">{error}</div>
                 )}
                 <button
-                  className="oauth-connect-button primary slack-button"
+                  className="oauth-connect-button primary provider-branded"
                   onClick={handleOAuthConnect}
                   disabled={loading}
                 >
-                  {loading ? "Redirecting to Slack..." : "Sign in with Slack"}
+                  {loading ? (
+                    <span className="oauth-button-content">
+                      Redirecting to{" "}
+                      <img
+                        src="images/providers/slack/SLA-Slack-from-Salesforce-logo-inverse.png"
+                        alt="Slack"
+                        className="oauth-button-content-slack"
+                      />
+                    </span>
+                  ) : (
+                    <span className="oauth-button-content">
+                      Sign in with{" "}
+                      <img
+                        src="images/providers/slack/SLA-Slack-from-Salesforce-logo-inverse.png"
+                        alt="Slack"
+                        className="oauth-button-content-slack"
+                      />
+                    </span>
+                  )}
                 </button>
                 <small className="form-help oauth-help">
                   {`🔒 Secure OAuth 2.0 authorization - you'll be redirected to

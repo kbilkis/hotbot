@@ -3,6 +3,10 @@ import React, { useState } from "react";
 import { useMessagingProviders } from "@/hooks/useMessagingProviders";
 
 import { Provider } from "../../types/dashboard";
+import {
+  getProviderColor,
+  getProviderBgColor,
+} from "../../utils/providerColors";
 import DiscordProviderModal from "../providers/DiscordProviderModal";
 import SlackProviderModal from "../providers/SlackProviderModal";
 import TeamsProviderModal from "../providers/TeamsProviderModal";
@@ -33,21 +37,18 @@ export default function MessagingProviders(): React.ReactElement {
       name: "Slack",
       type: "slack" as const,
       connected: false,
-      icon: "💬",
     },
     {
       id: "teams",
       name: "Microsoft Teams",
       type: "teams" as const,
       connected: false,
-      icon: "👥",
     },
     {
       id: "discord",
       name: "Discord",
       type: "discord" as const,
       connected: false,
-      icon: "🎮",
     },
   ];
 
@@ -88,12 +89,46 @@ export default function MessagingProviders(): React.ReactElement {
       <p>Connect your messaging provider to receive notifications.</p>
       <div className="provider-list">
         {messagingProviders.map((provider) => (
-          <div key={provider.id} className="provider-card">
+          <div
+            key={provider.id}
+            className="provider-card"
+            style={{
+              backgroundColor: getProviderBgColor(provider.type),
+              borderColor: getProviderColor(provider.type) + "20",
+            }}
+          >
             <div className="provider-info">
-              <span className="provider-icon">{provider.icon}</span>
+              <div className="provider-icon">
+                {provider.type === "slack" && (
+                  <img
+                    src="/images/providers/slack/SLA-appIcon-iOS.png"
+                    alt="Slack"
+                    className="provider-logo"
+                  />
+                )}
+                {provider.type === "discord" && (
+                  <img
+                    src="/images/providers/discord/Discord-Symbol-Blurple.svg"
+                    alt="Discord"
+                    className="provider-logo"
+                  />
+                )}
+                {provider.type === "teams" && (
+                  <img
+                    src="/images/providers/teams/icons8-microsoft-teams.svg"
+                    alt="Teams"
+                    className="provider-logo"
+                  />
+                )}
+              </div>
               <span className="provider-name">{provider.name}</span>
               {provider.connected && (
-                <span className="connection-status connected">✓</span>
+                <span
+                  className="connection-status connected"
+                  style={{ color: getProviderColor(provider.type) }}
+                >
+                  ✓ Connected
+                </span>
               )}
             </div>
             <button

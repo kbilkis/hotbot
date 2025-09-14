@@ -1,15 +1,13 @@
 import React, { useState } from "react";
 
-import { useGitProviders } from "../../hooks/useGitProviders";
-import { GitProviderData } from "../../lib/validation/provider-schemas";
-import GitProviderModal from "../providers/GitProviderModal";
+import { GitProviderData } from "@/lib/validation/provider-schemas";
 
-// Provider icons mapping
-const providerIcons: Record<string, string> = {
-  github: "🐙",
-  gitlab: "🦊",
-  bitbucket: "🪣",
-};
+import { useGitProviders } from "../../hooks/useGitProviders";
+import {
+  getProviderColor,
+  getProviderBgColor,
+} from "../../utils/providerColors";
+import GitProviderModal from "../providers/GitProviderModal";
 
 export default function GitProviders(): React.ReactElement {
   const [showModal, setShowModal] = useState(false);
@@ -56,14 +54,46 @@ export default function GitProviders(): React.ReactElement {
       </p>
       <div className="provider-list">
         {providers.map((provider) => (
-          <div key={provider.provider} className="provider-card">
+          <div
+            key={provider.provider}
+            className="provider-card"
+            style={{
+              backgroundColor: getProviderBgColor(provider.provider),
+              borderColor: getProviderColor(provider.provider) + "20",
+            }}
+          >
             <div className="provider-info">
-              <span className="provider-icon">
-                {providerIcons[provider.provider]}
-              </span>
+              <div className="provider-icon">
+                {provider.provider === "github" && (
+                  <img
+                    src="/images/providers/github/GitHub_Invertocat_Dark.svg"
+                    alt="GitHub"
+                    className="provider-logo"
+                  />
+                )}
+                {provider.provider === "gitlab" && (
+                  <img
+                    src="/images/providers/gitlab/gitlab-logo-500-rgb.svg"
+                    alt="GitLab"
+                    className="provider-logo gitlab"
+                  />
+                )}
+                {provider.provider === "bitbucket" && (
+                  <img
+                    src="/images/providers/bitbucket/Bitbucket_mark_brand_RGB.svg"
+                    alt="Bitbucket"
+                    className="provider-logo"
+                  />
+                )}
+              </div>
               <span className="provider-name">{provider.name}</span>
               {provider.connected && (
-                <span className="connection-status connected">✓ Connected</span>
+                <span
+                  className="connection-status connected"
+                  style={{ color: getProviderColor(provider.provider) }}
+                >
+                  ✓ Connected
+                </span>
               )}
             </div>
             <button

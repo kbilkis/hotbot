@@ -130,11 +130,42 @@ export default function LandingPage(): React.ReactElement {
           </div>
 
           <div className="integration-logos">
-            <div className="logo-item github">GitHub</div>
-            <div className="logo-item slack">Slack</div>
-            <div className="logo-item gitlab">GitLab</div>
-            <div className="logo-item teams">Teams</div>
-            <div className="logo-item discord">Discord</div>
+            <div className="logo-item github">
+              <img
+                src="/images/providers/github/GitHub_Lockup_Dark.svg"
+                alt="GitHub"
+              />
+            </div>
+            <div className="logo-item bitbucket">
+              <img
+                src="/images/providers/bitbucket/Bitbucket_attribution_light.svg"
+                alt="BitBucket"
+              />
+            </div>
+            <div className="logo-item slack">
+              <img
+                src="/images/providers/slack/SLA-Slack-from-Salesforce-logo.png"
+                alt="Slack"
+              />
+            </div>
+            <div className="logo-item gitlab">
+              <img
+                src="/images/providers/gitlab/gitlab-logo-100-rgb.svg"
+                alt="GitLab"
+              />
+            </div>
+            <div className="logo-item teams">
+              <img
+                src="/images/providers/teams/icons8-microsoft-teams.svg"
+                alt="GitLab"
+              />
+            </div>
+            <div className="logo-item discord">
+              <img
+                src="/images/providers/discord/Discord-Logo-Blurple.svg"
+                alt="Discord"
+              />
+            </div>
           </div>
         </div>
       </section>

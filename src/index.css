@@ -342,34 +342,17 @@ header nav {
   border: 1px solid rgba(148, 163, 184, 0.3);
   padding: 0.75rem 1.5rem;
   border-radius: 0.5rem;
-  text-align: center;
   font-weight: 500;
   color: #374151;
   transition: all 0.3s ease;
-  position: relative;
-  overflow: hidden;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   font-size: 0.875rem;
-}
-
-.logo-item::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: -100%;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
-  transition: left 0.5s;
-}
-
-.logo-item:hover::before {
-  left: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 150px;
+  min-width: 200px;
 }
 
 .logo-item:hover {
@@ -378,23 +361,8 @@ header nav {
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
 }
 
-.logo-item.github {
-  color: #f0f6ff;
-}
-.logo-item.slack {
-  color: #4a154b;
-}
-.logo-item.gitlab {
-  color: #fc6d26;
-}
-.logo-item.teams {
-  color: #6264a7;
-}
-.logo-item.bitbucket {
-  color: #0052cc;
-}
-.logo-item.discord {
-  color: #5865f2;
+.logo-item.slack > img {
+  height: 50px;
 }
 
 /* How It Works Section */
@@ -851,10 +819,6 @@ footer {
     text-align: center;
   }
 
-  .integration-logos {
-    justify-content: center;
-  }
-
   .feature-grid {
     grid-template-columns: 1fr;
   }
@@ -1095,7 +1059,7 @@ footer {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem;
+  padding: 1rem 1.5rem;
   background: #f9fafb;
   border: 1px solid rgba(148, 163, 184, 0.2);
   border-radius: 0.5rem;
@@ -1109,7 +1073,13 @@ footer {
 }
 
 .provider-icon {
-  font-size: 1.25rem;
+  font-size: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.5rem;
+  height: 1.5rem;
+  margin-right: 0.5rem;
 }
 
 .provider-name {
@@ -1144,6 +1114,128 @@ footer {
   color: #059669;
   border-color: #059669;
   transform: translateY(-1px);
+}
+
+/* Enhanced provider card styling */
+.provider-card {
+  transition: all 0.2s ease;
+  border-radius: 0.5rem;
+}
+
+.provider-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.connection-status.connected {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+/* Provider logo styling */
+.provider-logo {
+  width: 2rem;
+  height: 2rem;
+  min-width: 40px;
+  min-height: 100px;
+  object-fit: contain;
+}
+
+.provider-logo.gitlab {
+  min-width: 70px;
+}
+
+.teams-icon {
+  color: #6264a7;
+}
+
+/* Provider-branded buttons styling - higher specificity to override existing styles */
+.oauth-connect-button.primary.provider-branded,
+.oauth-connect-button.provider-branded,
+.connect-button-modal.provider-branded {
+  background: var(--provider-color, #4f46e5) !important;
+  border-color: var(--provider-color, #4f46e5) !important;
+  color: white !important;
+  font-weight: 600;
+  transition: all 0.2s ease;
+}
+
+.oauth-connect-button.primary.provider-branded:hover:not(:disabled),
+.oauth-connect-button.provider-branded:hover:not(:disabled),
+.connect-button-modal.provider-branded:hover:not(:disabled) {
+  background: var(--provider-accent-color, #4338ca) !important;
+  border-color: var(--provider-accent-color, #4338ca) !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.oauth-connect-button.primary.provider-branded:disabled,
+.oauth-connect-button.provider-branded:disabled,
+.connect-button-modal.provider-branded:disabled {
+  background: var(--provider-bg-color, #f3f4f6) !important;
+  border-color: var(--provider-bg-color, #f3f4f6) !important;
+  color: var(--provider-color, #6b7280) !important;
+  opacity: 0.6;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Remove the ::before content for provider-branded buttons */
+.oauth-connect-button.primary.provider-branded::before,
+.oauth-connect-button.provider-branded::before {
+  content: none !important;
+}
+
+/* OAuth button content styling */
+.oauth-button-content {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  justify-content: center;
+  width: 100%;
+}
+
+.provider-logo-button {
+  height: 2rem;
+}
+
+.provider-logo-button.gitlab {
+  height: 3rem !important;
+  margin: -0.75rem 0rem;
+}
+
+.oauth-button-content-slack {
+  height: 2.5rem;
+}
+
+/* Scrollable channels container */
+.channels-container.scrollable {
+  max-height: 300px;
+  overflow-y: auto;
+  border: 1px solid #e5e7eb;
+  border-radius: 0.5rem;
+  padding: 0.5rem;
+}
+
+.channels-container.scrollable::-webkit-scrollbar {
+  width: 6px;
+}
+
+.channels-container.scrollable::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 3px;
+}
+
+.channels-container.scrollable::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 3px;
+}
+
+.channels-container.scrollable::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
 }
 
 /* Schedules Section */
@@ -1211,7 +1303,6 @@ footer {
 
 .actions-cell {
   display: flex;
-  justify-content: center;
 }
 
 .action-button {
@@ -2285,16 +2376,29 @@ footer {
 }
 
 /* Status indicators */
+
 .status-active {
   color: #10b981;
+}
+
+.bg-green-500 {
+  background-color: #10b981;
 }
 
 .status-paused {
   color: #f59e0b;
 }
 
+.bg-yellow-500 {
+  background-color: #f59e0b;
+}
+
 .status-error {
   color: #ef4444;
+}
+
+.bg-red-500 {
+  background-color: #ef4444;
 }
 
 /* Next run time formatting */
@@ -2344,12 +2448,9 @@ footer {
   box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
 } /* E
 nhanced Schedule Table Styles */
-.schedules-table .table-header {
-  grid-template-columns: 1fr 2fr 1.5fr 1.5fr 1.5fr 1fr;
-}
-
+.schedules-table .table-header,
 .schedules-table .table-row {
-  grid-template-columns: 1fr 2fr 1.5fr 1.5fr 1.5fr 1fr;
+  grid-template-columns: 0.75fr 1fr 1.5fr 2fr 0.75fr;
 }
 
 .schedule-name {
