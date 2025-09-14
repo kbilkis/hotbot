@@ -371,18 +371,18 @@ export default function SlackProviderModal({
               : `Connect your Slack workspace to receive pull request notifications in your team channels.`}
           </p>
 
-          <div className="form-group">
-            <div className="provider-display">
-              {isConnected && (
+          {isConnected && (
+            <div className="form-group">
+              <div className="provider-display">
                 <>
                   <span className="connection-status connected">
                     ✓ Connected
                   </span>
                   {teamName && <span className="team-name">to {teamName}</span>}
                 </>
-              )}
+              </div>
             </div>
-          </div>
+          )}
 
           {isConnected && (
             <div className="form-group">
@@ -483,7 +483,7 @@ export default function SlackProviderModal({
                     <span className="oauth-button-content">
                       Redirecting to{" "}
                       <img
-                        src="/images/providers/slack/SLA-appIcon-iOS.png"
+                        src="images/providers/slack/SLA-Slack-from-Salesforce-logo-inverse.png"
                         alt="Slack"
                         className="oauth-button-content-slack"
                       />
@@ -492,7 +492,7 @@ export default function SlackProviderModal({
                     <span className="oauth-button-content">
                       Sign in with{" "}
                       <img
-                        src="/images/providers/slack/SLA-appIcon-iOS.png"
+                        src="images/providers/slack/SLA-Slack-from-Salesforce-logo-inverse.png"
                         alt="Slack"
                         className="oauth-button-content-slack"
                       />

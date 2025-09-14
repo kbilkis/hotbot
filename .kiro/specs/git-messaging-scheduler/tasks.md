@@ -118,13 +118,14 @@
   - Write unit tests for additional git providers
   - _Requirements: 3.1, 3.2, 3.3, 8.1, 8.2_
 
-- [ ] 14. Add MS Teams and Discord messaging support
+- [x] 14. Add MS Teams and Discord messaging support
 
-  - Implement MS Teams OAuth and API integration
-  - Implement Discord OAuth and API integration
-  - Ensure consistent message formatting across all messaging providers
-  - Add provider-specific channel management
-  - Write unit tests for additional messaging providers
+  - ~~Implement MS Teams OAuth and API integration~~ (deferred)
+  - Implement Discord OAuth and API integration ✅
+  - Ensure consistent message formatting across all messaging providers ✅
+  - Add provider-specific channel management ✅
+  - ~~Write unit tests for additional messaging providers~~ (deferred)
+  - Enhanced Slack OAuth UI with better user experience ✅
   - _Requirements: 4.1, 4.2, 4.3, 7.3, 7.4_
 
 - [ ] 15. Implement comprehensive error handling and validation

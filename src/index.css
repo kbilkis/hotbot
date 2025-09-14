@@ -1208,7 +1208,7 @@ footer {
 }
 
 .oauth-button-content-slack {
-  height: 2rem;
+  height: 2.5rem;
 }
 
 /* Scrollable channels container */
@@ -3056,11 +3056,8 @@ Builder Presets */
   font-weight: 600;
 }
 
-.oauth-button-content-slack,
 .oauth-button-content-discord {
-  width: 20px;
-  height: 20px;
-  object-fit: contain;
+  height: 1rem;
 }
 
 .oauth-help {

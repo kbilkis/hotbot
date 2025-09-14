@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from "react";
+import { mutate } from "swr";
 
+import { useDiscordGuilds, useDiscordChannels } from "../../hooks/useChannels";
 import {
   getProviderColor,
   getProviderBgColor,
@@ -10,16 +12,46 @@ interface DiscordProviderModalProps {
   onClose: () => void;
   isConnected?: boolean;
   connectedAt?: string;
+  username?: string;
 }
+
+// Interfaces moved to hooks/useChannels.ts
 
 export default function DiscordProviderModal({
   onClose,
-  isConnected = false,
+  isConnected: initialIsConnected = false,
+  username: initialUsername = "",
 }: DiscordProviderModalProps): React.ReactElement {
-  const [webhookUrl, setWebhookUrl] = useState("");
-  const [channelId, setChannelId] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [selectedGuild, setSelectedGuild] = useState<string | null>(null);
+  const [testingWebhook, setTestingWebhook] = useState<string | null>(null);
+  const [testResults, setTestResults] = useState<
+    Record<string, { success: boolean; message: string }>
+  >({});
+  const [connectionMethod, setConnectionMethod] = useState<
+    "oauth" | "manual" | "webhook"
+  >("oauth");
+  const [showManualOption, setShowManualOption] = useState(false);
+  const [accessToken, setAccessToken] = useState("");
+  const [webhookUrl, setWebhookUrl] = useState("");
+  const [isConnected, setIsConnected] = useState(initialIsConnected);
+  const [username, setUsername] = useState(initialUsername);
+
+  // Use hooks for Discord data fetching
+  const {
+    guilds,
+    loading: guildsLoading,
+    error: guildsError,
+    refetch: refetchGuilds,
+  } = useDiscordGuilds(isConnected);
+  console.log("guild", guilds);
+  const { channels, loading: channelsLoading } = useDiscordChannels(
+    selectedGuild || undefined,
+    !!selectedGuild
+  );
+
+  // Hooks handle all data fetching automatically
 
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
@@ -32,8 +64,88 @@ export default function DiscordProviderModal({
     return () => document.removeEventListener("keydown", handleEscKey);
   }, [onClose]);
 
-  const handleConnect = async () => {
-    if (!webhookUrl.trim()) {
+  // Fetch additional data when connected
+  useEffect(() => {
+    if (isConnected) {
+      fetchAdditionalData();
+    }
+  }, [isConnected]);
+
+  const fetchAdditionalData = async () => {
+    try {
+      // Fetch user info if connected
+      const userResponse = await fetch("/api/providers/messaging/discord/user");
+
+      if (userResponse.ok && !username) {
+        const userData = await userResponse.json();
+        setUsername(userData.data?.username || "Discord User");
+      }
+    } catch (err) {
+      console.warn("Failed to fetch additional Discord info:", err);
+    }
+  };
+
+  // Hooks handle all data fetching automatically
+
+  const handleOAuthConnect = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Get the current URL for redirect
+      const redirectUri = `${window.location.origin}/auth/callback/discord`;
+
+      // Get OAuth authorization URL
+      const response = await fetch(
+        "/api/providers/messaging/discord/auth-url",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            redirectUri,
+            scopes: ["identify", "bot", "guilds", "guilds.members.read"],
+            permissions: "68608", // VIEW_CHANNEL + SEND_MESSAGES + READ_MESSAGE_HISTORY
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.log("DISCORD_AUTH_URL RESP BAD", errorText);
+        let errorMessage = `Request failed: ${response.status}`;
+
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch {
+          errorMessage = errorText || errorMessage;
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      console.log("DISCORD_AUTH_URL RESP GOOD", data);
+      // Redirect to Discord OAuth page
+      window.location.href = data.authUrl;
+    } catch (err) {
+      console.error("Failed to initiate Discord OAuth:", err);
+      setError(
+        err instanceof Error ? err.message : "Failed to connect to Discord"
+      );
+      setLoading(false);
+    }
+  };
+
+  const handleManualConnect = async () => {
+    if (connectionMethod === "manual" && !accessToken.trim()) {
+      setError("Access token is required");
+      return;
+    }
+
+    if (connectionMethod === "webhook" && !webhookUrl.trim()) {
       setError("Webhook URL is required");
       return;
     }
@@ -42,15 +154,125 @@ export default function DiscordProviderModal({
       setLoading(true);
       setError(null);
 
-      // TODO: Implement Discord webhook connection
-      console.log("Connecting Discord webhook:", { webhookUrl, channelId });
+      if (connectionMethod === "manual") {
+        // Call the manual connect API endpoint
+        const response = await fetch(
+          "/api/providers/messaging/discord/connect-manual",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              accessToken: accessToken.trim(),
+            }),
+          }
+        );
 
-      // For now, just close the modal
-      onClose();
+        if (!response.ok) {
+          const errorText = await response.text();
+          let errorMessage = `Request failed: ${response.status}`;
+
+          try {
+            const errorData = JSON.parse(errorText);
+            errorMessage = errorData.error || errorData.message || errorMessage;
+          } catch {
+            errorMessage = errorText || errorMessage;
+          }
+
+          throw new Error(errorMessage);
+        }
+
+        const data = await response.json();
+        console.log("Successfully connected Discord:", data);
+
+        // Invalidate SWR cache to refresh provider data
+        await mutate("/api/providers/messaging");
+
+        // Update local connection state
+        setIsConnected(true);
+        setUsername(data.userInfo?.username || "Discord User");
+
+        // Trigger guilds refetch
+        refetchGuilds();
+
+        // Clear the token input for security
+        setAccessToken("");
+      } else {
+        // Webhook connection - just store the webhook URL
+        console.log("Connecting Discord webhook:", { webhookUrl });
+        // For webhook connections, we don't store in the database
+        // This is handled differently in the scheduling logic
+        onClose();
+      }
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to connect");
+      console.error("Failed to connect Discord:", err);
+      setError(
+        err instanceof Error ? err.message : "Failed to connect to Discord"
+      );
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleTestWebhook = async (webhookUrl: string, guildName: string) => {
+    try {
+      setTestingWebhook(webhookUrl);
+      setError(null);
+
+      const response = await fetch(
+        "/api/providers/messaging/discord/test-webhook",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            webhookUrl,
+            message: `🧪 Test message from Git Messaging Scheduler - connection successful! (${new Date().toLocaleTimeString()})`,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = `Request failed: ${response.status}`;
+
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch {
+          errorMessage = errorText || errorMessage;
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      console.log("Successfully sent test message:", data);
+
+      // Store test result
+      setTestResults((prev) => ({
+        ...prev,
+        [webhookUrl]: {
+          success: true,
+          message: `✅ Test message sent successfully to ${guildName}`,
+        },
+      }));
+    } catch (err) {
+      console.error("Failed to send test message:", err);
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to send test message";
+
+      setTestResults((prev) => ({
+        ...prev,
+        [webhookUrl]: {
+          success: false,
+          message: `❌ Failed to send test message: ${errorMessage}`,
+        },
+      }));
+    } finally {
+      setTestingWebhook(null);
     }
   };
 
@@ -59,12 +281,42 @@ export default function DiscordProviderModal({
       setLoading(true);
       setError(null);
 
-      // TODO: Implement Discord disconnect
-      console.log("Disconnecting Discord");
+      // Call the disconnect API endpoint
+      const response = await fetch("/api/providers/messaging?type=discord", {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = `Request failed: ${response.status}`;
+
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch {
+          errorMessage = errorText || errorMessage;
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      console.log("Successfully disconnected Discord:", data);
+
+      // Invalidate SWR cache to refresh provider data
+      await mutate("/api/providers/messaging");
+
+      // Update local connection state
+      setIsConnected(false);
+      setSelectedGuild(null);
+      setUsername("");
 
       onClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to disconnect");
+      console.error("Failed to disconnect Discord:", err);
+      setError(
+        err instanceof Error ? err.message : "Failed to disconnect Discord"
+      );
     } finally {
       setLoading(false);
     }
@@ -93,69 +345,355 @@ export default function DiscordProviderModal({
         <div className="modal-body">
           <p className="modal-description">
             {isConnected
-              ? "Manage your Discord webhook connection."
-              : "Connect Discord to receive pull request notifications in your server channels."}
+              ? `Manage your Discord connection and server settings.`
+              : `Connect your Discord server to receive pull request notifications in your channels.`}
           </p>
 
           {isConnected && (
             <div className="form-group">
               <div className="provider-display">
                 <span className="connection-status connected">✓ Connected</span>
-                <span className="team-name">to Discord</span>
+                {username && <span className="team-name">as {username}</span>}
+              </div>
+            </div>
+          )}
+
+          {isConnected && (
+            <div className="form-group">
+              <label>Available Servers</label>
+              <div className="guilds-section">
+                {guildsLoading && (
+                  <div className="guilds-loading">
+                    <span>Loading servers...</span>
+                  </div>
+                )}
+
+                {guildsError && (
+                  <div className="guilds-error">
+                    <span>Error loading servers: {guildsError}</span>
+                    <button
+                      className="retry-button"
+                      onClick={refetchGuilds}
+                      disabled={guildsLoading}
+                    >
+                      Retry
+                    </button>
+                  </div>
+                )}
+
+                {!guildsLoading && !guildsError && guilds.length > 0 && (
+                  <div className="guilds-list">
+                    <div className="guilds-count">
+                      {guilds.length} server{guilds.length !== 1 ? "s" : ""}{" "}
+                      available
+                    </div>
+                    <div className="guilds-container scrollable">
+                      {guilds.map((guild: unknown) => (
+                        <div key={guild.id} className="guild-item">
+                          <div className="guild-info">
+                            <span className="guild-icon">
+                              {guild.owner ? "👑" : "🏰"}
+                            </span>
+                            <span className="guild-name">{guild.name}</span>
+                            <div className="guild-meta">
+                              {guild.owner && (
+                                <span className="guild-owner">Owner</span>
+                              )}
+                              <button
+                                className="select-guild-button"
+                                onClick={() => setSelectedGuild(guild.id)}
+                                disabled={selectedGuild === guild.id}
+                              >
+                                {selectedGuild === guild.id
+                                  ? "Selected"
+                                  : "Select"}
+                              </button>
+                            </div>
+                          </div>
+
+                          {selectedGuild === guild.id && (
+                            <div className="channels-section">
+                              {channelsLoading && (
+                                <div className="channels-loading">
+                                  <span>Loading channels...</span>
+                                </div>
+                              )}
+
+                              {!channelsLoading && channels.length > 0 && (
+                                <div className="channels-list">
+                                  <div className="channels-count">
+                                    {channels.length} text channel
+                                    {channels.length !== 1 ? "s" : ""}
+                                  </div>
+                                  <div className="channels-container">
+                                    {channels.map((channel: unknown) => (
+                                      <div
+                                        key={channel.id}
+                                        className="channel-item"
+                                      >
+                                        <span className="channel-icon">#</span>
+                                        <span className="channel-name">
+                                          {channel.name}
+                                        </span>
+                                      </div>
+                                    ))}
+                                  </div>
+                                </div>
+                              )}
+
+                              {!channelsLoading && channels.length === 0 && (
+                                <div className="channels-empty">
+                                  <span>No text channels found</span>
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {!guildsLoading && !guildsError && guilds.length === 0 && (
+                  <div className="guilds-empty">
+                    <span>No servers found with webhook permissions</span>
+                  </div>
+                )}
               </div>
             </div>
           )}
 
           {!isConnected && (
             <div className="form-group">
-              <div className="discord-setup-info">
-                <h3>How to set up Discord webhook:</h3>
-                <ol>
-                  <li>Go to your Discord server channel</li>
-                  <li>{`Click "Edit Channel" → "Integrations" → "Webhooks"`}</li>
-                  <li>{`Click "New Webhook" and configure it`}</li>
-                  <li>Copy the webhook URL and paste it below</li>
-                </ol>
+              {/* Primary OAuth connection - always visible */}
+              <div className="primary-connection-section">
+                {error && connectionMethod === "oauth" && (
+                  <div className="error-message prominent-error">{error}</div>
+                )}
+                <button
+                  className="oauth-connect-button primary provider-branded"
+                  onClick={handleOAuthConnect}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <span className="oauth-button-content">
+                      Redirecting to{" "}
+                      <img
+                        src="/images/providers/discord/Discord-Logo-White.svg"
+                        alt="Discord"
+                        className="oauth-button-content-discord"
+                      />
+                    </span>
+                  ) : (
+                    <span className="oauth-button-content">
+                      Sign in with{" "}
+                      <img
+                        src="/images/providers/discord/Discord-Logo-White.svg"
+                        alt="Discord"
+                        className="oauth-button-content-discord"
+                      />
+                    </span>
+                  )}
+                </button>
+                <small className="form-help oauth-help">
+                  {`🔒 Secure OAuth 2.0 authorization - you'll be redirected to
+                  Discord to grant server access permissions.`}
+                </small>
               </div>
 
-              <label htmlFor="webhook-url">
-                Webhook URL <span className="required">*</span>
-              </label>
-              <div className="input-with-icon">
-                <span className="input-icon">🔗</span>
-                <input
-                  id="webhook-url"
-                  type="url"
-                  className="form-input"
-                  placeholder="https://discord.com/api/webhooks/..."
-                  value={webhookUrl}
-                  onChange={(e) => setWebhookUrl(e.target.value)}
-                />
-              </div>
-              <small className="form-help">
-                Create a webhook URL in your Discord server settings
-              </small>
+              {/* Alternative connection options - hidden by default */}
+              <div className="alternative-connection-section">
+                {!showManualOption ? (
+                  <button
+                    className="show-alternative-button"
+                    onClick={() => {
+                      setShowManualOption(true);
+                      setConnectionMethod("manual");
+                    }}
+                    disabled={loading}
+                  >
+                    Use bot token or webhook instead
+                  </button>
+                ) : (
+                  <div className="manual-connection-wrapper">
+                    <div className="alternative-header">
+                      <span>Alternative Connection Methods</span>
+                      <button
+                        className="hide-alternative-button"
+                        onClick={() => {
+                          setShowManualOption(false);
+                          setConnectionMethod("oauth");
+                          setAccessToken("");
+                          setWebhookUrl("");
+                          setError(null);
+                        }}
+                        disabled={loading}
+                      >
+                        ← Back to OAuth
+                      </button>
+                    </div>
 
-              <label htmlFor="channel-id">
-                Channel ID <span className="optional">(Optional)</span>
-              </label>
-              <div className="input-with-icon">
-                <span className="input-icon">#</span>
-                <input
-                  id="channel-id"
-                  type="text"
-                  className="form-input"
-                  placeholder="123456789012345678"
-                  value={channelId}
-                  onChange={(e) => setChannelId(e.target.value)}
-                />
-              </div>
-              <small className="form-help">
-                {`Optional: Specify a channel ID to override the webhook's default
-                channel`}
-              </small>
+                    <div className="connection-method-tabs">
+                      <button
+                        className={`method-tab ${
+                          connectionMethod === "manual" ? "active" : ""
+                        }`}
+                        onClick={() => {
+                          setConnectionMethod("manual");
+                          setError(null);
+                        }}
+                      >
+                        Bot Token
+                      </button>
+                      <button
+                        className={`method-tab ${
+                          connectionMethod === "webhook" ? "active" : ""
+                        }`}
+                        onClick={() => {
+                          setConnectionMethod("webhook");
+                          setError(null);
+                        }}
+                      >
+                        Webhook URL
+                      </button>
+                    </div>
 
-              {error && <div className="error-message">{error}</div>}
+                    {connectionMethod === "manual" && (
+                      <div className="manual-connect-section">
+                        <div className="token-input-group">
+                          <label htmlFor="bot-token">
+                            Bot Token <span className="required">*</span>
+                          </label>
+                          <div className="input-with-icon">
+                            <span className="input-icon">🤖</span>
+                            <input
+                              id="bot-token"
+                              type="password"
+                              className="form-input"
+                              placeholder="Bot token..."
+                              value={accessToken}
+                              onChange={(e) => setAccessToken(e.target.value)}
+                            />
+                          </div>
+                          <div className="token-help">
+                            <div className="token-option">
+                              <strong>How to get a bot token:</strong>
+                              <ol>
+                                <li>
+                                  Go to{" "}
+                                  <a
+                                    href="https://discord.com/developers/applications"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="help-link"
+                                  >
+                                    Discord Developer Portal
+                                  </a>
+                                </li>
+                                <li>
+                                  Create a new application or select existing
+                                </li>
+                                <li>
+                                  Go to &quot;Bot&quot; section and create a bot
+                                </li>
+                                <li>Copy the bot token</li>
+                                <li>
+                                  Invite bot to your server with appropriate
+                                  permissions
+                                </li>
+                              </ol>
+                            </div>
+                          </div>
+                        </div>
+                        {error && connectionMethod === "manual" && (
+                          <div className="error-message prominent-error">
+                            {error}
+                          </div>
+                        )}
+                        <button
+                          className="manual-connect-button"
+                          onClick={handleManualConnect}
+                          disabled={!accessToken.trim() || loading}
+                        >
+                          {loading ? "Connecting..." : "Connect with Token"}
+                        </button>
+                      </div>
+                    )}
+
+                    {connectionMethod === "webhook" && (
+                      <div className="webhook-connect-section">
+                        <div className="discord-setup-info">
+                          <h3>How to set up Discord webhook:</h3>
+                          <ol>
+                            <li>Go to your Discord server channel</li>
+                            <li>{`Click "Edit Channel" → "Integrations" → "Webhooks"`}</li>
+                            <li>{`Click "New Webhook" and configure it`}</li>
+                            <li>Copy the webhook URL and paste it below</li>
+                          </ol>
+                        </div>
+
+                        <label htmlFor="webhook-url">
+                          Webhook URL <span className="required">*</span>
+                        </label>
+                        <div className="input-with-icon">
+                          <span className="input-icon">🔗</span>
+                          <input
+                            id="webhook-url"
+                            type="url"
+                            className="form-input"
+                            placeholder="https://discord.com/api/webhooks/..."
+                            value={webhookUrl}
+                            onChange={(e) => setWebhookUrl(e.target.value)}
+                          />
+                        </div>
+                        <small className="form-help">
+                          Create a webhook URL in your Discord server settings
+                        </small>
+
+                        {error && connectionMethod === "webhook" && (
+                          <div className="error-message prominent-error">
+                            {error}
+                          </div>
+                        )}
+                        <button
+                          className="webhook-connect-button"
+                          onClick={handleManualConnect}
+                          disabled={!webhookUrl.trim() || loading}
+                        >
+                          {loading ? "Connecting..." : "Connect with Webhook"}
+                        </button>
+
+                        {webhookUrl.trim() && (
+                          <button
+                            className="test-channel-button"
+                            onClick={() =>
+                              handleTestWebhook(webhookUrl, "Discord Server")
+                            }
+                            disabled={testingWebhook === webhookUrl}
+                            style={{ marginTop: "0.5rem" }}
+                          >
+                            {testingWebhook === webhookUrl
+                              ? "Testing..."
+                              : "Test Webhook"}
+                          </button>
+                        )}
+
+                        {testResults[webhookUrl] && (
+                          <div
+                            className={`test-result ${
+                              testResults[webhookUrl].success
+                                ? "success"
+                                : "error"
+                            }`}
+                          >
+                            {testResults[webhookUrl].message}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </div>
+                )}
+              </div>
             </div>
           )}
         </div>
@@ -170,22 +708,13 @@ export default function DiscordProviderModal({
               {loading ? "Disconnecting..." : "Disconnect"}
             </button>
           ) : (
-            <>
-              <button
-                className="cancel-button"
-                onClick={onClose}
-                disabled={loading}
-              >
-                Cancel
-              </button>
-              <button
-                className="connect-button-modal provider-branded"
-                onClick={handleConnect}
-                disabled={!webhookUrl.trim() || loading}
-              >
-                {loading ? "Connecting..." : "Connect Discord"}
-              </button>
-            </>
+            <button
+              className="cancel-button"
+              onClick={onClose}
+              disabled={loading}
+            >
+              Cancel
+            </button>
           )}
         </div>
       </div>

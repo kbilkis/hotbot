@@ -56,7 +56,6 @@ export default function Tooltip({
               const trigger = el.parentElement;
               if (trigger) {
                 const rect = trigger.getBoundingClientRect();
-                const tooltipRect = el.getBoundingClientRect();
 
                 // Position above the trigger, centered horizontally
                 el.style.left = `${rect.left + rect.width / 2}px`;

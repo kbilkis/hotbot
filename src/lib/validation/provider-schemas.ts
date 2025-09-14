@@ -165,16 +165,12 @@ export const SlackChannelsListSchema = type({
 export const DiscordAuthUrlSchema = type({
   redirectUri: "string",
   scopes: "string[]?",
+  permissions: "string?",
 });
 
 export const DiscordTokenExchangeSchema = type({
   code: "string",
   redirectUri: "string",
-});
-
-export const DiscordSendMessageSchema = type({
-  webhookUrl: "string",
-  message: "string",
 });
 
 export const DiscordGuildSchema = type({
@@ -262,7 +258,6 @@ export type SlackChannelData = typeof SlackChannelSchema.infer;
 export type SlackChannelsListData = typeof SlackChannelsListSchema.infer;
 export type DiscordAuthUrlData = typeof DiscordAuthUrlSchema.infer;
 export type DiscordTokenExchangeData = typeof DiscordTokenExchangeSchema.infer;
-export type DiscordSendMessageData = typeof DiscordSendMessageSchema.infer;
 export type DiscordGuildData = typeof DiscordGuildSchema.infer;
 export type DiscordChannelData = typeof DiscordChannelSchema.infer;
 export type DiscordGuildsListData = typeof DiscordGuildsListSchema.infer;

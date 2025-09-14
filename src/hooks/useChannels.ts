@@ -9,7 +9,9 @@ interface Channel {
   memberCount?: number;
 }
 
-const fetcher = async (url: string): Promise<Channel[]> => {
+// Discord interfaces are inferred from API responses
+
+const fetcher = async (url: string): Promise<unknown> => {
   const response = await fetch(url, {
     headers: {
       "Content-Type": "application/json",
@@ -33,11 +35,47 @@ const fetcher = async (url: string): Promise<Channel[]> => {
   const data = await response.json();
 
   if (data.success && data.data) {
-    return data.data.channels || [];
+    return data.data;
   } else {
     throw new Error("Invalid response format");
   }
 };
+
+// Hook for Discord guilds
+export function useDiscordGuilds(shouldFetch: boolean = true) {
+  const endpoint = shouldFetch
+    ? "/api/providers/messaging/discord/guilds"
+    : null;
+
+  const { data, error, isLoading, mutate } = useSWR(endpoint, fetcher);
+
+  return {
+    guilds: data?.guilds || [],
+    loading: isLoading,
+    error: error?.message || null,
+    refetch: () => mutate(),
+  };
+}
+
+// Hook for Discord channels in a specific guild
+export function useDiscordChannels(
+  guildId?: string,
+  shouldFetch: boolean = true
+) {
+  const endpoint =
+    shouldFetch && guildId
+      ? `/api/providers/messaging/discord/guilds/${guildId}/channels`
+      : null;
+
+  const { data, error, isLoading, mutate } = useSWR(endpoint, fetcher);
+
+  return {
+    channels: data?.channels || [],
+    loading: isLoading,
+    error: error?.message || null,
+    refetch: () => mutate(),
+  };
+}
 
 export function useChannels(
   messagingProviderId?: string,
@@ -59,7 +97,8 @@ export function useChannels(
         endpoint = "/api/providers/messaging/teams/channels";
         break;
       case "discord":
-        endpoint = "/api/providers/messaging/discord/channels";
+        // For Discord, we need guilds first, not direct channels
+        endpoint = "/api/providers/messaging/discord/guilds";
         break;
       default:
         endpoint = null;
@@ -68,8 +107,18 @@ export function useChannels(
 
   const { data, error, isLoading, mutate } = useSWR(endpoint, fetcher);
 
+  // Extract the appropriate data based on provider type
+  let extractedData = [];
+  if (data) {
+    if (providerType === "discord") {
+      extractedData = data.guilds || [];
+    } else {
+      extractedData = data.channels || [];
+    }
+  }
+
   return {
-    channels: data || [],
+    channels: extractedData,
     loading: isLoading,
     error: error?.message || null,
     refetch: () => mutate(),
