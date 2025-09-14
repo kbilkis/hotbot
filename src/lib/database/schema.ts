@@ -185,19 +185,6 @@ export const subscriptions = pgTable("subscriptions", {
   updatedAt: timestamp("updated_at").defaultNow(),
 });
 
-// Usage tracking - tracks resource usage for tier limits
-export const usageTracking = pgTable("usage_tracking", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull()
-    .unique(), // One usage record per user
-  gitProvidersCount: integer("git_providers_count").default(0),
-  messagingProvidersCount: integer("messaging_providers_count").default(0),
-  cronJobsCount: integer("cron_jobs_count").default(0),
-  lastUpdated: timestamp("last_updated").defaultNow(),
-});
-
 // Export types for use in application
 export type User = typeof users.$inferSelect;
 export type NewUser = typeof users.$inferInsert;
@@ -219,6 +206,3 @@ export type NewEscalationTracking = typeof escalationTracking.$inferInsert;
 
 export type Subscription = typeof subscriptions.$inferSelect;
 export type NewSubscription = typeof subscriptions.$inferInsert;
-
-export type UsageTracking = typeof usageTracking.$inferSelect;
-export type NewUsageTracking = typeof usageTracking.$inferInsert;

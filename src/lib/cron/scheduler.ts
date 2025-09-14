@@ -114,14 +114,6 @@ function filterDueJobs(jobs: CronJob[]): CronJob[] {
         prevRun.getMinutes()
       );
 
-      console.log("ffff", {
-        nextRunMinute: prevRunMinute.getTime(),
-        currentMinute: currentMinute.getTime(),
-        lastExecuted: job.lastExecuted,
-        // nextRun,
-        prevRun,
-      });
-
       // Job is due if:
       // 1. The most recent scheduled execution time is the current minute, AND
       // 2. Either it has never run, or last run was before this scheduled time

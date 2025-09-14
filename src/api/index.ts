@@ -7,6 +7,7 @@ import authRoutes from "./auth";
 import providersRoutes from "./providers";
 import schedulesRoutes from "./schedules";
 import subscriptionsRoutes from "./subscriptions";
+import usageRoutes from "./usage";
 import webhooksRoutes from "./webhooks";
 
 const api = new Hono();
@@ -28,6 +29,7 @@ api.get("/health", (c) => {
 api.use("/providers/*", requireAuth());
 api.use("/schedules/*", requireAuth());
 api.use("/subscriptions/*", requireAuth());
+api.use("/usage/*", requireAuth());
 api.use("/auth/me", requireAuth()); // Protect the /me endpoint
 
 // Public and protected auth routes
@@ -37,6 +39,7 @@ api.route("/auth", authRoutes);
 api.route("/providers", providersRoutes);
 api.route("/schedules", schedulesRoutes);
 api.route("/subscriptions", subscriptionsRoutes);
+api.route("/usage", usageRoutes);
 
 // Public webhook routes (no auth required for Stripe webhooks)
 api.route("/webhooks", webhooksRoutes);

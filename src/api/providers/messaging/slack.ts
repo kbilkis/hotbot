@@ -6,6 +6,10 @@ import { Hono } from "hono";
 import { getCurrentUserId } from "@/lib/auth/clerk";
 
 import {
+  checkMessagingProviderLimits,
+  handleTierLimitError,
+} from "../../../lib/access-control/middleware";
+import {
   getUserMessagingProvider,
   upsertMessagingProvider,
 } from "../../../lib/database/queries/providers";
@@ -84,6 +88,9 @@ app.post(
       const body = c.req.valid("json");
       const userId = getCurrentUserId(c);
 
+      // Check tier limits before creating provider
+      await checkMessagingProviderLimits(userId);
+
       // Step 1: Exchange code for token with Slack
       const tokenResponse = await exchangeSlackToken(
         body.code,
@@ -126,15 +133,18 @@ app.post(
       });
     } catch (error) {
       console.error("Slack token exchange failed:", error);
-      return c.json(
-        ErrorResponseSchema({
-          error: "Token exchange failed",
-          message:
-            error instanceof Error
-              ? error.message
-              : "Failed to exchange authorization code",
-        }),
-        500
+      return (
+        handleTierLimitError(error, c) ||
+        c.json(
+          ErrorResponseSchema({
+            error: "Token exchange failed",
+            message:
+              error instanceof Error
+                ? error.message
+                : "Failed to exchange authorization code",
+          }),
+          500
+        )
       );
     }
   }
@@ -148,6 +158,9 @@ app.post(
     try {
       const { accessToken } = c.req.valid("json");
       const userId = getCurrentUserId(c);
+
+      // Check tier limits before creating provider
+      await checkMessagingProviderLimits(userId);
 
       // Validate the token by making a test API call
       const isValid = await validateSlackToken(accessToken);
@@ -191,12 +204,15 @@ app.post(
       });
     } catch (error) {
       console.error("Slack manual connection failed:", error);
-      return c.json(
-        ErrorResponseSchema({
-          error: "Connection failed",
-          message: "Failed to connect with provided token",
-        }),
-        500
+      return (
+        handleTierLimitError(error, c) ||
+        c.json(
+          ErrorResponseSchema({
+            error: "Connection failed",
+            message: "Failed to connect with provided token",
+          }),
+          500
+        )
       );
     }
   }

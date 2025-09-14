@@ -4,6 +4,11 @@ import { Hono } from "hono";
 import { getCurrentUserId } from "@/lib/auth/clerk";
 
 import {
+  checkCronJobLimits,
+  checkCronJobInterval,
+  handleTierLimitError,
+} from "../lib/access-control/middleware";
+import {
   createCronJob,
   getUserCronJobs,
   getCronJobById,
@@ -66,6 +71,12 @@ app.post("/", arktypeValidator("json", CreateCronJobSchema), async (c) => {
     const userId = getCurrentUserId(c);
     const jobData = c.req.valid("json");
 
+    // Check tier limits before creating cron job
+    await checkCronJobLimits(userId);
+
+    // Validate cron interval for user's tier
+    await checkCronJobInterval(userId, jobData.cronExpression);
+
     // Cron expression is already in UTC from the client
     const job = await createCronJob(userId, jobData);
 
@@ -78,7 +89,10 @@ app.post("/", arktypeValidator("json", CreateCronJobSchema), async (c) => {
     );
   } catch (error) {
     console.error("Error creating cron job:", error);
-    return c.json({ error: "Failed to create cron job" }, 500);
+    return (
+      handleTierLimitError(error, c) ||
+      c.json({ error: "Failed to create cron job" }, 500)
+    );
   }
 });
 
@@ -97,6 +111,11 @@ app.put("/:id", arktypeValidator("json", UpdateCronJobSchema), async (c) => {
     // Extract the update data (excluding id) - cron expression is already in UTC
     const { id: _, ...jobUpdates } = updateData;
 
+    // Validate cron interval for user's tier if cronExpression is being updated
+    if (jobUpdates.cronExpression) {
+      await checkCronJobInterval(userId, jobUpdates.cronExpression);
+    }
+
     // Update the cron job
     const job = await updateCronJob(id, userId, jobUpdates);
 
@@ -110,7 +129,10 @@ app.put("/:id", arktypeValidator("json", UpdateCronJobSchema), async (c) => {
     });
   } catch (error) {
     console.error("Error updating cron job:", error);
-    return c.json({ error: "Failed to update cron job" }, 500);
+    return (
+      handleTierLimitError(error, c) ||
+      c.json({ error: "Failed to update cron job" }, 500)
+    );
   }
 });
 

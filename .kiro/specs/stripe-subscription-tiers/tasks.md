@@ -69,22 +69,22 @@
   - Handle payment failure and retry scenarios
   - _Requirements: 4.2, 4.3, 4.4, 6.3_
 
-- [ ] 5. Implement tier-based access control middleware
-- [ ] 5.1 Create usage tracking system
+- [x] 5. Implement tier-based access control middleware
+- [x] 5.1 Create usage tracking system
 
   - Implement functions to count current user providers and schedules
   - Create usage update triggers for provider and schedule changes
   - Add usage synchronization and reconciliation logic
   - _Requirements: 1.2, 1.3, 1.4, 3.6_
 
-- [ ] 5.2 Create access control middleware
+- [x] 5.2 Create access control middleware
 
   - Implement middleware to check tier limits before resource creation
   - Add validation for minimum cron interval on Free tier
   - Create helper functions to get user tier and limits
   - _Requirements: 1.2, 1.3, 1.4, 1.5, 2.2, 2.3, 2.4, 2.5_
 
-- [ ] 5.3 Apply access control to existing endpoints
+- [x] 5.3 Apply access control to existing endpoints
 
   - Add tier validation to git provider creation endpoint
   - Add tier validation to messaging provider creation endpoint

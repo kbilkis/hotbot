@@ -182,7 +182,6 @@ export default function GitProviderModal({
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.log("AUTH_URL RESP BAD", errorText);
         let errorMessage = `Request failed: ${response.status}`;
 
         try {
@@ -196,7 +195,6 @@ export default function GitProviderModal({
       }
 
       const data = await response.json();
-      console.log("AUTH_URL RESP GOOD", data);
       // Redirect to GitHub OAuth page
       window.location.href = data.authUrl;
     } catch (err) {
@@ -431,9 +429,6 @@ export default function GitProviderModal({
             <div className="form-group">
               {/* Primary OAuth connection - always visible */}
               <div className="primary-connection-section">
-                {error && connectionMethod === "oauth" && (
-                  <div className="error-message prominent-error">{error}</div>
-                )}
                 <button
                   className="oauth-connect-button primary provider-branded"
                   onClick={handleOAuthConnect}
@@ -531,11 +526,6 @@ export default function GitProviderModal({
                           </div>
                         </div>
                       </div>
-                      {error && connectionMethod === "manual" && (
-                        <div className="error-message prominent-error">
-                          {error}
-                        </div>
-                      )}
                       <button
                         className="manual-connect-button"
                         onClick={handleManualConnect}
@@ -552,23 +542,30 @@ export default function GitProviderModal({
         </div>
 
         <div className="modal-footer">
-          {isConnected ? (
-            <button
-              className="disconnect-button"
-              onClick={handleDisconnect}
-              disabled={loading}
-            >
-              {loading ? "Disconnecting..." : "Disconnect"}
-            </button>
-          ) : (
-            <button
-              className="cancel-button"
-              onClick={onClose}
-              disabled={loading}
-            >
-              Cancel
-            </button>
+          {error && (
+            <div className="modal-footer-error">
+              <div className="error-message prominent-error">{error}</div>
+            </div>
           )}
+          <div className="modal-footer-buttons">
+            {isConnected ? (
+              <button
+                className="disconnect-button"
+                onClick={handleDisconnect}
+                disabled={loading}
+              >
+                {loading ? "Disconnecting..." : "Disconnect"}
+              </button>
+            ) : (
+              <button
+                className="cancel-button"
+                onClick={onClose}
+                disabled={loading}
+              >
+                Cancel
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

@@ -471,9 +471,6 @@ export default function SlackProviderModal({
             <div className="form-group">
               {/* Primary OAuth connection - always visible */}
               <div className="primary-connection-section">
-                {error && connectionMethod === "oauth" && (
-                  <div className="error-message prominent-error">{error}</div>
-                )}
                 <button
                   className="oauth-connect-button primary provider-branded"
                   onClick={handleOAuthConnect}
@@ -593,11 +590,6 @@ export default function SlackProviderModal({
                           </div>
                         </div>
                       </div>
-                      {error && connectionMethod === "manual" && (
-                        <div className="error-message prominent-error">
-                          {error}
-                        </div>
-                      )}
                       <button
                         className="manual-connect-button"
                         onClick={handleManualConnect}
@@ -614,23 +606,30 @@ export default function SlackProviderModal({
         </div>
 
         <div className="modal-footer">
-          {isConnected ? (
-            <button
-              className="disconnect-button"
-              onClick={handleDisconnect}
-              disabled={loading}
-            >
-              {loading ? "Disconnecting..." : "Disconnect"}
-            </button>
-          ) : (
-            <button
-              className="cancel-button"
-              onClick={onClose}
-              disabled={loading}
-            >
-              Cancel
-            </button>
+          {error && (
+            <div className="modal-footer-error">
+              <div className="error-message prominent-error">{error}</div>
+            </div>
           )}
+          <div className="modal-footer-buttons">
+            {isConnected ? (
+              <button
+                className="disconnect-button"
+                onClick={handleDisconnect}
+                disabled={loading}
+              >
+                {loading ? "Disconnecting..." : "Disconnect"}
+              </button>
+            ) : (
+              <button
+                className="cancel-button"
+                onClick={onClose}
+                disabled={loading}
+              >
+                Cancel
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

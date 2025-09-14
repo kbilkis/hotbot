@@ -113,7 +113,6 @@ export default function DiscordProviderModal({
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.log("DISCORD_AUTH_URL RESP BAD", errorText);
         let errorMessage = `Request failed: ${response.status}`;
 
         try {
@@ -127,7 +126,6 @@ export default function DiscordProviderModal({
       }
 
       const data = await response.json();
-      console.log("DISCORD_AUTH_URL RESP GOOD", data);
       // Redirect to Discord OAuth page
       window.location.href = data.authUrl;
     } catch (err) {
@@ -388,7 +386,7 @@ export default function DiscordProviderModal({
                       available
                     </div>
                     <div className="guilds-container scrollable">
-                      {guilds.map((guild: unknown) => (
+                      {guilds.map((guild) => (
                         <div key={guild.id} className="guild-item">
                           <div className="guild-info">
                             <span className="guild-icon">
@@ -426,7 +424,7 @@ export default function DiscordProviderModal({
                                     {channels.length !== 1 ? "s" : ""}
                                   </div>
                                   <div className="channels-container">
-                                    {channels.map((channel: unknown) => (
+                                    {channels.map((channel) => (
                                       <div
                                         key={channel.id}
                                         className="channel-item"
@@ -467,9 +465,6 @@ export default function DiscordProviderModal({
             <div className="form-group">
               {/* Primary OAuth connection - always visible */}
               <div className="primary-connection-section">
-                {error && connectionMethod === "oauth" && (
-                  <div className="error-message prominent-error">{error}</div>
-                )}
                 <button
                   className="oauth-connect-button primary provider-branded"
                   onClick={handleOAuthConnect}
@@ -605,11 +600,6 @@ export default function DiscordProviderModal({
                             </div>
                           </div>
                         </div>
-                        {error && connectionMethod === "manual" && (
-                          <div className="error-message prominent-error">
-                            {error}
-                          </div>
-                        )}
                         <button
                           className="manual-connect-button"
                           onClick={handleManualConnect}
@@ -650,11 +640,6 @@ export default function DiscordProviderModal({
                           Create a webhook URL in your Discord server settings
                         </small>
 
-                        {error && connectionMethod === "webhook" && (
-                          <div className="error-message prominent-error">
-                            {error}
-                          </div>
-                        )}
                         <button
                           className="webhook-connect-button"
                           onClick={handleManualConnect}
@@ -699,23 +684,30 @@ export default function DiscordProviderModal({
         </div>
 
         <div className="modal-footer">
-          {isConnected ? (
-            <button
-              className="disconnect-button"
-              onClick={handleDisconnect}
-              disabled={loading}
-            >
-              {loading ? "Disconnecting..." : "Disconnect"}
-            </button>
-          ) : (
-            <button
-              className="cancel-button"
-              onClick={onClose}
-              disabled={loading}
-            >
-              Cancel
-            </button>
+          {error && (
+            <div className="modal-footer-error">
+              <div className="error-message prominent-error">{error}</div>
+            </div>
           )}
+          <div className="modal-footer-buttons">
+            {isConnected ? (
+              <button
+                className="disconnect-button"
+                onClick={handleDisconnect}
+                disabled={loading}
+              >
+                {loading ? "Disconnecting..." : "Disconnect"}
+              </button>
+            ) : (
+              <button
+                className="cancel-button"
+                onClick={onClose}
+                disabled={loading}
+              >
+                Cancel
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

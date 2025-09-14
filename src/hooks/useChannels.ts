@@ -1,8 +1,6 @@
 import useSWR from "swr";
 
-import { DiscordGuild } from "@/lib/discord";
-
-import { MessagingProvider } from "./useMessagingProviders";
+import { DiscordChannel, DiscordGuild } from "@/lib/discord";
 
 interface Channel {
   id: string;
@@ -72,7 +70,9 @@ export function useDiscordChannels(
       ? `/api/providers/messaging/discord/guilds/${guildId}/channels`
       : null;
 
-  const { data, error, isLoading, mutate } = useSWR(endpoint, fetcher);
+  const { data, error, isLoading, mutate } = useSWR<{
+    channels: DiscordChannel[];
+  }>(endpoint, fetcher);
 
   return {
     channels: data?.channels || [],
@@ -127,55 +127,5 @@ export function useChannels(
     loading: isLoading,
     error: error?.message || null,
     refetch: () => mutate(),
-  };
-}
-// Hook to prefetch channels for all connected messaging providers
-export function usePrefetchChannels(
-  messagingProviders: MessagingProvider[],
-  shouldFetch: boolean = true
-) {
-  const connectedMessagingProviders = messagingProviders.filter(
-    (p) => p.connected
-  );
-
-  // Create SWR calls for each connected provider
-  const channelData = connectedMessagingProviders.map((provider) => {
-    // Build endpoint based on provider type
-    let endpoint: string | null = null;
-    switch (provider.type) {
-      case "slack":
-        endpoint = "/api/providers/messaging/slack/channels";
-        break;
-      case "teams":
-        endpoint = "/api/providers/messaging/teams/channels";
-        break;
-      case "discord":
-        endpoint = "/api/providers/messaging/discord/channels";
-        break;
-      default:
-        endpoint = null;
-    }
-
-    const { data, error, isLoading } = useSWR(
-      shouldFetch && endpoint ? endpoint : null,
-      fetcher
-    );
-
-    return {
-      providerId: provider.id,
-      providerType: provider.type,
-      channels: data || [],
-      loading: isLoading,
-      error: error?.message || null,
-    };
-  });
-
-  return {
-    channelsByProvider: channelData.reduce((acc, item) => {
-      acc[item.providerId] = item.channels;
-      return acc;
-    }, {} as Record<string, Channel[]>),
-    loading: channelData.some((item) => item.loading),
-    errors: channelData.filter((item) => item.error).map((item) => item.error),
   };
 }

@@ -2886,6 +2886,20 @@ Builder Presets */
   padding: 1.5rem 2rem;
   border-top: 1px solid #e5e7eb;
   display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.modal-footer-error {
+  margin-bottom: 0.5rem;
+}
+
+.modal-footer-error .error-message {
+  margin-bottom: 0;
+}
+
+.modal-footer-buttons {
+  display: flex;
   justify-content: flex-end;
   gap: 1rem;
 }

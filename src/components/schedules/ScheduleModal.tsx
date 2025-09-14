@@ -1,7 +1,7 @@
 import CronExpressionParser from "cron-parser";
 import React, { useState, useEffect } from "react";
 
-import { usePrefetchChannels } from "@/hooks/useChannels";
+import { useChannels } from "@/hooks/useChannels";
 import { usePrefetchRepositories } from "@/hooks/useRepositories";
 import { getUserTimezoneOrFallback } from "@/lib/utils/timezone";
 
@@ -85,11 +85,29 @@ export default function ScheduleModal({
   const { providers: messagingProviders, loading: loadingMessagingProviders } =
     useMessagingProviders();
 
-  // Prefetch all repositories and channels for connected providers
+  // Prefetch all repositories for connected providers
   const { repositoriesByProvider, loading: loadingAllRepositories } =
     usePrefetchRepositories(gitProviders, true);
-  const { channelsByProvider, loading: loadingAllChannels } =
-    usePrefetchChannels(messagingProviders, true);
+
+  // Get channels for each connected messaging provider using individual useChannels calls
+  const connectedMessagingProviders = messagingProviders.filter(
+    (p) => p.connected
+  );
+  const channelResults = connectedMessagingProviders.map((provider) => {
+    const { channels, loading, error } = useChannels(
+      provider.id,
+      provider.type,
+      true
+    );
+    return { providerId: provider.id, channels, loading, error };
+  });
+
+  // Build channelsByProvider object and loading state
+  const channelsByProvider = channelResults.reduce((acc, result) => {
+    acc[result.providerId] = result.channels;
+    return acc;
+  }, {} as Record<string, unknown[]>);
+  const loadingAllChannels = channelResults.some((result) => result.loading);
 
   // Get repositories and channels for currently selected providers
   const availableRepositories = formData.gitProviderId
@@ -309,10 +327,6 @@ export default function ScheduleModal({
         </div>
 
         <div className="modal-body">
-          {errors.submit && (
-            <div className="error-message">{errors.submit}</div>
-          )}
-
           <div className="form-group">
             <label htmlFor="schedule-name">Schedule Name</label>
             <input
@@ -671,24 +685,31 @@ export default function ScheduleModal({
         </div>
 
         <div className="modal-footer">
-          <button
-            className="cancel-button"
-            onClick={() => onClose()}
-            disabled={isSubmitting}
-          >
-            Cancel
-          </button>
-          <button
-            className="save-button"
-            onClick={handleSubmit}
-            disabled={isSubmitting || !formData.name.trim()}
-          >
-            {isSubmitting
-              ? "Saving..."
-              : schedule
-              ? "Update Schedule"
-              : "Create Schedule"}
-          </button>
+          {errors.submit && (
+            <div className="modal-footer-error">
+              <div className="error-message">{errors.submit}</div>
+            </div>
+          )}
+          <div className="modal-footer-buttons">
+            <button
+              className="cancel-button"
+              onClick={() => onClose()}
+              disabled={isSubmitting}
+            >
+              Cancel
+            </button>
+            <button
+              className="save-button"
+              onClick={handleSubmit}
+              disabled={isSubmitting || !formData.name.trim()}
+            >
+              {isSubmitting
+                ? "Saving..."
+                : schedule
+                ? "Update Schedule"
+                : "Create Schedule"}
+            </button>
+          </div>
         </div>
       </div>
     </div>

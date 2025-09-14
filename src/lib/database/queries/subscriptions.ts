@@ -3,14 +3,12 @@ import { eq, and, count } from "drizzle-orm";
 import { db } from "../client";
 import {
   subscriptions,
-  usageTracking,
   users,
   gitProviders,
   messagingProviders,
   cronJobs,
   type Subscription,
   type NewSubscription,
-  type UsageTracking,
 } from "../schema";
 
 /**
@@ -337,149 +335,3 @@ export async function syncSubscriptionFromStripe(
 }
 
 // ===== USAGE TRACKING FUNCTIONS =====
-
-/**
- * Create or update usage tracking for a user
- */
-export async function upsertUsageTracking(
-  userId: string,
-  usage: Partial<Omit<UsageTracking, "id" | "userId" | "lastUpdated">>
-): Promise<UsageTracking> {
-  const [usageRecord] = await db
-    .insert(usageTracking)
-    .values({
-      userId,
-      ...usage,
-      lastUpdated: new Date(),
-    })
-    .onConflictDoUpdate({
-      target: usageTracking.userId,
-      set: {
-        ...usage,
-        lastUpdated: new Date(),
-      },
-    })
-    .returning();
-
-  return usageRecord;
-}
-
-/**
- * Get usage tracking for a user
- */
-export async function getUsageTracking(
-  userId: string
-): Promise<UsageTracking | null> {
-  const [usage] = await db
-    .select()
-    .from(usageTracking)
-    .where(eq(usageTracking.userId, userId))
-    .limit(1);
-
-  return usage || null;
-}
-
-/**
- * Update usage tracking counts
- */
-export async function updateUsageTracking(
-  userId: string,
-  updates: Partial<
-    Pick<
-      UsageTracking,
-      "gitProvidersCount" | "messagingProvidersCount" | "cronJobsCount"
-    >
-  >
-): Promise<UsageTracking | null> {
-  const [usage] = await db
-    .update(usageTracking)
-    .set({
-      ...updates,
-      lastUpdated: new Date(),
-    })
-    .where(eq(usageTracking.userId, userId))
-    .returning();
-
-  return usage || null;
-}
-
-/**
- * Increment a specific usage counter
- */
-export async function incrementUsageCounter(
-  userId: string,
-  counter: "gitProvidersCount" | "messagingProvidersCount" | "cronJobsCount"
-): Promise<UsageTracking | null> {
-  // First ensure the user has a usage tracking record
-  await upsertUsageTracking(userId, {});
-
-  // Get current value and increment
-  const current = await getUsageTracking(userId);
-  if (!current) return null;
-
-  const currentValue = current[counter] ?? 0;
-
-  const [usage] = await db
-    .update(usageTracking)
-    .set({
-      [counter]: currentValue + 1,
-      lastUpdated: new Date(),
-    })
-    .where(eq(usageTracking.userId, userId))
-    .returning();
-
-  return usage || null;
-}
-
-/**
- * Decrement a specific usage counter
- */
-export async function decrementUsageCounter(
-  userId: string,
-  counter: "gitProvidersCount" | "messagingProvidersCount" | "cronJobsCount"
-): Promise<UsageTracking | null> {
-  // Get current value and decrement
-  const current = await getUsageTracking(userId);
-  if (!current) return null;
-
-  const currentValue = current[counter] ?? 0;
-
-  const [usage] = await db
-    .update(usageTracking)
-    .set({
-      [counter]: Math.max(0, currentValue - 1),
-      lastUpdated: new Date(),
-    })
-    .where(eq(usageTracking.userId, userId))
-    .returning();
-
-  return usage || null;
-}
-
-/**
- * Synchronize usage tracking with actual database counts
- */
-export async function syncUsageTracking(
-  userId: string
-): Promise<UsageTracking> {
-  const actualUsage = await getUserUsage(userId);
-
-  return await upsertUsageTracking(userId, {
-    gitProvidersCount: actualUsage.gitProvidersCount,
-    messagingProvidersCount: actualUsage.messagingProvidersCount,
-    cronJobsCount: actualUsage.cronJobsCount,
-  });
-}
-
-/**
- * Initialize usage tracking for a new user
- */
-export async function initializeUsageTracking(
-  userId: string
-): Promise<UsageTracking> {
-  return await upsertUsageTracking(userId, {
-    gitProvidersCount: 0,
-    messagingProvidersCount: 0,
-    cronJobsCount: 0,
-  });
-}

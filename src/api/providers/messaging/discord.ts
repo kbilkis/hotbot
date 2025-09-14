@@ -6,6 +6,10 @@ import { Hono } from "hono";
 import { getCurrentUserId } from "@/lib/auth/clerk";
 
 import {
+  checkMessagingProviderLimits,
+  handleTierLimitError,
+} from "../../../lib/access-control/middleware";
+import {
   getUserMessagingProvider,
   upsertMessagingProvider,
 } from "../../../lib/database/queries/providers";
@@ -88,6 +92,10 @@ app.post(
     try {
       const body = c.req.valid("json");
       const userId = getCurrentUserId(c);
+
+      // Check tier limits before creating provider
+      await checkMessagingProviderLimits(userId);
+
       // Step 1: Exchange code for token with Discord
       const tokenResponse = await exchangeDiscordToken(
         body.code,
@@ -127,15 +135,18 @@ app.post(
       });
     } catch (error) {
       console.error("Discord token exchange failed:", error);
-      return c.json(
-        ErrorResponseSchema({
-          error: "Token exchange failed",
-          message:
-            error instanceof Error
-              ? error.message
-              : "Failed to exchange authorization code",
-        }),
-        500
+      return (
+        handleTierLimitError(error, c) ||
+        c.json(
+          ErrorResponseSchema({
+            error: "Token exchange failed",
+            message:
+              error instanceof Error
+                ? error.message
+                : "Failed to exchange authorization code",
+          }),
+          500
+        )
       );
     }
   }
@@ -149,6 +160,9 @@ app.post(
     try {
       const { accessToken } = c.req.valid("json");
       const userId = getCurrentUserId(c);
+
+      // Check tier limits before creating provider
+      await checkMessagingProviderLimits(userId);
 
       // Validate the token by making a test API call
       const isValid = await validateDiscordToken(accessToken);
@@ -192,12 +206,15 @@ app.post(
       });
     } catch (error) {
       console.error("Discord manual connection failed:", error);
-      return c.json(
-        ErrorResponseSchema({
-          error: "Connection failed",
-          message: "Failed to connect with provided token",
-        }),
-        500
+      return (
+        handleTierLimitError(error, c) ||
+        c.json(
+          ErrorResponseSchema({
+            error: "Connection failed",
+            message: "Failed to connect with provided token",
+          }),
+          500
+        )
       );
     }
   }
