@@ -22,44 +22,206 @@ export default function LandingPage(): React.ReactElement {
       <section className="hero">
         <div className="hero-container">
           <div className="hero-content">
-            <h1>Never miss a code review again.</h1>
-            <p>Automate pull request nudges across your tools.</p>
+            <h1>Never let a pull request fall through the cracks.</h1>
+            <p>
+              Daily, standup-ready summaries and smart escalation that keep
+              reviews moving.
+            </p>
             <div className="hero-buttons">
               <Link to="/dashboard">
-                <button className="cta-primary">Schedule nudges</button>
+                <button className="cta-primary">Start integrating</button>
               </Link>
-              <button className="cta-secondary">Learn more</button>
             </div>
-            <p className="hero-subtitle">Free trial - No credit card</p>
           </div>
           <div className="hero-visual">
-            <div className="schedule-builder">
-              <div className="builder-header">
-                <span>Schedule Builder</span>
-                <div className="toggle-switch"></div>
+            <div className="hero-split">
+              <div className="slack-case-image">
+                <img
+                  src="/images/landing/slack-case.png"
+                  alt="Slack PR digest showing daily pull request summaries with review status and quick actions"
+                  className="slack-screenshot"
+                />
               </div>
-              <div className="smart-rules">
-                <h4>Smart Rules</h4>
-                <div className="rule-grid">
-                  <div className="rule-block orange"></div>
-                  <div className="rule-block blue"></div>
-                  <div className="rule-block orange"></div>
-                  <div className="rule-block blue"></div>
-                  <div className="rule-block orange"></div>
-                  <div className="rule-block blue"></div>
-                  <div className="rule-block orange"></div>
-                  <div className="rule-block blue"></div>
+              <div className="analytics-tiles">
+                <div className="stat-tile">
+                  <div className="stat-label">Median review time</div>
+                  <div className="stat-value">↓ 38%</div>
+                </div>
+                <div className="stat-tile">
+                  <div className="stat-label">Stale PRs</div>
+                  <div className="stat-value">↓ 52%</div>
+                </div>
+                <div className="stat-tile">
+                  <div className="stat-label">Read rate</div>
+                  <div className="stat-value">86%</div>
                 </div>
               </div>
-              <div className="frequency-section">
-                <h4>Frequency</h4>
-                <p>Weekly on Mon, Wed, Fri at 10 AM (every 0 • YYYY-MM-DD)</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Integrations Section */}
+      <section className="integrations">
+        <div className="container">
+          <h2>Works with your stack</h2>
+          <div className="integrations-grid-landing">
+            <div className="integration-item">
+              <img
+                src="/images/providers/github/GitHub_Lockup_Dark.svg"
+                alt="GitHub"
+              />
+            </div>
+            <div className="integration-item">
+              <img
+                src="/images/providers/gitlab/gitlab-logo-100-rgb.svg"
+                alt="GitLab"
+              />
+            </div>
+            <div className="integration-item">
+              <img
+                src="/images/providers/bitbucket/Bitbucket_attribution_light.svg"
+                alt="Bitbucket"
+              />
+              <div className="coming-soon-flair">Coming Soon</div>
+            </div>
+            <div className="integration-item">
+              <img
+                src="/images/providers/slack/SLA-Slack-from-Salesforce-logo.png"
+                alt="Slack"
+              />
+            </div>
+            <div className="integration-item">
+              <img
+                src="/images/providers/discord/Discord-Logo-Blurple.svg"
+                alt="Discord"
+              />
+            </div>
+            <div className="integration-item">
+              <img
+                src="/images/providers/teams/icons8-microsoft-teams.svg"
+                alt="Microsoft Teams"
+              />
+              <div className="coming-soon-flair">Coming Soon</div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Value Proposition Section */}
+      <section className="value-proposition">
+        <div className="container">
+          <h2>Ship faster by unblocking reviews.</h2>
+          <div className="value-grid">
+            <div className="value-item">
+              <div className="value-icon">📅</div>
+              <h3>Daily PR summaries before standup</h3>
+            </div>
+            <div className="value-item">
+              <div className="value-icon">🎯</div>
+              <h3>Targeted nudges, not noise</h3>
+            </div>
+            <div className="value-item">
+              <div className="value-icon">⚙️</div>
+              <h3>Configurable escalation that respects team norms</h3>
+            </div>
+          </div>
+          <div className="before-after-chart">
+            <div className="chart-title">Review Time Trends</div>
+            <div className="chart-container">
+              <div className="chart-bar before">
+                <div className="bar-label">Before</div>
+                <div className="bar" style={{ height: "80px" }}></div>
+                <div className="bar-value">3.2 days</div>
               </div>
-              <div className="conditions-section">
-                <h4>Conditions</h4>
-                <div className="condition-item">
-                  <span>label: CRITICAL</span>
-                  <div className="toggle-switch active"></div>
+              <div className="chart-bar after">
+                <div className="bar-label">After</div>
+                <div className="bar" style={{ height: "30px" }}></div>
+                <div className="bar-value">1.2 days</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Product in Context Section */}
+      <section className="product-context">
+        <div className="container">
+          <h2>Designed to be read in seconds and acted on immediately.</h2>
+          <div className="context-grid">
+            <div className="context-card">
+              <div className="context-header">Morning Slack Digest</div>
+              <div className="slack-digest-full">
+                <div className="digest-item">
+                  <div className="avatar">MK</div>
+                  <div className="details">
+                    <div className="title">Update API endpoints</div>
+                    <div className="meta">3 days old • @sarah @alex</div>
+                  </div>
+                  <div className="actions">
+                    <button>Review</button>
+                    <button>Approve</button>
+                  </div>
+                </div>
+                <div className="digest-item">
+                  <div className="avatar">JL</div>
+                  <div className="details">
+                    <div className="title">Fix mobile layout</div>
+                    <div className="meta">1 day old • Ready for review</div>
+                  </div>
+                  <div className="actions">
+                    <button>Review</button>
+                    <button>Approve</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="context-card">
+              <div className="context-header">Smart Escalation</div>
+              <div className="escalation-example">
+                <div className="escalation-message">
+                  <span className="bot-icon">🤖</span>
+                  <div className="message-content">
+                    <div className="message-text">
+                      {`PR "Fix auth bug" has been waiting 3 days`}
+                    </div>
+                    <div className="message-mentions">
+                      Escalating to @team-lead @engineering-manager
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="context-card">
+              <div className="context-header">Dashboard Overview</div>
+              <div className="dashboard-preview">
+                <div className="dashboard-stat">
+                  <div className="stat-number">
+                    7 <span className="trend">↓3</span>
+                  </div>
+                  <div className="stat-label">Awaiting Review</div>
+                </div>
+                <div className="mini-sparkline">
+                  <div
+                    className="sparkline-bar"
+                    style={{ height: "20px" }}
+                  ></div>
+                  <div
+                    className="sparkline-bar"
+                    style={{ height: "15px" }}
+                  ></div>
+                  <div
+                    className="sparkline-bar"
+                    style={{ height: "25px" }}
+                  ></div>
+                  <div
+                    className="sparkline-bar"
+                    style={{ height: "10px" }}
+                  ></div>
+                  <div
+                    className="sparkline-bar"
+                    style={{ height: "8px" }}
+                  ></div>
                 </div>
               </div>
             </div>
@@ -70,148 +232,203 @@ export default function LandingPage(): React.ReactElement {
       {/* How It Works Section */}
       <section className="how-it-works">
         <div className="container">
-          <h2 className="hero-title">
-            How
-            <img
-              src="/images/hotbot-h.svg"
-              alt="HotBot"
-              className="logo-image-inline"
-            />
-            Works
-          </h2>
-
+          <h2>How it works</h2>
           <div className="steps">
             <div className="step">
-              <div className="step-icon-circle">
-                <div className="step-icon">🔗</div>
-              </div>
-              <h3>Connect tools</h3>
+              <div className="step-number">1</div>
+              <h3>Connect Git repos</h3>
               <p>
-                To help you get nudge a good review mood tired little interested
-                has lorem and amete to alto the border amid your athletes.
+                Link your repositories and grant necessary permissions for PR
+                monitoring.
               </p>
             </div>
-
             <div className="step">
-              <div className="step-icon-circle">
-                <div className="step-icon">⚙️</div>
-              </div>
-              <h3>Configure smart rules</h3>
+              <div className="step-number">2</div>
+              <h3>Pick channels and standup time</h3>
               <p>
-                To help you get nudge a good review mood tired little interested
-                has lorem and amete to alto the border amid your athletes.
+                Choose Slack channels and set your team&apos;s preferred
+                notification schedule.
               </p>
             </div>
-
             <div className="step">
-              <div className="step-icon-circle">
-                <div className="step-icon">🚀</div>
-              </div>
-              <h3>Ship faster</h3>
+              <div className="step-number">3</div>
+              <h3>Enable escalation rules</h3>
               <p>
-                To help you get nudge a good review mood tired little interested
-                has lorem and amete to alto the border amid your athletes.
+                Configure smart escalation thresholds and stakeholder
+                notifications.
               </p>
             </div>
           </div>
 
-          <div className="integration-logos">
-            <div className="logo-item github">
+          <div className="integrations-demo-image">
+            <img
+              src="/images/landing/integrations-demo.png"
+              alt="Integration setup showing connected GitHub repositories and Slack channels with configuration options"
+              className="integrations-screenshot"
+            />
+          </div>
+
+          <div className="flow-diagram">
+            <div className="flow-step">
+              <div className="flow-icon github">
+                <img
+                  src="/images/providers/github/GitHub_Invertocat_Dark.svg"
+                  alt="GitHub icon"
+                />
+              </div>
+              <div className="flow-label">GitHub</div>
+            </div>
+            <div className="flow-arrow">→</div>
+            <div className="flow-step">
               <img
-                src="/images/providers/github/GitHub_Lockup_Dark.svg"
-                alt="GitHub"
+                src="/images/hotbot.svg"
+                alt="HotBot logo"
+                className="integrations-screenshot"
               />
             </div>
-            <div className="logo-item bitbucket">
-              <img
-                src="/images/providers/bitbucket/Bitbucket_attribution_light.svg"
-                alt="BitBucket"
-              />
+            <div className="flow-arrow">→</div>
+            <div className="flow-step">
+              <div className="flow-icon slack">
+                <img
+                  src="/images/providers/slack/SLA-appIcon-iOS.png"
+                  alt="Slack Icon"
+                />
+              </div>
             </div>
-            <div className="logo-item slack">
-              <img
-                src="/images/providers/slack/SLA-Slack-from-Salesforce-logo.png"
-                alt="Slack"
-              />
-            </div>
-            <div className="logo-item gitlab">
-              <img
-                src="/images/providers/gitlab/gitlab-logo-100-rgb.svg"
-                alt="GitLab"
-              />
-            </div>
-            <div className="logo-item teams">
-              <img
-                src="/images/providers/teams/icons8-microsoft-teams.svg"
-                alt="GitLab"
-              />
-            </div>
-            <div className="logo-item discord">
-              <img
-                src="/images/providers/discord/Discord-Logo-Blurple.svg"
-                alt="Discord"
-              />
-            </div>
+          </div>
+
+          <div className="cta-repeat">
+            <button className="cta-primary">
+              Add to your favorite messaging platform
+            </button>
           </div>
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="features">
+      {/* Features for Engineers Section */}
+      <section className="features-engineers">
         <div className="container">
-          <h2>Powerful Features, Simple Interface</h2>
-          <p className="section-subtitle">
-            Everything you need to streamline your code review process.
-          </p>
-
-          <div className="feature-grid">
-            <div className="feature-card">
-              <div className="feature-icon">📅</div>
-              <h3>Customizable Rules</h3>
-              <p>
-                Create flexible scheduling rules with cron expressions, custom
-                filters, and team-specific configurations.
-              </p>
+          <h2>Features for engineers</h2>
+          <div className="features-list">
+            <div className="feature-bullet">
+              <span className="bullet">•</span>
+              <span>Daily standup summaries (cron/zone aware)</span>
             </div>
-
-            <div className="feature-card">
-              <div className="feature-icon">🔔</div>
-              <h3>Flexible Scheduling</h3>
-              <p>
-                Schedule notifications at optimal times for your team across
-                different time zones and working hours.
-              </p>
+            <div className="feature-bullet">
+              <span className="bullet">•</span>
+              <span>
+                Smart filters: Draft/WIP/label exclusions, reviewer-aware
+              </span>
             </div>
+            <div className="feature-bullet">
+              <span className="bullet">•</span>
+              <span>Escalation tiers with stakeholder mentions</span>
+            </div>
+            <div className="feature-bullet">
+              <span className="bullet">•</span>
+              <span>No-noise defaults; configurable thresholds</span>
+            </div>
+          </div>
 
-            <div className="feature-card">
-              <div className="feature-icon">🎯</div>
-              <h3>Smart Integration</h3>
-              <p>
-                Seamlessly connect with GitHub, GitLab, Bitbucket, Slack, Teams,
-                and Discord for comprehensive workflow coverage.
-              </p>
+          <div className="rule-builder-card">
+            <div className="rule-header">Rule Builder</div>
+            <div className="rule-content">
+              <div className="rule-section">
+                <span className="rule-label">Frequency:</span>
+                <div className="rule-chip">Daily 9:00 AM</div>
+              </div>
+              <div className="rule-section">
+                <span className="rule-label">Conditions:</span>
+                <div className="rule-chips">
+                  <div className="rule-chip">!draft</div>
+                  <div className="rule-chip">!wip</div>
+                  <div className="rule-chip">age 1d</div>
+                </div>
+              </div>
+              <div className="rule-section">
+                <span className="rule-label">Escalation:</span>
+                <div className="rule-chips">
+                  <div className="rule-chip">@team-lead</div>
+                  <div className="rule-chip">@manager</div>
+                </div>
+              </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Testimonial Section */}
-      <section className="testimonial">
+      {/* Social Proof Section */}
+      <section className="social-proof">
         <div className="container">
           <div className="testimonial-content">
             <blockquote>
-              {`"HotBot cut down our review response time by 60%. We're getting
-              reviews faster and shipping features more consistently than ever
-              before."`}
+              &quot;PRs stopped languishing—reviews happen before lunch.&quot;
             </blockquote>
             <div className="testimonial-author">
-              <div className="author-avatar"></div>
+              <div className="author-avatar">
+                <img
+                  src="/images/landing/hero.png"
+                  alt="Staff Engineer avatar"
+                  className="avatar-image"
+                />
+              </div>
               <div className="author-info">
-                <div className="author-name">Alex Chen</div>
-                <div className="author-title">
-                  Engineering Manager, TechCorp
+                <div className="author-name">Staff Engineer</div>
+                <div className="author-title">Fintech</div>
+              </div>
+            </div>
+          </div>
+
+          <div className="case-study-card">
+            <div className="case-study-header">Time to First Review</div>
+            <div className="case-study-chart">
+              <div className="chart-section">
+                <div className="chart-label">Before</div>
+                <div className="chart-value">2.8 days</div>
+                <div className="chart-bar-bg">
+                  <div
+                    className="chart-bar-fill before"
+                    style={{ width: "80%" }}
+                  ></div>
                 </div>
               </div>
+              <div className="chart-section">
+                <div className="chart-label">After</div>
+                <div className="chart-value">1.1 days</div>
+                <div className="chart-bar-bg">
+                  <div
+                    className="chart-bar-fill after"
+                    style={{ width: "35%" }}
+                  ></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Analytics Section */}
+      <section className="analytics-slice">
+        <div className="container">
+          <h2>Track what matters</h2>
+          <div className="analytics-tiles-grid">
+            <div className="analytics-tile">
+              <div className="tile-value">
+                1.2 days <span className="trend-arrow">↓</span>
+              </div>
+              <div className="tile-label">Median review time</div>
+            </div>
+            <div className="analytics-tile">
+              <div className="tile-value">
+                3 <span className="trend-arrow">↓</span>
+              </div>
+              <div className="tile-label">PRs awaiting review</div>
+            </div>
+            <div className="analytics-tile">
+              <div className="tile-value">
+                2 <span className="trend-arrow">→</span>
+              </div>
+              <div className="tile-label">Escalations this week</div>
             </div>
           </div>
         </div>
@@ -221,17 +438,13 @@ export default function LandingPage(): React.ReactElement {
       <section className="pricing">
         <div className="container">
           <h2>Simple, transparent pricing</h2>
-          <p className="section-subtitle">
-            {`Choose the plan that fits your team's needs.`}
-          </p>
-
           <div className="pricing-grid">
             <div className="pricing-card">
               <h3>Free</h3>
               <div className="price">
                 $0<span>/month</span>
               </div>
-              <p>Get started with basic notifications</p>
+              <p>Start free—full features for a small team</p>
               <ul className="features-list">
                 <li>✓ 1 git provider (GitHub, GitLab, or Bitbucket)</li>
                 <li>✓ 1 messaging provider (Slack, Discord, or Teams)</li>
@@ -239,7 +452,11 @@ export default function LandingPage(): React.ReactElement {
                 <li>✓ Daily notifications minimum</li>
                 <li>✓ Community support</li>
               </ul>
-              <button className="pricing-button secondary">Get started</button>
+              <Link to="/dashboard">
+                <button className="pricing-button secondary">
+                  Get started
+                </button>
+              </Link>
             </div>
 
             <div className="pricing-card featured">
@@ -248,7 +465,7 @@ export default function LandingPage(): React.ReactElement {
               <div className="price">
                 $15<span>/month</span>
               </div>
-              <p>Perfect for growing teams</p>
+              <p>Scale by repos/channels, not surprises</p>
               <ul className="features-list">
                 <li>✓ Unlimited git providers</li>
                 <li>✓ Unlimited messaging providers</li>
@@ -257,15 +474,17 @@ export default function LandingPage(): React.ReactElement {
                 <li>✓ Escalation rules</li>
                 <li>✓ Priority support</li>
               </ul>
-              <button className="pricing-button primary">
-                Start free trial
-              </button>
+              <Link to="/dashboard">
+                <button className="pricing-button primary">
+                  Start free trial
+                </button>
+              </Link>
             </div>
 
             <div className="pricing-card">
               <h3>Enterprise</h3>
               <div className="price">Custom</div>
-              <p>For large organizations</p>
+              <p>Cancel anytime</p>
               <ul className="features-list">
                 <li>✓ Everything in Pro</li>
                 <li>✓ SSO integration</li>
@@ -273,9 +492,48 @@ export default function LandingPage(): React.ReactElement {
                 <li>✓ Custom integrations</li>
                 <li>✓ Dedicated support</li>
               </ul>
-              <button className="pricing-button secondary">
-                Contact sales
-              </button>
+              <a href="mailto:kasparas@bilkis.lt">
+                <button className="pricing-button secondary">
+                  Contact sales
+                </button>
+              </a>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* FAQ Section */}
+      <section className="faq">
+        <div className="container">
+          <h2>Frequently asked questions</h2>
+          <div className="faq-grid">
+            <div className="faq-item">
+              <h3>How do you control noise?</h3>
+              <p>
+                Smart defaults exclude drafts, WIP PRs, and bot-generated
+                content. Fully configurable.
+              </p>
+            </div>
+            <div className="faq-item">
+              <h3>What permissions do you need?</h3>
+              <p>
+                Read-only access to repositories and PR metadata. No code access
+                required.
+              </p>
+            </div>
+            <div className="faq-item">
+              <h3>Do you create false positives?</h3>
+              <p>
+                Built-in filters for draft status, labels, and reviewer
+                assignments minimize noise.
+              </p>
+            </div>
+            <div className="faq-item">
+              <h3>How customizable are the rules?</h3>
+              <p>
+                Full control over timing, conditions, escalation thresholds, and
+                stakeholder notifications.
+              </p>
             </div>
           </div>
         </div>

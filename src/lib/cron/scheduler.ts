@@ -20,6 +20,7 @@ import {
 } from "../database/schema";
 import { formatDiscordPRMessage, sendDiscordChannelMessage } from "../discord";
 import { getGitHubPullRequests } from "../github";
+import { getGitLabMergeRequests } from "../gitlab";
 import { formatSlackPRMessage, PullRequest, sendSlackMessage } from "../slack";
 import type { PRFilters } from "../types/providers";
 
@@ -237,9 +238,16 @@ async function processJob(job: CronJob): Promise<void> {
  * Fetch pull requests from git provider
  */
 async function fetchPullRequests(job: CronJob, gitProvider: GitProvider) {
-  // Currently only GitHub is implemented
   if (gitProvider.provider === "github") {
     return await getGitHubPullRequests(
+      gitProvider.accessToken,
+      job.repositories,
+      job.prFilters as PRFilters
+    );
+  }
+
+  if (gitProvider.provider === "gitlab") {
+    return await getGitLabMergeRequests(
       gitProvider.accessToken,
       job.repositories,
       job.prFilters as PRFilters

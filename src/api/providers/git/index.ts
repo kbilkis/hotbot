@@ -12,11 +12,13 @@ import {
 } from "../../../lib/validation/provider-schemas";
 
 import githubRoutes from "./github";
+import gitlabRoutes from "./gitlab";
 
 const app = new Hono();
 
 // Mount git provider-specific routes
 app.route("/github", githubRoutes);
+app.route("/gitlab", gitlabRoutes);
 
 // GET /api/providers/git - List all git providers for the current user
 app.get("/", async (c) => {

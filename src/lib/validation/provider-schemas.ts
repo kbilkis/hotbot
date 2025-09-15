@@ -49,6 +49,32 @@ export const GitHubFetchPRsSchema = type({
   "filters?": GitHubPRFiltersSchema,
 });
 
+// GitLab specific schemas
+export const GitLabAuthUrlSchema = type({
+  redirectUri: "string",
+  scopes: "string[]?",
+});
+
+export const GitLabTokenExchangeSchema = type({
+  code: "string",
+  redirectUri: "string",
+  state: "string",
+});
+
+export const GitLabMRFiltersSchema = type({
+  repositories: "string[]?",
+  labels: "string[]?",
+  titleKeywords: "string[]?",
+  excludeAuthors: "string[]?",
+  minAge: "number?",
+  maxAge: "number?",
+});
+
+export const GitLabFetchMRsSchema = type({
+  repositories: "string[]?",
+  "filters?": GitLabMRFiltersSchema,
+});
+
 // Response schemas
 export const AuthUrlResponseSchema = type({
   authUrl: "string",
@@ -254,6 +280,10 @@ export type GitHubAuthUrlData = typeof GitHubAuthUrlSchema.infer;
 export type GitHubTokenExchangeData = typeof GitHubTokenExchangeSchema.infer;
 export type GitHubPRFiltersData = typeof GitHubPRFiltersSchema.infer;
 export type GitHubFetchPRsData = typeof GitHubFetchPRsSchema.infer;
+export type GitLabAuthUrlData = typeof GitLabAuthUrlSchema.infer;
+export type GitLabTokenExchangeData = typeof GitLabTokenExchangeSchema.infer;
+export type GitLabMRFiltersData = typeof GitLabMRFiltersSchema.infer;
+export type GitLabFetchMRsData = typeof GitLabFetchMRsSchema.infer;
 export type SlackAuthUrlData = typeof SlackAuthUrlSchema.infer;
 export type SlackTokenExchangeData = typeof SlackTokenExchangeSchema.infer;
 export type SlackSendMessageData = typeof SlackSendMessageSchema.infer;

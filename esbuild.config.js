@@ -2,13 +2,13 @@ import { build } from "esbuild";
 
 // Build server
 await build({
-  entryPoints: ["src/server.ts"],
+  entryPoints: ["src/api/server.ts"],
   bundle: true,
-  outdir: "dist_hono",
+  outdir: "api",
+  outfile: "index.js",
   platform: "node",
   target: "node22",
   format: "esm",
-  external: ["postgres", "drizzle-orm"],
   minify: process.env.NODE_ENV === "production",
 });
 

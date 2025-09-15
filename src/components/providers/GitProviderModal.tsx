@@ -162,6 +162,20 @@ export default function GitProviderModal({
       // Get the current URL for redirect
       const redirectUri = `${window.location.origin}/auth/callback/${provider.provider}`;
 
+      // Get provider-specific scopes
+      const getScopes = () => {
+        switch (provider.provider) {
+          case "github":
+            return ["repo", "read:user", "read:org"];
+          case "gitlab":
+            return ["read_user", "read_api", "read_repository"];
+          case "bitbucket":
+            return ["repositories", "account"];
+          default:
+            return [];
+        }
+      };
+
       // Get OAuth authorization URL
       const response = await fetch(
         `/api/providers/git/${provider.provider}/auth-url`,
@@ -172,7 +186,7 @@ export default function GitProviderModal({
           },
           body: JSON.stringify({
             redirectUri,
-            scopes: ["repo", "read:user", "read:org"], // Full access including private repos and org info
+            scopes: getScopes(),
           }),
         }
       );

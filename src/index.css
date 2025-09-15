@@ -105,7 +105,7 @@ header nav {
 /* Landing page styles */
 .landing-page {
   min-height: 100vh;
-  padding-top: 80px;
+  padding-top: 2rem;
   position: relative;
 }
 
@@ -138,7 +138,7 @@ header nav {
 
 /* Hero Section */
 .hero {
-  padding: 6rem 0 4rem;
+  padding: 0rem 0 4rem;
   position: relative;
   background: transparent;
   z-index: 2;
@@ -517,11 +517,40 @@ header nav {
 }
 
 .testimonial blockquote {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   font-style: italic;
-  color: #111827;
+  font-weight: 500;
+  color: #4b5563;
   margin-bottom: 2rem;
-  line-height: 1.6;
+  line-height: 1.5;
+  position: relative;
+  padding: 0 2rem;
+}
+
+.testimonial blockquote::before {
+  content: ""
+    ";
+  position: absolute;
+  left: -0.5rem;
+  top: -0.5rem;
+  font-size: 4rem;
+  color: #ff8000;
+  font-family: Georgia, serif;
+  line-height: 1;
+  opacity: 0.8;
+}
+
+.testimonial blockquote::after {
+  content: "
+    "";
+  position: absolute;
+  right: -0.5rem;
+  bottom: -1.5rem;
+  font-size: 4rem;
+  color: #ff8000;
+  font-family: Georgia, serif;
+  line-height: 1;
+  opacity: 0.8;
 }
 
 .testimonial-author {
@@ -536,6 +565,34 @@ header nav {
   height: 60px;
   border-radius: 50%;
   background: linear-gradient(135deg, #ff8000, #cc5500);
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.avatar-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+}
+.coming-soon-flair {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ff6b35;
+  color: white;
+  font-size: 10px;
+  font-weight: 600;
+  padding: 2px 6px;
+  border-radius: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.integration-item {
+  position: relative;
 }
 
 .author-name {
@@ -568,15 +625,15 @@ header nav {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 2rem;
-  max-width: 1000px;
-  margin: 0 auto;
+  max-width: 1100px;
+  margin: 4rem auto 0rem;
 }
 
 .pricing-card {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
   border: 1px solid rgba(148, 163, 184, 0.3);
-  padding: 2.5rem;
+  padding: 1rem;
   border-radius: 1rem;
   text-align: center;
   position: relative;
@@ -634,6 +691,10 @@ header nav {
   font-weight: 600;
   margin-bottom: 1rem;
   color: #111827;
+}
+
+.pricing-card.featured h3 {
+  margin-top: 20px;
 }
 
 .price {
@@ -4114,4 +4175,920 @@ Builder Presets */
     width: 100%;
     text-align: center;
   }
+}
+
+/* New Landing Page Styles */
+
+/* Hero Split Layout */
+.hero-split {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  width: 100%;
+}
+
+.slack-digest-mock {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.slack-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: #111827;
+  font-size: 0.875rem;
+}
+
+.slack-icon {
+  font-size: 1rem;
+}
+
+.time {
+  margin-left: auto;
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.pr-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  border-bottom: 1px solid rgba(148, 163, 184, 0.1);
+}
+
+.pr-item:last-child {
+  border-bottom: none;
+}
+
+.pr-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ff8000;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.pr-details {
+  flex: 1;
+}
+
+.pr-title {
+  font-weight: 500;
+  color: #111827;
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.pr-meta {
+  color: #6b7280;
+  font-size: 0.75rem;
+}
+
+.pr-action {
+  background: #ff8000;
+  color: white;
+  border: none;
+  padding: 0.375rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.pr-action:hover {
+  background: #cc5500;
+}
+
+.analytics-tiles {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.75rem;
+}
+
+.stat-tile {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 0.5rem;
+  padding: 1rem;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.stat-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  margin-bottom: 0.25rem;
+}
+
+.stat-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #10b981;
+}
+
+/* Value Proposition Section */
+.value-proposition {
+  padding: 4rem 0;
+  background: transparent;
+  position: relative;
+  z-index: 2;
+}
+
+.value-proposition h2 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 3rem;
+  color: #111827;
+}
+
+.value-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.value-item {
+  text-align: center;
+}
+
+.value-icon {
+  font-size: 2rem;
+  margin-bottom: 1rem;
+}
+
+.value-item h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.before-after-chart {
+  max-width: 400px;
+  margin: 0 auto;
+  text-align: center;
+}
+
+.chart-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1rem;
+}
+
+.chart-container {
+  display: flex;
+  justify-content: center;
+  gap: 2rem;
+  align-items: end;
+}
+
+.chart-bar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bar-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+.bar {
+  width: 40px;
+  background: #e5e7eb;
+  border-radius: 0.25rem;
+}
+
+.chart-bar.after .bar {
+  background: #10b981;
+}
+
+.bar-value {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+/* Product Context Section */
+.product-context {
+  padding: 4rem 0;
+  background: rgba(249, 250, 251, 0.5);
+  position: relative;
+  z-index: 2;
+}
+
+.product-context h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 3rem;
+  color: #111827;
+}
+
+.context-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+}
+
+.context-card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.context-header {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.slack-digest-full {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.digest-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: #f8fafc;
+  border-radius: 0.5rem;
+}
+
+.avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #ff8000;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.details {
+  flex: 1;
+}
+
+.title {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #111827;
+  margin-bottom: 0.25rem;
+}
+
+.meta {
+  font-size: 0.75rem;
+  color: #6b7280;
+}
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.actions button {
+  background: #ff8000;
+  color: white;
+  border: none;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
+  cursor: pointer;
+}
+
+.escalation-example {
+  background: #f8fafc;
+  border-radius: 0.5rem;
+  padding: 1rem;
+}
+
+.escalation-message {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+}
+
+.bot-icon {
+  font-size: 1.25rem;
+}
+
+.message-content {
+  flex: 1;
+}
+
+.message-text {
+  font-size: 0.875rem;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.message-mentions {
+  font-size: 0.75rem;
+  color: #ff8000;
+  font-weight: 500;
+}
+
+.dashboard-preview {
+  text-align: center;
+}
+
+.dashboard-stat {
+  margin-bottom: 1rem;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.trend {
+  font-size: 1rem;
+  color: #10b981;
+}
+
+.mini-sparkline {
+  display: flex;
+  justify-content: center;
+  gap: 0.25rem;
+  align-items: end;
+}
+
+.sparkline-bar {
+  width: 8px;
+  background: #ff8000;
+  border-radius: 0.125rem;
+}
+
+/* How It Works Updates */
+.how-it-works .steps {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #ff8000;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  margin-bottom: 1rem;
+}
+
+.config-example {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin-bottom: 3rem;
+  max-width: 600px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.config-header {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #6b7280;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.config-snippet {
+  background: #1f2937;
+  color: #e5e7eb;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-family: "Monaco", "Menlo", "Ubuntu Mono", monospace;
+  font-size: 0.875rem;
+  line-height: 1.6;
+  overflow-x: auto;
+}
+
+.flow-diagram {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+}
+
+.hotbot-integration-logo {
+  width: 150px;
+}
+
+.flow-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+}
+
+.flow-icon.slack img {
+  width: 80px;
+}
+
+.flow-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.flow-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #10b981;
+  color: white;
+  font-size: 0.625rem;
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
+}
+
+.flow-arrow {
+  font-size: 1.5rem;
+  color: #6b7280;
+}
+
+.cta-repeat {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+}
+
+/* Integrations Section */
+.integrations {
+  padding: 4rem 0;
+  background: transparent;
+  position: relative;
+  z-index: 2;
+}
+
+.integrations h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #111827;
+}
+
+.integrations-grid-landing {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 1rem;
+  justify-items: center;
+}
+
+.integration-item {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 0.75rem;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 120px;
+  height: 80px;
+  transition: all 0.2s;
+  filter: grayscale(100%);
+}
+
+.integration-item:hover {
+  filter: grayscale(0%);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.integration-item img {
+  max-width: 80px;
+  max-height: 40px;
+  object-fit: contain;
+}
+
+.connect-tools-ui {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  max-width: 400px;
+  margin: 0 auto;
+}
+
+.ui-header {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1rem;
+}
+
+.ui-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.ui-toggle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #111827;
+}
+
+/* Features for Engineers Section */
+.features-engineers {
+  padding: 4rem 0;
+  background: rgba(249, 250, 251, 0.5);
+  position: relative;
+  z-index: 2;
+}
+
+.features-engineers h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #111827;
+}
+
+.features-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 3rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.feature-bullet {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  font-size: 1.125rem;
+  color: #111827;
+}
+
+.bullet {
+  color: #ff8000;
+  font-weight: 700;
+  margin-top: 0.125rem;
+}
+
+.rule-builder-card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.rule-header {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1rem;
+}
+
+.rule-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.rule-section {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.rule-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #6b7280;
+  min-width: 80px;
+}
+
+.rule-chip {
+  background: #ff8000;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+}
+
+.rule-chips {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+/* Social Proof Section */
+.social-proof {
+  padding: 4rem 0;
+  background: transparent;
+  position: relative;
+  z-index: 2;
+}
+
+.case-study-card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  max-width: 500px;
+  margin: 2rem auto 0;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.case-study-header {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.case-study-chart {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.chart-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.chart-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.chart-value {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #111827;
+}
+
+.chart-bar-bg {
+  width: 100%;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.chart-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.chart-bar-fill.before {
+  background: #ef4444;
+}
+
+.chart-bar-fill.after {
+  background: #10b981;
+}
+
+/* Analytics Slice Section */
+.analytics-slice {
+  padding: 4rem 0;
+  background: rgba(249, 250, 251, 0.5);
+  position: relative;
+  z-index: 2;
+}
+
+.analytics-slice h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #111827;
+}
+
+.analytics-tiles-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.analytics-tile {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 1rem;
+  padding: 2rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.tile-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #111827;
+  margin-bottom: 0.5rem;
+}
+
+.trend-arrow {
+  font-size: 1.25rem;
+  margin-left: 0.5rem;
+}
+
+.tile-label {
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* FAQ Section */
+.faq {
+  padding: 4rem 0;
+  background: transparent;
+  position: relative;
+  z-index: 2;
+}
+
+.faq h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 3rem;
+  color: #111827;
+}
+
+.faq-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.faq-item {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.faq-item h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 0.75rem;
+}
+
+.faq-item p {
+  color: #6b7280;
+  line-height: 1.6;
+}
+
+/* Responsive Design Updates */
+@media (max-width: 768px) {
+  .hero-split {
+    gap: 1rem;
+  }
+
+  .analytics-tiles {
+    grid-template-columns: 1fr;
+  }
+
+  .value-grid {
+    grid-template-columns: 1fr;
+    gap: 2rem;
+  }
+
+  .context-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .integrations-grid-landing {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+
+  .integration-item {
+    width: 100px;
+    height: 70px;
+  }
+
+  .analytics-tiles-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .faq-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .flow-diagram {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .flow-arrow {
+    transform: rotate(90deg);
+  }
+
+  .chart-container {
+    gap: 1rem;
+  }
+}
+/* Slack Case Image Styles */
+.slack-case-image {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 0.75rem;
+  padding: 0.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  min-width: 500px;
+  max-width: 600px;
+}
+
+.slack-screenshot {
+  width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  display: block;
+  min-width: 480px;
+}
+/* Integrations Demo Image Styles */
+.integrations-demo-image {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(148, 163, 184, 0.3);
+  border-radius: 1rem;
+  padding: 1rem;
+  margin-bottom: 3rem;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.integrations-screenshot {
+  width: 100%;
+  height: auto;
+  border-radius: 0.5rem;
+  display: block;
 }

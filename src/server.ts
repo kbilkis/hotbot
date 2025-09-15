@@ -1,21 +1,19 @@
-import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import { cors } from "hono/cors";
 
-import apiRoutes from "./api/index";
+import apiRoutes from "./api/allRoutes";
 
 const app = new Hono();
 
 // CORS for development
-app.use(
-  "*",
-  cors({
-    origin:
-      process.env.NODE_ENV === "development" ? "http://localhost:5173" : "*",
-    credentials: true,
-  })
-);
-
+// app.use(
+//   "*",
+//   cors({
+//     origin:
+//       process.env.NODE_ENV === "development" ? "http://localhost:5173" : "*",
+//     credentials: true,
+//   })
+// );
+console.log("qwe2", process.env.VITE_STRIPE_PUBLISHABLE_KEY);
 // Mount API routes
 app.route("/api", apiRoutes);
 
@@ -35,11 +33,11 @@ if (process.env.NODE_ENV === "production") {
 }
 export default app;
 
-if (process.env.NODE_ENV === "development") {
-  const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
-  console.log(`🚀 Server running on http://localhost:${port}`);
-  serve({
-    fetch: app.fetch,
-    port,
-  });
-}
+// if (process.env.NODE_ENV === "development") {
+//   const port = process.env.PORT ? parseInt(process.env.PORT) : 3000;
+//   console.log(`🚀 Server running on http://localhost:${port}`);
+//   serve({
+//     fetch: app.fetch,
+//     port,
+//   });
+// }

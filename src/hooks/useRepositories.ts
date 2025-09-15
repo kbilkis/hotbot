@@ -32,16 +32,29 @@ const fetcher = async (url: string): Promise<string[]> => {
 
 export function useRepositories(
   gitProviderId?: string,
+  providerType?: string,
   shouldFetch: boolean = true
 ) {
   // Only fetch if we have a git provider ID and should fetch
-  const shouldFetchData = shouldFetch && !!gitProviderId;
+  const shouldFetchData = shouldFetch && !!gitProviderId && !!providerType;
 
-  // For now, we only support GitHub repositories
-  // TODO: Add support for other git providers (GitLab, Bitbucket)
-  const endpoint = gitProviderId
-    ? "/api/providers/git/github/repositories"
-    : null;
+  // Build endpoint based on provider type
+  const getEndpoint = () => {
+    if (!providerType) return null;
+
+    switch (providerType) {
+      case "github":
+        return "/api/providers/git/github/repositories";
+      case "gitlab":
+        return "/api/providers/git/gitlab/repositories";
+      case "bitbucket":
+        return "/api/providers/git/bitbucket/repositories";
+      default:
+        return null;
+    }
+  };
+
+  const endpoint = getEndpoint();
 
   const { data, error, isLoading, mutate } = useSWR(
     shouldFetchData ? endpoint : null,
@@ -64,11 +77,21 @@ export function usePrefetchRepositories(
 
   // Create SWR calls for each connected provider
   const repositoryData = connectedGitProviders.map((provider) => {
-    // For now, we only support GitHub
-    const endpoint =
-      provider.provider === "github"
-        ? "/api/providers/git/github/repositories"
-        : null;
+    // Build endpoint based on provider type
+    const getEndpoint = () => {
+      switch (provider.provider) {
+        case "github":
+          return "/api/providers/git/github/repositories";
+        case "gitlab":
+          return "/api/providers/git/gitlab/repositories";
+        case "bitbucket":
+          return "/api/providers/git/bitbucket/repositories";
+        default:
+          return null;
+      }
+    };
+
+    const endpoint = getEndpoint();
 
     const { data, error, isLoading } = useSWR(
       shouldFetch && endpoint ? endpoint : null,
