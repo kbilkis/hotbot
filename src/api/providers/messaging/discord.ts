@@ -11,17 +11,19 @@ import {
 } from "../../../lib/access-control/middleware";
 import {
   getUserMessagingProvider,
+  getUserMessagingProviders,
   upsertMessagingProvider,
 } from "../../../lib/database/queries/providers";
 import {
   getDiscordAuthUrl,
   exchangeDiscordToken,
-  getDiscordGuilds,
   getDiscordChannels,
   sendDiscordMessage,
+  sendDiscordChannelMessage,
   validateDiscordToken,
   getDiscordUserInfo,
 } from "../../../lib/discord";
+import { OAuthStateManager } from "../../../lib/redis/oauth-state";
 import {
   DiscordAuthUrlSchema,
   DiscordTokenExchangeSchema,
@@ -32,27 +34,6 @@ import {
 
 const app = new Hono();
 
-// Simple state management (in production, use Redis or database)
-const oauthStates = new Map<
-  string,
-  { userId: string; redirectUri: string; createdAt: Date }
->();
-
-function generateState(userId: string, redirectUri: string): string {
-  const state = crypto.randomUUID();
-  oauthStates.set(state, { userId, redirectUri, createdAt: new Date() });
-
-  // Clean up expired states (older than 10 minutes)
-  const now = new Date();
-  for (const [key, value] of oauthStates.entries()) {
-    if (now.getTime() - value.createdAt.getTime() > 10 * 60 * 1000) {
-      oauthStates.delete(key);
-    }
-  }
-
-  return state;
-}
-
 // Generate Discord OAuth authorization URL
 app.post(
   "/auth-url",
@@ -62,7 +43,10 @@ app.post(
       const body = c.req.valid("json");
       const userId = getCurrentUserId(c);
 
-      const state = generateState(userId.toString(), body.redirectUri);
+      const state = await OAuthStateManager.generateState(
+        userId.toString(),
+        body.redirectUri
+      );
       const authUrl = getDiscordAuthUrl(
         state,
         body.redirectUri,
@@ -93,6 +77,23 @@ app.post(
       const body = c.req.valid("json");
       const userId = getCurrentUserId(c);
 
+      // Validate OAuth state to prevent CSRF attacks
+      const stateData = await OAuthStateManager.validateAndConsumeState(
+        body.state,
+        userId.toString()
+      );
+
+      if (!stateData) {
+        return c.json(
+          ErrorResponseSchema({
+            error: "Invalid state",
+            message:
+              "OAuth state validation failed. This may be a CSRF attack or an expired/invalid state.",
+          }),
+          400
+        );
+      }
+
       // Check tier limits before creating provider
       await checkMessagingProviderLimits(userId);
 
@@ -102,19 +103,29 @@ app.post(
         body.redirectUri
       );
 
-      // Step 2: Store token in database
+      // Step 2: Store token and guild info in database
       const providerData = {
         userId,
         provider: "discord" as const,
         accessToken: tokenResponse.accessToken,
         refreshToken: tokenResponse.refreshToken || null,
         expiresAt: tokenResponse.expiresAt || null,
+        guildId: tokenResponse.guildId || null,
+        guildName: tokenResponse.guildName || null,
       };
 
       const savedProvider = await upsertMessagingProvider(providerData);
 
-      // Step 3: Get available guilds (for display purposes)
-      const guilds = await getDiscordGuilds(tokenResponse.accessToken);
+      // Step 3: Get channels for the connected guild (if available)
+      let channels: unknown[] = [];
+      if (tokenResponse.guildId) {
+        try {
+          channels = await getDiscordChannels(tokenResponse.guildId);
+        } catch (error) {
+          console.warn("Failed to fetch channels:", error);
+          // Don't fail the connection if we can't fetch channels
+        }
+      }
 
       // Step 4: Return success with provider data
       return c.json({
@@ -125,12 +136,20 @@ app.post(
         expiresAt: tokenResponse.expiresAt?.toISOString(),
         scope: tokenResponse.scope,
         tokenType: tokenResponse.tokenType,
-        guilds: guilds,
+        guild: tokenResponse.guildId
+          ? {
+              id: tokenResponse.guildId,
+              name: tokenResponse.guildName,
+            }
+          : null,
+        channels: channels,
         provider: {
           id: savedProvider.id,
           provider: savedProvider.provider,
           connected: true,
           connectedAt: savedProvider.createdAt?.toISOString(),
+          guildId: savedProvider.guildId,
+          guildName: savedProvider.guildName,
         },
       });
     } catch (error) {
@@ -176,18 +195,22 @@ app.post(
         );
       }
 
-      // Get guilds and user info
-      const [guilds, userInfo] = await Promise.all([
-        getDiscordGuilds(accessToken),
+      // Get user info and bot guilds
+      const [userInfo, botGuilds] = await Promise.all([
         getDiscordUserInfo(accessToken),
+        getBotGuilds(),
       ]);
 
+      // For manual bot token connections, we don't associate with a specific guild
+      // The user will select guilds when creating cron jobs
       const providerData = {
         userId,
         provider: "discord" as const,
         accessToken: accessToken,
         refreshToken: null,
         expiresAt: null,
+        guildId: null, // Bot token connections aren't tied to specific guilds
+        guildName: null,
       };
 
       const savedProvider = await upsertMessagingProvider(providerData);
@@ -196,7 +219,7 @@ app.post(
         success: true,
         message: "Successfully connected to Discord",
         userInfo,
-        guilds,
+        guilds: botGuilds,
         provider: {
           id: savedProvider.id,
           provider: savedProvider.provider,
@@ -220,15 +243,18 @@ app.post(
   }
 );
 
-// Get available guilds for the user
+// Get connected guilds for the user
 app.get("/guilds", async (c) => {
   try {
     const userId = getCurrentUserId(c);
 
-    // Get the user's Discord provider connection
-    const messagingProvider = await getUserMessagingProvider(userId, "discord");
+    // Get all Discord provider connections for this user
+    const messagingProviders = await getUserMessagingProviders(
+      userId,
+      "discord"
+    );
 
-    if (!messagingProvider) {
+    if (!messagingProviders || messagingProviders.length === 0) {
       return c.json(
         ErrorResponseSchema({
           error: "Provider not connected",
@@ -237,12 +263,21 @@ app.get("/guilds", async (c) => {
         404
       );
     }
-    const guilds = await getDiscordGuilds(messagingProvider.accessToken);
+
+    // Return the connected guilds
+    const guilds = messagingProviders
+      .filter((provider) => provider.guildId && provider.guildName)
+      .map((provider) => ({
+        id: provider.guildId,
+        name: provider.guildName,
+        connected: true,
+        connectedAt: provider.createdAt?.toISOString(),
+      }));
 
     return c.json(
       SuccessResponseSchema({
         success: true,
-        message: "Guilds fetched successfully",
+        message: "Connected guilds fetched successfully",
         data: { guilds },
       })
     );
@@ -265,23 +300,25 @@ app.get("/guilds/:guildId/channels", async (c) => {
     const userId = getCurrentUserId(c);
     const guildId = c.req.param("guildId");
 
-    // Get the user's Discord provider connection
-    const messagingProvider = await getUserMessagingProvider(userId, "discord");
+    // Verify the user has access to this guild
+    const messagingProvider = await getUserMessagingProvider(
+      userId,
+      "discord",
+      guildId
+    );
 
     if (!messagingProvider) {
       return c.json(
         ErrorResponseSchema({
-          error: "Provider not connected",
-          message: "Discord provider is not connected for this user",
+          error: "Guild not connected",
+          message: "This Discord guild is not connected for this user",
         }),
         404
       );
     }
 
-    const channels = await getDiscordChannels(
-      messagingProvider.accessToken,
-      guildId
-    );
+    // Use bot token to fetch channels
+    const channels = await getDiscordChannels(guildId);
 
     return c.json(
       SuccessResponseSchema({
@@ -303,7 +340,51 @@ app.get("/guilds/:guildId/channels", async (c) => {
   }
 });
 
-// Note: /send-message removed - we use /test-webhook for testing
+// Test channel by sending a test message
+app.post("/test-channel", async (c) => {
+  try {
+    const userId = getCurrentUserId(c);
+    const body = await c.req.json();
+
+    if (!body.channelId || !body.message) {
+      return c.json(
+        ErrorResponseSchema({
+          error: "Missing parameters",
+          message: "channelId and message are required",
+        }),
+        400
+      );
+    }
+
+    // Send message using bot token to the specified channel
+    await sendDiscordChannelMessage(body.channelId, {
+      content: body.message,
+    });
+
+    return c.json(
+      SuccessResponseSchema({
+        success: true,
+        message: "Test message sent successfully",
+        data: {
+          channelId: body.channelId,
+          message: body.message,
+        },
+      })
+    );
+  } catch (error) {
+    console.error("Discord test message failed:", error);
+    return c.json(
+      ErrorResponseSchema({
+        error: "Test message failed",
+        message:
+          error instanceof Error
+            ? error.message
+            : "Failed to send test message",
+      }),
+      500
+    );
+  }
+});
 
 // Test webhook by sending a test message
 app.post("/test-webhook", async (c) => {

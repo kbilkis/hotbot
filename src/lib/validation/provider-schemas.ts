@@ -32,6 +32,7 @@ export const GitHubAuthUrlSchema = type({
 export const GitHubTokenExchangeSchema = type({
   code: "string",
   redirectUri: "string",
+  state: "string",
 });
 
 export const GitHubPRFiltersSchema = type({
@@ -141,6 +142,7 @@ export const SlackAuthUrlSchema = type({
 export const SlackTokenExchangeSchema = type({
   code: "string",
   redirectUri: "string",
+  state: "string",
 });
 
 export const SlackSendMessageSchema = type({
@@ -171,6 +173,7 @@ export const DiscordAuthUrlSchema = type({
 export const DiscordTokenExchangeSchema = type({
   code: "string",
   redirectUri: "string",
+  state: "string",
 });
 
 export const DiscordGuildSchema = type({

@@ -233,9 +233,10 @@ export default function LandingPage(): React.ReactElement {
               </div>
               <p>Get started with basic notifications</p>
               <ul className="features-list">
-                <li>✓ Up to 5 repositories</li>
-                <li>✓ Basic scheduling</li>
-                <li>✓ 1 messaging platform</li>
+                <li>✓ 1 git provider (GitHub, GitLab, or Bitbucket)</li>
+                <li>✓ 1 messaging provider (Slack, Discord, or Teams)</li>
+                <li>✓ 1 notification schedule</li>
+                <li>✓ Daily notifications minimum</li>
                 <li>✓ Community support</li>
               </ul>
               <button className="pricing-button secondary">Get started</button>
@@ -249,9 +250,10 @@ export default function LandingPage(): React.ReactElement {
               </div>
               <p>Perfect for growing teams</p>
               <ul className="features-list">
-                <li>✓ Unlimited repositories</li>
-                <li>✓ Advanced scheduling</li>
-                <li>✓ All messaging platforms</li>
+                <li>✓ Unlimited git providers</li>
+                <li>✓ Unlimited messaging providers</li>
+                <li>✓ Unlimited notification schedules</li>
+                <li>✓ Any frequency (hourly, daily, etc.)</li>
                 <li>✓ Escalation rules</li>
                 <li>✓ Priority support</li>
               </ul>

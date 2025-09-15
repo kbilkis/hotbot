@@ -25,9 +25,6 @@ export default function GitProviderModal({
     null
   );
   const [showAllRepositories, setShowAllRepositories] = useState(false);
-  const [connectionMethod, setConnectionMethod] = useState<"oauth" | "manual">(
-    "oauth"
-  );
   const [showManualOption, setShowManualOption] = useState(false);
   const [accessToken, setAccessToken] = useState("");
   const [isConnected, setIsConnected] = useState(provider.connected);
@@ -345,86 +342,88 @@ export default function GitProviderModal({
               ? `Manage your ${config.name} connection and settings.`
               : `Connect your ${config.name} account to receive notifications for pull requests and repository events.`}
           </p>
-
-          <div className="form-group">
-            <div className="provider-display">
-              {isConnected && (
-                <span className="connection-status connected">✓ Connected</span>
-              )}
-            </div>
-          </div>
-
           {isConnected && (
-            <div className="form-group">
-              <label>Accessible Repositories</label>
-              <div className="repositories-section">
-                {repositoriesLoading && (
-                  <div className="repositories-loading">
-                    <span>Loading repositories...</span>
-                  </div>
-                )}
-
-                {repositoriesError && (
-                  <div className="repositories-error">
-                    <span>Error loading repositories: {repositoriesError}</span>
-                    <button
-                      className="retry-button"
-                      onClick={fetchRepositories}
-                      disabled={repositoriesLoading}
-                    >
-                      Retry
-                    </button>
-                  </div>
-                )}
-
-                {!repositoriesLoading &&
-                  !repositoriesError &&
-                  repositories.length > 0 && (
-                    <div className="repositories-list">
-                      <div className="repositories-count">
-                        {repositories.length} repositories accessible
-                      </div>
-                      <div className="repositories-container">
-                        {(showAllRepositories
-                          ? repositories
-                          : repositories.slice(0, 10)
-                        ).map((repo) => (
-                          <div key={repo} className="repository-item">
-                            <span className="repo-icon">📁</span>
-                            <span className="repo-name">{repo}</span>
-                          </div>
-                        ))}
-                        {repositories.length > 10 && !showAllRepositories && (
-                          <button
-                            className="show-more-button"
-                            onClick={() => setShowAllRepositories(true)}
-                          >
-                            ⋯ Show {repositories.length - 10} more repositories
-                          </button>
-                        )}
-                        {showAllRepositories && repositories.length > 10 && (
-                          <button
-                            className="show-less-button"
-                            onClick={() => setShowAllRepositories(false)}
-                          >
-                            Show less
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  )}
-
-                {!repositoriesLoading &&
-                  !repositoriesError &&
-                  repositories.length === 0 && (
-                    <div className="repositories-empty">
-                      <span>No repositories found</span>
-                    </div>
-                  )}
+            <>
+              <div className="form-group">
+                <div className="provider-display">
+                  <span className="connection-status connected">
+                    ✓ Connected
+                  </span>
+                </div>
               </div>
-            </div>
-          )}
+              <div className="form-group">
+                <label>Accessible Repositories</label>
+                <div className="repositories-section">
+                  {repositoriesLoading && (
+                    <div className="repositories-loading">
+                      <span>Loading repositories...</span>
+                    </div>
+                  )}
 
+                  {repositoriesError && (
+                    <div className="repositories-error">
+                      <span>
+                        Error loading repositories: {repositoriesError}
+                      </span>
+                      <button
+                        className="retry-button"
+                        onClick={fetchRepositories}
+                        disabled={repositoriesLoading}
+                      >
+                        Retry
+                      </button>
+                    </div>
+                  )}
+
+                  {!repositoriesLoading &&
+                    !repositoriesError &&
+                    repositories.length > 0 && (
+                      <div className="repositories-list">
+                        <div className="repositories-count">
+                          {repositories.length} repositories accessible
+                        </div>
+                        <div className="repositories-container">
+                          {(showAllRepositories
+                            ? repositories
+                            : repositories.slice(0, 10)
+                          ).map((repo) => (
+                            <div key={repo} className="repository-item">
+                              <span className="repo-icon">📁</span>
+                              <span className="repo-name">{repo}</span>
+                            </div>
+                          ))}
+                          {repositories.length > 10 && !showAllRepositories && (
+                            <button
+                              className="show-more-button"
+                              onClick={() => setShowAllRepositories(true)}
+                            >
+                              ⋯ Show {repositories.length - 10} more
+                              repositories
+                            </button>
+                          )}
+                          {showAllRepositories && repositories.length > 10 && (
+                            <button
+                              className="show-less-button"
+                              onClick={() => setShowAllRepositories(false)}
+                            >
+                              Show less
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    )}
+
+                  {!repositoriesLoading &&
+                    !repositoriesError &&
+                    repositories.length === 0 && (
+                      <div className="repositories-empty">
+                        <span>No repositories found</span>
+                      </div>
+                    )}
+                </div>
+              </div>
+            </>
+          )}
           {!isConnected && (
             <div className="form-group">
               {/* Primary OAuth connection - always visible */}
@@ -449,7 +448,6 @@ export default function GitProviderModal({
                   {config.name} to grant repository access permissions.`}
                 </small>
               </div>
-
               {/* Alternative connection option - hidden by default */}
               <div className="alternative-connection-section">
                 {!showManualOption ? (
@@ -457,7 +455,6 @@ export default function GitProviderModal({
                     className="show-alternative-button"
                     onClick={() => {
                       setShowManualOption(true);
-                      setConnectionMethod("manual");
                     }}
                     disabled={loading}
                   >
@@ -471,7 +468,6 @@ export default function GitProviderModal({
                         className="hide-alternative-button"
                         onClick={() => {
                           setShowManualOption(false);
-                          setConnectionMethod("oauth");
                           setAccessToken("");
                           setError(null);
                         }}

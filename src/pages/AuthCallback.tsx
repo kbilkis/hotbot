@@ -48,6 +48,7 @@ export default function AuthCallback(): React.ReactElement {
           body: JSON.stringify({
             code,
             redirectUri,
+            state,
           }),
         });
 

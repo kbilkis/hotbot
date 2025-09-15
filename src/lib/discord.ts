@@ -54,12 +54,12 @@ export interface DiscordTokenResponse {
   guildName?: string;
 }
 
-// Generate Discord OAuth URL
+// Generate Discord OAuth URL for bot installation
 export function getDiscordAuthUrl(
   state: string,
   redirectUri: string,
-  scopes: string[] = ["identify", "bot", "guilds", "guilds.members.read"],
-  permissions: string = "68608" // VIEW_CHANNEL + SEND_MESSAGES + READ_MESSAGE_HISTORY
+  scopes: string[] = ["bot", "applications.commands"],
+  permissions: string = "68608" // VIEW_CHANNEL (1024) + SEND_MESSAGES (2048) + READ_MESSAGE_HISTORY (65536)
 ): string {
   const params = new URLSearchParams({
     client_id: DISCORD_CLIENT_ID,
@@ -73,7 +73,7 @@ export function getDiscordAuthUrl(
   return `https://discord.com/api/oauth2/authorize?${params.toString()}`;
 }
 
-// Exchange code for token
+// Exchange code for token and get guild info
 export async function exchangeDiscordToken(
   code: string,
   redirectUri: string
@@ -115,6 +115,7 @@ export async function exchangeDiscordToken(
     );
   }
 
+  // For bot installations, Discord includes guild info in the response
   return {
     accessToken: data.access_token,
     refreshToken: data.refresh_token,
@@ -123,6 +124,8 @@ export async function exchangeDiscordToken(
       : undefined,
     scope: data.scope,
     tokenType: data.token_type || "Bearer",
+    guildId: data.guild?.id,
+    guildName: data.guild?.name,
   };
 }
 
@@ -173,6 +176,62 @@ export async function discordApiRequest(
   return response.json();
 }
 
+// Make Discord API request using bot token
+export async function discordBotApiRequest(
+  endpoint: string,
+  options: RequestInit = {}
+) {
+  const botToken = process.env.DISCORD_BOT_TOKEN;
+  if (!botToken) {
+    throw new Error("Discord bot token not configured");
+  }
+
+  console.log("Discord Bot API Request:", {
+    endpoint,
+    hasBotToken: !!botToken,
+  });
+
+  const response = await fetch(`https://discord.com/api/v10${endpoint}`, {
+    ...options,
+    headers: {
+      ...options.headers,
+      Authorization: `Bot ${botToken}`,
+      "Content-Type": "application/json",
+      "User-Agent": "git-messaging-scheduler/1.0",
+    },
+  });
+
+  console.log("Discord Bot API Response:", {
+    status: response.status,
+    statusText: response.statusText,
+    endpoint,
+  });
+
+  if (response.status === 401) {
+    const errorText = await response.text();
+    console.error("Discord Bot 401 Error Details:", errorText);
+    throw new Error(`Discord bot token invalid: ${errorText}`);
+  }
+
+  if (response.status === 403) {
+    const errorText = await response.text();
+    console.error("Discord Bot 403 Error Details:", errorText);
+    throw new Error(`Discord bot lacks permissions: ${errorText}`);
+  }
+
+  if (response.status === 429) {
+    throw new Error("Discord API rate limit exceeded");
+  }
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error("Discord Bot API Error Details:", errorText);
+    throw new Error(`Discord Bot API error: ${response.status} ${errorText}`);
+  }
+
+  return response.json();
+}
+
 // Get user's guilds (servers)
 export async function getDiscordGuilds(token: string): Promise<DiscordGuild[]> {
   const guilds: DiscordGuild[] = await discordApiRequest(
@@ -190,28 +249,26 @@ export async function getDiscordGuilds(token: string): Promise<DiscordGuild[]> {
 
 // Note: Removed checkBotInGuild - /guilds/{id}/members/@me is PUT only
 
-// Get channels for a guild - gracefully handle permission issues
+// Get channels for a guild using bot token
 export async function getDiscordChannels(
-  token: string,
   guildId: string
 ): Promise<DiscordChannel[]> {
-  try {
-    const channels: DiscordChannel[] = await discordApiRequest(
-      `/guilds/${guildId}/channels`,
-      token
-    );
+  const channels: DiscordChannel[] = await discordBotApiRequest(
+    `/guilds/${guildId}/channels`
+  );
 
-    // Filter for text channels only
-    return channels
-      .filter((channel) => channel.type === 0) // Text channels
-      .sort((a, b) => (a.position || 0) - (b.position || 0));
-  } catch (error) {
-    console.warn(`Cannot access channels for guild ${guildId}:`, error);
+  // Filter for text channels only
+  return channels
+    .filter((channel) => channel.type === 0) // Text channels
+    .sort((a, b) => (a.position || 0) - (b.position || 0));
+}
 
-    // Return empty array instead of throwing - this allows the UI to show
-    // that channels couldn't be loaded rather than breaking completely
-    return [];
-  }
+// Get guilds where the bot is installed
+export async function getBotGuilds(): Promise<DiscordGuild[]> {
+  const guilds: DiscordGuild[] = await discordBotApiRequest(
+    "/users/@me/guilds"
+  );
+  return guilds;
 }
 
 // Send message to Discord channel via webhook
@@ -231,6 +288,17 @@ export async function sendDiscordMessage(
     const errorText = await response.text();
     throw new Error(`Discord webhook error: ${response.status} ${errorText}`);
   }
+}
+
+// Send message to Discord channel using bot token
+export async function sendDiscordChannelMessage(
+  channelId: string,
+  message: DiscordMessage
+): Promise<void> {
+  await discordBotApiRequest(`/channels/${channelId}/messages`, {
+    method: "POST",
+    body: JSON.stringify(message),
+  });
 }
 
 export interface PullRequest {

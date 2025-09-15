@@ -138,11 +138,16 @@ export async function upsertMessagingProvider(
       updatedAt: new Date(),
     })
     .onConflictDoUpdate({
-      target: [messagingProviders.userId, messagingProviders.provider],
+      target: [
+        messagingProviders.userId,
+        messagingProviders.provider,
+        messagingProviders.guildId,
+      ],
       set: {
         accessToken: providerData.accessToken,
         refreshToken: providerData.refreshToken,
         expiresAt: providerData.expiresAt,
+        guildName: providerData.guildName,
         updatedAt: new Date(),
       },
     })
@@ -155,30 +160,44 @@ export async function upsertMessagingProvider(
  * Get all messaging providers for a user
  */
 export async function getUserMessagingProviders(
-  userId: string
+  userId: string,
+  provider?: "slack" | "teams" | "discord"
 ): Promise<MessagingProvider[]> {
+  const conditions = [eq(messagingProviders.userId, userId)];
+
+  if (provider) {
+    conditions.push(eq(messagingProviders.provider, provider));
+  }
+
   return await db
     .select()
     .from(messagingProviders)
-    .where(eq(messagingProviders.userId, userId));
+    .where(and(...conditions));
 }
 
 /**
  * Get specific messaging provider for a user
+ * For Discord, optionally specify guildId to get a specific guild connection
  */
 export async function getUserMessagingProvider(
   userId: string,
-  provider: "slack" | "teams" | "discord"
+  provider: "slack" | "teams" | "discord",
+  guildId?: string
 ): Promise<MessagingProvider | null> {
+  const conditions = [
+    eq(messagingProviders.userId, userId),
+    eq(messagingProviders.provider, provider),
+  ];
+
+  // For Discord, if guildId is specified, filter by it
+  if (provider === "discord" && guildId) {
+    conditions.push(eq(messagingProviders.guildId, guildId));
+  }
+
   const [result] = await db
     .select()
     .from(messagingProviders)
-    .where(
-      and(
-        eq(messagingProviders.userId, userId),
-        eq(messagingProviders.provider, provider)
-      )
-    )
+    .where(and(...conditions))
     .limit(1);
 
   return result || null;
@@ -224,19 +243,24 @@ export async function updateMessagingProviderTokens(
 
 /**
  * Delete messaging provider connection
+ * For Discord, optionally specify guildId to delete a specific guild connection
  */
 export async function deleteMessagingProvider(
   userId: string,
-  provider: "slack" | "teams" | "discord"
+  provider: "slack" | "teams" | "discord",
+  guildId?: string
 ): Promise<boolean> {
-  const result = await db
-    .delete(messagingProviders)
-    .where(
-      and(
-        eq(messagingProviders.userId, userId),
-        eq(messagingProviders.provider, provider)
-      )
-    );
+  const conditions = [
+    eq(messagingProviders.userId, userId),
+    eq(messagingProviders.provider, provider),
+  ];
+
+  // For Discord, if guildId is specified, only delete that guild connection
+  if (provider === "discord" && guildId) {
+    conditions.push(eq(messagingProviders.guildId, guildId));
+  }
+
+  const result = await db.delete(messagingProviders).where(and(...conditions));
 
   return (result.rowCount ?? 0) > 0;
 }

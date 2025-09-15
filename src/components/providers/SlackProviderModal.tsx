@@ -248,7 +248,7 @@ export default function SlackProviderModal({
           },
           body: JSON.stringify({
             channelId,
-            message: `🧪 Test message from Git Messaging Scheduler - connection successful! (${new Date().toLocaleTimeString()})`,
+            message: `🧪 Test message from HotBot - connection successful! (${new Date().toLocaleTimeString()})`,
           }),
         }
       );

@@ -26,6 +26,7 @@ export default function DiscordProviderModal({
   const [error, setError] = useState<string | null>(null);
   const [selectedGuild, setSelectedGuild] = useState<string | null>(null);
   const [testingWebhook, setTestingWebhook] = useState<string | null>(null);
+  const [testingChannel, setTestingChannel] = useState<string | null>(null);
   const [testResults, setTestResults] = useState<
     Record<string, { success: boolean; message: string }>
   >({});
@@ -105,7 +106,7 @@ export default function DiscordProviderModal({
           },
           body: JSON.stringify({
             redirectUri,
-            scopes: ["identify", "bot", "guilds", "guilds.members.read"],
+            scopes: ["bot", "applications.commands"],
             permissions: "68608", // VIEW_CHANNEL + SEND_MESSAGES + READ_MESSAGE_HISTORY
           }),
         }
@@ -213,6 +214,67 @@ export default function DiscordProviderModal({
     }
   };
 
+  const handleTestChannel = async (channelId: string, channelName: string) => {
+    try {
+      setTestingChannel(channelId);
+      setError(null);
+
+      const response = await fetch(
+        "/api/providers/messaging/discord/test-channel",
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            channelId,
+            message: `🧪 Test message from HotBot - connection successful! (${new Date().toLocaleTimeString()})`,
+          }),
+        }
+      );
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = `Request failed: ${response.status}`;
+
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.error || errorData.message || errorMessage;
+        } catch {
+          errorMessage = errorText || errorMessage;
+        }
+
+        throw new Error(errorMessage);
+      }
+
+      const data = await response.json();
+      console.log("Successfully sent test message:", data);
+
+      // Store test result
+      setTestResults((prev) => ({
+        ...prev,
+        [channelId]: {
+          success: true,
+          message: `✅ Test message sent successfully to #${channelName}`,
+        },
+      }));
+    } catch (err) {
+      console.error("Failed to send test message:", err);
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to send test message";
+
+      setTestResults((prev) => ({
+        ...prev,
+        [channelId]: {
+          success: false,
+          message: `❌ Failed to send test message: ${errorMessage}`,
+        },
+      }));
+    } finally {
+      setTestingChannel(null);
+    }
+  };
+
   const handleTestWebhook = async (webhookUrl: string, guildName: string) => {
     try {
       setTestingWebhook(webhookUrl);
@@ -227,7 +289,7 @@ export default function DiscordProviderModal({
           },
           body: JSON.stringify({
             webhookUrl,
-            message: `🧪 Test message from Git Messaging Scheduler - connection successful! (${new Date().toLocaleTimeString()})`,
+            message: `🧪 Test message from HotBot - connection successful! (${new Date().toLocaleTimeString()})`,
           }),
         }
       );
@@ -429,10 +491,44 @@ export default function DiscordProviderModal({
                                         key={channel.id}
                                         className="channel-item"
                                       >
-                                        <span className="channel-icon">#</span>
-                                        <span className="channel-name">
-                                          {channel.name}
-                                        </span>
+                                        <div className="channel-info">
+                                          <span className="channel-icon">
+                                            #
+                                          </span>
+                                          <span className="channel-name">
+                                            {channel.name}
+                                          </span>
+                                          <div className="channel-meta">
+                                            <button
+                                              className="test-channel-button"
+                                              onClick={() =>
+                                                handleTestChannel(
+                                                  channel.id,
+                                                  channel.name
+                                                )
+                                              }
+                                              disabled={
+                                                testingChannel === channel.id
+                                              }
+                                              title={`Send test message to #${channel.name}`}
+                                            >
+                                              {testingChannel === channel.id
+                                                ? "Sending..."
+                                                : "Test message"}
+                                            </button>
+                                          </div>
+                                        </div>
+                                        {testResults[channel.id] && (
+                                          <div
+                                            className={`test-result ${
+                                              testResults[channel.id].success
+                                                ? "success"
+                                                : "error"
+                                            }`}
+                                          >
+                                            {testResults[channel.id].message}
+                                          </div>
+                                        )}
                                       </div>
                                     ))}
                                   </div>

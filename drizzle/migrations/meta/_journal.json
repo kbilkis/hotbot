@@ -50,6 +50,13 @@
       "when": 1757876179611,
       "tag": "0006_secret_shinobi_shaw",
       "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1757938155093,
+      "tag": "0007_crazy_menace",
+      "breakpoints": true
     }
   ]
 }

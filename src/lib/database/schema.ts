@@ -83,12 +83,20 @@ export const messagingProviders = pgTable(
     accessToken: text("access_token").notNull(),
     refreshToken: text("refresh_token"),
     expiresAt: timestamp("expires_at"),
+    // Discord-specific fields
+    guildId: text("guild_id"), // Discord server/guild ID where bot was installed
+    guildName: text("guild_name"), // Discord server/guild name for display
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
   },
   (table) => ({
-    // Unique constraint: one provider per user
-    userProviderUnique: unique().on(table.userId, table.provider),
+    // Allow multiple Discord connections per user (different guilds)
+    // But unique provider per user for Slack/Teams
+    userProviderGuildUnique: unique().on(
+      table.userId,
+      table.provider,
+      table.guildId
+    ),
   })
 );
 

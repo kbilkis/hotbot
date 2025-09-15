@@ -20,6 +20,7 @@ import {
   getGitHubPullRequests,
   getGitHubUserInfo,
 } from "../../../lib/github";
+import { OAuthStateManager } from "../../../lib/redis/oauth-state";
 import {
   GitHubAuthUrlSchema,
   GitHubTokenExchangeSchema,
@@ -31,27 +32,6 @@ import {
 
 const app = new Hono();
 
-// Simple state management (in production, use Redis or database)
-const oauthStates = new Map<
-  string,
-  { userId: string; redirectUri: string; createdAt: Date }
->();
-
-function generateState(userId: string, redirectUri: string): string {
-  const state = crypto.randomUUID();
-  oauthStates.set(state, { userId, redirectUri, createdAt: new Date() });
-
-  // Clean up expired states (older than 10 minutes)
-  const now = new Date();
-  for (const [key, value] of oauthStates.entries()) {
-    if (now.getTime() - value.createdAt.getTime() > 10 * 60 * 1000) {
-      oauthStates.delete(key);
-    }
-  }
-
-  return state;
-}
-
 // Routes
 app.post(
   "/auth-url",
@@ -61,7 +41,10 @@ app.post(
       const body = c.req.valid("json");
       const userId = getCurrentUserId(c);
 
-      const state = generateState(userId.toString(), body.redirectUri);
+      const state = await OAuthStateManager.generateState(
+        userId.toString(),
+        body.redirectUri
+      );
       const authUrl = getGitHubAuthUrl(state, body.redirectUri, body.scopes);
 
       return c.json({ authUrl, state });
@@ -85,6 +68,23 @@ app.post(
     try {
       const body = c.req.valid("json");
       const userId = getCurrentUserId(c);
+
+      // Validate OAuth state to prevent CSRF attacks
+      const stateData = await OAuthStateManager.validateAndConsumeState(
+        body.state,
+        userId.toString()
+      );
+
+      if (!stateData) {
+        return c.json(
+          ErrorResponseSchema({
+            error: "Invalid state",
+            message:
+              "OAuth state validation failed. This may be a CSRF attack or an expired/invalid state.",
+          }),
+          400
+        );
+      }
 
       // Check tier limits before creating provider
       await checkGitProviderLimits(userId);
