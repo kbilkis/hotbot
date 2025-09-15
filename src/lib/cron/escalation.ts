@@ -7,16 +7,18 @@ import {
   upsertEscalationTracking,
   cleanupEscalationTracking,
 } from "../database/queries/cron-jobs";
-import type { CronJob } from "../database/schema";
+import type { CronJob, MessagingProvider } from "../database/schema";
 import { formatDiscordPRMessage, sendDiscordChannelMessage } from "../discord";
-import { sendSlackMessage, formatSlackPRMessage, PullRequest } from "../slack";
+import { sendSlackMessage, formatSlackPRMessage } from "../slack";
+
+import { PullRequest } from "./filters";
 
 /**
  * Process escalation notifications for pull requests that exceed the age threshold
  */
 export async function escalationProcessor(
   job: CronJob,
-  escalationProvider: any,
+  escalationProvider: MessagingProvider,
   pullRequests: PullRequest[]
 ): Promise<number> {
   if (!job.escalationChannelId || !job.escalationDays) {
@@ -113,7 +115,7 @@ export async function escalationProcessor(
  */
 async function sendEscalationNotification(
   job: CronJob,
-  escalationProvider: any,
+  escalationProvider: MessagingProvider,
   pullRequests: PullRequest[]
 ): Promise<void> {
   if (!job.escalationChannelId) {
@@ -121,7 +123,7 @@ async function sendEscalationNotification(
   }
 
   if (escalationProvider.provider === "slack") {
-    const message = formatSlackPRMessage(pullRequests, undefined, true);
+    const message = formatSlackPRMessage(pullRequests, undefined, job.name);
 
     await sendSlackMessage(
       escalationProvider.accessToken,
@@ -133,7 +135,7 @@ async function sendEscalationNotification(
   }
 
   if (escalationProvider.provider === "discord") {
-    const message = formatDiscordPRMessage(pullRequests, undefined, true);
+    const message = formatDiscordPRMessage(pullRequests, undefined, job.name);
 
     // Use bot token to send escalation message to Discord channel
     await sendDiscordChannelMessage(job.escalationChannelId, message);

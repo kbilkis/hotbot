@@ -4,7 +4,7 @@
 
 import type { PRFilters } from "../types/providers";
 
-interface PullRequest {
+export interface PullRequest {
   id: string;
   title: string;
   author: string;
