@@ -294,11 +294,7 @@ async function sendNotification(
   }
 
   if (messagingProvider.provider === "discord") {
-    const message = formatDiscordPRMessage(
-      pullRequests,
-      undefined,
-      isEscalation
-    );
+    const message = formatDiscordPRMessage(pullRequests, undefined, job.name);
 
     // Use bot token to send message to Discord channel
     await sendDiscordChannelMessage(channelId, message);

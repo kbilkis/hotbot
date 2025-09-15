@@ -11,6 +11,7 @@ interface ApiCronJob {
   cronExpression: string;
   gitProviderId: string;
   repositories?: string[];
+  messagingChannelId: string;
   messagingProviderId: string;
   escalationProviderId?: string;
   escalationDays?: number;
@@ -65,6 +66,7 @@ const fetcher = async (url: string): Promise<CronJob[]> => {
     cronExpression: job.cronExpression,
     gitProviderId: job.gitProviderId,
     repositories: job.repositories || [],
+    messagingChannelId: job.messagingChannelId,
     messagingProviderId: job.messagingProviderId,
     escalationProviderId: job.escalationProviderId,
     escalationDays: job.escalationDays,

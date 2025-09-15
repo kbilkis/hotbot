@@ -22,7 +22,7 @@ interface ScheduleModalProps {
     gitProviderId: string;
     repositories?: string[];
     messagingProviderId: string;
-    messagingChannelId?: string;
+    messagingChannelId: string;
     escalationProviderId?: string;
     escalationChannelId?: string;
     escalationDays?: number;
@@ -186,13 +186,62 @@ export default function ScheduleModal({
         },
         sendWhenEmpty: schedule.sendWhenEmpty || false,
       });
-
-      // For Discord, we need to determine which guild the channel belongs to
-      // This is a limitation - we'll need to fetch all guilds and their channels
-      // For now, we'll handle this in a future update
-      // TODO: Store guild ID alongside channel ID in the database
     }
   }, [schedule]);
+
+  // Find the guild for the selected Discord channel when editing
+  useEffect(() => {
+    const findGuildForChannel = async () => {
+      if (
+        schedule &&
+        schedule.messagingChannelId &&
+        isDiscordProvider &&
+        !selectedDiscordGuild &&
+        !loadingAllChannels
+      ) {
+        // Get all guilds from channelsByProvider
+        const guilds = channelsByProvider[formData.messagingProviderId] || [];
+
+        // Search through each guild to find the one containing our channel
+        for (const guild of guilds) {
+          try {
+            const response = await fetch(
+              `/api/providers/messaging/discord/guilds/${guild.id}/channels`
+            );
+            if (response.ok) {
+              const data = await response.json();
+              const channels = data.data?.channels || [];
+
+              // Check if this guild contains our target channel
+              const channelExists = channels.some(
+                (channel: DiscordChannel) =>
+                  channel.id === schedule.messagingChannelId
+              );
+
+              if (channelExists) {
+                setSelectedDiscordGuild(guild.id);
+                break;
+              }
+            }
+          } catch (error) {
+            console.warn(
+              `Failed to fetch channels for guild ${guild.id}:`,
+              error
+            );
+          }
+        }
+      }
+    };
+
+    findGuildForChannel();
+  }, [
+    schedule,
+    isDiscordProvider,
+    selectedDiscordGuild,
+    loadingAllChannels,
+    channelsByProvider,
+    formData.messagingProviderId,
+  ]);
 
   // Auto-select first providers when creating a new schedule
   useEffect(() => {

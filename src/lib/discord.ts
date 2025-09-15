@@ -311,108 +311,165 @@ export interface PullRequest {
   hasChangesRequested?: boolean;
   reviewers?: string[];
   labels?: string[];
+  additions?: number;
+  deletions?: number;
 }
 
-// Format pull request notifications for Discord
+// Simple PR categorization
+interface PRCategory {
+  name: string;
+  emoji: string;
+  prs: PullRequest[];
+}
+
+// Format pull request notifications for Discord - simple approach like Slack
 export function formatDiscordPRMessage(
   pullRequests: PullRequest[],
   repositoryName?: string,
-  isEscalation = false
+  scheduleName?: string
 ): DiscordMessage {
   if (pullRequests.length === 0) {
     return {
-      content: `🎉 No open pull requests${
+      content: `✅ All clear! No open pull requests${
         repositoryName ? ` in ${repositoryName}` : ""
       }`,
     };
   }
 
-  const title = isEscalation
-    ? `🔥 **Escalated Pull Requests** (${pullRequests.length})`
-    : `🚀 **Open Pull Requests** (${pullRequests.length})`;
+  // Build message content similar to Slack format
+  const title = scheduleName || "DAILY REMINDER FOR OPEN PULL REQUESTS";
+  let content = `📋 **${title.toUpperCase()}**\n\n`;
 
-  const embed: DiscordEmbed = {
-    title,
-    color: isEscalation ? 0xff4444 : 0x5865f2, // Red for escalation, Discord blue for normal
-    timestamp: new Date().toISOString(),
-    fields: [],
+  // Categorize PRs
+  const categories = categorizePRs(pullRequests);
+
+  // Summary line
+  const totalPRs = pullRequests.length;
+  const shortNames: Record<string, string> = {
+    "Ready to Merge": "ready",
+    "Needs Changes": "changes",
+    "Under Review": "review",
+    Stale: "stale",
+    "Awaiting Review": "waiting",
   };
 
-  if (repositoryName) {
-    embed.description = `Repository: **${repositoryName}**`;
-  }
+  const summaryParts = categories
+    .filter((cat) => cat.prs.length > 0)
+    .map(
+      (cat) =>
+        `${cat.emoji}${cat.prs.length} ${
+          shortNames[cat.name] || cat.name.toLowerCase()
+        }`
+    )
+    .join(" ");
 
-  // Group PRs by repository if multiple repos
-  const prsByRepo = pullRequests.reduce(
-    (acc: Record<string, PullRequest[]>, pr) => {
-      const repo = pr.repository;
-      if (!acc[repo]) acc[repo] = [];
-      acc[repo].push(pr);
-      return acc;
-    },
-    {}
-  );
+  content += `**${totalPRs} PRs:** ${summaryParts}\n\n`;
 
-  Object.entries(prsByRepo).forEach(([repo, prs]) => {
-    prs.forEach((pr, index) => {
+  // Show each category with PRs - compact format with limits
+  const maxPRsPerCategory = 15;
+  let totalPRsShown = 0;
+  let truncated = false;
+
+  for (const category of categories) {
+    if (category.prs.length === 0) continue;
+
+    // Check content length to prevent Discord's 2000 char limit
+    if (content.length > 1500) {
+      truncated = true;
+      break;
+    }
+
+    // Category header
+    content += `**${category.emoji} ${category.name.toUpperCase()} (${
+      category.prs.length
+    })**\n`;
+
+    // Limit PRs per category
+    const prsToShow = category.prs.slice(0, maxPRsPerCategory);
+    const hasMoreInCategory = category.prs.length > maxPRsPerCategory;
+
+    // List PRs in this category
+    for (const pr of prsToShow) {
       const ageInDays = Math.floor(
         (Date.now() - new Date(pr.createdAt).getTime()) / (1000 * 60 * 60 * 24)
       );
 
-      let statusEmoji = "🔄";
-      let statusText = "";
-
-      if (pr.hasApprovals && !pr.hasChangesRequested) {
-        statusEmoji = "🎯";
-        statusText = " (Ready to merge!)";
-      } else if (pr.hasChangesRequested) {
-        statusEmoji = "🔧";
-        statusText = " (Needs fixes)";
-      } else if (pr.reviewers && pr.reviewers.length > 0) {
-        statusEmoji = "👀";
-        statusText = " (Under review)";
-      }
-
-      const escalationIndicator = isEscalation ? "🔥 " : "";
-      const ageIndicator = ageInDays > 7 ? "🕸️ " : ageInDays > 3 ? "⚡ " : "";
-
-      const fieldName =
-        Object.keys(prsByRepo).length > 1 && index === 0 ? `${repo}` : "\u200b"; // Zero-width space for continuation
-
-      const fieldValue =
-        `${escalationIndicator}${ageIndicator}${statusEmoji} [${pr.title}](${pr.url})\n` +
-        `**Author:** ${pr.author} • **Age:** ${ageInDays} day${
-          ageInDays !== 1 ? "s" : ""
-        }${statusText}`;
-
-      embed.fields!.push({
-        name: fieldName,
-        value: fieldValue,
-        inline: false,
-      });
+      const ageText =
+        ageInDays === 0 ? "today" : ageInDays === 1 ? "1d" : `${ageInDays}d`;
 
       // Add labels if present
-      const labels = pr.labels || [];
-      if (labels.length > 0) {
-        embed.fields!.push({
-          name: "\u200b",
-          value: labels.map((label) => `\`${label}\``).join(" "),
-          inline: false,
-        });
-      }
-    });
-  });
+      const labels =
+        pr.labels && pr.labels.length > 0
+          ? ` [${pr.labels.slice(0, 3).join("] [")}]`
+          : "";
 
-  if (isEscalation) {
-    embed.footer = {
-      text: "🌶️ These pull requests have been marinating longer than expected!",
-    };
+      // Truncate long PR titles
+      const truncatedTitle =
+        pr.title.length > 60 ? pr.title.substring(0, 57) + "..." : pr.title;
+
+      // Add line count if available
+      const lineCount =
+        pr.additions !== undefined && pr.deletions !== undefined
+          ? ` (+${pr.additions}/-${pr.deletions})`
+          : "";
+
+      content += `• [${truncatedTitle}](${pr.url})${labels}${lineCount} *${pr.author} • ${ageText}*\n`;
+    }
+
+    totalPRsShown += prsToShow.length;
+
+    // Add "more" indicator if needed
+    if (hasMoreInCategory) {
+      content += `*... and ${category.prs.length - maxPRsPerCategory} more in ${
+        category.name
+      }*\n`;
+    }
+
+    content += "\n";
   }
 
+  // Add truncation notice if we hit limits
+  if (truncated) {
+    const remainingPRs = pullRequests.length - totalPRsShown;
+    content += `⚠️ *Message truncated. ${remainingPRs} more PRs not shown. Check your dashboard for the complete list.*\n\n`;
+  }
+
+  // Footer guidance
+  content += "💡 *Focus on Ready to Merge and Needs Changes first*";
+
   return {
-    content: title,
-    embeds: [embed],
+    content,
   };
+}
+
+function categorizePRs(prs: PullRequest[]): PRCategory[] {
+  const categories: PRCategory[] = [
+    { name: "Ready to Merge", emoji: "✅", prs: [] },
+    { name: "Needs Changes", emoji: "🔧", prs: [] },
+    { name: "Under Review", emoji: "👀", prs: [] },
+    { name: "Stale", emoji: "⏰", prs: [] },
+    { name: "Awaiting Review", emoji: "⏳", prs: [] },
+  ];
+
+  for (const pr of prs) {
+    const ageInDays = Math.floor(
+      (Date.now() - new Date(pr.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    if (pr.hasApprovals && !pr.hasChangesRequested) {
+      categories[0].prs.push(pr); // Ready to Merge
+    } else if (pr.hasChangesRequested) {
+      categories[1].prs.push(pr); // Needs Changes
+    } else if (ageInDays >= 7) {
+      categories[3].prs.push(pr); // Stale
+    } else if (pr.reviewers && pr.reviewers.length > 0) {
+      categories[2].prs.push(pr); // Under Review
+    } else {
+      categories[4].prs.push(pr); // Awaiting Review
+    }
+  }
+
+  return categories;
 }
 
 // Validate Discord token and get token info

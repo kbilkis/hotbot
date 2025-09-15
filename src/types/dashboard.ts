@@ -23,6 +23,7 @@ export interface CronJob extends Schedule {
   gitProviderId: string;
   repositories: string[];
   messagingProviderId: string;
+  messagingChannelId: string;
   escalationProviderId?: string;
   escalationDays?: number;
   prFilters?: PRFilters;
