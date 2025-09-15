@@ -8,20 +8,8 @@ import {
   cleanupEscalationTracking,
 } from "../database/queries/cron-jobs";
 import type { CronJob } from "../database/schema";
-import { sendSlackMessage, formatSlackPRMessage } from "../slack";
-
-interface PullRequest {
-  id: string;
-  title: string;
-  author: string;
-  url: string;
-  createdAt: string;
-  repository: string;
-  labels?: string[];
-  reviewers?: string[];
-  hasApprovals?: boolean;
-  hasChangesRequested?: boolean;
-}
+import { formatDiscordPRMessage, sendDiscordChannelMessage } from "../discord";
+import { sendSlackMessage, formatSlackPRMessage, PullRequest } from "../slack";
 
 /**
  * Process escalation notifications for pull requests that exceed the age threshold
@@ -132,7 +120,6 @@ async function sendEscalationNotification(
     throw new Error("No escalation channel configured");
   }
 
-  // Currently only Slack is implemented
   if (escalationProvider.provider === "slack") {
     const message = formatSlackPRMessage(pullRequests, undefined, true);
 
@@ -141,6 +128,15 @@ async function sendEscalationNotification(
       job.escalationChannelId,
       message
     );
+
+    return;
+  }
+
+  if (escalationProvider.provider === "discord") {
+    const message = formatDiscordPRMessage(pullRequests, undefined, true);
+
+    // Use bot token to send escalation message to Discord channel
+    await sendDiscordChannelMessage(job.escalationChannelId, message);
 
     return;
   }

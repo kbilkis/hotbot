@@ -1,7 +1,7 @@
 import CronExpressionParser from "cron-parser";
 import React, { useState, useEffect } from "react";
 
-import { useChannels } from "@/hooks/useChannels";
+import { useChannels, useDiscordChannels } from "@/hooks/useChannels";
 import { usePrefetchRepositories } from "@/hooks/useRepositories";
 import { getUserTimezoneOrFallback } from "@/lib/utils/timezone";
 
@@ -79,6 +79,7 @@ export default function ScheduleModal({
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [repositorySearchTerm, setRepositorySearchTerm] = useState("");
+  const [selectedDiscordGuild, setSelectedDiscordGuild] = useState("");
   // Use SWR hooks for provider data
   const { providers: gitProviders, loading: loadingGitProviders } =
     useGitProviders();
@@ -113,8 +114,24 @@ export default function ScheduleModal({
   const availableRepositories = formData.gitProviderId
     ? repositoriesByProvider[formData.gitProviderId] || []
     : [];
+
+  // Get the selected messaging provider to determine its type
+  const selectedMessagingProvider = messagingProviders.find(
+    (p) => p.id === formData.messagingProviderId
+  );
+  const isDiscordProvider = selectedMessagingProvider?.type === "discord";
+
+  // For Discord, get channels for the selected guild
+  const { channels: discordChannels, loading: loadingDiscordChannels } =
+    useDiscordChannels(
+      selectedDiscordGuild,
+      isDiscordProvider && !!selectedDiscordGuild
+    );
+
   const availableChannels = formData.messagingProviderId
-    ? channelsByProvider[formData.messagingProviderId] || []
+    ? isDiscordProvider
+      ? discordChannels // Use Discord channels if guild is selected
+      : channelsByProvider[formData.messagingProviderId] || []
     : [];
 
   // Filter repositories based on search term
@@ -124,7 +141,9 @@ export default function ScheduleModal({
 
   // Loading states
   const loadingRepositories = loadingAllRepositories;
-  const loadingChannels = loadingAllChannels;
+  const loadingChannels = isDiscordProvider
+    ? loadingDiscordChannels
+    : loadingAllChannels;
 
   const loadingProviders = loadingGitProviders || loadingMessagingProviders;
 
@@ -161,6 +180,11 @@ export default function ScheduleModal({
         },
         sendWhenEmpty: schedule.sendWhenEmpty || false,
       });
+
+      // For Discord, we need to determine which guild the channel belongs to
+      // This is a limitation - we'll need to fetch all guilds and their channels
+      // For now, we'll handle this in a future update
+      // TODO: Store guild ID alongside channel ID in the database
     }
   }, [schedule]);
 
@@ -230,6 +254,38 @@ export default function ScheduleModal({
     }
 
     return newErrors;
+  };
+
+  // Check if form has all required fields filled (for button state)
+  const isFormValid = (): boolean => {
+    return (
+      formData.name.trim() !== "" &&
+      formData.cronExpression.trim() !== "" &&
+      validateCronExpression(formData.cronExpression) &&
+      formData.gitProviderId !== "" &&
+      formData.repositories.length > 0 &&
+      formData.messagingProviderId !== "" &&
+      formData.messagingChannelId !== "" &&
+      (!formData.escalationProviderId ||
+        (formData.escalationChannelId !== "" && formData.escalationDays >= 1))
+    );
+  };
+
+  // Get validation summary for display near CTA
+  const getValidationSummary = (): string[] => {
+    const missing: string[] = [];
+
+    if (!formData.name.trim()) missing.push("Schedule name");
+    if (!formData.cronExpression.trim()) missing.push("Schedule timing");
+    if (!formData.gitProviderId) missing.push("Git provider");
+    if (!formData.repositories || formData.repositories.length === 0)
+      missing.push("Repository selection");
+    if (!formData.messagingProviderId) missing.push("Messaging provider");
+    if (!formData.messagingChannelId) missing.push("Notification channel");
+    if (formData.escalationProviderId && !formData.escalationChannelId)
+      missing.push("Escalation channel");
+
+    return missing;
   };
 
   const handleSubmit = async () => {
@@ -474,6 +530,8 @@ export default function ScheduleModal({
                       messagingProviderId: newMessagingProviderId,
                       messagingChannelId: "", // Clear selected channel when provider changes
                     }));
+                    // Clear Discord guild selection when provider changes
+                    setSelectedDiscordGuild("");
                   }}
                   disabled={loadingProviders}
                 >
@@ -508,38 +566,105 @@ export default function ScheduleModal({
               <div className="form-group">
                 <label htmlFor="messaging-channel">Notification Channel</label>
                 <div className="channel-selection">
-                  {loadingChannels && formData.messagingProviderId ? (
-                    <div className="loading-text">Loading channels...</div>
-                  ) : availableChannels.length > 0 ? (
-                    <select
-                      id="messaging-channel"
-                      className={`form-select ${
-                        errors.messagingChannelId ? "error" : ""
-                      }`}
-                      value={formData.messagingChannelId}
-                      onChange={(e) =>
-                        setFormData((prev) => ({
-                          ...prev,
-                          messagingChannelId: e.target.value,
-                        }))
-                      }
-                    >
-                      <option value="">Select a channel</option>
-                      {availableChannels.map((channel) => (
-                        <option key={channel.id} value={channel.id}>
-                          {channel.type === "private" ? "🔒" : "#"}{" "}
-                          {channel.name}
-                        </option>
-                      ))}
-                    </select>
-                  ) : formData.messagingProviderId ? (
-                    <div className="no-channels">
-                      No channels found for this provider
-                    </div>
-                  ) : (
+                  {!formData.messagingProviderId ? (
                     <div className="select-provider-first">
                       Select a messaging provider first
                     </div>
+                  ) : isDiscordProvider ? (
+                    // Discord: Guild → Channel selection
+                    <div className="discord-selection">
+                      {/* Guild Selection */}
+                      <select
+                        className="form-select"
+                        value={selectedDiscordGuild}
+                        onChange={(e) => {
+                          setSelectedDiscordGuild(e.target.value);
+                          setFormData((prev) => ({
+                            ...prev,
+                            messagingChannelId: "", // Clear channel when guild changes
+                          }));
+                        }}
+                        style={{ marginBottom: "8px" }}
+                      >
+                        <option value="">Select Discord Server</option>
+                        {(
+                          channelsByProvider[formData.messagingProviderId] || []
+                        ).map((guild) => (
+                          <option key={guild.id} value={guild.id}>
+                            🏰 {guild.name}
+                          </option>
+                        ))}
+                      </select>
+
+                      {/* Channel Selection (only show if guild is selected) */}
+                      {selectedDiscordGuild && (
+                        <>
+                          {loadingDiscordChannels ? (
+                            <div className="loading-text">
+                              Loading channels...
+                            </div>
+                          ) : availableChannels.length > 0 ? (
+                            <select
+                              id="messaging-channel"
+                              className={`form-select ${
+                                errors.messagingChannelId ? "error" : ""
+                              }`}
+                              value={formData.messagingChannelId}
+                              onChange={(e) =>
+                                setFormData((prev) => ({
+                                  ...prev,
+                                  messagingChannelId: e.target.value,
+                                }))
+                              }
+                            >
+                              <option value="">Select a channel</option>
+                              {availableChannels.map((channel) => (
+                                <option key={channel.id} value={channel.id}>
+                                  # {channel.name}
+                                </option>
+                              ))}
+                            </select>
+                          ) : (
+                            <div className="no-channels">
+                              No channels found in this server
+                            </div>
+                          )}
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    // Slack/Teams: Direct channel selection
+                    <>
+                      {loadingChannels ? (
+                        <div className="loading-text">Loading channels...</div>
+                      ) : availableChannels.length > 0 ? (
+                        <select
+                          id="messaging-channel"
+                          className={`form-select ${
+                            errors.messagingChannelId ? "error" : ""
+                          }`}
+                          value={formData.messagingChannelId}
+                          onChange={(e) =>
+                            setFormData((prev) => ({
+                              ...prev,
+                              messagingChannelId: e.target.value,
+                            }))
+                          }
+                        >
+                          <option value="">Select a channel</option>
+                          {availableChannels.map((channel) => (
+                            <option key={channel.id} value={channel.id}>
+                              {channel.type === "private" ? "🔒" : "#"}{" "}
+                              {channel.name}
+                            </option>
+                          ))}
+                        </select>
+                      ) : (
+                        <div className="no-channels">
+                          No channels found for this provider
+                        </div>
+                      )}
+                    </>
                   )}
                 </div>
                 {errors.messagingChannelId && (
@@ -610,6 +735,8 @@ export default function ScheduleModal({
               {formData.escalationProviderId && (
                 <div className="form-group">
                   <label htmlFor="escalation-channel">Escalation Channel</label>
+                  {/* For now, use the same channels as the main notification */}
+                  {/* TODO: Could add separate guild selection for escalation if needed */}
                   <select
                     id="escalation-channel"
                     className={`form-select ${
@@ -690,6 +817,19 @@ export default function ScheduleModal({
               <div className="error-message">{errors.submit}</div>
             </div>
           )}
+
+          {/* Show validation summary if form is invalid and not currently submitting */}
+          {!isFormValid() && !isSubmitting && (
+            <div className="modal-footer-validation">
+              <div className="validation-summary">
+                <span className="validation-icon">⚠️</span>
+                <span className="validation-text">
+                  Please complete: {getValidationSummary().join(", ")}
+                </span>
+              </div>
+            </div>
+          )}
+
           <div className="modal-footer-buttons">
             <button
               className="cancel-button"
@@ -701,7 +841,18 @@ export default function ScheduleModal({
             <button
               className="save-button"
               onClick={handleSubmit}
-              disabled={isSubmitting || !formData.name.trim()}
+              disabled={isSubmitting || !isFormValid()}
+              title={
+                isSubmitting
+                  ? "Saving schedule..."
+                  : !isFormValid()
+                  ? `Complete required fields: ${getValidationSummary().join(
+                      ", "
+                    )}`
+                  : schedule
+                  ? "Update this schedule"
+                  : "Create new schedule"
+              }
             >
               {isSubmitting
                 ? "Saving..."

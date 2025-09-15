@@ -95,7 +95,8 @@ export function useChannels(
         endpoint = "/api/providers/messaging/teams/channels";
         break;
       case "discord":
-        // For Discord, we need guilds first, not direct channels
+        // For Discord, return guilds as "channels" for now
+        // The schedule modal will handle guild → channel selection
         endpoint = "/api/providers/messaging/discord/guilds";
         break;
       default:
@@ -109,7 +110,14 @@ export function useChannels(
   let extractedData = [];
   if (data) {
     if (providerType === "discord") {
-      extractedData = data.guilds || [];
+      // Transform guilds to look like channels for compatibility
+      const guilds = data.guilds || [];
+      extractedData = guilds.map((guild: DiscordGuild) => ({
+        id: guild.id,
+        name: guild.name,
+        type: "guild", // Mark as guild type
+        isGuild: true, // Flag to identify this as a guild
+      }));
     } else {
       extractedData = data.channels || [];
     }

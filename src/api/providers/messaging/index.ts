@@ -33,6 +33,11 @@ app.get("/", async (c) => {
       return acc;
     }, {} as Record<string, MessagingProvider>);
 
+    // Group Discord providers by guild (since we can have multiple Discord connections)
+    const discordProviders = connectedProviders.filter(
+      (p) => p.provider === "discord"
+    );
+
     const messagingProviders = [
       {
         id: providersByType.slack?.id || null,
@@ -48,13 +53,30 @@ app.get("/", async (c) => {
         connected: !!providersByType.teams,
         connectedAt: providersByType.teams?.createdAt?.toISOString(),
       },
-      {
-        id: providersByType.discord?.id || null,
+      // For Discord, include all connected guilds as separate providers
+      ...discordProviders.map((provider) => ({
+        id: provider.id,
         type: "discord",
-        name: "Discord",
-        connected: !!providersByType.discord,
-        connectedAt: providersByType.discord?.createdAt?.toISOString(),
-      },
+        name: provider.guildName
+          ? `Discord - ${provider.guildName}`
+          : "Discord",
+        connected: true,
+        connectedAt: provider.createdAt?.toISOString(),
+        guildId: provider.guildId,
+        guildName: provider.guildName,
+      })),
+      // If no Discord providers are connected, show the default entry
+      ...(discordProviders.length === 0
+        ? [
+            {
+              id: null,
+              type: "discord",
+              name: "Discord",
+              connected: false,
+              connectedAt: undefined,
+            },
+          ]
+        : []),
     ];
 
     const response = SuccessResponseSchema({

@@ -18,6 +18,7 @@ import {
   messagingProviders,
   type CronJob,
 } from "../database/schema";
+import { formatDiscordPRMessage, sendDiscordChannelMessage } from "../discord";
 import { getGitHubPullRequests } from "../github";
 import { formatSlackPRMessage, PullRequest, sendSlackMessage } from "../slack";
 import type { PRFilters } from "../types/providers";
@@ -257,20 +258,23 @@ async function sendNotification(
   pullRequests: PullRequest[],
   isEscalation: boolean
 ) {
-  // Currently only Slack is implemented
+  const channelId = isEscalation
+    ? job.escalationChannelId
+    : job.messagingChannelId;
+
+  if (!channelId) {
+    throw new Error(
+      `No channel configured for ${
+        isEscalation ? "escalation" : "regular"
+      } notifications`
+    );
+  }
+
   if (messagingProvider.provider === "slack") {
-    const channelId = isEscalation
-      ? job.escalationChannelId
-      : job.messagingChannelId;
-
-    if (!channelId) {
-      throw new Error(
-        `No channel configured for ${
-          isEscalation ? "escalation" : "regular"
-        } notifications`
-      );
-    }
-
+    console.log("first", {
+      pullRequests,
+      isEscalation,
+    });
 
     const message = formatSlackPRMessage(pullRequests, undefined, isEscalation);
     await sendSlackMessage(messagingProvider.accessToken, channelId, message);
@@ -279,6 +283,24 @@ async function sendNotification(
       `Sent ${
         isEscalation ? "escalation" : "regular"
       } notification to Slack channel ${channelId}`
+    );
+    return;
+  }
+
+  if (messagingProvider.provider === "discord") {
+    const message = formatDiscordPRMessage(
+      pullRequests,
+      undefined,
+      isEscalation
+    );
+
+    // Use bot token to send message to Discord channel
+    await sendDiscordChannelMessage(channelId, message);
+
+    console.log(
+      `Sent ${
+        isEscalation ? "escalation" : "regular"
+      } notification to Discord channel ${channelId}`
     );
     return;
   }

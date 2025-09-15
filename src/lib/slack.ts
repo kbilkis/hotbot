@@ -28,7 +28,6 @@ export interface SlackMessage {
   channel: string;
   text: string;
   blocks?: SlackBlock[];
-  attachments?: unknown[];
 }
 
 export interface SlackTokenResponse {
@@ -204,13 +203,22 @@ export async function getSlackChannels(token: string): Promise<SlackChannel[]> {
 export async function sendSlackMessage(
   token: string,
   channel: string,
-  message: string
+  payload: SlackMessage
 ): Promise<void> {
-  const payload = { channel, text: message };
+  const body = {
+    channel,
+    text: payload.text,
+    blocks: undefined as SlackBlock[] | undefined,
+  };
+
+  // Include blocks if provided
+  if (payload.blocks && payload.blocks.length > 0) {
+    body.blocks = payload.blocks;
+  }
 
   await slackApiRequest("/chat.postMessage", token, {
     method: "POST",
-    body: JSON.stringify(payload),
+    body: JSON.stringify(body),
   });
 }
 
@@ -235,15 +243,15 @@ export function formatSlackPRMessage(
   if (pullRequests.length === 0) {
     return {
       channel: "",
-      text: `✅ No open pull requests found${
+      text: `🎉 No open pull requests ${
         repositoryName ? ` in ${repositoryName}` : ""
       }`,
     };
   }
 
   const title = isEscalation
-    ? `🚨 *Escalated Pull Requests* (${pullRequests.length})`
-    : `📋 *Open Pull Requests* (${pullRequests.length})`;
+    ? `🔥 *Escalated Pull Requests* (${pullRequests.length})`
+    : `🚀 Open Pull Requests (${pullRequests.length})`;
 
   const blocks: SlackBlock[] = [
     {
@@ -298,18 +306,18 @@ export function formatSlackPRMessage(
       let statusText = "";
 
       if (pr.hasApprovals && !pr.hasChangesRequested) {
-        statusEmoji = "✅";
-        statusText = " (Approved)";
+        statusEmoji = "🎯";
+        statusText = " (Ready to merge!)";
       } else if (pr.hasChangesRequested) {
-        statusEmoji = "❌";
-        statusText = " (Changes Requested)";
+        statusEmoji = "🔧";
+        statusText = " (Needs fixes)";
       } else if (pr.reviewers && pr.reviewers.length > 0) {
         statusEmoji = "👀";
-        statusText = " (Under Review)";
+        statusText = " (Under review)";
       }
 
-      const escalationIndicator = isEscalation ? "🚨 " : "";
-      const ageIndicator = ageInDays > 7 ? "⏰ " : ageInDays > 3 ? "⚠️ " : "";
+      const escalationIndicator = isEscalation ? "🔥 " : "";
+      const ageIndicator = ageInDays > 7 ? "🕸️ " : ageInDays > 3 ? "⚡ " : "";
 
       blocks.push({
         type: "section",
@@ -345,7 +353,7 @@ export function formatSlackPRMessage(
       elements: [
         {
           type: "mrkdwn",
-          text: "⚠️ These pull requests have been open longer than the configured escalation threshold.",
+          text: "🌶️ These pull requests have been marinating longer than expected!",
         },
       ],
     });
