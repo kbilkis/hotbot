@@ -85,6 +85,8 @@ export interface GitHubPR {
   hasApprovals?: boolean;
   hasChangesRequested?: boolean;
   checksStatus?: "pending" | "success" | "failure" | "error";
+  additions?: number;
+  deletions?: number;
 }
 
 export interface PRFilters {
@@ -216,8 +218,13 @@ export async function getGitHubPullRequests(
 
       const mappedPRs: GitHubPR[] = await Promise.all(
         prs.map(async (pr) => {
-          // Get detailed review information
-          const reviews = await getDetailedReviewInfo(token, repo, pr.number);
+          // Get detailed review information and PR stats
+          const [reviews, prDetails] = await Promise.all([
+            getDetailedReviewInfo(token, repo, pr.number),
+            githubApiRequest(`/repos/${repo}/pulls/${pr.number}`, token).catch(
+              () => null
+            ),
+          ]);
 
           return {
             id: pr.id.toString(),
@@ -238,6 +245,8 @@ export async function getGitHubPullRequests(
             reviewStates: reviews.reviewStates,
             hasApprovals: reviews.hasApprovals,
             hasChangesRequested: reviews.hasChangesRequested,
+            additions: prDetails?.additions,
+            deletions: prDetails?.deletions,
           };
         })
       );

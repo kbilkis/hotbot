@@ -3,6 +3,8 @@ import React, { useState, useEffect } from "react";
 
 import { useChannels, useDiscordChannels } from "@/hooks/useChannels";
 import { usePrefetchRepositories } from "@/hooks/useRepositories";
+import { DiscordChannel } from "@/lib/discord";
+import { SlackChannel } from "@/lib/slack";
 import { getUserTimezoneOrFallback } from "@/lib/utils/timezone";
 
 import { useGitProviders } from "../../hooks/useGitProviders";
@@ -104,10 +106,14 @@ export default function ScheduleModal({
   });
 
   // Build channelsByProvider object and loading state
+  type ChannelType =
+    | SlackChannel
+    | DiscordChannel
+    | { id: string; name: string; type: string; isGuild?: boolean };
   const channelsByProvider = channelResults.reduce((acc, result) => {
     acc[result.providerId] = result.channels;
     return acc;
-  }, {} as Record<string, unknown[]>);
+  }, {} as Record<string, ChannelType[]>);
   const loadingAllChannels = channelResults.some((result) => result.loading);
 
   // Get repositories and channels for currently selected providers

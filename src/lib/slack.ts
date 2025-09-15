@@ -232,138 +232,227 @@ export interface PullRequest {
   hasChangesRequested?: boolean;
   reviewers?: string[];
   labels?: string[];
+  additions?: number;
+  deletions?: number;
 }
 
-// Format pull request notifications for Slack
+// Simple PR categorization
+interface PRCategory {
+  name: string;
+  emoji: string;
+  prs: PullRequest[];
+}
+
+// Format pull request notifications for Slack - simple blocks approach
 export function formatSlackPRMessage(
   pullRequests: PullRequest[],
   repositoryName?: string,
-  isEscalation = false
+  scheduleName?: string
 ): SlackMessage {
   if (pullRequests.length === 0) {
     return {
       channel: "",
-      text: `🎉 No open pull requests ${
+      text: `✅ All clear! No open pull requests ${
         repositoryName ? ` in ${repositoryName}` : ""
       }`,
     };
   }
 
-  const title = isEscalation
-    ? `🔥 *Escalated Pull Requests* (${pullRequests.length})`
-    : `🚀 Open Pull Requests (${pullRequests.length})`;
+  const blocks: SlackBlock[] = [];
 
-  const blocks: SlackBlock[] = [
-    {
-      type: "header",
-      text: {
-        type: "plain_text",
-        text: title,
-      },
+  // Header
+  const title = scheduleName || "DAILY REMINDER FOR OPEN PULL REQUESTS";
+  blocks.push({
+    type: "section",
+    text: {
+      type: "mrkdwn",
+      text: `📋 *${title.toUpperCase()}*`,
     },
-  ];
+  });
 
-  if (repositoryName) {
-    blocks.push({
-      type: "context",
-      elements: [
-        {
-          type: "mrkdwn",
-          text: `Repository: *${repositoryName}*`,
-        },
-      ],
-    });
-  }
+  // Categorize PRs
+  const categories = categorizePRs(pullRequests);
 
-  // Group PRs by repository if multiple repos
-  const prsByRepo = pullRequests.reduce(
-    (acc: Record<string, PullRequest[]>, pr) => {
-      const repo = pr.repository;
-      if (!acc[repo]) acc[repo] = [];
-      acc[repo].push(pr);
-      return acc;
+  // Summary line with shortened names
+  const totalPRs = pullRequests.length;
+  const shortNames: Record<string, string> = {
+    "Ready to Merge": "ready",
+    "Needs Changes": "changes",
+    "Under Review": "review",
+    Stale: "stale",
+    "Awaiting Review": "waiting",
+  };
+
+  const summaryParts = categories
+    .filter((cat) => cat.prs.length > 0)
+    .map(
+      (cat) =>
+        `${cat.emoji}${cat.prs.length} ${
+          shortNames[cat.name] || cat.name.toLowerCase()
+        }`
+    )
+    .join(" ");
+
+  blocks.push({
+    type: "section",
+    text: {
+      type: "mrkdwn",
+      text: `*${totalPRs} PRs:* ${summaryParts}`,
     },
-    {}
-  );
+  });
 
-  Object.entries(prsByRepo).forEach(([repo, prs]) => {
-    if (Object.keys(prsByRepo).length > 1) {
-      blocks.push({
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text: `*${repo}*`,
-        },
-      });
+  blocks.push({ type: "divider" });
+
+  // Show each category with PRs - compact format with limits
+  const maxBlocks = 45; // Leave room for header, summary, footer
+  let blockCount = blocks.length;
+  let totalPRsShown = 0;
+  let truncated = false;
+
+  for (const category of categories) {
+    if (category.prs.length === 0) continue;
+
+    // Check if we have room for at least the category header + 1 PR block
+    if (blockCount >= maxBlocks - 2) {
+      truncated = true;
+      break;
     }
 
-    prs.forEach((pr) => {
+    // Category header
+    blocks.push({
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `*${category.emoji} ${category.name.toUpperCase()} (${
+          category.prs.length
+        })*`,
+      },
+    });
+    blockCount++;
+
+    // Limit PRs per category to prevent huge blocks
+    const maxPRsPerCategory = 15;
+    const prsToShow = category.prs.slice(0, maxPRsPerCategory);
+    const hasMoreInCategory = category.prs.length > maxPRsPerCategory;
+
+    // Group all PRs in this category into a single block
+    const prLines = prsToShow.map((pr) => {
       const ageInDays = Math.floor(
         (Date.now() - new Date(pr.createdAt).getTime()) / (1000 * 60 * 60 * 24)
       );
 
-      let statusEmoji = "🔄";
-      let statusText = "";
-
-      if (pr.hasApprovals && !pr.hasChangesRequested) {
-        statusEmoji = "🎯";
-        statusText = " (Ready to merge!)";
-      } else if (pr.hasChangesRequested) {
-        statusEmoji = "🔧";
-        statusText = " (Needs fixes)";
-      } else if (pr.reviewers && pr.reviewers.length > 0) {
-        statusEmoji = "👀";
-        statusText = " (Under review)";
-      }
-
-      const escalationIndicator = isEscalation ? "🔥 " : "";
-      const ageIndicator = ageInDays > 7 ? "🕸️ " : ageInDays > 3 ? "⚡ " : "";
-
-      blocks.push({
-        type: "section",
-        text: {
-          type: "mrkdwn",
-          text:
-            `${escalationIndicator}${ageIndicator}${statusEmoji} <${pr.url}|${pr.title}>\n` +
-            `*Author:* ${pr.author} • *Age:* ${ageInDays} day${
-              ageInDays !== 1 ? "s" : ""
-            }${statusText}`,
-        },
-      });
+      const ageText =
+        ageInDays === 0 ? "today" : ageInDays === 1 ? "1d" : `${ageInDays}d`;
 
       // Add labels if present
-      const labels = pr.labels || [];
-      if (labels.length > 0) {
-        blocks.push({
-          type: "context",
-          elements: [
-            {
-              type: "mrkdwn",
-              text: labels.map((label) => `\`${label}\``).join(" "),
-            },
-          ],
-        });
-      }
-    });
-  });
+      const labels =
+        pr.labels && pr.labels.length > 0
+          ? ` [${pr.labels.slice(0, 3).join("] [")}]` // Show up to 3 labels
+          : "";
 
-  if (isEscalation) {
+      // Truncate long PR titles
+      const truncatedTitle =
+        pr.title.length > 60 ? pr.title.substring(0, 57) + "..." : pr.title;
+
+      // Add line count if available
+      const lineCount =
+        pr.additions !== undefined && pr.deletions !== undefined
+          ? ` (+${pr.additions}/-${pr.deletions})`
+          : "";
+
+      return `• <${pr.url}|${truncatedTitle}>${labels}${lineCount} _${pr.author} • ${ageText}_`;
+    });
+
+    // Add all PRs in a single block to reduce vertical space
+    blocks.push({
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: prLines.join("\n"),
+      },
+    });
+    blockCount++;
+    totalPRsShown += prsToShow.length;
+
+    // Add "more" indicator if needed
+    if (hasMoreInCategory) {
+      blocks.push({
+        type: "context",
+        elements: [
+          {
+            type: "mrkdwn",
+            text: `_... and ${
+              category.prs.length - maxPRsPerCategory
+            } more in ${category.name}_`,
+          },
+        ],
+      });
+      blockCount++;
+    }
+  }
+
+  // Add truncation notice if we hit limits
+  if (truncated) {
+    const remainingPRs = pullRequests.length - totalPRsShown;
     blocks.push({
       type: "context",
       elements: [
         {
           type: "mrkdwn",
-          text: "🌶️ These pull requests have been marinating longer than expected!",
+          text: `⚠️ _Message truncated. ${remainingPRs} more PRs not shown._`,
         },
       ],
     });
   }
 
+  // Footer guidance
+  blocks.push({
+    type: "context",
+    elements: [
+      {
+        type: "mrkdwn",
+        text: "💡 _Focus on Ready to Merge and Needs Changes first_",
+      },
+    ],
+  });
+
   return {
     channel: "",
-    text: `${title}${repositoryName ? ` in ${repositoryName}` : ""}`,
+    text: `${title} (${totalPRs} PRs)${
+      repositoryName ? ` in ${repositoryName}` : ""
+    }`,
     blocks,
   };
+}
+
+function categorizePRs(prs: PullRequest[]): PRCategory[] {
+  const categories: PRCategory[] = [
+    { name: "Ready to Merge", emoji: "✅", prs: [] },
+    { name: "Needs Changes", emoji: "🔧", prs: [] },
+    { name: "Under Review", emoji: "👀", prs: [] },
+    { name: "Stale", emoji: "⏰", prs: [] },
+    { name: "Awaiting Review", emoji: "⏳", prs: [] },
+  ];
+
+  for (const pr of prs) {
+    const ageInDays = Math.floor(
+      (Date.now() - new Date(pr.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+    );
+
+    if (pr.hasApprovals && !pr.hasChangesRequested) {
+      categories[0].prs.push(pr); // Ready to Merge
+    } else if (pr.hasChangesRequested) {
+      categories[1].prs.push(pr); // Needs Changes
+    } else if (ageInDays >= 7) {
+      categories[3].prs.push(pr); // Stale
+    } else if (pr.reviewers && pr.reviewers.length > 0) {
+      categories[2].prs.push(pr); // Under Review
+    } else {
+      categories[4].prs.push(pr); // Awaiting Review
+    }
+  }
+
+  return categories;
 }
 
 // Validate Slack token

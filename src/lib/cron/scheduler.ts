@@ -276,13 +276,19 @@ async function sendNotification(
       isEscalation,
     });
 
-    const message = formatSlackPRMessage(pullRequests, undefined, isEscalation);
+    // Use the simplified formatSlackPRMessage function
+    const message = formatSlackPRMessage(
+      pullRequests,
+      undefined, // repositoryName
+      job.name // scheduleName
+    );
+
     await sendSlackMessage(messagingProvider.accessToken, channelId, message);
 
     console.log(
       `Sent ${
         isEscalation ? "escalation" : "regular"
-      } notification to Slack channel ${channelId}`
+      } notification to Slack channel ${channelId} (${pullRequests.length} PRs)`
     );
     return;
   }
