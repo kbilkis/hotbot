@@ -209,6 +209,13 @@ export class StripeService {
       });
       return session;
     } catch (error) {
+      // Handle specific billing portal configuration error
+      if (
+        error instanceof Stripe.errors.StripeInvalidRequestError &&
+        error.message.includes("No configuration provided")
+      ) {
+        throw new Error("BILLING_PORTAL_NOT_CONFIGURED");
+      }
       throw this.handleStripeError(
         error,
         "Failed to create billing portal session"

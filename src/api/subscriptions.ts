@@ -164,6 +164,16 @@ subscriptions.post(
 
       // Handle specific Stripe errors
       if (error instanceof Error) {
+        if (error.message === "BILLING_PORTAL_NOT_CONFIGURED") {
+          return c.json(
+            {
+              error:
+                "Billing portal is not configured. Please contact support to manage your subscription.",
+              errorCode: "BILLING_PORTAL_NOT_CONFIGURED",
+            },
+            503
+          );
+        }
         if (error.message.includes("Customer")) {
           return c.json({ error: "Invalid customer account" }, 400);
         }

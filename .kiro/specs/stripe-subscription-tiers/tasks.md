@@ -91,22 +91,22 @@
   - Add tier validation to schedule creation endpoint with interval checking
   - _Requirements: 1.6, 5.4_
 
-- [ ] 6. Create subscription management UI components
-- [ ] 6.1 Create subscription status display component
+- [x] 6. Create subscription management UI components
+- [x] 6.1 Create subscription status display component
 
   - Build component to show current tier and billing status
   - Display usage counts with progress bars for Free tier
   - Add upgrade button for Free tier users
   - _Requirements: 2.6, 5.1, 5.2, 5.3_
 
-- [ ] 6.2 Create upgrade flow components
+- [x] 6.2 Create upgrade flow components
 
   - Implement upgrade button that redirects to Stripe Checkout
   - Add loading states and error handling for checkout process
   - Create success/cancel callback pages
   - _Requirements: 3.2, 6.1_
 
-- [ ] 6.3 Create billing management component
+- [x] 6.3 Create billing management component
 
   - Add "Manage Billing" button for Pro users
   - Implement redirect to Stripe Customer Portal

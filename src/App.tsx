@@ -7,6 +7,9 @@ import Layout from "./components/layout/Layout";
 import AuthCallback from "./pages/AuthCallback";
 import Dashboard from "./pages/Dashboard";
 import LandingPage from "./pages/LandingPage";
+import Subscription from "./pages/Subscription";
+import UpgradeCancel from "./pages/UpgradeCancel";
+import UpgradeSuccess from "./pages/UpgradeSuccess";
 
 function App() {
   return (
@@ -35,10 +38,34 @@ function App() {
                 }
               />
               <Route
+                path="/subscription"
+                element={
+                  <ProtectedRoute>
+                    <Subscription />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
                 path="/auth/callback/:provider"
                 element={
                   <ProtectedRoute>
                     <AuthCallback />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/upgrade/success"
+                element={
+                  <ProtectedRoute>
+                    <UpgradeSuccess />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/upgrade/cancel"
+                element={
+                  <ProtectedRoute>
+                    <UpgradeCancel />
                   </ProtectedRoute>
                 }
               />

@@ -942,10 +942,15 @@ footer {
   gap: 1.5rem;
   align-items: center;
 }
+
+main {
+  padding-top: 120px;
+}
+
 /* Dashboard Styles */
 .dashboard {
   min-height: calc(100vh - 80px);
-  padding-top: 120px;
+  padding-top: 0px;
   background: transparent;
 }
 
@@ -3491,5 +3496,597 @@ Builder Presets */
   .channels-container,
   .guilds-container {
     max-height: 200px;
+  }
+}
+/* Subscription Status Styles */
+.subscription-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.tier-badge-container {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.tier-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tier-badge.free {
+  background-color: #e5e7eb;
+  color: #374151;
+}
+
+.tier-badge.pro {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+}
+
+.status-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 0.375rem;
+  font-size: 0.625rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-badge.canceled,
+.status-badge.past_due,
+.status-badge.unpaid {
+  background-color: #fef2f2;
+  color: #dc2626;
+}
+
+.status-badge.incomplete,
+.status-badge.incomplete_expired {
+  background-color: #fef3c7;
+  color: #d97706;
+}
+
+.subscription-content {
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  margin-top: 1rem;
+}
+
+.usage-section {
+  margin-bottom: 2rem;
+}
+
+.usage-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.usage-header h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin: 0;
+}
+
+.usage-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.usage-item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.usage-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.usage-count {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.usage-count.at-limit {
+  color: #dc2626;
+}
+
+.usage-bar {
+  height: 0.5rem;
+  background-color: #f3f4f6;
+  border-radius: 0.25rem;
+  overflow: hidden;
+}
+
+.usage-bar.unlimited {
+  background: linear-gradient(90deg, #3b82f6, #1d4ed8);
+}
+
+.usage-fill {
+  height: 100%;
+  background-color: #3b82f6;
+  border-radius: 0.25rem;
+  transition: width 0.3s ease;
+}
+
+.usage-fill.at-limit {
+  background-color: #dc2626;
+}
+
+.usage-fill.unlimited-fill {
+  width: 100%;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.3),
+    rgba(255, 255, 255, 0.1)
+  );
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.usage-text {
+  font-size: 0.75rem;
+  color: #6b7280;
+  text-align: center;
+}
+
+.usage-warning {
+  font-size: 0.75rem;
+  color: #dc2626;
+  font-weight: 500;
+}
+
+.cron-limit-info {
+  margin-top: 1rem;
+  padding: 0.75rem;
+  background-color: #f9fafb;
+  border-radius: 0.5rem;
+  border-left: 4px solid #3b82f6;
+}
+
+.cron-limit-info p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #374151;
+}
+
+.pro-features {
+  margin-bottom: 2rem;
+}
+
+.pro-features h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.subscription-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.subscription-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background-color: #f8fafc;
+  border-radius: 0.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+.subscription-icon {
+  font-size: 1.25rem;
+  color: #3b82f6;
+  font-weight: bold;
+}
+
+.subscription-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-start;
+}
+
+.upgrade-btn {
+  background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+.upgrade-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+}
+
+.manage-billing-btn {
+  background: white;
+  color: #374151;
+  border: 1px solid #d1d5db;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.manage-billing-btn:hover {
+  background-color: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.error-text {
+  color: #dc2626;
+}
+
+/* Responsive subscription styles */
+@media (max-width: 768px) {
+  .subscription-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .subscription-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .subscription-actions {
+    flex-direction: column;
+  }
+
+  .upgrade-btn,
+  .manage-billing-btn {
+    width: 100%;
+    text-align: center;
+  }
+}
+/* Upgrade Flow Styles */
+.upgrade-result-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem;
+}
+
+.upgrade-result-container {
+  max-width: 500px;
+  width: 100%;
+}
+
+.upgrade-result-content {
+  background: white;
+  border-radius: 1rem;
+  padding: 3rem 2rem;
+  text-align: center;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+}
+
+.upgrade-success-icon,
+.cancel-icon {
+  width: 4rem;
+  height: 4rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: bold;
+  margin: 0 auto 1.5rem;
+}
+
+.upgrade-success-icon {
+  background-color: #10b981;
+  color: white;
+}
+
+.cancel-icon {
+  background-color: #ef4444;
+  color: white;
+}
+
+.upgrade-result-content h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.upgrade-result-content p {
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+  line-height: 1.6;
+}
+
+.feature-list {
+  text-align: left;
+  margin: 1.5rem 0;
+  padding-left: 1rem;
+}
+
+.feature-list li {
+  color: #374151;
+  margin-bottom: 0.5rem;
+  position: relative;
+}
+
+.feature-list li::before {
+  content: "✓";
+  color: #10b981;
+  font-weight: bold;
+  position: absolute;
+  left: -1rem;
+}
+
+.redirect-text {
+  font-size: 0.875rem;
+  color: #9ca3af;
+  margin-bottom: 2rem;
+}
+
+.upgrade-benefits {
+  margin: 2rem 0;
+  padding: 1.5rem;
+  background-color: #f9fafb;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+}
+
+.upgrade-benefits h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-top: 2rem;
+}
+
+.upgrade-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.error-message {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background-color: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 0.5rem;
+  color: #dc2626;
+  font-size: 0.875rem;
+}
+
+.error-dismiss {
+  background: none;
+  border: none;
+  color: #dc2626;
+  cursor: pointer;
+  font-size: 1rem;
+  padding: 0;
+  margin-left: 0.5rem;
+}
+
+.error-dismiss:hover {
+  color: #b91c1c;
+}
+
+.loading-subscription-spinner {
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: white;
+  animation: spin 1s ease-in-out infinite;
+  margin-right: 0.5rem;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.upgrade-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.upgrade-btn:disabled:hover {
+  transform: none;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+/* Responsive upgrade flow styles */
+@media (max-width: 768px) {
+  .upgrade-result-page {
+    padding: 1rem;
+  }
+
+  .upgrade-result-content {
+    padding: 2rem 1.5rem;
+  }
+
+  .upgrade-result-content h1 {
+    font-size: 1.5rem;
+  }
+
+  .action-buttons {
+    flex-direction: column;
+  }
+
+  .action-buttons .btn {
+    width: 100%;
+  }
+}
+/* Billing Management Styles */
+.pro-section {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.billing-info {
+  background-color: #f8fafc;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  border: 1px solid #e2e8f0;
+}
+
+.billing-info h3 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.billing-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.billing-item {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 0;
+  border-bottom: 1px solid #e5e7eb;
+  gap: 2rem;
+}
+
+.billing-item:last-child {
+  border-bottom: none;
+}
+
+.billing-label {
+  font-weight: 500;
+  color: #6b7280;
+}
+
+.billing-value {
+  font-weight: 600;
+  color: #1f2937;
+}
+
+.cancel-notice {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.billing-section {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.billing-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.support-info {
+  padding: 1rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 0.5rem;
+  text-align: center;
+}
+
+.support-info p {
+  margin: 0 0 0.75rem 0;
+  color: #64748b;
+  font-size: 0.875rem;
+}
+
+.btn-outline {
+  background: transparent;
+  border: 1px solid #3b82f6;
+  color: #3b82f6;
+  padding: 0.5rem 1rem;
+  border-radius: 0.375rem;
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.btn-outline:hover {
+  background: #3b82f6;
+  color: white;
+}
+
+.manage-billing-btn:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+.manage-billing-btn:disabled:hover {
+  background-color: white;
+  border-color: #d1d5db;
+}
+
+/* Responsive billing styles */
+@media (max-width: 768px) {
+  .pro-section {
+    gap: 1.5rem;
+  }
+
+  .billing-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
+  }
+
+  .billing-section {
+    width: 100%;
+  }
+
+  .manage-billing-btn {
+    width: 100%;
+    text-align: center;
   }
 }

@@ -34,9 +34,6 @@ export default function SlackProviderModal({
   const [testResults, setTestResults] = useState<
     Record<string, { success: boolean; message: string }>
   >({});
-  const [connectionMethod, setConnectionMethod] = useState<"oauth" | "manual">(
-    "oauth"
-  );
   const [showManualOption, setShowManualOption] = useState(false);
   const [accessToken, setAccessToken] = useState("");
   const [isConnected, setIsConnected] = useState(initialIsConnected);
@@ -509,7 +506,6 @@ export default function SlackProviderModal({
                     className="show-alternative-button"
                     onClick={() => {
                       setShowManualOption(true);
-                      setConnectionMethod("manual");
                     }}
                     disabled={loading}
                   >
@@ -523,7 +519,6 @@ export default function SlackProviderModal({
                         className="hide-alternative-button"
                         onClick={() => {
                           setShowManualOption(false);
-                          setConnectionMethod("oauth");
                           setAccessToken("");
                           setError(null);
                         }}

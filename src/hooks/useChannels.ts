@@ -2,13 +2,6 @@ import useSWR from "swr";
 
 import { DiscordChannel, DiscordGuild } from "@/lib/discord";
 
-interface Channel {
-  id: string;
-  name: string;
-  type?: "public" | "private" | "direct";
-  memberCount?: number;
-}
-
 // Discord interfaces are inferred from API responses
 
 const fetcher = async (url: string) => {

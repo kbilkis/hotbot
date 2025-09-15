@@ -1,21 +1,7 @@
-import { useAuth } from "@clerk/clerk-react";
 import React, { useEffect } from "react";
 import { Link } from "react-router-dom";
 
-import { useGitProviders } from "../hooks/useGitProviders";
-import { useMessagingProviders } from "../hooks/useMessagingProviders";
-import { useSchedules } from "../hooks/useSchedules";
-
 export default function LandingPage(): React.ReactElement {
-  const { isLoaded, isSignedIn } = useAuth();
-
-  // Preload data if user is signed in for faster dashboard loads
-  // Only fetch if user is loaded and signed in to avoid unnecessary API calls
-  const shouldFetch = isLoaded && isSignedIn;
-  useGitProviders(shouldFetch);
-  useMessagingProviders(shouldFetch);
-  useSchedules(shouldFetch);
-
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       const { clientX, clientY } = e;
@@ -259,7 +245,7 @@ export default function LandingPage(): React.ReactElement {
               <div className="popular-badge">Most Popular</div>
               <h3>Pro</h3>
               <div className="price">
-                $9<span>/month</span>
+                $15<span>/month</span>
               </div>
               <p>Perfect for growing teams</p>
               <ul className="features-list">
