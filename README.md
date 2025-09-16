@@ -111,7 +111,3 @@ The application uses a modern full-stack architecture:
 4. Add tests
 5. Run `npm run lint` and `npm run test`
 6. Submit a pull request
-
-## License
-
-MIT License
