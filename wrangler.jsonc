@@ -3,6 +3,14 @@
   "main": "./server.ts",
   "compatibility_flags": ["nodejs_compat"],
   "compatibility_date": "2025-09-15",
+  "env": {
+    "staging": {
+      "route": "staging.hotbot.sh/*"
+    },
+    "production": {
+      "route": "hotbot.sh/*"
+    }
+  },
   "assets": {
     "directory": "./dist",
     "binding": "ASSETS"
