@@ -305,14 +305,206 @@ export default function LandingPage(): React.ReactElement {
         </div>
       </section>
 
+      {/* Smart Git Webhooks Section */}
+      <section className="smart-webhooks">
+        <div className="container">
+          <div className="feature-header">
+            <h2>Smart Git Webhooks</h2>
+            <div className="coming-soon-badge">Coming Soon</div>
+          </div>
+          <p className="feature-subtitle">
+            Keep your messaging channels clean with intelligent PR tracking that
+            updates in real-time
+          </p>
+
+          <div className="webhooks-demo">
+            <div className="demo-description">
+              <h3>One message per PR. Always up-to-date.</h3>
+              <div className="webhooks-features">
+                <div className="webhook-feature">
+                  <div className="feature-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M3 12a9 9 0 0 1 9-9 9.75 9.75 0 0 1 6.74 2.74L21 8" />
+                      <path d="M21 3v5h-5" />
+                      <path d="M21 12a9 9 0 0 1-9 9 9.75 9.75 0 0 1-6.74-2.74L3 16" />
+                      <path d="M8 16H3v5" />
+                    </svg>
+                  </div>
+                  <span>Live status updates as PRs progress</span>
+                </div>
+                <div className="webhook-feature">
+                  <div className="feature-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M3 6h18l-2 13H5L3 6z" />
+                      <path d="m19 6-3-6H8L5 6" />
+                    </svg>
+                  </div>
+                  <span>Auto-cleanup when PRs are merged/closed</span>
+                </div>
+                <div className="webhook-feature">
+                  <div className="feature-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <rect x="2" y="3" width="20" height="14" rx="2" ry="2" />
+                      <line x1="8" y1="21" x2="16" y2="21" />
+                      <line x1="12" y1="17" x2="12" y2="21" />
+                    </svg>
+                  </div>
+                  <span>Rich context: builds, tests, reviewers</span>
+                </div>
+                <div className="webhook-feature">
+                  <div className="feature-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                    >
+                      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+                      <path d="M13.73 21a2 2 0 0 1-3.46 0" />
+                    </svg>
+                  </div>
+                  <span>Instant notifications, zero noise</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="slack-mockup">
+              <div className="slack-header">
+                <div className="slack-channel"># engineering-prs</div>
+                <div className="slack-members">👥 12 members</div>
+              </div>
+
+              <div className="slack-messages">
+                <div className="slack-message">
+                  <div className="message-avatar">
+                    <img src="/images/hotbot.svg" alt="HotBot" />
+                  </div>
+                  <div className="message-content">
+                    <div className="message-header">
+                      <span className="bot-name">HotBot</span>
+                      <span className="message-time">2:14 PM</span>
+                    </div>
+                    <div className="pr-card">
+                      <div className="pr-header">
+                        <a href="#" className="pr-title">
+                          🔧 Fix authentication timeout handling
+                        </a>
+                        <div className="pr-meta">
+                          <span className="pr-author">by @sarah-dev</span>
+                          <span className="pr-number">#1247</span>
+                        </div>
+                      </div>
+                      <div className="pr-description">
+                        Increases timeout from 30s to 60s and adds proper retry
+                        logic for auth failures. Fixes the issue where users get
+                        logged out during long operations.
+                      </div>
+                      <div className="pr-reviewers">
+                        <span className="reviewers-label">Reviewers:</span>
+                        <span className="reviewer">@alex-lead</span>
+                        <span className="reviewer">@mike-senior</span>
+                      </div>
+                      <div className="pr-status">
+                        <div className="status-item success">
+                          <span className="status-icon">✅</span>
+                          <span>Build passed</span>
+                        </div>
+                        <div className="status-item success">
+                          <span className="status-icon">✅</span>
+                          <span>Tests passed (47/47)</span>
+                        </div>
+                        <div className="status-item warning">
+                          <span className="status-icon">⚠️</span>
+                          <span>Lint: 2 warnings</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="slack-message">
+                  <div className="message-avatar">
+                    <img src="/images/hotbot.svg" alt="HotBot" />
+                  </div>
+                  <div className="message-content">
+                    <div className="message-header">
+                      <span className="bot-name">HotBot</span>
+                      <span className="message-time">11:32 AM</span>
+                    </div>
+                    <div className="pr-card">
+                      <div className="pr-header">
+                        <a href="#" className="pr-title">
+                          ✨ Add dark mode toggle to user settings
+                        </a>
+                        <div className="pr-meta">
+                          <span className="pr-author">by @jenny-ui</span>
+                          <span className="pr-number">#1245</span>
+                        </div>
+                      </div>
+                      <div className="pr-description">
+                        Implements system preference detection and manual
+                        toggle. Persists user choice in localStorage with smooth
+                        transitions.
+                      </div>
+                      <div className="pr-reviewers">
+                        <span className="reviewers-label">Reviewers:</span>
+                        <span className="reviewer approved">@sarah-dev ✅</span>
+                        <span className="reviewer">@design-team</span>
+                      </div>
+                      <div className="pr-status">
+                        <div className="status-item success">
+                          <span className="status-icon">✅</span>
+                          <span>Build passed</span>
+                        </div>
+                        <div className="status-item success">
+                          <span className="status-icon">✅</span>
+                          <span>Tests passed (23/23)</span>
+                        </div>
+                        <div className="status-item success">
+                          <span className="status-icon">✅</span>
+                          <span>Lint passed</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Features for Engineers Section */}
       <section className="features-engineers">
         <div className="container">
-          <h2>Features for engineers</h2>
+          <h2>Made for engineers</h2>
           <div className="features-list">
             <div className="feature-bullet">
               <span className="bullet">•</span>
-              <span>Daily standup summaries (cron/zone aware)</span>
+              <span>Daily standup summaries (cron schedule)</span>
             </div>
             <div className="feature-bullet">
               <span className="bullet">•</span>

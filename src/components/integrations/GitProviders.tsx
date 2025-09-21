@@ -99,10 +99,15 @@ export default function GitProviders(): React.ReactElement {
             <button
               className={`connect-button ${
                 provider.connected ? "connected" : ""
-              }`}
+              } ${provider.provider === "bitbucket" ? "coming-soon" : ""}`}
               onClick={() => handleConnectProvider(provider)}
+              disabled={provider.provider === "bitbucket"}
             >
-              {provider.connected ? "Manage" : "Connect"}
+              {provider.provider === "bitbucket"
+                ? "Coming Soon"
+                : provider.connected
+                ? "Manage"
+                : "Connect"}
             </button>
           </div>
         ))}

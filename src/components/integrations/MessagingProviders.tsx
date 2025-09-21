@@ -134,10 +134,15 @@ export default function MessagingProviders(): React.ReactElement {
             <button
               className={`connect-button ${
                 provider.connected ? "connected" : ""
-              }`}
+              } ${provider.type === "teams" ? "coming-soon" : ""}`}
               onClick={() => handleConnectProvider(provider)}
+              disabled={provider.type === "teams"}
             >
-              {provider.connected ? "Manage" : "Connect"}
+              {provider.type === "teams"
+                ? "Coming Soon"
+                : provider.connected
+                ? "Manage"
+                : "Connect"}
             </button>
           </div>
         ))}
