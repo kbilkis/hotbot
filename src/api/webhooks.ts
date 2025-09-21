@@ -31,7 +31,7 @@ webhooks.post("/stripe", async (c) => {
 
     try {
       const stripeService = createStripeService();
-      event = stripeService.constructWebhookEvent(body, signature);
+      event = await stripeService.constructWebhookEvent(body, signature);
     } catch (error) {
       console.error("Webhook signature verification failed:", error);
       return c.json({ error: "Invalid signature" }, 400);

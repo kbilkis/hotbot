@@ -23,6 +23,8 @@ export class StripeService {
     this.stripe = new Stripe(config.secretKey, {
       apiVersion: "2025-08-27.basil",
       typescript: true,
+      // Use Web Crypto API for Cloudflare Workers compatibility
+      httpClient: Stripe.createFetchHttpClient(),
     });
   }
 
@@ -224,14 +226,14 @@ export class StripeService {
   }
 
   /**
-   * Construct and verify a webhook event from Stripe
+   * Construct and verify a webhook event from Stripe (async for Cloudflare Workers)
    */
-  constructWebhookEvent(
+  async constructWebhookEvent(
     payload: string | Buffer,
     signature: string
-  ): Stripe.Event {
+  ): Promise<Stripe.Event> {
     try {
-      return this.stripe.webhooks.constructEvent(
+      return await this.stripe.webhooks.constructEventAsync(
         payload,
         signature,
         this.config.webhookSecret
