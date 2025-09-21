@@ -1,4 +1,4 @@
-import { redis, REDIS_KEYS, TTL } from "./config";
+import { createRedis, REDIS_KEYS, TTL } from "./config";
 
 interface OAuthState {
   userId: string;
@@ -14,6 +14,7 @@ export class OAuthStateManager {
     userId: string,
     redirectUri: string
   ): Promise<string> {
+    const redis = createRedis();
     const state = crypto.randomUUID();
     const stateData: OAuthState = {
       userId,
@@ -41,6 +42,7 @@ export class OAuthStateManager {
     state: string,
     expectedUserId: string
   ): Promise<OAuthState | null> {
+    const redis = createRedis();
     const key = `${REDIS_KEYS.OAUTH_STATE}${state}`;
 
     // Get the state data
@@ -100,6 +102,7 @@ export class OAuthStateManager {
   static async cleanupExpiredStates(): Promise<void> {
     // This is optional since Redis TTL handles cleanup automatically
     // But can be useful for manual cleanup or monitoring
+    const redis = createRedis();
     try {
       const keys = await redis.keys(`${REDIS_KEYS.OAUTH_STATE}*`);
       const now = new Date();

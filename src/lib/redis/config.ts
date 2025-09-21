@@ -1,18 +1,31 @@
 import { Redis } from "@upstash/redis";
 
-// Validate required environment variables
-if (!process.env.UPSTASH_REDIS_REST_URL) {
-  throw new Error("UPSTASH_REDIS_REST_URL environment variable is required");
+// Create Redis client per request (Cloudflare Workers compatible)
+export function createRedis() {
+  // Validate required environment variables
+  if (!process.env.UPSTASH_REDIS_REST_URL) {
+    throw new Error("UPSTASH_REDIS_REST_URL environment variable is required");
+  }
+
+  if (!process.env.UPSTASH_REDIS_REST_TOKEN) {
+    throw new Error(
+      "UPSTASH_REDIS_REST_TOKEN environment variable is required"
+    );
+  }
+
+  return new Redis({
+    url: process.env.UPSTASH_REDIS_REST_URL!,
+    token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+  });
 }
 
-if (!process.env.UPSTASH_REDIS_REST_TOKEN) {
-  throw new Error("UPSTASH_REDIS_REST_TOKEN environment variable is required");
-}
-
-// Initialize Redis client with configuration
-export const redis = new Redis({
-  url: process.env.UPSTASH_REDIS_REST_URL,
-  token: process.env.UPSTASH_REDIS_REST_TOKEN,
+// For Cloudflare Workers: create a new connection for each use
+// This ensures no I/O objects are shared between requests
+export const redis = new Proxy({} as Redis, {
+  get(target, prop) {
+    const freshRedis = createRedis();
+    return freshRedis[prop as keyof Redis];
+  },
 });
 
 // Redis key prefixes for different data types

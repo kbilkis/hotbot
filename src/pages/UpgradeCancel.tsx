@@ -1,9 +1,7 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router";
 
 export default function UpgradeCancel(): React.ReactElement {
-  const navigate = useNavigate();
-
   return (
     <div className="upgrade-result-page">
       <div className="upgrade-result-container">
@@ -24,12 +22,9 @@ export default function UpgradeCancel(): React.ReactElement {
             </ul>
           </div>
           <div className="action-buttons">
-            <button
-              className="btn btn-primary"
-              onClick={() => navigate("/dashboard")}
-            >
-              Back to Dashboard
-            </button>
+            <Link to="/dashboard">
+              <button className="btn btn-primary">Back to Dashboard</button>
+            </Link>
           </div>
         </div>
       </div>

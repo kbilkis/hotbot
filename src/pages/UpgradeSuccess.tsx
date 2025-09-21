@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router";
 
 export default function UpgradeSuccess(): React.ReactElement {
   const navigate = useNavigate();
@@ -32,12 +32,9 @@ export default function UpgradeSuccess(): React.ReactElement {
           <p className="redirect-text">
             Redirecting you to the dashboard in a few seconds...
           </p>
-          <button
-            className="btn btn-primary"
-            onClick={() => navigate("/dashboard")}
-          >
-            Go to Dashboard
-          </button>
+          <Link to="/dashboard">
+            <button className="btn btn-primary">Go to Dashboard</button>
+          </Link>
         </div>
       </div>
     </div>

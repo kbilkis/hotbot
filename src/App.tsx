@@ -1,9 +1,10 @@
 import { ClerkProvider } from "@clerk/clerk-react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { Routes, Route } from "react-router";
 import { SWRConfig } from "swr";
 
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Layout from "./components/layout/Layout";
+import { getViteEnvKey } from "./lib/getViteEnvKey";
 import AuthCallback from "./pages/AuthCallback";
 import Dashboard from "./pages/Dashboard";
 import LandingPage from "./pages/LandingPage";
@@ -12,8 +13,10 @@ import UpgradeCancel from "./pages/UpgradeCancel";
 import UpgradeSuccess from "./pages/UpgradeSuccess";
 
 function App() {
+  const clerkKey = getViteEnvKey("VITE_CLERK_PUBLISHABLE_KEY");
+
   return (
-    <ClerkProvider publishableKey={import.meta.env.VITE_CLERK_PUBLISHABLE_KEY}>
+    <ClerkProvider publishableKey={clerkKey}>
       <SWRConfig
         value={{
           // Global SWR configuration
@@ -25,53 +28,51 @@ function App() {
           errorRetryInterval: 1000,
         }}
       >
-        <Router>
-          <Layout>
-            <Routes>
-              <Route path="/" element={<LandingPage />} />
-              <Route
-                path="/dashboard"
-                element={
-                  <ProtectedRoute>
-                    <Dashboard />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/subscription"
-                element={
-                  <ProtectedRoute>
-                    <Subscription />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/auth/callback/:provider"
-                element={
-                  <ProtectedRoute>
-                    <AuthCallback />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/upgrade/success"
-                element={
-                  <ProtectedRoute>
-                    <UpgradeSuccess />
-                  </ProtectedRoute>
-                }
-              />
-              <Route
-                path="/upgrade/cancel"
-                element={
-                  <ProtectedRoute>
-                    <UpgradeCancel />
-                  </ProtectedRoute>
-                }
-              />
-            </Routes>
-          </Layout>
-        </Router>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route
+              path="/dashboard"
+              element={
+                <ProtectedRoute>
+                  <Dashboard />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/subscription"
+              element={
+                <ProtectedRoute>
+                  <Subscription />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/auth/callback/:provider"
+              element={
+                <ProtectedRoute>
+                  <AuthCallback />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/upgrade/success"
+              element={
+                <ProtectedRoute>
+                  <UpgradeSuccess />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/upgrade/cancel"
+              element={
+                <ProtectedRoute>
+                  <UpgradeCancel />
+                </ProtectedRoute>
+              }
+            />
+          </Routes>
+        </Layout>
       </SWRConfig>
     </ClerkProvider>
   );

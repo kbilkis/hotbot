@@ -1,6 +1,5 @@
+import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
 import React, { useState } from "react";
-
-import QuestionSvg from "../../icons/question-mark-circle.svg?react";
 
 interface TooltipProps {
   text: string;
@@ -23,7 +22,7 @@ export default function Tooltip({
       onMouseLeave={() => setIsVisible(false)}
     >
       {children || (
-        <QuestionSvg
+        <QuestionMarkCircleIcon
           width="14"
           height="14"
           style={{ verticalAlign: "middle" }}

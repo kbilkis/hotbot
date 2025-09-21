@@ -2,14 +2,17 @@ import { build } from "esbuild";
 
 // Build server
 await build({
-  entryPoints: ["src/api/server.ts"],
+  entryPoints: ["./server.ts"],
   bundle: true,
-  outdir: "api",
-  outfile: "index.js",
-  platform: "node",
-  target: "node22",
+  outfile: "dist/index.js",
+  platform: "browser",
+  target: "es2022",
   format: "esm",
+  external: ["__STATIC_CONTENT_MANIFEST"],
   minify: process.env.NODE_ENV === "production",
+  define: {
+    "process.env.NODE_ENV": '"production"',
+  },
 });
 
 console.log("Server build complete!");

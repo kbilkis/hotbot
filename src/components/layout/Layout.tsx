@@ -1,6 +1,6 @@
 import { useAuth } from "@clerk/clerk-react";
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link } from "react-router";
 
 import { useGitProviders } from "@/hooks/useGitProviders";
 import { useMessagingProviders } from "@/hooks/useMessagingProviders";

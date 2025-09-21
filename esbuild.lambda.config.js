@@ -1,4 +1,6 @@
-const config = {
+import { build } from "esbuild";
+
+await build({
   entryPoints: ["src/lambda/cron-handler.ts"],
   bundle: true,
   outfile: "dist_lambda/cron-handler.js",
@@ -15,4 +17,6 @@ const config = {
   define: {
     "process.env.NODE_ENV": '"production"',
   },
-};
+});
+
+console.log("Server build complete!");

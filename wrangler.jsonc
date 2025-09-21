@@ -1,0 +1,19 @@
+{
+  "name": "hotbot",
+  "main": "./server.ts",
+  "compatibility_flags": ["nodejs_compat"],
+  "compatibility_date": "2025-09-15",
+  "assets": {
+    "directory": "./dist",
+    "binding": "ASSETS"
+  },
+  "build": {
+    "command": "npm run build",
+    "watch_dir": "src"
+  },
+  "observability": {
+    "logs": {
+      "enabled": true
+    }
+  }
+}

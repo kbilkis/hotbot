@@ -15,10 +15,11 @@
     "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "baseUrl": ".",
+    "types": ["@cloudflare/workers-types", "@types/node"],
     "paths": {
       "@/*": ["./src/*"]
     }
   },
-  "include": ["src"],
+  "include": ["src", "server.ts", "src/types/*.d.ts"],
   "exclude": ["dist", "node_modules"]
 }

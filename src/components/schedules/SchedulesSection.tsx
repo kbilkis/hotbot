@@ -1,11 +1,13 @@
+import {
+  PencilSquareIcon,
+  PlayIcon,
+  PauseCircleIcon,
+  TrashIcon,
+} from "@heroicons/react/24/outline";
 import { CronExpressionParser } from "cron-parser";
 import React, { useState } from "react";
 
 import { useSchedules } from "../../hooks/useSchedules";
-import PauseSvg from "../../icons/pause-circle.svg?react";
-import PencilSvg from "../../icons/pencil-square.svg?react";
-import PlaySvg from "../../icons/play.svg?react";
-import TrashSvg from "../../icons/trash.svg?react";
 import { CronJob } from "../../types/dashboard";
 
 import ScheduleModal from "./ScheduleModal";
@@ -265,7 +267,7 @@ export default function SchedulesSection(): React.ReactElement {
                       onClick={() => handleEditSchedule(schedule)}
                       title="Edit schedule"
                     >
-                      <PencilSvg className="schedule-action-icon" />
+                      <PencilSquareIcon className="schedule-action-icon" />
                     </button>
                     <button
                       className={`toggle-button ${
@@ -284,9 +286,9 @@ export default function SchedulesSection(): React.ReactElement {
                       {togglingScheduleId === schedule.id ? (
                         <div className="loading-spinner-button" />
                       ) : schedule.status === "active" ? (
-                        <PauseSvg className="schedule-action-icon" />
+                        <PauseCircleIcon className="schedule-action-icon" />
                       ) : (
-                        <PlaySvg className="schedule-action-icon" />
+                        <PlayIcon className="schedule-action-icon" />
                       )}
                     </button>
                     <button
@@ -294,7 +296,7 @@ export default function SchedulesSection(): React.ReactElement {
                       onClick={() => handleDeleteSchedule(schedule.id)}
                       title="Delete schedule"
                     >
-                      <TrashSvg className="schedule-action-icon" />
+                      <TrashIcon className="schedule-action-icon" />
                     </button>
                   </div>
                 </div>

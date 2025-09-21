@@ -1,21 +1,42 @@
+import { resolve } from "node:path";
+
 import react from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
-import svgr from "vite-plugin-svgr";
 
 export default defineConfig({
-  plugins: [react(), svgr()],
+  plugins: [react()],
+  define: {
+    global: "globalThis",
+  },
   server: {
     port: 5173,
     proxy: {
       "/api": {
-        target: "http://localhost:3000",
+        target: "http://localhost:8787", // Wrangler dev default port
         changeOrigin: true,
       },
     },
+    allowedHosts: ["dfsy77safd78.share.zrok.io"],
   },
   build: {
-    outDir: "dist",
+    assetsDir: "dist",
+    manifest: true,
+    minify: true,
+    ssrManifest: true,
     emptyOutDir: false,
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, "./src/entry-client.tsx"),
+      },
+      output: {
+        entryFileNames: "assets/[name].js",
+        chunkFileNames: "assets/[name].js",
+        assetFileNames: "assets/[name].[ext]",
+        globals: {
+          react: "React",
+        },
+      },
+    },
   },
   resolve: {
     alias: {
