@@ -17,7 +17,7 @@
       ]
     },
     "production": {
-      "name": "hotbot-production",
+      "name": "hotbot-staging",
       "preview_urls": false,
       "routes": [
         {
