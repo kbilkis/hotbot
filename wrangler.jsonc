@@ -1,12 +1,21 @@
 {
+  "$schema": "https://unpkg.com/wrangler@latest/config-schema.json",
   "name": "hotbot",
   "main": "./server.ts",
   "compatibility_flags": ["nodejs_compat"],
   "compatibility_date": "2025-09-15",
+  "preview_urls": true,
   "env": {
     "staging": {
       "name": "hotbot-staging",
       "route": "staging.hotbot.sh",
+      // "preview_urls": true,
+      "custom_domain": true
+    },
+    "staging2": {
+      "name": "hotbot-staging2",
+      "route": "staging2.hotbot.sh",
+      "preview_urls": true,
       "custom_domain": true
     },
     "production": {
