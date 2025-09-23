@@ -5043,6 +5043,11 @@ Builder Presets */
   z-index: 2;
 }
 
+.features-engineers-content {
+  display: flex;
+  flex-direction: row;
+}
+
 .features-engineers h2 {
   font-size: 2rem;
   font-weight: 700;
@@ -5343,6 +5348,10 @@ Builder Presets */
 
   .chart-container {
     gap: 1rem;
+  }
+
+  .features-engineers-content {
+    flex-direction: column;
   }
 }
 /* Slack Case Image Styles */
