@@ -409,7 +409,7 @@ export default function LandingPage(): React.ReactElement {
                     </div>
                     <div className="pr-card">
                       <div className="pr-header">
-                        <a href="#" className="pr-title">
+                        <a className="pr-title">
                           🔧 Fix authentication timeout handling
                         </a>
                         <div className="pr-meta">
@@ -456,7 +456,7 @@ export default function LandingPage(): React.ReactElement {
                     </div>
                     <div className="pr-card">
                       <div className="pr-header">
-                        <a href="#" className="pr-title">
+                        <a className="pr-title">
                           ✨ Add dark mode toggle to user settings
                         </a>
                         <div className="pr-meta">
@@ -501,47 +501,49 @@ export default function LandingPage(): React.ReactElement {
       <section className="features-engineers">
         <div className="container">
           <h2>Made for engineers</h2>
-          <div className="features-list">
-            <div className="feature-bullet">
-              <span className="bullet">•</span>
-              <span>Daily standup summaries (cron schedule)</span>
+          <div className="features-engineers-content">
+            <div className="features-list">
+              <div className="feature-bullet">
+                <span className="bullet">•</span>
+                <span>Daily standup summaries (cron schedule)</span>
+              </div>
+              <div className="feature-bullet">
+                <span className="bullet">•</span>
+                <span>
+                  Smart filters: Draft/WIP/label exclusions, reviewer-aware
+                </span>
+              </div>
+              <div className="feature-bullet">
+                <span className="bullet">•</span>
+                <span>Escalation tiers with stakeholder mentions</span>
+              </div>
+              <div className="feature-bullet">
+                <span className="bullet">•</span>
+                <span>No-noise defaults; configurable thresholds</span>
+              </div>
             </div>
-            <div className="feature-bullet">
-              <span className="bullet">•</span>
-              <span>
-                Smart filters: Draft/WIP/label exclusions, reviewer-aware
-              </span>
-            </div>
-            <div className="feature-bullet">
-              <span className="bullet">•</span>
-              <span>Escalation tiers with stakeholder mentions</span>
-            </div>
-            <div className="feature-bullet">
-              <span className="bullet">•</span>
-              <span>No-noise defaults; configurable thresholds</span>
-            </div>
-          </div>
 
-          <div className="rule-builder-card">
-            <div className="rule-header">Rule Builder</div>
-            <div className="rule-content">
-              <div className="rule-section">
-                <span className="rule-label">Frequency:</span>
-                <div className="rule-chip">Daily 9:00 AM</div>
-              </div>
-              <div className="rule-section">
-                <span className="rule-label">Conditions:</span>
-                <div className="rule-chips">
-                  <div className="rule-chip">!draft</div>
-                  <div className="rule-chip">!wip</div>
-                  <div className="rule-chip">age 1d</div>
+            <div className="rule-builder-card">
+              <div className="rule-header">Rule Builder</div>
+              <div className="rule-content">
+                <div className="rule-section">
+                  <span className="rule-label">Frequency:</span>
+                  <div className="rule-chip">Daily 9:00 AM</div>
                 </div>
-              </div>
-              <div className="rule-section">
-                <span className="rule-label">Escalation:</span>
-                <div className="rule-chips">
-                  <div className="rule-chip">@team-lead</div>
-                  <div className="rule-chip">@manager</div>
+                <div className="rule-section">
+                  <span className="rule-label">Conditions:</span>
+                  <div className="rule-chips">
+                    <div className="rule-chip">!draft</div>
+                    <div className="rule-chip">!wip</div>
+                    <div className="rule-chip">age 1d</div>
+                  </div>
+                </div>
+                <div className="rule-section">
+                  <span className="rule-label">Escalation:</span>
+                  <div className="rule-chips">
+                    <div className="rule-chip">@team-lead</div>
+                    <div className="rule-chip">@manager</div>
+                  </div>
                 </div>
               </div>
             </div>
