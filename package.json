@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev:wrangler": "concurrently \"wrangler dev --env development --port 8787\" \"vite\"",
+    "dev:wrangler": "concurrently \"wrangler dev --env staging --port 8787\" \"vite --mode staging \"",
     "dev:server": "tsx watch --env-file=.env dev-server.ts",
     "dev:client": "vite",
     "build": "node esbuild.config.js && vite build",
