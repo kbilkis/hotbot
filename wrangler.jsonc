@@ -1,6 +1,6 @@
 {
   "$schema": "https://unpkg.com/wrangler@latest/config-schema.json",
-  "name": "hotbot",
+  "name": "hotbot-staging",
   "main": "./server.ts",
   "compatibility_flags": ["nodejs_compat"],
   "compatibility_date": "2025-09-15",
