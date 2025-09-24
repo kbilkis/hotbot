@@ -284,7 +284,7 @@ export default function SubscriptionStatus(): React.ReactElement {
                     <div className="support-info">
                       <p>Need to make changes to your subscription?</p>
                       <a
-                        href="mailto:support@hotbot.sh?subject=Subscription Management Request"
+                        href="mailto:hello@hotbot.sh?subject=Subscription Management Request"
                         className="btn btn-outline"
                       >
                         Contact Support

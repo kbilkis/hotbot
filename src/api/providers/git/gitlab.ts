@@ -4,6 +4,7 @@ import { arktypeValidator } from "@hono/arktype-validator";
 import { Hono } from "hono";
 
 import { getCurrentUserId } from "@/lib/auth/clerk";
+import { NewGitProvider } from "@/lib/database/schema";
 
 import {
   checkGitProviderLimits,
@@ -95,11 +96,14 @@ app.post(
         body.redirectUri
       );
 
-      const providerData = {
+      const providerData: NewGitProvider = {
         userId,
         provider: "gitlab" as const,
         accessToken: tokenResponse.accessToken,
         refreshToken: tokenResponse.refreshToken || null,
+        expiresAt: tokenResponse.expiresIn
+          ? new Date(Date.now() + tokenResponse.expiresIn * 1000)
+          : null,
         repositories: null, // Will be set later in schedule configuration
       };
 

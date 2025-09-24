@@ -5,17 +5,13 @@
   "compatibility_flags": ["nodejs_compat"],
   "compatibility_date": "2025-09-15",
   "preview_urls": true,
+  "routes": [
+    {
+      "pattern": "staging.hotbot.sh",
+      "custom_domain": true
+    }
+  ],
   "env": {
-    "staging": {
-      "name": "hotbot-staging",
-      "preview_urls": true,
-      "routes": [
-        {
-          "pattern": "staging.hotbot.sh",
-          "custom_domain": true
-        }
-      ]
-    },
     "production": {
       "name": "hotbot-production",
       "preview_urls": false,

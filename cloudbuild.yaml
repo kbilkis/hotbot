@@ -1,0 +1,101 @@
+# cloudbuild.yaml
+steps:
+  # Build TypeScript functions with esbuild
+  - name: "node:22"
+    entrypoint: "bash"
+    args:
+      - "-c"
+      - |
+        npm install
+        npm run build:functions
+
+  # Deploy notification processor
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      - "functions"
+      - "deploy"
+      - "notification-processor-${_ENV}" # Deploy with environment suffix
+      - "--runtime"
+      - "nodejs22"
+      - "--trigger-http"
+      - "--no-allow-unauthenticated"
+      - "--source"
+      - "dist_functions"
+      - "--entry-point"
+      - "notificationProcessor"
+      - "--memory"
+      - "512MB"
+      - "--timeout"
+      - "300s"
+      - "--region"
+      - "us-central1"
+      - "--set-secrets=DATABASE_URL=DATABASE_URL_${_ENV}:latest,GITHUB_CLIENT_SECRET=GITHUB_CLIENT_SECRET:latest,GITLAB_CLIENT_ID=GITLAB_CLIENT_ID:latest,GITLAB_CLIENT_SECRET=GITLAB_CLIENT_SECRET:latest,SLACK_CLIENT_SECRET=SLACK_CLIENT_SECRET:latest,DISCORD_CLIENT_ID=DISCORD_CLIENT_ID:latest,DISCORD_CLIENT_SECRET=DISCORD_CLIENT_SECRET:latest,DISCORD_BOT_TOKEN=DISCORD_BOT_TOKEN:latest,UPSTASH_REDIS_REST_URL=UPSTASH_REDIS_REST_URL:latest,UPSTASH_REDIS_REST_TOKEN=UPSTASH_REDIS_REST_TOKEN:latest" # Select secret based on _ENV
+      - "--service-account=hotbot-472301@appspot.gserviceaccount.com"
+
+  # Deploy token processor (no trigger - will be invoked by Cloud Scheduler)
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      - "functions"
+      - "deploy"
+      - "token-processor-${_ENV}" # Deploy with environment suffix
+      - "--runtime"
+      - "nodejs22"
+      - "--trigger-http"
+      - "--no-allow-unauthenticated"
+      - "--source"
+      - "dist_functions"
+      - "--entry-point"
+      - "tokenProcessor"
+      - "--memory"
+      - "256MB"
+      - "--timeout"
+      - "180s"
+      - "--region"
+      - "us-central1"
+      - "--set-secrets=DATABASE_URL=DATABASE_URL_${_ENV}:latest,GITHUB_CLIENT_SECRET=GITHUB_CLIENT_SECRET:latest,GITLAB_CLIENT_ID=GITLAB_CLIENT_ID:latest,GITLAB_CLIENT_SECRET=GITLAB_CLIENT_SECRET:latest,SLACK_CLIENT_SECRET=SLACK_CLIENT_SECRET:latest,DISCORD_CLIENT_ID=DISCORD_CLIENT_ID:latest,DISCORD_CLIENT_SECRET=DISCORD_CLIENT_SECRET:latest,DISCORD_BOT_TOKEN=DISCORD_BOT_TOKEN:latest,UPSTASH_REDIS_REST_URL=UPSTASH_REDIS_REST_URL:latest,UPSTASH_REDIS_REST_TOKEN=UPSTASH_REDIS_REST_TOKEN:latest" # Select secret based on _ENV
+      - "--service-account=hotbot-472301@appspot.gserviceaccount.com"
+
+  # Create Cloud Scheduler jobs that invoke Cloud Functions directly
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      - "scheduler"
+      - "jobs"
+      - "create"
+      - "http"
+      - "notification-processor-${_ENV}" # Scheduler job name with environment suffix
+      - "--schedule"
+      - "* * * * *"
+      - "--uri"
+      - "https://us-central1-hotbot-472301.cloudfunctions.net/notification-processor-${_ENV}" # Target function with environment suffix
+      - "--http-method"
+      - "POST"
+      - "--oidc-service-account-email"
+      - "hotbot-472301@appspot.gserviceaccount.com"
+      - "--location"
+      - "us-central1"
+    allowFailure: true
+
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    entrypoint: gcloud
+    args:
+      - "scheduler"
+      - "jobs"
+      - "create"
+      - "http"
+      - "token-job-${_ENV}" # Scheduler job name with environment suffix
+      - "--schedule"
+      - "*/5 * * * *"
+      - "--uri"
+      - "https://us-central1-hotbot-472301.cloudfunctions.net/token-processor-${_ENV}" # Target function with environment suffix
+      - "--http-method"
+      - "POST"
+      - "--oidc-service-account-email"
+      - "hotbot-472301@appspot.gserviceaccount.com"
+      - "--location"
+      - "us-central1"
+    allowFailure: true
+options:
+  logging: CLOUD_LOGGING_ONLY

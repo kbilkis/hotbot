@@ -28,9 +28,9 @@ import { escalationProcessor } from "./escalation";
 import { filterProcessor } from "./filters";
 
 /**
- * Main cron job processor - runs every minute to check for due jobs
+ * Main notification processor - runs every minute to check for due jobs and send notifications
  */
-export async function cronJobProcessor(): Promise<void> {
+export async function processScheduledNotifications(): Promise<void> {
   const startTime = Date.now();
 
   try {
@@ -106,7 +106,6 @@ function filterDueJobs(jobs: CronJob[]): CronJob[] {
       // Get the most recent execution time that should have occurred
       // This tells us when the job was supposed to run (including right now)
       const prevRun = cronExpression.prev().toDate();
-
       // Normalize to minute precision for comparison
       const prevRunMinute = new Date(
         prevRun.getFullYear(),
@@ -279,8 +278,8 @@ async function sendNotification(
   }
 
   if (messagingProvider.provider === "slack") {
-    console.log("first", {
-      pullRequests,
+    console.log("Formatting Slack message", {
+      pullRequestCount: pullRequests.length,
       isEscalation,
     });
 

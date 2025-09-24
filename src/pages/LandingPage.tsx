@@ -686,7 +686,7 @@ export default function LandingPage(): React.ReactElement {
                 <li>✓ Custom integrations</li>
                 <li>✓ Dedicated support</li>
               </ul>
-              <a href="mailto:kasparas@bilkis.lt">
+              <a href="mailto:kasparas@hotbot.sh">
                 <button className="pricing-button secondary">
                   Contact sales
                 </button>
