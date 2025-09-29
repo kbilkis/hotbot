@@ -1,15 +1,12 @@
 import { QuestionMarkCircleIcon } from "@heroicons/react/24/outline";
-import React, { useState } from "react";
+import { useState } from "preact/hooks";
 
 interface TooltipProps {
   text: string;
-  children?: React.ReactNode;
+  children?: preact.ComponentChildren;
 }
 
-export default function Tooltip({
-  text,
-  children,
-}: TooltipProps): React.ReactElement {
+export default function Tooltip({ text, children }: TooltipProps) {
   const [isVisible, setIsVisible] = useState(false);
 
   return (

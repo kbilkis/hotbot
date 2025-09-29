@@ -1,11 +1,11 @@
 import { resolve } from "node:path";
 
-import react from "@vitejs/plugin-react";
+import preact from "@preact/preset-vite";
 import { defineConfig } from "vite";
 import { analyzer } from "vite-bundle-analyzer";
 
 export default defineConfig(() => {
-  const plugins = react();
+  const plugins = preact();
   if (process.env.ANALYZE === "true") {
     plugins.push(analyzer());
   }
@@ -40,7 +40,7 @@ export default defineConfig(() => {
           chunkFileNames: "assets/[name].js",
           assetFileNames: "assets/[name].[ext]",
           globals: {
-            react: "React",
+            preact: "preact",
           },
         },
       },
@@ -48,6 +48,8 @@ export default defineConfig(() => {
     resolve: {
       alias: {
         "@": "/src",
+        react: "preact/compat",
+        "react-dom": "preact/compat",
       },
     },
   };

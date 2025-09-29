@@ -20,6 +20,15 @@ import teamsRoutes from "./teams";
 
 const app = new Hono();
 
+export interface MessagingProviderDTO {
+  id: string | null;
+  type: string;
+  name: string;
+  connected: boolean;
+  connectedAt?: string;
+  providerId?: string;
+}
+
 // GET /api/providers/messaging - List all messaging providers
 app.get("/", async (c) => {
   try {
@@ -38,7 +47,7 @@ app.get("/", async (c) => {
       (p) => p.provider === "discord"
     );
 
-    const messagingProviders = [
+    const messagingProviders: MessagingProviderDTO[] = [
       {
         id: providersByType.slack?.id || null,
         type: "slack",

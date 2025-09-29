@@ -1,6 +1,4 @@
 import { useAuth } from "@clerk/clerk-react";
-import React from "react";
-import { Link } from "react-router";
 
 import { useGitProviders } from "@/hooks/useGitProviders";
 import { useMessagingProviders } from "@/hooks/useMessagingProviders";
@@ -12,8 +10,8 @@ import AuthButton from "../auth/AuthButton";
 export default function Layout({
   children,
 }: {
-  children: React.ReactNode;
-}): React.ReactElement {
+  children: preact.ComponentChildren;
+}) {
   const { isLoaded, isSignedIn } = useAuth();
 
   // Preload data if user is signed in for faster dashboard loads
@@ -29,18 +27,18 @@ export default function Layout({
       <header>
         <nav>
           <div className="logo">
-            <Link to="/">
+            <a href="/">
               <img
                 src="/images/hotbot-l.svg"
                 alt="HotBot"
                 className="logo-image"
               />
-            </Link>
+            </a>
           </div>
           <div className="nav-links">
-            <Link to="/">Home</Link>
-            <Link to="/dashboard">Dashboard</Link>
-            {isSignedIn && <Link to="/subscription">Subscription</Link>}
+            <a href="/">Home</a>
+            <a href="/dashboard">Dashboard</a>
+            {isSignedIn && <a href="/subscription">Subscription</a>}
             <AuthButton />
           </div>
         </nav>

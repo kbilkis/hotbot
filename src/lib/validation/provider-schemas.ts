@@ -85,7 +85,7 @@ const GitProvidersListSchema = type({
   providers: GitProviderSchema.array(),
 });
 
-const GitProviderResponseSchema = type({
+const _GitProviderResponseSchema = type({
   success: "boolean",
   message: "string?",
   data: GitProvidersListSchema,
@@ -136,4 +136,4 @@ export const ManualTokenSchema = type({
 
 // Extract TypeScript types from arktype schemas
 export type GitProviderData = typeof GitProviderSchema.infer;
-export type GitProviderResponseData = typeof GitProviderResponseSchema.infer;
+export type GitProviderResponseData = typeof _GitProviderResponseSchema.infer;

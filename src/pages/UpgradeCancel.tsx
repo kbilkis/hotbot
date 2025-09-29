@@ -1,7 +1,4 @@
-import React from "react";
-import { Link } from "react-router";
-
-export default function UpgradeCancel(): React.ReactElement {
+export default function UpgradeCancel() {
   return (
     <div className="upgrade-result-page">
       <div className="upgrade-result-container">
@@ -22,9 +19,9 @@ export default function UpgradeCancel(): React.ReactElement {
             </ul>
           </div>
           <div className="action-buttons">
-            <Link to="/dashboard">
+            <a href="/dashboard">
               <button className="btn btn-primary">Back to Dashboard</button>
-            </Link>
+            </a>
           </div>
         </div>
       </div>

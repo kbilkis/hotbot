@@ -2,11 +2,7 @@ import { arktypeValidator } from "@hono/arktype-validator";
 import { type } from "arktype";
 import { Hono } from "hono";
 
-import {
-  requireAuth,
-  getCurrentUserId,
-  getCurrentUser,
-} from "@/lib/auth/clerk";
+import { getCurrentUserId, getCurrentUser } from "@/lib/auth/clerk";
 
 import {
   getSubscriptionByUserId,
@@ -17,8 +13,36 @@ import { createStripeService } from "../lib/stripe/service";
 
 const subscriptions = new Hono();
 
-// Apply authentication to all subscription routes
-subscriptions.use("/*", requireAuth());
+interface SubscriptionUsage {
+  gitProvidersCount: number;
+  messagingProvidersCount: number;
+  cronJobsCount: number;
+}
+
+interface SubscriptionLimits {
+  gitProviders: number | null;
+  messagingProviders: number | null;
+  cronJobs: number | null;
+  minCronInterval: number;
+}
+
+interface SubscriptionBilling {
+  subscriptionId: string;
+  customerId: string;
+  currentPeriodStart: string | null;
+  currentPeriodEnd: string | null;
+  cancelAtPeriodEnd: boolean;
+}
+
+export interface SubscriptionDataDto {
+  tier: "free" | "pro";
+  status: string;
+  usage: SubscriptionUsage;
+  limits: SubscriptionLimits;
+  billing: SubscriptionBilling | null;
+  createdAt?: string;
+  updatedAt?: string;
+}
 
 // Validation schemas
 const CheckoutRequestSchema = type({
@@ -256,9 +280,9 @@ subscriptions.get("/current", async (c) => {
       usage,
       limits: tierLimits[subscription.tier],
       billing,
-      createdAt: subscription.createdAt,
-      updatedAt: subscription.updatedAt,
-    });
+      createdAt: subscription.createdAt?.toISOString(),
+      updatedAt: subscription.updatedAt?.toISOString(),
+    } as SubscriptionDataDto);
   } catch (error) {
     console.error("Failed to get subscription status:", error);
     return c.json(

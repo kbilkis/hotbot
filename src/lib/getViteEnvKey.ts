@@ -5,9 +5,9 @@
 export const getViteEnvKey = (key: string): string => {
   // Client-side (browser) - use import.meta.env
   if (typeof window !== "undefined") {
-    return (import.meta.env as any)[key];
+    return import.meta.env[key];
   }
 
   // Server-side (Node.js/Cloudflare Workers) - try both process.env and import.meta.env
-  return process.env[key] || (import.meta.env as any)?.[key];
+  return process.env[key] || import.meta.env?.[key];
 };

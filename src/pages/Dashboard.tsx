@@ -1,9 +1,7 @@
-import React from "react";
-
 import IntegrationsSection from "../components/integrations/IntegrationsSection";
 import SchedulesSection from "../components/schedules/SchedulesSection";
 
-export default function Dashboard(): React.ReactElement {
+export default function Dashboard() {
   return (
     <div className="dashboard">
       <div className="dashboard-container">

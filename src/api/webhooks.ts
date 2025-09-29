@@ -66,43 +66,35 @@ async function handleWebhookEvent(event: Stripe.Event): Promise<void> {
     switch (event.type) {
       // Subscription lifecycle events
       case "customer.subscription.created":
-        await handleSubscriptionCreated(
-          event.data.object as Stripe.Subscription
-        );
+        await handleSubscriptionCreated(event.data.object);
         break;
 
       case "customer.subscription.updated":
-        await handleSubscriptionUpdated(
-          event.data.object as Stripe.Subscription
-        );
+        await handleSubscriptionUpdated(event.data.object);
         break;
 
       case "customer.subscription.deleted":
-        await handleSubscriptionDeleted(
-          event.data.object as Stripe.Subscription
-        );
+        await handleSubscriptionDeleted(event.data.object);
         break;
 
       // Payment events
       case "invoice.payment_succeeded":
-        await handlePaymentSucceeded(event.data.object as Stripe.Invoice);
+        await handlePaymentSucceeded(event.data.object);
         break;
 
       case "invoice.payment_failed":
-        await handlePaymentFailed(event.data.object as Stripe.Invoice);
+        await handlePaymentFailed(event.data.object);
         break;
 
       // Customer events
       case "customer.subscription.trial_will_end":
-        await handleTrialWillEnd(event.data.object as Stripe.Subscription);
+        await handleTrialWillEnd(event.data.object);
         break;
 
       // Additional subscription events for comprehensive handling
       case "customer.subscription.paused":
       case "customer.subscription.resumed":
-        await handleSubscriptionUpdated(
-          event.data.object as Stripe.Subscription
-        );
+        await handleSubscriptionUpdated(event.data.object);
         break;
 
       default:
@@ -147,6 +139,49 @@ function safeTimestampToDate(
 }
 
 /**
+ * Extract period information from subscription items
+ * For multiple items, uses the earliest start and latest end to cover the full period
+ */
+function extractSubscriptionPeriod(subscription: any): {
+  currentPeriodStart: Date | undefined;
+  currentPeriodEnd: Date | undefined;
+} {
+  const items = subscription.items?.data || [];
+
+  if (items.length === 0) {
+    console.warn(`Subscription ${subscription.id} has no items`);
+    return { currentPeriodStart: undefined, currentPeriodEnd: undefined };
+  }
+
+  let earliestStart: number | undefined;
+  let latestEnd: number | undefined;
+
+  items.forEach((item: any) => {
+    if (item.current_period_start) {
+      if (!earliestStart || item.current_period_start < earliestStart) {
+        earliestStart = item.current_period_start;
+      }
+    }
+    if (item.current_period_end) {
+      if (!latestEnd || item.current_period_end > latestEnd) {
+        latestEnd = item.current_period_end;
+      }
+    }
+  });
+
+  const currentPeriodStart = safeTimestampToDate(earliestStart);
+  const currentPeriodEnd = safeTimestampToDate(latestEnd);
+
+  console.log(
+    `Subscription ${subscription.id} has ${
+      items.length
+    } items, period: ${currentPeriodStart?.toISOString()} to ${currentPeriodEnd?.toISOString()}`
+  );
+
+  return { currentPeriodStart, currentPeriodEnd };
+}
+
+/**
  * Handle subscription created event
  * Updates user tier to Pro when subscription is created
  */
@@ -172,14 +207,10 @@ async function handleSubscriptionCreated(
         ? "pro"
         : "free";
 
-    // Safely convert Stripe timestamps to Date objects
-    const subscriptionData = subscription as any;
-    const currentPeriodStart = safeTimestampToDate(
-      subscriptionData.current_period_start
-    );
-    const currentPeriodEnd = safeTimestampToDate(
-      subscriptionData.current_period_end
-    );
+    // Extract period information from subscription items
+    const subscriptionData = subscription;
+    const { currentPeriodStart, currentPeriodEnd } =
+      extractSubscriptionPeriod(subscriptionData);
 
     // Update subscription to Pro tier
     await syncSubscriptionFromStripe(customerId, {
@@ -228,14 +259,10 @@ async function handleSubscriptionUpdated(
         ? "pro"
         : "free";
 
-    // Safely convert Stripe timestamps to Date objects
-    const subscriptionData = subscription as any;
-    const currentPeriodStart = safeTimestampToDate(
-      subscriptionData.current_period_start
-    );
-    const currentPeriodEnd = safeTimestampToDate(
-      subscriptionData.current_period_end
-    );
+    // Extract period information from subscription items
+    const subscriptionData = subscription;
+    const { currentPeriodStart, currentPeriodEnd } =
+      extractSubscriptionPeriod(subscriptionData);
 
     await syncSubscriptionFromStripe(customerId, {
       subscriptionId: subscription.id,
@@ -284,14 +311,10 @@ async function handleSubscriptionDeleted(
     return;
   }
 
-  // Safely convert Stripe timestamps to Date objects
-  const subscriptionData = subscription as any;
-  const currentPeriodStart = safeTimestampToDate(
-    subscriptionData.current_period_start
-  );
-  const currentPeriodEnd = safeTimestampToDate(
-    subscriptionData.current_period_end
-  );
+  // Extract period information from subscription items
+  const subscriptionData = subscription;
+  const { currentPeriodStart, currentPeriodEnd } =
+    extractSubscriptionPeriod(subscriptionData);
 
   // Downgrade to Free tier
   await syncSubscriptionFromStripe(customerId, {
@@ -315,44 +338,39 @@ async function handleSubscriptionDeleted(
  * Ensures subscription remains active after successful payment
  */
 async function handlePaymentSucceeded(invoice: Stripe.Invoice): Promise<void> {
-  const invoiceData = invoice as any;
+  // Extract subscription ID from invoice structure
+  // Based on actual Stripe response: invoice.parent.subscription_details.subscription
+  const invoiceData = invoice;
+  const subscriptionId = invoiceData.parent?.subscription_details
+    ?.subscription as string;
 
-  if (!invoiceData.subscription) {
+  if (!subscriptionId) {
     console.log("Payment succeeded for non-subscription invoice");
     return;
   }
 
-  console.log(
-    `Handling payment succeeded for subscription: ${invoiceData.subscription}`
-  );
+  console.log(`Handling payment succeeded for subscription: ${subscriptionId}`);
 
   try {
     const subscription = await getSubscriptionByStripeSubscriptionId(
-      invoiceData.subscription as string
+      subscriptionId
     );
 
     if (!subscription) {
-      console.error(
-        `No subscription record found for: ${invoiceData.subscription}`
-      );
+      console.error(`No subscription record found for: ${subscriptionId}`);
       return;
     }
 
     // Ensure subscription is active after successful payment
-    await updateSubscriptionByStripeSubscriptionId(
-      invoiceData.subscription as string,
-      {
-        status: "active",
-        tier: "pro",
-      }
-    );
+    await updateSubscriptionByStripeSubscriptionId(subscriptionId, {
+      status: "active",
+      tier: "pro",
+    });
 
-    console.log(
-      `Confirmed active status for subscription: ${invoiceData.subscription}`
-    );
+    console.log(`Confirmed active status for subscription: ${subscriptionId}`);
   } catch (error) {
     console.error(
-      `Error handling payment succeeded for ${invoiceData.subscription}:`,
+      `Error handling payment succeeded for ${subscriptionId}:`,
       error
     );
     throw error;
@@ -364,44 +382,39 @@ async function handlePaymentSucceeded(invoice: Stripe.Invoice): Promise<void> {
  * Logs payment failure but maintains access during retry period
  */
 async function handlePaymentFailed(invoice: Stripe.Invoice): Promise<void> {
-  const invoiceData = invoice as any;
+  // Extract subscription ID from invoice structure
+  // Based on actual Stripe response: invoice.parent.subscription_details.subscription
+  const invoiceData = invoice;
+  const subscriptionId = invoiceData.parent?.subscription_details
+    ?.subscription as string;
 
-  if (!invoiceData.subscription) {
+  if (!subscriptionId) {
     console.log("Payment failed for non-subscription invoice");
     return;
   }
 
-  console.log(
-    `Handling payment failed for subscription: ${invoiceData.subscription}`
-  );
+  console.log(`Handling payment failed for subscription: ${subscriptionId}`);
 
   try {
     const subscription = await getSubscriptionByStripeSubscriptionId(
-      invoiceData.subscription as string
+      subscriptionId
     );
 
     if (!subscription) {
-      console.error(
-        `No subscription record found for: ${invoiceData.subscription}`
-      );
+      console.error(`No subscription record found for: ${subscriptionId}`);
       return;
     }
 
     // Update status to past_due but maintain Pro tier during retry period
-    await updateSubscriptionByStripeSubscriptionId(
-      invoiceData.subscription as string,
-      {
-        status: "past_due",
-        // Keep tier as "pro" during retry period
-      }
-    );
+    await updateSubscriptionByStripeSubscriptionId(subscriptionId, {
+      status: "past_due",
+      // Keep tier as "pro" during retry period
+    });
 
-    console.log(
-      `Updated subscription to past_due status: ${invoiceData.subscription}`
-    );
+    console.log(`Updated subscription to past_due status: ${subscriptionId}`);
   } catch (error) {
     console.error(
-      `Error handling payment failed for ${invoiceData.subscription}:`,
+      `Error handling payment failed for ${subscriptionId}:`,
       error
     );
     throw error;
@@ -419,13 +432,12 @@ async function handleTrialWillEnd(
 
   // Log the event for potential user notification
   // The actual subscription status will be updated by other events
-  const subscriptionData = subscription as unknown;
-  const trialEnd = subscriptionData.trial_end;
-
-  if (trialEnd) {
+  // Note: TypeScript types may not include trial_end property, but it exists in the API
+  const subscriptionData = subscription;
+  if (subscriptionData.trial_end) {
     console.log(
       `Trial ending on ${new Date(
-        trialEnd * 1000
+        subscriptionData.trial_end * 1000
       ).toISOString()} for subscription: ${subscription.id}`
     );
   }

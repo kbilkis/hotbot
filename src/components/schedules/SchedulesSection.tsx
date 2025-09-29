@@ -5,7 +5,7 @@ import {
   TrashIcon,
 } from "@heroicons/react/24/outline";
 import { CronExpressionParser } from "cron-parser";
-import React, { useState } from "react";
+import { useState } from "preact/hooks";
 
 import { CronJob } from "@/lib/database/schema";
 
@@ -44,7 +44,7 @@ const calculateNextExecution = (
   }
 };
 
-export default function SchedulesSection(): React.ReactElement {
+export default function SchedulesSection() {
   const [showScheduleModal, setShowScheduleModal] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<CronJob | null>(null);
   const [togglingScheduleId, setTogglingScheduleId] = useState<string | null>(

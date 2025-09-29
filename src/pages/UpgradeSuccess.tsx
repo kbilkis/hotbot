@@ -1,17 +1,17 @@
-import React, { useEffect } from "react";
-import { useNavigate, Link } from "react-router";
+import { useEffect } from "preact/hooks";
+import { useLocation } from "preact-iso";
 
-export default function UpgradeSuccess(): React.ReactElement {
-  const navigate = useNavigate();
+export default function UpgradeSuccess() {
+  const location = useLocation();
 
   useEffect(() => {
     // Redirect to dashboard after 7 seconds
     const timer = setTimeout(() => {
-      navigate("/dashboard");
+      location.route("/dashboard");
     }, 7000);
 
     return () => clearTimeout(timer);
-  }, [navigate]);
+  }, []);
 
   return (
     <div className="upgrade-result-page">
@@ -32,9 +32,9 @@ export default function UpgradeSuccess(): React.ReactElement {
           <p className="redirect-text">
             Redirecting you to the dashboard in a few seconds...
           </p>
-          <Link to="/dashboard">
+          <a href="/dashboard">
             <button className="btn btn-primary">Go to Dashboard</button>
-          </Link>
+          </a>
         </div>
       </div>
     </div>

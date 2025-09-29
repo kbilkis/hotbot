@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "preact/hooks";
 
 import { useMessagingProviders } from "@/hooks/useMessagingProviders";
 
@@ -11,7 +11,7 @@ import DiscordProviderModal from "../providers/DiscordProviderModal";
 import SlackProviderModal from "../providers/SlackProviderModal";
 import TeamsProviderModal from "../providers/TeamsProviderModal";
 
-export default function MessagingProviders(): React.ReactElement {
+export default function MessagingProviders() {
   const [showModal, setShowModal] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(
     null

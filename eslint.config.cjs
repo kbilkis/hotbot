@@ -48,7 +48,7 @@ module.exports = defineConfig([
         },
       },
       react: {
-        version: "detect",
+        version: "18.0", // Set to React 18 since Preact is compatible with React 18 APIs
       },
     },
 

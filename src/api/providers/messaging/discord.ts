@@ -22,6 +22,7 @@ import {
   sendDiscordChannelMessage,
   validateDiscordToken,
   getDiscordUserInfo,
+  getBotGuilds,
 } from "../../../lib/discord";
 import { OAuthStateManager } from "../../../lib/redis/oauth-state";
 import {

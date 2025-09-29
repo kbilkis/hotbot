@@ -7,7 +7,7 @@ yarn-error.log*
 # Production builds
 dist/
 dist_hono/
-dist_lambda/
+dist_functions/
 build/
 
 # Environment variables
@@ -47,6 +47,7 @@ pids
 # Coverage directory used by tools like istanbul
 coverage/
 *.lcov
+meta.json
 
 # nyc test coverage
 .nyc_output

@@ -1,9 +1,8 @@
 import { useAuth, useClerk } from "@clerk/clerk-react";
-import React from "react";
 
 interface ProtectedRouteProps {
-  children: React.ReactNode;
-  fallback?: React.ReactNode;
+  children: preact.ComponentChildren;
+  fallback?: preact.ComponentChildren;
 }
 
 export default function ProtectedRoute({

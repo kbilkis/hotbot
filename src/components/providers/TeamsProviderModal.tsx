@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "preact/hooks";
 
 import {
   getProviderColor,
@@ -15,7 +15,7 @@ interface TeamsProviderModalProps {
 export default function TeamsProviderModal({
   onClose,
   isConnected = false,
-}: TeamsProviderModalProps): React.ReactElement {
+}: TeamsProviderModalProps) {
   const [webhookUrl, setWebhookUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -74,13 +74,11 @@ export default function TeamsProviderModal({
       <div
         className="modal-content"
         onClick={(e) => e.stopPropagation()}
-        style={
-          {
-            "--provider-color": getProviderColor("teams"),
-            "--provider-bg-color": getProviderBgColor("teams"),
-            "--provider-accent-color": getProviderAccentColor("teams"),
-          } as React.CSSProperties
-        }
+        style={{
+          "--provider-color": getProviderColor("teams"),
+          "--provider-bg-color": getProviderBgColor("teams"),
+          "--provider-accent-color": getProviderAccentColor("teams"),
+        }}
       >
         <div className="modal-header">
           <h2>Connect Microsoft Teams</h2>

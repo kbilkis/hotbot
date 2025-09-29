@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "preact/hooks";
 import { mutate } from "swr";
 
 import { useDiscordGuilds, useDiscordChannels } from "../../hooks/useChannels";
@@ -19,7 +19,7 @@ export default function DiscordProviderModal({
   onClose,
   isConnected: initialIsConnected = false,
   username: initialUsername = "",
-}: DiscordProviderModalProps): React.ReactElement {
+}: DiscordProviderModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedGuild, setSelectedGuild] = useState<string | null>(null);

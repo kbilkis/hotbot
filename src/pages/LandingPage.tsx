@@ -1,7 +1,6 @@
-import React, { useEffect } from "react";
-import { Link } from "react-router";
+import { useEffect } from "preact/hooks";
 
-export default function LandingPage(): React.ReactElement {
+export default function LandingPage() {
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       const { clientX, clientY } = e;
@@ -28,9 +27,9 @@ export default function LandingPage(): React.ReactElement {
               reviews moving.
             </p>
             <div className="hero-buttons">
-              <Link to="/dashboard">
+              <a href="/dashboard">
                 <button className="cta-primary">Start integrating</button>
-              </Link>
+              </a>
             </div>
           </div>
           <div className="hero-visual">
@@ -646,11 +645,11 @@ export default function LandingPage(): React.ReactElement {
                 <li>✓ Daily notifications minimum</li>
                 <li>✓ Community support</li>
               </ul>
-              <Link to="/dashboard">
+              <a href="/dashboard">
                 <button className="pricing-button secondary">
                   Get started
                 </button>
-              </Link>
+              </a>
             </div>
 
             <div className="pricing-card featured">
@@ -668,11 +667,11 @@ export default function LandingPage(): React.ReactElement {
                 <li>✓ Escalation rules</li>
                 <li>✓ Priority support</li>
               </ul>
-              <Link to="/dashboard">
+              <a href="/dashboard">
                 <button className="pricing-button primary">
                   Start free trial
                 </button>
-              </Link>
+              </a>
             </div>
 
             <div className="pricing-card">

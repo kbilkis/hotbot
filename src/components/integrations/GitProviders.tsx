@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "preact/hooks";
 
 import { GitProviderData } from "@/lib/validation/provider-schemas";
 
@@ -9,7 +9,7 @@ import {
 } from "../../utils/providerColors";
 import GitProviderModal from "../providers/GitProviderModal";
 
-export default function GitProviders(): React.ReactElement {
+export default function GitProviders() {
   const [showModal, setShowModal] = useState(false);
   const [selectedProvider, setSelectedProvider] =
     useState<GitProviderData | null>(null);

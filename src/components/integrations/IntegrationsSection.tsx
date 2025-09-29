@@ -1,9 +1,7 @@
-import React from "react";
-
 import GitProviders from "./GitProviders";
 import MessagingProviders from "./MessagingProviders";
 
-export default function IntegrationsSection(): React.ReactElement {
+export default function IntegrationsSection() {
   return (
     <div className="section">
       <div className="section-header">

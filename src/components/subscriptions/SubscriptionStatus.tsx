@@ -1,5 +1,3 @@
-import React from "react";
-
 import { useBilling } from "../../hooks/useBilling";
 import { useSubscription } from "../../hooks/useSubscription";
 import { useUpgrade } from "../../hooks/useUpgrade";
@@ -49,7 +47,7 @@ function ProgressBar({ current, max, label }: ProgressBarProps) {
   );
 }
 
-export default function SubscriptionStatus(): React.ReactElement {
+export default function SubscriptionStatus() {
   const { subscription, loading, error } = useSubscription();
   const {
     loading: upgradeLoading,

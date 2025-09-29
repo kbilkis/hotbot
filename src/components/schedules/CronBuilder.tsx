@@ -1,5 +1,4 @@
 import cronstrue from "cronstrue";
-import React, { useEffect } from "react";
 
 import {
   getUserTimezoneOrFallback,
@@ -31,7 +30,7 @@ export default function CronBuilder({
   error,
   timezone = "UTC",
   onTimezoneChange,
-}: CronBuilderProps): React.ReactElement {
+}: CronBuilderProps) {
   // Convert UTC cron expression to display timezone for editing
   const getDisplayCronExpression = (utcCron: string): string => {
     if (!utcCron || timezone === "UTC+0") return utcCron;

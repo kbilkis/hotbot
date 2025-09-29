@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "preact/hooks";
 import { mutate } from "swr";
 
 import {
@@ -24,7 +24,7 @@ export default function SlackProviderModal({
   onClose,
   isConnected: initialIsConnected = false,
   teamName: initialTeamName = "",
-}: SlackProviderModalProps): React.ReactElement {
+}: SlackProviderModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [channels, setChannels] = useState<SlackChannel[]>([]);
@@ -155,7 +155,6 @@ export default function SlackProviderModal({
       }
 
       const data = await response.json();
-      console.log("SLACK_AUTH_URL RESP GOOD", data);
       // Redirect to Slack OAuth page
       window.location.href = data.authUrl;
     } catch (err) {

@@ -1,11 +1,11 @@
-import React, { useEffect, useState } from "react";
-import { useParams, useSearchParams, useNavigate } from "react-router";
+import { useState, useEffect } from "preact/hooks";
+import { useRoute, useLocation } from "preact-iso";
 import { mutate } from "swr";
 
-export default function AuthCallback(): React.ReactElement {
-  const { provider } = useParams<{ provider: string }>();
-  const [searchParams] = useSearchParams();
-  const navigate = useNavigate();
+export default function AuthCallback() {
+  const { params, query } = useRoute();
+  const location = useLocation();
+  const provider = params.provider;
   const [status, setStatus] = useState<"loading" | "success" | "error">(
     "loading"
   );
@@ -14,9 +14,9 @@ export default function AuthCallback(): React.ReactElement {
   useEffect(() => {
     const handleCallback = async () => {
       try {
-        const code = searchParams.get("code");
-        const state = searchParams.get("state");
-        const error = searchParams.get("error");
+        const code = query.code;
+        const state = query.state;
+        const error = query.error;
 
         if (error) {
           throw new Error(`OAuth error: ${error}`);
@@ -82,7 +82,7 @@ export default function AuthCallback(): React.ReactElement {
 
         // Redirect to dashboard after a short delay
         setTimeout(() => {
-          navigate("/dashboard");
+          location.route("/dashboard");
         }, 2000);
       } catch (err) {
         console.error("OAuth callback failed:", err);
@@ -95,13 +95,13 @@ export default function AuthCallback(): React.ReactElement {
 
         // Redirect to dashboard after a delay even on error
         setTimeout(() => {
-          navigate("/dashboard");
+          location.route("/dashboard");
         }, 3000);
       }
     };
 
     handleCallback();
-  }, [provider, searchParams, navigate]);
+  }, [provider, query]);
 
   return (
     <div className="auth-callback-container">

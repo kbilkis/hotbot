@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "preact/hooks";
 
 interface PRFilters {
   labels: string[];
@@ -10,10 +10,7 @@ interface FilterBuilderProps {
   onChange: (filters: PRFilters) => void;
 }
 
-export default function FilterBuilder({
-  value,
-  onChange,
-}: FilterBuilderProps): React.ReactElement {
+export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
   const [labelInput, setLabelInput] = useState("");
   const [keywordInput, setKeywordInput] = useState("");
 

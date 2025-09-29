@@ -1,5 +1,5 @@
 import CronExpressionParser from "cron-parser";
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "preact/hooks";
 
 import { useChannels, useDiscordChannels } from "@/hooks/useChannels";
 import { usePrefetchRepositories } from "@/hooks/useRepositories";
@@ -44,7 +44,7 @@ interface ValidationErrors {
 export default function ScheduleModal({
   onClose,
   schedule,
-}: ScheduleModalProps): React.ReactElement {
+}: ScheduleModalProps) {
   const [formData, setFormData] = useState<CronJobFormData>({
     name: "Daily reminder for open Pull Requests",
     cronExpression: "0 16 * * *", // Default to 4 PM daily

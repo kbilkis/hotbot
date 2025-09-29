@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "preact/hooks";
 import { mutate } from "swr";
 
 import { GitProviderData } from "../../lib/validation/provider-schemas";
@@ -16,7 +16,7 @@ interface GitProviderModalProps {
 export default function GitProviderModal({
   provider,
   onClose,
-}: GitProviderModalProps): React.ReactElement {
+}: GitProviderModalProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [repositories, setRepositories] = useState<string[]>([]);
