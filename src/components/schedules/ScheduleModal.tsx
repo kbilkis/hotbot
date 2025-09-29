@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 
 import { useChannels, useDiscordChannels } from "@/hooks/useChannels";
 import { usePrefetchRepositories } from "@/hooks/useRepositories";
+import { CronJob } from "@/lib/database/schema";
 import { DiscordChannel } from "@/lib/discord";
 import { SlackChannel } from "@/lib/slack";
 import { getUserTimezoneOrFallback } from "@/lib/utils/timezone";
@@ -15,23 +16,7 @@ import FilterBuilder from "./FilterBuilder";
 
 interface ScheduleModalProps {
   onClose: (shouldRefresh?: boolean) => void;
-  schedule?: {
-    id: string;
-    name: string;
-    cronExpression: string;
-    gitProviderId: string;
-    repositories?: string[];
-    messagingProviderId: string;
-    messagingChannelId: string;
-    escalationProviderId?: string;
-    escalationChannelId?: string;
-    escalationDays?: number;
-    prFilters?: {
-      labels?: string[];
-      titleKeywords?: string[];
-    };
-    sendWhenEmpty: boolean;
-  };
+  schedule?: CronJob;
 }
 
 interface CronJobFormData {

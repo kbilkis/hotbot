@@ -1,23 +1,16 @@
 import useSWR from "swr";
 
-export interface MessagingProvider {
-  id: string;
-  type: string;
-  name: string;
-  connected: boolean;
-  connectedAt?: string;
-  providerId?: string;
-}
+import { MessagingProviderDTO } from "@/api/providers/messaging";
 
 interface MessagingProviderResponseData {
   success: boolean;
   message: string;
   data: {
-    providers: MessagingProvider[];
+    providers: MessagingProviderDTO[];
   };
 }
 
-const fetcher = async (url: string): Promise<MessagingProvider[]> => {
+const fetcher = async (url: string): Promise<MessagingProviderDTO[]> => {
   const response = await fetch(url, {
     headers: {
       "Content-Type": "application/json",

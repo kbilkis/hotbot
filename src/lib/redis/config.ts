@@ -19,15 +19,6 @@ export function createRedis() {
   });
 }
 
-// For Cloudflare Workers: create a new connection for each use
-// This ensures no I/O objects are shared between requests
-export const redis = new Proxy({} as Redis, {
-  get(target, prop) {
-    const freshRedis = createRedis();
-    return freshRedis[prop as keyof Redis];
-  },
-});
-
 // Redis key prefixes for different data types
 export const REDIS_KEYS = {
   OAUTH_STATE: "oauth_state:",

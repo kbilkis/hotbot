@@ -4,14 +4,6 @@ const GITLAB_CLIENT_ID = process.env.GITLAB_CLIENT_ID!;
 const GITLAB_CLIENT_SECRET = process.env.GITLAB_CLIENT_SECRET!;
 const GITLAB_BASE_URL = process.env.GITLAB_BASE_URL || "https://gitlab.com";
 
-// GitLab API response types
-interface GitLabLabel {
-  id: number;
-  name: string;
-  color: string;
-  description?: string;
-}
-
 interface GitLabUser {
   id: number;
   username: string;
@@ -58,7 +50,7 @@ interface GitLabMergeRequestApproval {
   created_at: string;
 }
 
-export interface GitLabMR {
+interface GitLabMR {
   id: string;
   title: string;
   author: string;
@@ -78,7 +70,7 @@ export interface GitLabMR {
   deletions?: number;
 }
 
-export interface MRFilters {
+interface MRFilters {
   repositories?: string[];
   labels?: string[];
   titleKeywords?: string[];
@@ -145,7 +137,7 @@ export async function exchangeGitLabToken(code: string, redirectUri: string) {
 }
 
 // Make authenticated GitLab API request
-export async function gitlabApiRequest(
+async function gitlabApiRequest(
   endpoint: string,
   token: string,
   options: RequestInit = {}
@@ -412,14 +404,4 @@ export async function getGitLabUserInfo(
     name: user.name || user.username,
     email: user.email || "",
   };
-}
-
-// Validate token
-export async function validateGitLabToken(token: string): Promise<boolean> {
-  try {
-    await gitlabApiRequest("/user", token);
-    return true;
-  } catch {
-    return false;
-  }
 }

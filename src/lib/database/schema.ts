@@ -1,36 +1,17 @@
 import {
-  pgTable,
   text,
   integer,
-  timestamp,
-  boolean,
-  jsonb,
-  uuid,
-  pgEnum,
   unique,
-} from "drizzle-orm/pg-core";
+  sqliteTable,
+  index,
+} from "drizzle-orm/sqlite-core";
 
-// Define enums
-export const gitProviderEnum = pgEnum("git_provider", [
-  "github",
-  "bitbucket",
-  "gitlab",
-]);
-export const messagingProviderEnum = pgEnum("messaging_provider", [
-  "slack",
-  "teams",
-  "discord",
-]);
-export const executionStatusEnum = pgEnum("execution_status", [
-  "success",
-  "error",
-  "partial",
-]);
-export const subscriptionTierEnum = pgEnum("subscription_tier", [
-  "free",
-  "pro",
-]);
-export const subscriptionStatusEnum = pgEnum("subscription_status", [
+// Define enum values as constants for type safety
+export const GIT_PROVIDERS = ["github", "bitbucket", "gitlab"] as const;
+export const MESSAGING_PROVIDERS = ["slack", "teams", "discord"] as const;
+export const EXECUTION_STATUSES = ["success", "error", "partial"] as const;
+export const SUBSCRIPTION_TIERS = ["free", "pro"] as const;
+export const SUBSCRIPTION_STATUSES = [
   "active",
   "canceled",
   "incomplete",
@@ -38,67 +19,14 @@ export const subscriptionStatusEnum = pgEnum("subscription_status", [
   "past_due",
   "trialing",
   "unpaid",
-]);
+] as const;
 
-// Users table - stores Clerk user information
-export const users = pgTable("users", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  clerkId: text("clerk_id").notNull().unique(), // Clerk user ID
-  email: text("email").notNull(),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
-
-// Git provider connections
-export const gitProviders = pgTable(
-  "git_providers",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    userId: uuid("user_id")
-      .references(() => users.id, { onDelete: "cascade" })
-      .notNull(),
-    provider: gitProviderEnum("provider").notNull(),
-    accessToken: text("access_token").notNull(),
-    refreshToken: text("refresh_token"),
-    expiresAt: timestamp("expires_at"),
-    repositories: jsonb("repositories").$type<string[]>(),
-    createdAt: timestamp("created_at").defaultNow(),
-    updatedAt: timestamp("updated_at").defaultNow(),
-  },
-  (table) => ({
-    // Unique constraint: one provider per user
-    userProviderUnique: unique().on(table.userId, table.provider),
-  })
-);
-
-// Messaging provider connections
-export const messagingProviders = pgTable(
-  "messaging_providers",
-  {
-    id: uuid("id").defaultRandom().primaryKey(),
-    userId: uuid("user_id")
-      .references(() => users.id, { onDelete: "cascade" })
-      .notNull(),
-    provider: messagingProviderEnum("provider").notNull(),
-    accessToken: text("access_token").notNull(),
-    refreshToken: text("refresh_token"),
-    expiresAt: timestamp("expires_at"),
-    // Discord-specific fields
-    guildId: text("guild_id"), // Discord server/guild ID where bot was installed
-    guildName: text("guild_name"), // Discord server/guild name for display
-    createdAt: timestamp("created_at").defaultNow(),
-    updatedAt: timestamp("updated_at").defaultNow(),
-  },
-  (table) => ({
-    // Allow multiple Discord connections per user (different guilds)
-    // But unique provider per user for Slack/Teams
-    userProviderGuildUnique: unique().on(
-      table.userId,
-      table.provider,
-      table.guildId
-    ),
-  })
-);
+// Types automatically derived from the const arrays above
+export type GitProviderType = (typeof GIT_PROVIDERS)[number];
+export type MessagingProviderType = (typeof MESSAGING_PROVIDERS)[number];
+export type ExecutionStatusType = (typeof EXECUTION_STATUSES)[number];
+export type SubscriptionTierType = (typeof SUBSCRIPTION_TIERS)[number];
+export type SubscriptionStatusType = (typeof SUBSCRIPTION_STATUSES)[number];
 
 // PR filters type definition
 export interface PRFilters {
@@ -109,44 +37,165 @@ export interface PRFilters {
   maxAge?: number; // days
 }
 
+// Users table - stores Clerk user information
+export const users = sqliteTable(
+  "users",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    clerkId: text("clerk_id").notNull().unique(), // Clerk user ID
+    email: text("email").notNull(),
+    createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(
+      () => new Date()
+    ),
+    updatedAt: integer("updated_at", { mode: "timestamp" }).$defaultFn(
+      () => new Date()
+    ),
+  },
+  (table) => [
+    // Index on clerkId for authentication lookups
+    index("users_clerk_id_idx").on(table.clerkId),
+  ]
+);
+
+// Git provider connections
+export const gitProviders = sqliteTable(
+  "git_providers",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    provider: text({ enum: GIT_PROVIDERS }).notNull(),
+    accessToken: text("access_token").notNull(),
+    refreshToken: text("refresh_token"),
+    expiresAt: integer("expires_at", { mode: "timestamp" }),
+    repositories: text("repositories", { mode: "json" }).$type<string[]>(),
+    createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(
+      () => new Date()
+    ),
+    updatedAt: integer("updated_at", { mode: "timestamp" }).$defaultFn(
+      () => new Date()
+    ),
+  },
+  (table) => [
+    // Unique constraint: one provider per user
+    unique().on(table.userId, table.provider),
+    // Index on userId for user-specific queries
+    index("git_providers_user_id_idx").on(table.userId),
+    // Index on expiresAt for token refresh queries
+    index("git_providers_expires_at_idx").on(table.expiresAt),
+  ]
+);
+
+// Messaging provider connections
+export const messagingProviders = sqliteTable(
+  "messaging_providers",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    provider: text({ enum: MESSAGING_PROVIDERS }).notNull(),
+    accessToken: text("access_token").notNull(),
+    refreshToken: text("refresh_token"),
+    expiresAt: integer("expires_at", { mode: "timestamp" }),
+    // Discord-specific fields (null for Slack/Teams)
+    guildId: text("guild_id"), // Discord server/guild ID where bot was installed
+    guildName: text("guild_name"), // Discord server/guild name for display
+    createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(
+      () => new Date()
+    ),
+    updatedAt: integer("updated_at", { mode: "timestamp" }).$defaultFn(
+      () => new Date()
+    ),
+  },
+  (table) => [
+    // Unique constraint: one provider per user (applies to all providers: Slack, Teams, Discord)
+    // Each user can connect to only one guild/workspace per provider
+    unique().on(table.userId, table.provider),
+    // Index on userId for user-specific queries
+    index("messaging_providers_user_id_idx").on(table.userId),
+    // Index on provider for provider-specific queries
+    index("messaging_providers_provider_idx").on(table.provider),
+    // Composite index on userId + provider for user-specific provider queries
+    index("messaging_providers_user_provider_idx").on(
+      table.userId,
+      table.provider
+    ),
+    // Index on expiresAt for token refresh queries
+    index("messaging_providers_expires_at_idx").on(table.expiresAt),
+  ]
+);
+
 // Cron jobs
-export const cronJobs = pgTable("cron_jobs", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull(),
-  name: text("name").notNull(),
-  cronExpression: text("cron_expression").notNull(), // Always stored in UTC
-  gitProviderId: uuid("git_provider_id")
-    .references(() => gitProviders.id, { onDelete: "cascade" })
-    .notNull(),
-  repositories: jsonb("repositories").$type<string[]>().notNull(),
-  messagingProviderId: uuid("messaging_provider_id")
-    .references(() => messagingProviders.id, { onDelete: "cascade" })
-    .notNull(),
-  messagingChannelId: text("messaging_channel_id").notNull(), // Channel/room ID where notifications are sent
-  escalationProviderId: uuid("escalation_provider_id").references(
-    () => messagingProviders.id,
-    { onDelete: "set null" }
-  ),
-  escalationChannelId: text("escalation_channel_id"), // Channel/room ID for escalation notifications
-  escalationDays: integer("escalation_days").default(3),
-  prFilters: jsonb("pr_filters").$type<PRFilters>(),
-  sendWhenEmpty: boolean("send_when_empty").default(false),
-  isActive: boolean("is_active").default(true),
-  lastExecuted: timestamp("last_executed"),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+export const cronJobs = sqliteTable(
+  "cron_jobs",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull(),
+    name: text("name").notNull(),
+    cronExpression: text("cron_expression").notNull(), // Always stored in UTC
+    gitProviderId: text("git_provider_id")
+      .references(() => gitProviders.id, { onDelete: "cascade" })
+      .notNull(),
+    repositories: text("repositories", { mode: "json" })
+      .$type<string[]>()
+      .notNull(),
+    messagingProviderId: text("messaging_provider_id")
+      .references(() => messagingProviders.id, { onDelete: "cascade" })
+      .notNull(),
+    messagingChannelId: text("messaging_channel_id").notNull(), // Channel/room ID where notifications are sent
+    escalationProviderId: text("escalation_provider_id").references(
+      () => messagingProviders.id,
+      { onDelete: "set null" }
+    ),
+    escalationChannelId: text("escalation_channel_id"), // Channel/room ID for escalation notifications
+    escalationDays: integer("escalation_days").default(3),
+    prFilters: text("pr_filters", { mode: "json" }).$type<PRFilters>(),
+    sendWhenEmpty: integer("send_when_empty", { mode: "boolean" }).default(
+      false
+    ),
+    isActive: integer("is_active", { mode: "boolean" }).default(true),
+    lastExecuted: integer("last_executed", { mode: "timestamp" }),
+    createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(
+      () => new Date()
+    ),
+    updatedAt: integer("updated_at", { mode: "timestamp" }).$defaultFn(
+      () => new Date()
+    ),
+  },
+  (table) => [
+    // Index on userId for user-specific cron job queries
+    index("cron_jobs_user_id_idx").on(table.userId),
+    // Index on isActive for execution queries
+    index("cron_jobs_is_active_idx").on(table.isActive),
+    // Composite index for user + active status
+    index("cron_jobs_user_active_idx").on(table.userId, table.isActive),
+  ]
+);
 
 // Execution logs - tracks cron job executions
-export const executionLogs = pgTable("execution_logs", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  cronJobId: uuid("cron_job_id")
+export const executionLogs = sqliteTable("execution_logs", {
+  id: text("id")
+    .primaryKey()
+    .$defaultFn(() => crypto.randomUUID()),
+  cronJobId: text("cron_job_id")
     .references(() => cronJobs.id, { onDelete: "cascade" })
     .notNull(),
-  executedAt: timestamp("executed_at").defaultNow(),
-  status: executionStatusEnum("status").notNull(),
+  executedAt: integer("executed_at", { mode: "timestamp" }).$defaultFn(
+    () => new Date()
+  ),
+  status: text({ enum: EXECUTION_STATUSES }).notNull(),
   pullRequestsFound: integer("pull_requests_found").default(0),
   messagesSent: integer("messages_sent").default(0),
   errorMessage: text("error_message"),
@@ -155,43 +204,76 @@ export const executionLogs = pgTable("execution_logs", {
 });
 
 // Escalation tracking - prevents duplicate escalation notifications
-export const escalationTracking = pgTable(
+export const escalationTracking = sqliteTable(
   "escalation_tracking",
   {
-    id: uuid("id").defaultRandom().primaryKey(),
-    cronJobId: uuid("cron_job_id")
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    cronJobId: text("cron_job_id")
       .references(() => cronJobs.id, { onDelete: "cascade" })
       .notNull(),
     pullRequestId: text("pull_request_id").notNull(), // External PR ID from git provider
     pullRequestUrl: text("pull_request_url").notNull(),
-    firstEscalatedAt: timestamp("first_escalated_at").defaultNow(),
-    lastEscalatedAt: timestamp("last_escalated_at").defaultNow(),
+    firstEscalatedAt: integer("first_escalated_at", {
+      mode: "timestamp",
+    }).$defaultFn(() => new Date()),
+    lastEscalatedAt: integer("last_escalated_at", {
+      mode: "timestamp",
+    }).$defaultFn(() => new Date()),
     escalationCount: integer("escalation_count").default(1),
-    createdAt: timestamp("created_at").defaultNow(),
+    createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(
+      () => new Date()
+    ),
   },
-  (table) => ({
+  (table) => [
     // Unique constraint: one escalation tracking per cron job + pull request
-    cronJobPullRequestUnique: unique().on(table.cronJobId, table.pullRequestId),
-  })
+    unique().on(table.cronJobId, table.pullRequestId),
+    // Index on cronJobId for job-specific escalation tracking
+    index("escalation_tracking_cron_job_id_idx").on(table.cronJobId),
+    // Index on pullRequestId for PR-specific queries
+    index("escalation_tracking_pull_request_id_idx").on(table.pullRequestId),
+  ]
 );
 
 // Subscriptions - tracks user subscription tiers and Stripe data
-export const subscriptions = pgTable("subscriptions", {
-  id: uuid("id").defaultRandom().primaryKey(),
-  userId: uuid("user_id")
-    .references(() => users.id, { onDelete: "cascade" })
-    .notNull()
-    .unique(), // One subscription per user
-  stripeCustomerId: text("stripe_customer_id").notNull().unique(),
-  stripeSubscriptionId: text("stripe_subscription_id").unique(),
-  tier: subscriptionTierEnum("tier").notNull().default("free"),
-  status: subscriptionStatusEnum("status").notNull().default("active"),
-  currentPeriodStart: timestamp("current_period_start"),
-  currentPeriodEnd: timestamp("current_period_end"),
-  cancelAtPeriodEnd: boolean("cancel_at_period_end").default(false),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-});
+export const subscriptions = sqliteTable(
+  "subscriptions",
+  {
+    id: text("id")
+      .primaryKey()
+      .$defaultFn(() => crypto.randomUUID()),
+    userId: text("user_id")
+      .references(() => users.id, { onDelete: "cascade" })
+      .notNull()
+      .unique(), // One subscription per user
+    stripeCustomerId: text("stripe_customer_id").notNull().unique(),
+    stripeSubscriptionId: text("stripe_subscription_id").unique(),
+    tier: text({ enum: SUBSCRIPTION_TIERS }).notNull().default("free"),
+    status: text({ enum: SUBSCRIPTION_STATUSES }).notNull().default("active"),
+    currentPeriodStart: integer("current_period_start", { mode: "timestamp" }),
+    currentPeriodEnd: integer("current_period_end", { mode: "timestamp" }),
+    cancelAtPeriodEnd: integer("cancel_at_period_end", {
+      mode: "boolean",
+    }).default(false),
+    createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(
+      () => new Date()
+    ),
+    updatedAt: integer("updated_at", { mode: "timestamp" }).$defaultFn(
+      () => new Date()
+    ),
+  },
+  (table) => [
+    // Index on userId for user subscription lookups
+    index("subscriptions_user_id_idx").on(table.userId),
+    // Index on stripeCustomerId for Stripe webhook lookups
+    index("subscriptions_stripe_customer_id_idx").on(table.stripeCustomerId),
+    // Index on stripeSubscriptionId for Stripe webhook lookups
+    index("subscriptions_stripe_subscription_id_idx").on(
+      table.stripeSubscriptionId
+    ),
+  ]
+);
 
 // Export types for use in application
 export type User = typeof users.$inferSelect;

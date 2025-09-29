@@ -22,12 +22,12 @@ export interface DiscordChannel {
   parent_id?: string;
 }
 
-export interface DiscordMessage {
+interface DiscordMessage {
   content: string;
   embeds?: DiscordEmbed[];
 }
 
-export interface DiscordEmbed {
+interface DiscordEmbed {
   title?: string;
   description?: string;
   url?: string;
@@ -44,7 +44,7 @@ export interface DiscordEmbed {
   timestamp?: string;
 }
 
-export interface DiscordTokenResponse {
+interface DiscordTokenResponse {
   accessToken: string;
   refreshToken?: string;
   expiresAt?: Date;
@@ -130,7 +130,7 @@ export async function exchangeDiscordToken(
 }
 
 // Make authenticated Discord API request
-export async function discordApiRequest(
+async function discordApiRequest(
   endpoint: string,
   token: string,
   options: RequestInit = {}
@@ -177,7 +177,7 @@ export async function discordApiRequest(
 }
 
 // Make Discord API request using bot token
-export async function discordBotApiRequest(
+async function discordBotApiRequest(
   endpoint: string,
   options: RequestInit = {}
 ) {
@@ -232,23 +232,6 @@ export async function discordBotApiRequest(
   return response.json();
 }
 
-// Get user's guilds (servers)
-export async function getDiscordGuilds(token: string): Promise<DiscordGuild[]> {
-  const guilds: DiscordGuild[] = await discordApiRequest(
-    "/users/@me/guilds",
-    token
-  );
-
-  return guilds.filter(
-    (guild) =>
-      // Only return guilds where user has admin permissions or can manage webhooks
-      (BigInt(guild.permissions) & BigInt(0x20)) !== BigInt(0) || // MANAGE_WEBHOOKS
-      (BigInt(guild.permissions) & BigInt(0x8)) !== BigInt(0) // ADMINISTRATOR
-  );
-}
-
-// Note: Removed checkBotInGuild - /guilds/{id}/members/@me is PUT only
-
 // Get channels for a guild using bot token
 export async function getDiscordChannels(
   guildId: string
@@ -301,7 +284,7 @@ export async function sendDiscordChannelMessage(
   });
 }
 
-export interface PullRequest {
+interface PullRequest {
   repository: string;
   title: string;
   url: string;

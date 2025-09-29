@@ -2,15 +2,15 @@ import { eq, and } from "drizzle-orm";
 
 import { db } from "../client";
 import {
+  GitProvider,
   gitProviders,
+  GitProviderType,
+  MessagingProvider,
   messagingProviders,
-  type GitProvider,
-  type NewGitProvider,
-  type MessagingProvider,
-  type NewMessagingProvider,
+  MessagingProviderType,
+  NewGitProvider,
+  NewMessagingProvider,
 } from "../schema";
-
-// Git Provider Queries
 
 /**
  * Create or update a git provider connection
@@ -56,7 +56,7 @@ export async function getUserGitProviders(
  */
 export async function getUserGitProvider(
   userId: string,
-  provider: "github" | "bitbucket" | "gitlab"
+  provider: GitProviderType
 ): Promise<GitProvider | null> {
   const [result] = await db
     .select()
@@ -70,49 +70,11 @@ export async function getUserGitProvider(
 }
 
 /**
- * Get git provider by ID
- */
-export async function getGitProviderById(
-  id: string
-): Promise<GitProvider | null> {
-  const [provider] = await db
-    .select()
-    .from(gitProviders)
-    .where(eq(gitProviders.id, id))
-    .limit(1);
-
-  return provider || null;
-}
-
-/**
- * Update git provider tokens
- */
-export async function updateGitProviderTokens(
-  id: string,
-  tokens: {
-    accessToken: string;
-    refreshToken?: string;
-    expiresAt?: Date;
-  }
-): Promise<GitProvider | null> {
-  const [provider] = await db
-    .update(gitProviders)
-    .set({
-      ...tokens,
-      updatedAt: new Date(),
-    })
-    .where(eq(gitProviders.id, id))
-    .returning();
-
-  return provider || null;
-}
-
-/**
  * Delete git provider connection
  */
 export async function deleteGitProvider(
   userId: string,
-  provider: "github" | "bitbucket" | "gitlab"
+  provider: GitProviderType
 ): Promise<boolean> {
   const result = await db
     .delete(gitProviders)
@@ -120,13 +82,14 @@ export async function deleteGitProvider(
       and(eq(gitProviders.userId, userId), eq(gitProviders.provider, provider))
     );
 
-  return (result.rowCount ?? 0) > 0;
+  return result.rowsAffected > 0;
 }
 
 // Messaging Provider Queries
 
 /**
  * Create or update a messaging provider connection
+ * Each user can have only one connection per provider (Slack, Teams, or Discord)
  */
 export async function upsertMessagingProvider(
   providerData: NewMessagingProvider
@@ -138,15 +101,12 @@ export async function upsertMessagingProvider(
       updatedAt: new Date(),
     })
     .onConflictDoUpdate({
-      target: [
-        messagingProviders.userId,
-        messagingProviders.provider,
-        messagingProviders.guildId,
-      ],
+      target: [messagingProviders.userId, messagingProviders.provider],
       set: {
         accessToken: providerData.accessToken,
         refreshToken: providerData.refreshToken,
         expiresAt: providerData.expiresAt,
+        guildId: providerData.guildId, // Update guildId for Discord (user switching guilds)
         guildName: providerData.guildName,
         updatedAt: new Date(),
       },
@@ -161,7 +121,7 @@ export async function upsertMessagingProvider(
  */
 export async function getUserMessagingProviders(
   userId: string,
-  provider?: "slack" | "teams" | "discord"
+  provider?: MessagingProviderType
 ): Promise<MessagingProvider[]> {
   const conditions = [eq(messagingProviders.userId, userId)];
 
@@ -181,7 +141,7 @@ export async function getUserMessagingProviders(
  */
 export async function getUserMessagingProvider(
   userId: string,
-  provider: "slack" | "teams" | "discord",
+  provider: MessagingProviderType,
   guildId?: string
 ): Promise<MessagingProvider | null> {
   const conditions = [
@@ -204,50 +164,12 @@ export async function getUserMessagingProvider(
 }
 
 /**
- * Get messaging provider by ID
- */
-export async function getMessagingProviderById(
-  id: string
-): Promise<MessagingProvider | null> {
-  const [provider] = await db
-    .select()
-    .from(messagingProviders)
-    .where(eq(messagingProviders.id, id))
-    .limit(1);
-
-  return provider || null;
-}
-
-/**
- * Update messaging provider tokens
- */
-export async function updateMessagingProviderTokens(
-  id: string,
-  tokens: {
-    accessToken: string;
-    refreshToken?: string;
-    expiresAt?: Date;
-  }
-): Promise<MessagingProvider | null> {
-  const [provider] = await db
-    .update(messagingProviders)
-    .set({
-      ...tokens,
-      updatedAt: new Date(),
-    })
-    .where(eq(messagingProviders.id, id))
-    .returning();
-
-  return provider || null;
-}
-
-/**
  * Delete messaging provider connection
  * For Discord, optionally specify guildId to delete a specific guild connection
  */
 export async function deleteMessagingProvider(
   userId: string,
-  provider: "slack" | "teams" | "discord",
+  provider: MessagingProviderType,
   guildId?: string
 ): Promise<boolean> {
   const conditions = [
@@ -262,5 +184,5 @@ export async function deleteMessagingProvider(
 
   const result = await db.delete(messagingProviders).where(and(...conditions));
 
-  return (result.rowCount ?? 0) > 0;
+  return result.rowsAffected > 0;
 }

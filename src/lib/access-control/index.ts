@@ -2,17 +2,12 @@ import {
   getSubscriptionByUserId,
   getUserUsage,
 } from "../database/queries/subscriptions";
-import type { Subscription } from "../database/schema";
-
-/**
- * Subscription tier type
- */
-export type SubscriptionTier = "free" | "pro";
+import type { Subscription, SubscriptionTierType } from "../database/schema";
 
 /**
  * Interface for tier limits
  */
-export interface TierLimits {
+interface TierLimits {
   gitProviders: number | null; // null = unlimited
   messagingProviders: number | null;
   cronJobs: number | null;
@@ -22,7 +17,7 @@ export interface TierLimits {
 /**
  * Tier configuration with limits and features
  */
-export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
+export const TIER_LIMITS: Record<SubscriptionTierType, TierLimits> = {
   free: {
     gitProviders: 1,
     messagingProviders: 1,
@@ -40,8 +35,8 @@ export const TIER_LIMITS: Record<SubscriptionTier, TierLimits> = {
 /**
  * Interface for user tier information
  */
-export interface UserTierInfo {
-  tier: SubscriptionTier;
+interface UserTierInfo {
+  tier: SubscriptionTierType;
   limits: TierLimits;
   subscription: Subscription | null;
 }
@@ -63,11 +58,11 @@ export interface UsageValidationResult {
 /**
  * Get user's tier information including limits
  */
-export async function getUserTierInfo(userId: string): Promise<UserTierInfo> {
+async function getUserTierInfo(userId: string): Promise<UserTierInfo> {
   const subscription = await getSubscriptionByUserId(userId);
 
   // Default to free tier if no subscription found
-  const tier: SubscriptionTier = subscription?.tier ?? "free";
+  const tier: SubscriptionTierType = subscription?.tier ?? "free";
   const limits = TIER_LIMITS[tier];
 
   return {
@@ -273,58 +268,11 @@ export async function getUserUsageWithLimits(userId: string) {
 }
 
 /**
- * Check if user has exceeded any tier limits (for cleanup/enforcement)
- */
-export async function checkTierLimitViolations(userId: string) {
-  const [tierInfo, currentUsage] = await Promise.all([
-    getUserTierInfo(userId),
-    getUserUsage(userId),
-  ]);
-
-  const { limits } = tierInfo;
-  const violations: string[] = [];
-
-  // Check git providers limit
-  if (
-    limits.gitProviders !== null &&
-    currentUsage.gitProvidersCount > limits.gitProviders
-  ) {
-    violations.push(
-      `Git providers: ${currentUsage.gitProvidersCount}/${limits.gitProviders}`
-    );
-  }
-
-  // Check messaging providers limit
-  if (
-    limits.messagingProviders !== null &&
-    currentUsage.messagingProvidersCount > limits.messagingProviders
-  ) {
-    violations.push(
-      `Messaging providers: ${currentUsage.messagingProvidersCount}/${limits.messagingProviders}`
-    );
-  }
-
-  // Check cron jobs limit
-  if (
-    limits.cronJobs !== null &&
-    currentUsage.cronJobsCount > limits.cronJobs
-  ) {
-    violations.push(
-      `Schedules: ${currentUsage.cronJobsCount}/${limits.cronJobs}`
-    );
-  }
-
-  return {
-    hasViolations: violations.length > 0,
-    violations,
-    tierInfo,
-    currentUsage,
-  };
-}
-/**
  * Helper function to get user's current tier
  */
-export async function getUserTier(userId: string): Promise<SubscriptionTier> {
+export async function getUserTier(
+  userId: string
+): Promise<SubscriptionTierType> {
   const subscription = await getSubscriptionByUserId(userId);
   return subscription?.tier ?? "free";
 }
@@ -332,46 +280,15 @@ export async function getUserTier(userId: string): Promise<SubscriptionTier> {
 /**
  * Helper function to get tier limits for a specific tier
  */
-export function getTierLimits(tier: SubscriptionTier): TierLimits {
+export function getTierLimits(tier: SubscriptionTierType): TierLimits {
   return TIER_LIMITS[tier];
-}
-
-/**
- * Helper function to get user's tier limits
- */
-export async function getUserLimits(userId: string): Promise<TierLimits> {
-  const tier = await getUserTier(userId);
-  return getTierLimits(tier);
-}
-
-/**
- * Check if a tier has unlimited access for a specific resource
- */
-export function hasUnlimitedAccess(
-  tier: SubscriptionTier,
-  resourceType: keyof TierLimits
-): boolean {
-  const limits = TIER_LIMITS[tier];
-  const limit = limits[resourceType];
-
-  // For numeric limits, null means unlimited
-  if (typeof limit === "number") {
-    return limit === null;
-  }
-
-  // For minCronInterval, 0 means no restriction
-  if (resourceType === "minCronInterval") {
-    return limit === 0;
-  }
-
-  return false;
 }
 
 /**
  * Get formatted limit description for UI display
  */
 export function formatLimitDescription(
-  tier: SubscriptionTier,
+  tier: SubscriptionTierType,
   resourceType: keyof TierLimits
 ): string {
   const limits = TIER_LIMITS[tier];
@@ -420,23 +337,4 @@ export function isApproachingLimit(
 ): boolean {
   if (limit === null) return false; // Unlimited
   return getUsagePercentage(current, limit) >= 80;
-}
-
-/**
- * Get upgrade prompt message based on resource type and tier
- */
-export function getUpgradePromptMessage(
-  resourceType: keyof TierLimits,
-  tier: SubscriptionTier
-): string {
-  if (tier === "pro") return ""; // Pro users don't need upgrade prompts
-
-  const resourceName = {
-    gitProviders: "git providers",
-    messagingProviders: "messaging providers",
-    cronJobs: "schedules",
-    minCronInterval: "frequent schedules",
-  }[resourceType];
-
-  return `Upgrade to Pro for unlimited ${resourceName} and advanced features.`;
 }

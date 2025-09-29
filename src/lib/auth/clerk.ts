@@ -5,7 +5,7 @@ import { upsertUser, getUserByClerkId } from "../database/queries/users";
 import type { User } from "../database/schema";
 
 // Get user by ID from Clerk
-export async function getClerkUserById(userId: string): Promise<any> {
+async function getClerkUserById(userId: string): Promise<any> {
   if (!process.env.CLERK_SECRET_KEY) {
     throw new Error("CLERK_SECRET_KEY is not configured");
   }
@@ -48,12 +48,6 @@ async function createUserInDatabase(clerkUser: any) {
   return result;
 }
 
-// Define the context variables that our auth middleware adds
-export type AuthVariables = {
-  user: User;
-  clerkUserId: string;
-};
-
 // Custom middleware to ensure user exists in our database
 export function requireAuth() {
   return async (c: Context, next: Next) => {
@@ -93,7 +87,6 @@ export function requireAuth() {
       c.set("user", dbUser);
       c.set("userId", dbUser.id);
       c.set("clerkUserId", auth.userId);
-
       await next();
     } catch (error) {
       console.error("Authentication middleware error:", error);

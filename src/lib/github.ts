@@ -69,7 +69,7 @@ interface GitHubRequestedReviewers {
   teams: GitHubTeam[];
 }
 
-export interface GitHubPR {
+interface GitHubPR {
   id: string;
   title: string;
   author: string;
@@ -89,7 +89,7 @@ export interface GitHubPR {
   deletions?: number;
 }
 
-export interface PRFilters {
+interface PRFilters {
   repositories?: string[];
   labels?: string[];
   titleKeywords?: string[];
@@ -154,7 +154,7 @@ export async function exchangeGitHubToken(code: string, redirectUri: string) {
 }
 
 // Make authenticated GitHub API request
-export async function githubApiRequest(
+async function githubApiRequest(
   endpoint: string,
   token: string,
   options: RequestInit = {}
@@ -394,14 +394,4 @@ export async function getGitHubUserInfo(
     name: user.name || user.login,
     email: user.email || "",
   };
-}
-
-// Validate token
-export async function validateGitHubToken(token: string): Promise<boolean> {
-  try {
-    await githubApiRequest("/user", token);
-    return true;
-  } catch {
-    return false;
-  }
 }

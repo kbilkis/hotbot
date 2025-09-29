@@ -12,7 +12,7 @@ export interface SlackChannel {
   isMember?: boolean;
 }
 
-export interface SlackBlock {
+interface SlackBlock {
   type: string;
   text?: {
     type: string;
@@ -24,13 +24,13 @@ export interface SlackBlock {
   }>;
 }
 
-export interface SlackMessage {
+interface SlackMessage {
   channel: string;
   text: string;
   blocks?: SlackBlock[];
 }
 
-export interface SlackTokenResponse {
+interface SlackTokenResponse {
   accessToken: string;
   refreshToken?: string;
   expiresAt?: Date;
@@ -103,7 +103,7 @@ export async function exchangeSlackToken(
 }
 
 // Make authenticated Slack API request
-export async function slackApiRequest(
+async function slackApiRequest(
   endpoint: string,
   token: string,
   options: RequestInit = {}

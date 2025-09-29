@@ -1,32 +1,9 @@
 import useSWR from "swr";
 
-import { CronJob } from "../types/dashboard";
-
-interface ApiCronJob {
-  id: string;
-  name: string;
-  isActive: boolean;
-  lastExecuted?: string;
-  nextExecution?: string;
-  cronExpression: string;
-  gitProviderId: string;
-  repositories?: string[];
-  messagingChannelId: string;
-  messagingProviderId: string;
-  escalationProviderId?: string;
-  escalationDays?: number;
-  prFilters?: {
-    labels?: string[];
-    titleKeywords?: string[];
-    excludeAuthors?: string[];
-    minAge?: number;
-    maxAge?: number;
-  };
-  sendWhenEmpty: boolean;
-}
+import { CronJob } from "@/lib/database/schema";
 
 interface SchedulesResponseData {
-  jobs: ApiCronJob[];
+  jobs: CronJob[];
 }
 
 const fetcher = async (url: string): Promise<CronJob[]> => {
@@ -52,29 +29,7 @@ const fetcher = async (url: string): Promise<CronJob[]> => {
 
   const data: SchedulesResponseData = await response.json();
 
-  // Transform API response to match our component interface
-  const transformedSchedules: CronJob[] = data.jobs.map((job: ApiCronJob) => ({
-    id: job.id,
-    name: job.name,
-    status: job.isActive ? "active" : "paused",
-    lastRun: job.lastExecuted
-      ? new Date(job.lastExecuted).toLocaleString()
-      : undefined,
-    nextRun: job.nextExecution
-      ? new Date(job.nextExecution).toLocaleString()
-      : undefined,
-    cronExpression: job.cronExpression,
-    gitProviderId: job.gitProviderId,
-    repositories: job.repositories || [],
-    messagingChannelId: job.messagingChannelId,
-    messagingProviderId: job.messagingProviderId,
-    escalationProviderId: job.escalationProviderId,
-    escalationDays: job.escalationDays,
-    prFilters: job.prFilters,
-    sendWhenEmpty: job.sendWhenEmpty,
-  }));
-
-  return transformedSchedules;
+  return data.jobs;
 };
 
 export function useSchedules(shouldFetch: boolean = true) {

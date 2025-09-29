@@ -15,8 +15,6 @@ interface DiscordProviderModalProps {
   username?: string;
 }
 
-// Interfaces moved to hooks/useChannels.ts
-
 export default function DiscordProviderModal({
   onClose,
   isConnected: initialIsConnected = false,

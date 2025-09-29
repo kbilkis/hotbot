@@ -1,0 +1,8 @@
+{
+  "entry": [
+    "./server.ts",
+    "./src/entry-client.tsx",
+    "src/functions/index.ts",
+    "src/main.tsx"
+  ]
+}

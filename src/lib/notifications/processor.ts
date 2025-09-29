@@ -16,13 +16,13 @@ import {
   gitProviders,
   MessagingProvider,
   messagingProviders,
-  type CronJob,
+  PRFilters,
+  CronJob,
 } from "../database/schema";
 import { formatDiscordPRMessage, sendDiscordChannelMessage } from "../discord";
 import { getGitHubPullRequests } from "../github";
 import { getGitLabMergeRequests } from "../gitlab";
 import { formatSlackPRMessage, PullRequest, sendSlackMessage } from "../slack";
-import type { PRFilters } from "../types/providers";
 
 import { escalationProcessor } from "./escalation";
 import { filterProcessor } from "./filters";

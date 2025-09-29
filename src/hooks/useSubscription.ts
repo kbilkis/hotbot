@@ -1,37 +1,8 @@
 import useSWR from "swr";
 
-export interface SubscriptionUsage {
-  gitProvidersCount: number;
-  messagingProvidersCount: number;
-  cronJobsCount: number;
-}
+import { SubscriptionDataDto } from "@/api/subscriptions";
 
-export interface SubscriptionLimits {
-  gitProviders: number | null;
-  messagingProviders: number | null;
-  cronJobs: number | null;
-  minCronInterval: number;
-}
-
-export interface SubscriptionBilling {
-  subscriptionId: string;
-  customerId: string;
-  currentPeriodStart: string | null;
-  currentPeriodEnd: string | null;
-  cancelAtPeriodEnd: boolean;
-}
-
-export interface SubscriptionData {
-  tier: "free" | "pro";
-  status: string;
-  usage: SubscriptionUsage;
-  limits: SubscriptionLimits;
-  billing: SubscriptionBilling | null;
-  createdAt?: string;
-  updatedAt?: string;
-}
-
-const fetcher = async (url: string): Promise<SubscriptionData> => {
+const fetcher = async (url: string): Promise<SubscriptionDataDto> => {
   const response = await fetch(url, {
     credentials: "include",
     headers: {
@@ -53,7 +24,7 @@ const fetcher = async (url: string): Promise<SubscriptionData> => {
     throw new Error(errorMessage);
   }
 
-  const data: SubscriptionData = await response.json();
+  const data: SubscriptionDataDto = await response.json();
   return data;
 };
 

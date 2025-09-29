@@ -1,27 +1,20 @@
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+import { createClient } from "@libsql/client/web";
+import { drizzle } from "drizzle-orm/libsql/web";
 
 import * as schema from "./schema";
 
-export function createDb() {
-  const connectionString = process.env.DATABASE_URL;
-  if (!connectionString) {
-    throw new Error(
-      "DATABASE_URL environment variable is required but not provided"
-    );
-  }
-  const sql = neon(connectionString);
-  return drizzle(sql, { schema });
+const url = process.env.TURSO_DATABASE_URL;
+const authToken = process.env.TURSO_AUTH_TOKEN;
+
+if (!url) {
+  throw new Error(
+    "TURSO_DATABASE_URL environment variable is required but not provided"
+  );
 }
 
-// Lazy database instance - only created when first accessed
-let _db: ReturnType<typeof createDb> | null = null;
-
-export const db = new Proxy({} as ReturnType<typeof createDb>, {
-  get(_, prop) {
-    if (!_db) {
-      _db = createDb();
-    }
-    return (_db as any)[prop];
-  },
+const turso = createClient({
+  url,
+  authToken,
 });
+
+export const db = drizzle(turso, { schema });

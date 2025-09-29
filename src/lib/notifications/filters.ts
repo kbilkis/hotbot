@@ -2,7 +2,7 @@
  * Filter processor - applies PR filters to pull request lists
  */
 
-import type { PRFilters } from "../types/providers";
+import { PRFilters } from "../database/schema";
 
 export interface PullRequest {
   id: string;
@@ -31,17 +31,6 @@ export function filterProcessor(
   console.log(`Applying filters to ${pullRequests.length} pull requests`);
 
   let filteredPRs = [...pullRequests];
-
-  // Filter by repositories
-  if (filters.repositories && filters.repositories.length > 0) {
-    const beforeCount = filteredPRs.length;
-    filteredPRs = filteredPRs.filter((pr) =>
-      filters.repositories!.includes(pr.repository)
-    );
-    console.log(
-      `Repository filter: ${beforeCount} -> ${filteredPRs.length} PRs`
-    );
-  }
 
   // Filter by labels
   if (filters.labels && filters.labels.length > 0) {
@@ -141,10 +130,6 @@ export function validateFilters(filters: PRFilters): string[] {
     errors.push("Minimum age cannot be greater than maximum age");
   }
 
-  if (filters.repositories && filters.repositories.length === 0) {
-    errors.push("Repository filter cannot be empty array");
-  }
-
   if (filters.labels && filters.labels.length === 0) {
     errors.push("Labels filter cannot be empty array");
   }
@@ -158,45 +143,4 @@ export function validateFilters(filters: PRFilters): string[] {
   }
 
   return errors;
-}
-
-/**
- * Get a human-readable description of the applied filters
- */
-export function getFiltersDescription(filters?: PRFilters | null): string {
-  if (!filters) {
-    return "No filters applied";
-  }
-
-  const descriptions: string[] = [];
-
-  if (filters.repositories && filters.repositories.length > 0) {
-    descriptions.push(`Repositories: ${filters.repositories.join(", ")}`);
-  }
-
-  if (filters.labels && filters.labels.length > 0) {
-    descriptions.push(`Labels: ${filters.labels.join(", ")}`);
-  }
-
-  if (filters.titleKeywords && filters.titleKeywords.length > 0) {
-    descriptions.push(`Title keywords: ${filters.titleKeywords.join(", ")}`);
-  }
-
-  if (filters.excludeAuthors && filters.excludeAuthors.length > 0) {
-    descriptions.push(
-      `Excluding authors: ${filters.excludeAuthors.join(", ")}`
-    );
-  }
-
-  if (filters.minAge !== undefined) {
-    descriptions.push(`Minimum age: ${filters.minAge} days`);
-  }
-
-  if (filters.maxAge !== undefined) {
-    descriptions.push(`Maximum age: ${filters.maxAge} days`);
-  }
-
-  return descriptions.length > 0
-    ? descriptions.join("; ")
-    : "No filters applied";
 }

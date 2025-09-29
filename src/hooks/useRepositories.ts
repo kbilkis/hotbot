@@ -1,5 +1,7 @@
 import useSWR from "swr";
 
+import { GitProviderData } from "@/lib/validation/provider-schemas";
+
 const fetcher = async (url: string): Promise<string[]> => {
   const response = await fetch(url, {
     headers: {
@@ -30,47 +32,9 @@ const fetcher = async (url: string): Promise<string[]> => {
   }
 };
 
-export function useRepositories(
-  gitProviderId?: string,
-  providerType?: string,
-  shouldFetch: boolean = true
-) {
-  // Only fetch if we have a git provider ID and should fetch
-  const shouldFetchData = shouldFetch && !!gitProviderId && !!providerType;
-
-  // Build endpoint based on provider type
-  const getEndpoint = () => {
-    if (!providerType) return null;
-
-    switch (providerType) {
-      case "github":
-        return "/api/providers/git/github/repositories";
-      case "gitlab":
-        return "/api/providers/git/gitlab/repositories";
-      case "bitbucket":
-        return "/api/providers/git/bitbucket/repositories";
-      default:
-        return null;
-    }
-  };
-
-  const endpoint = getEndpoint();
-
-  const { data, error, isLoading, mutate } = useSWR(
-    shouldFetchData ? endpoint : null,
-    fetcher
-  );
-
-  return {
-    repositories: data || [],
-    loading: isLoading,
-    error: error?.message || null,
-    refetch: () => mutate(),
-  };
-}
 // Hook to prefetch repositories for all connected git providers
 export function usePrefetchRepositories(
-  gitProviders: any[],
+  gitProviders: GitProviderData[],
   shouldFetch: boolean = true
 ) {
   const connectedGitProviders = gitProviders.filter((p) => p.connected);

@@ -3,7 +3,7 @@
 
 import { refreshExpiringTokens } from "../lib/oauth/scheduled-refresh";
 
-export async function tokenProcessor(req: any, res: any) {
+export async function tokenProcessor(_req: any, res: any) {
   const startTime = Date.now();
   console.log(
     `[${new Date().toISOString()}] Starting token refresh processor...`

@@ -1,17 +1,7 @@
 import { type } from "arktype";
 import { CronExpressionParser } from "cron-parser";
 
-// PR Filters schema
-export const PRFiltersSchema = type({
-  "labels?": "string[]",
-  "titleKeywords?": "string[]",
-  "excludeAuthors?": "string[]",
-  "minAge?": "number",
-  "maxAge?": "number",
-});
-
-// Base cron job data schema
-export const CronJobDataSchema = type({
+export const CreateCronJobSchema = type({
   name: "string",
   cronExpression: "string", // Always in UTC from client
   gitProviderId: "string",
@@ -76,9 +66,6 @@ export const CronJobDataSchema = type({
 
   return data;
 });
-
-// Create cron job schema
-export const CreateCronJobSchema = CronJobDataSchema;
 
 // Update cron job schema (includes ID)
 export const UpdateCronJobSchema = type({
@@ -171,11 +158,3 @@ export const ListCronJobsQuerySchema = type({
 
   return result;
 });
-
-// Export inferred types
-export type PRFiltersData = typeof PRFiltersSchema.infer;
-export type CronJobData = typeof CronJobDataSchema.infer;
-export type CreateCronJobData = typeof CreateCronJobSchema.infer;
-export type UpdateCronJobData = typeof UpdateCronJobSchema.infer;
-export type ToggleCronJobData = typeof ToggleCronJobSchema.infer;
-export type ListCronJobsQuery = typeof ListCronJobsQuerySchema.infer;

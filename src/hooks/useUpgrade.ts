@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export interface UpgradeState {
+interface UpgradeState {
   loading: boolean;
   error: string | null;
 }

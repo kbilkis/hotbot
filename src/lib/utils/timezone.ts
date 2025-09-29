@@ -3,13 +3,6 @@
  */
 
 /**
- * Get user's local timezone
- */
-export function getUserTimezone(): string {
-  return Intl.DateTimeFormat().resolvedOptions().timeZone;
-}
-
-/**
  * Get the user's timezone as a UTC offset string
  */
 export function getUserTimezoneOrFallback(): string {
@@ -138,7 +131,7 @@ export function convertCronToUTC(
 /**
  * Parse UTC offset from timezone string (e.g., "UTC+5" -> 5, "UTC-3" -> -3)
  */
-export function parseUTCOffset(timezone: string): number {
+function parseUTCOffset(timezone: string): number {
   if (timezone === "UTC+0") return 0;
 
   const match = timezone.match(/^UTC([+-])(\d+(?:\.\d+)?)$/);

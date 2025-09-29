@@ -140,7 +140,7 @@ export async function deleteCronJob(
     .delete(cronJobs)
     .where(and(eq(cronJobs.id, id), eq(cronJobs.userId, userId)));
 
-  return (result.rowCount ?? 0) > 0;
+  return (result.rowsAffected ?? 0) > 0;
 }
 
 // Execution Log Queries
@@ -155,50 +155,6 @@ export async function createExecutionLog(
 
   return log;
 }
-
-/**
- * Get execution logs for a cron job
- */
-export async function getCronJobExecutionLogs(
-  cronJobId: string,
-  limit: number = 50
-): Promise<ExecutionLog[]> {
-  return await db
-    .select()
-    .from(executionLogs)
-    .where(eq(executionLogs.cronJobId, cronJobId))
-    .orderBy(desc(executionLogs.executedAt))
-    .limit(limit);
-}
-
-/**
- * Get recent execution logs across all jobs for a user
- */
-export async function getUserExecutionLogs(
-  userId: string,
-  limit: number = 100
-): Promise<(ExecutionLog & { jobName: string })[]> {
-  return await db
-    .select({
-      id: executionLogs.id,
-      cronJobId: executionLogs.cronJobId,
-      executedAt: executionLogs.executedAt,
-      status: executionLogs.status,
-      pullRequestsFound: executionLogs.pullRequestsFound,
-      messagesSent: executionLogs.messagesSent,
-      errorMessage: executionLogs.errorMessage,
-      executionTimeMs: executionLogs.executionTimeMs,
-      escalationsTriggered: executionLogs.escalationsTriggered,
-      jobName: cronJobs.name,
-    })
-    .from(executionLogs)
-    .innerJoin(cronJobs, eq(executionLogs.cronJobId, cronJobs.id))
-    .where(eq(cronJobs.userId, userId))
-    .orderBy(desc(executionLogs.executedAt))
-    .limit(limit);
-}
-
-// Escalation Tracking Queries
 
 /**
  * Create or update escalation tracking
@@ -243,19 +199,6 @@ export async function getEscalationTracking(
 }
 
 /**
- * Get all escalation tracking for a cron job
- */
-export async function getCronJobEscalationTracking(
-  cronJobId: string
-): Promise<EscalationTracking[]> {
-  return await db
-    .select()
-    .from(escalationTracking)
-    .where(eq(escalationTracking.cronJobId, cronJobId))
-    .orderBy(desc(escalationTracking.lastEscalatedAt));
-}
-
-/**
  * Clean up old escalation tracking (for closed PRs)
  */
 export async function cleanupEscalationTracking(
@@ -268,7 +211,7 @@ export async function cleanupEscalationTracking(
       .delete(escalationTracking)
       .where(eq(escalationTracking.cronJobId, cronJobId));
 
-    return result.rowCount ?? 0;
+    return result.rowsAffected ?? 0;
   }
 
   // Clean up tracking for PRs that are no longer active
@@ -280,5 +223,5 @@ export async function cleanupEscalationTracking(
     )
   );
 
-  return result.rowCount ?? 0;
+  return result.rowsAffected ?? 0;
 }

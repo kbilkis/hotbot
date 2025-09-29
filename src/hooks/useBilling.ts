@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export interface BillingState {
+interface BillingState {
   loading: boolean;
   error: string | null;
 }

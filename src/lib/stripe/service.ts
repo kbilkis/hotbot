@@ -367,6 +367,3 @@ export function createStripeService(): StripeService {
     isTestMode: secretKey.startsWith("sk_test_"),
   });
 }
-
-// Export types for use in other modules
-export type { StripeConfig };

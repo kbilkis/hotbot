@@ -4,16 +4,16 @@
 
 import { describe, it, expect, vi } from "vitest";
 
+import { PRFilters } from "@/lib/database/schema";
+
 import {
   calculatePRAge,
   shouldEscalatePR,
-} from "../../../../src/lib/cron/escalation";
+} from "../../../../src/lib/notifications/escalation";
 import {
   filterProcessor,
   validateFilters,
-  getFiltersDescription,
-} from "../../../../src/lib/cron/filters";
-import type { PRFilters } from "../../../../src/lib/types/providers";
+} from "../../../../src/lib/notifications/filters";
 
 // Mock the database modules to avoid requiring environment variables
 vi.mock("../../../../src/lib/database/client", () => ({
@@ -64,16 +64,6 @@ describe("Filter Processor", () => {
       const result = filterProcessor(mockPRs, null);
       expect(result).toHaveLength(3);
       expect(result).toEqual(mockPRs);
-    });
-
-    it("should filter by repositories", () => {
-      const filters: PRFilters = {
-        repositories: ["org/repo1"],
-      };
-
-      const result = filterProcessor(mockPRs, filters);
-      expect(result).toHaveLength(2);
-      expect(result.every((pr) => pr.repository === "org/repo1")).toBe(true);
     });
 
     it("should filter by labels", () => {
@@ -128,7 +118,6 @@ describe("Filter Processor", () => {
 
     it("should apply multiple filters", () => {
       const filters: PRFilters = {
-        repositories: ["org/repo1"],
         labels: ["bug"],
       };
 
@@ -150,7 +139,6 @@ describe("Filter Processor", () => {
   describe("validateFilters", () => {
     it("should return no errors for valid filters", () => {
       const filters: PRFilters = {
-        repositories: ["org/repo1"],
         labels: ["bug"],
         titleKeywords: ["fix"],
         excludeAuthors: ["bot"],
@@ -194,7 +182,6 @@ describe("Filter Processor", () => {
 
     it("should return error for empty arrays", () => {
       const filters: PRFilters = {
-        repositories: [],
         labels: [],
         titleKeywords: [],
         excludeAuthors: [],
@@ -206,47 +193,6 @@ describe("Filter Processor", () => {
       expect(errors).toContain("Labels filter cannot be empty array");
       expect(errors).toContain("Title keywords filter cannot be empty array");
       expect(errors).toContain("Excluded authors filter cannot be empty array");
-    });
-  });
-
-  describe("getFiltersDescription", () => {
-    it("should return 'No filters applied' for null filters", () => {
-      const description = getFiltersDescription(null);
-      expect(description).toBe("No filters applied");
-    });
-
-    it("should return 'No filters applied' for undefined filters", () => {
-      const description = getFiltersDescription(undefined);
-      expect(description).toBe("No filters applied");
-    });
-
-    it("should return 'No filters applied' for empty filters", () => {
-      const description = getFiltersDescription({});
-      expect(description).toBe("No filters applied");
-    });
-
-    it("should describe single filter", () => {
-      const filters: PRFilters = {
-        repositories: ["org/repo1"],
-      };
-
-      const description = getFiltersDescription(filters);
-      expect(description).toBe("Repositories: org/repo1");
-    });
-
-    it("should describe multiple filters", () => {
-      const filters: PRFilters = {
-        repositories: ["org/repo1", "org/repo2"],
-        labels: ["bug"],
-        minAge: 1,
-        maxAge: 7,
-      };
-
-      const description = getFiltersDescription(filters);
-      expect(description).toContain("Repositories: org/repo1, org/repo2");
-      expect(description).toContain("Labels: bug");
-      expect(description).toContain("Minimum age: 1 days");
-      expect(description).toContain("Maximum age: 7 days");
     });
   });
 });

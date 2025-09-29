@@ -1,61 +1,12 @@
 {
   "version": "7",
-  "dialect": "postgresql",
+  "dialect": "sqlite",
   "entries": [
     {
       "idx": 0,
-      "version": "7",
-      "when": 1757691382850,
-      "tag": "0000_uneven_mindworm",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1757702287933,
-      "tag": "0001_cultured_tomas",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1757709982840,
-      "tag": "0002_regular_titania",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "7",
-      "when": 1757766042041,
-      "tag": "0003_romantic_smasher",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "7",
-      "when": 1757769912437,
-      "tag": "0004_yummy_orphan",
-      "breakpoints": true
-    },
-    {
-      "idx": 5,
-      "version": "7",
-      "when": 1757875802287,
-      "tag": "0005_charming_ultimates",
-      "breakpoints": true
-    },
-    {
-      "idx": 6,
-      "version": "7",
-      "when": 1757876179611,
-      "tag": "0006_secret_shinobi_shaw",
-      "breakpoints": true
-    },
-    {
-      "idx": 7,
-      "version": "7",
-      "when": 1757938155093,
-      "tag": "0007_crazy_menace",
+      "version": "6",
+      "when": 1759156215971,
+      "tag": "0000_left_rachel_grey",
       "breakpoints": true
     }
   ]

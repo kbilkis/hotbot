@@ -3,7 +3,7 @@
 
 import { processScheduledNotifications } from "../lib/notifications/processor";
 
-export async function notificationProcessor(req: any, res: any) {
+export async function notificationProcessor(_req: any, res: any) {
   const startTime = Date.now();
   console.log(
     `[${new Date().toISOString()}] Starting notification processor...`

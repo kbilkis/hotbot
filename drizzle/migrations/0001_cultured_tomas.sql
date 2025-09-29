@@ -1,3 +1,0 @@
-ALTER TABLE "escalation_tracking" ADD CONSTRAINT "escalation_tracking_cron_job_id_pull_request_id_unique" UNIQUE("cron_job_id","pull_request_id");--> statement-breakpoint
-ALTER TABLE "git_providers" ADD CONSTRAINT "git_providers_user_id_provider_unique" UNIQUE("user_id","provider");--> statement-breakpoint
-ALTER TABLE "messaging_providers" ADD CONSTRAINT "messaging_providers_user_id_provider_channel_id_unique" UNIQUE("user_id","provider","channel_id");

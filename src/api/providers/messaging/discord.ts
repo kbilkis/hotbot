@@ -343,7 +343,6 @@ app.get("/guilds/:guildId/channels", async (c) => {
 // Test channel by sending a test message
 app.post("/test-channel", async (c) => {
   try {
-    const userId = getCurrentUserId(c);
     const body = await c.req.json();
 
     if (!body.channelId || !body.message) {

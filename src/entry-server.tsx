@@ -6,12 +6,6 @@ import App from "./App";
 export async function SSRRender(url: string = "/") {
   // Always use the built assets in production
   const bootstrapModules = ["/assets/main.js"];
-  console.log(
-    "SSR rendering for:",
-    url,
-    "with bootstrapModules:",
-    bootstrapModules
-  );
 
   const AppWithRouter = (
     <html lang="en" suppressHydrationWarning>

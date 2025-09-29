@@ -7,8 +7,9 @@ import {
 import { CronExpressionParser } from "cron-parser";
 import React, { useState } from "react";
 
+import { CronJob } from "@/lib/database/schema";
+
 import { useSchedules } from "../../hooks/useSchedules";
-import { CronJob } from "../../types/dashboard";
 
 import ScheduleModal from "./ScheduleModal";
 
@@ -94,8 +95,6 @@ export default function SchedulesSection(): React.ReactElement {
       const schedule = schedules.find((s) => s.id === scheduleId);
       if (!schedule) return;
 
-      const newActiveState = schedule.status !== "active";
-
       const response = await fetch("/api/schedules/toggle", {
         method: "POST",
         headers: {
@@ -103,7 +102,7 @@ export default function SchedulesSection(): React.ReactElement {
         },
         body: JSON.stringify({
           id: scheduleId,
-          isActive: newActiveState,
+          isActive: !schedule.isActive,
         }),
       });
 
@@ -131,29 +130,18 @@ export default function SchedulesSection(): React.ReactElement {
     }
   };
 
-  const getStatusColor = (status: string) => {
-    switch (status) {
-      case "active":
-        return "status-active";
-      case "paused":
-        return "status-paused";
-      case "error":
-        return "status-error";
-      default:
-        return "text-gray-600";
+  const getStatusColor = (isActive: boolean) => {
+    if (isActive) {
+      return "status-active";
     }
+    return "status-paused";
   };
 
-  const getStatusDot = (status: string) => {
-    switch (status) {
-      case "active":
-        return "bg-green-500";
-      case "paused":
-        return "bg-yellow-500";
-      case "error":
-        return "bg-red-500";
-      default:
-        return "bg-gray-500";
+  const getStatusDot = (isActive: boolean) => {
+    if (isActive) {
+      return "bg-green-500";
+    } else {
+      return "bg-yellow-500";
     }
   };
 
@@ -236,11 +224,12 @@ export default function SchedulesSection(): React.ReactElement {
               <div key={schedule.id} className="table-row">
                 <div className="status-cell">
                   <div
-                    className={`status-dot ${getStatusDot(schedule.status)}`}
+                    className={`status-dot ${getStatusDot(
+                      !!schedule.isActive
+                    )}`}
                   ></div>
-                  <span className={getStatusColor(schedule.status)}>
-                    {schedule.status.charAt(0).toUpperCase() +
-                      schedule.status.slice(1)}
+                  <span className={getStatusColor(!!schedule.isActive)}>
+                    {schedule.isActive ? "Active" : "Paused"}
                   </span>
                 </div>
                 <div>
@@ -256,7 +245,7 @@ export default function SchedulesSection(): React.ReactElement {
                   </div>
                 </div>
                 <div className="next-run-time">
-                  {schedule.status === "active"
+                  {schedule.isActive
                     ? calculateNextExecution(schedule.cronExpression) || "-"
                     : "-"}
                 </div>
@@ -271,21 +260,21 @@ export default function SchedulesSection(): React.ReactElement {
                     </button>
                     <button
                       className={`toggle-button ${
-                        schedule.status === "paused" ? "paused" : ""
+                        schedule.isActive ? "" : "paused"
                       } ${togglingScheduleId === schedule.id ? "loading" : ""}`}
                       onClick={() => handleToggleSchedule(schedule.id)}
                       disabled={togglingScheduleId === schedule.id}
                       title={
                         togglingScheduleId === schedule.id
                           ? "Processing..."
-                          : schedule.status === "active"
+                          : schedule.isActive
                           ? "Pause schedule"
                           : "Resume schedule"
                       }
                     >
                       {togglingScheduleId === schedule.id ? (
                         <div className="loading-spinner-button" />
-                      ) : schedule.status === "active" ? (
+                      ) : schedule.isActive ? (
                         <PauseCircleIcon className="schedule-action-icon" />
                       ) : (
                         <PlayIcon className="schedule-action-icon" />

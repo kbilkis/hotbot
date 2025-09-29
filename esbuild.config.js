@@ -5,10 +5,9 @@ await build({
   entryPoints: ["./server.ts"],
   bundle: true,
   outfile: "dist/index.js",
-  platform: "browser",
+  platform: "node",
   target: "es2022",
   format: "esm",
-  external: ["__STATIC_CONTENT_MANIFEST"],
   minify: process.env.NODE_ENV === "production",
   define: {
     "process.env.NODE_ENV": '"production"',

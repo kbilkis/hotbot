@@ -1,11 +1,18 @@
+import { config } from "dotenv";
 import { defineConfig } from "drizzle-kit";
+
+config({
+  path: ".env",
+  override: true,
+});
 
 export default defineConfig({
   schema: "./src/lib/database/schema.ts",
   out: "./drizzle/migrations",
-  dialect: "postgresql",
+  dialect: "turso",
   dbCredentials: {
-    url: process.env.DATABASE_URL!,
+    url: process.env.TURSO_DATABASE_URL!,
+    authToken: process.env.TURSO_AUTH_TOKEN,
   },
   verbose: true,
   strict: true,
