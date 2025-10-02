@@ -685,7 +685,7 @@ export default function LandingPage() {
                 <li>✓ Custom integrations</li>
                 <li>✓ Dedicated support</li>
               </ul>
-              <a href="mailto:kasparas@hotbot.sh">
+              <a href="mailto:hello@hotbot.sh">
                 <button className="pricing-button secondary">
                   Contact sales
                 </button>

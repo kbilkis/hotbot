@@ -1,13 +1,17 @@
 import { resolve } from "node:path";
 
-import preact from "@preact/preset-vite";
+import { preact } from "@preact/preset-vite";
 import { defineConfig } from "vite";
 import { analyzer } from "vite-bundle-analyzer";
 
 export default defineConfig(() => {
   const plugins = preact();
   if (process.env.ANALYZE === "true") {
-    plugins.push(analyzer());
+    plugins.push(
+      analyzer({
+        openAnalyzer: false,
+      })
+    );
   }
 
   return {

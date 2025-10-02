@@ -6,8 +6,9 @@ steps:
     args:
       - "-c"
       - |
-        npm install
-        npm run build:functions
+        npm install -g pnpm
+        pnpm install
+        pnpm run build:functions
 
   # Deploy notification processor
   - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
