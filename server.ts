@@ -10,10 +10,7 @@ type Bindings = {
 
 const app = new Hono<{
   Bindings: Bindings;
-}>();
-
-// Mount API routes first
-app.route("/api", apiRoutes);
+}>().route("/api", apiRoutes);
 
 // Handle all requests
 app.get("*", async (c) => {
@@ -32,3 +29,4 @@ app.get("*", async (c) => {
 });
 
 export default app;
+export type AppType = typeof app;

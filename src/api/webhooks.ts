@@ -9,53 +9,52 @@ import {
 } from "../lib/database/queries/subscriptions";
 import { createStripeService } from "../lib/stripe/service";
 
-const webhooks = new Hono();
-
-/**
- * Stripe webhook endpoint
- * Handles subscription lifecycle events and keeps the database in sync
- */
-webhooks.post("/stripe", async (c) => {
-  try {
-    // Get raw body and signature
-    const body = await c.req.text();
-    const signature = c.req.header("stripe-signature");
-
-    if (!signature) {
-      console.error("Missing Stripe signature header");
-      return c.json({ error: "Missing signature" }, 400);
-    }
-
-    // Verify webhook signature and construct event
-    let event: Stripe.Event;
-
+const webhooks = new Hono()
+  /**
+   * Stripe webhook endpoint
+   * Handles subscription lifecycle events and keeps the database in sync
+   */
+  .post("/stripe", async (c) => {
     try {
-      const stripeService = createStripeService();
-      event = await stripeService.constructWebhookEvent(body, signature);
-    } catch (error) {
-      console.error("Webhook signature verification failed:", error);
-      return c.json({ error: "Invalid signature" }, 400);
-    }
+      // Get raw body and signature
+      const body = await c.req.text();
+      const signature = c.req.header("stripe-signature");
 
-    console.log(`Processing webhook event: ${event.type} (${event.id})`);
+      if (!signature) {
+        console.error("Missing Stripe signature header");
+        return c.json({ success: false, error: "Missing signature" }, 400);
+      }
 
-    // Route event to appropriate handler
-    try {
-      await handleWebhookEvent(event);
-      console.log(`Successfully processed webhook event: ${event.type}`);
-      return c.json({ received: true });
+      // Verify webhook signature and construct event
+      let event: Stripe.Event;
+
+      try {
+        const stripeService = createStripeService();
+        event = await stripeService.constructWebhookEvent(body, signature);
+      } catch (error) {
+        console.error("Webhook signature verification failed:", error);
+        return c.json({ success: false, error: "Invalid signature" }, 400);
+      }
+
+      console.log(`Processing webhook event: ${event.type} (${event.id})`);
+
+      // Route event to appropriate handler
+      try {
+        await handleWebhookEvent(event);
+        console.log(`Successfully processed webhook event: ${event.type}`);
+        return c.json({ success: true, received: true });
+      } catch (error) {
+        console.error(
+          `Error processing webhook event ${event?.type || "unknown"}:`,
+          error
+        );
+        return c.json({ success: false, error: "Processing failed" }, 500);
+      }
     } catch (error) {
-      console.error(
-        `Error processing webhook event ${event?.type || "unknown"}:`,
-        error
-      );
-      return c.json({ error: "Processing failed" }, 500);
+      console.error("Webhook endpoint success: false,error:", error);
+      return c.json({ success: false, error: "Internal server error" }, 500);
     }
-  } catch (error) {
-    console.error("Webhook endpoint error:", error);
-    return c.json({ error: "Internal server error" }, 500);
-  }
-});
+  });
 
 /**
  * Main webhook event router
@@ -444,3 +443,4 @@ async function handleTrialWillEnd(
 }
 
 export default webhooks;
+export type WebhooksApiType = typeof webhooks;

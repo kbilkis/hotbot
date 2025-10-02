@@ -54,21 +54,6 @@ export const GitLabFetchMRsSchema = type({
   "filters?": GitLabMRFiltersSchema,
 });
 
-// Error response schema
-export const ErrorResponseSchema = type({
-  error: "string",
-  message: "string?",
-  code: "string?",
-  details: "unknown?",
-});
-
-// Success response schema
-export const SuccessResponseSchema = type({
-  success: "boolean",
-  message: "string?",
-  data: "unknown?",
-});
-
 // Git provider schemas
 const GitProviderTypeSchema = type("'github'|'bitbucket'|'gitlab'");
 
