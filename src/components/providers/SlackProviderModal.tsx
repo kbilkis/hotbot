@@ -1,6 +1,8 @@
 import { useEffect, useState } from "preact/hooks";
 import { mutate } from "swr";
 
+import type { SlackChannel } from "@/types/slack";
+
 import {
   getProviderColor,
   getProviderBgColor,
@@ -11,13 +13,6 @@ interface SlackProviderModalProps {
   onClose: () => void;
   isConnected?: boolean;
   teamName?: string;
-}
-
-interface SlackChannel {
-  id: string;
-  name: string;
-  type: "public" | "private" | "direct";
-  memberCount?: number;
 }
 
 export default function SlackProviderModal({

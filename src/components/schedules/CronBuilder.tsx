@@ -114,7 +114,7 @@ export default function CronBuilder({
         { use24HourTimeFormat: true }
       );
       return `${description} (${timezone})`;
-    } catch (error) {
+    } catch {
       return "Invalid cron expression";
     }
   };

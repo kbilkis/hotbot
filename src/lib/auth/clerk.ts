@@ -1,27 +1,21 @@
 import { getAuth } from "@hono/clerk-auth";
+import type { ClerkAuthVariables } from "@hono/clerk-auth";
 import { Context, Next } from "hono";
 
 import { upsertUser, getUserByClerkId } from "../database/queries/users";
-import type { User } from "../database/schema";
+import type { User as UserInternal } from "../database/schema";
 
-// Get user by ID from Clerk
-async function getClerkUserById(userId: string): Promise<any> {
-  if (!process.env.CLERK_SECRET_KEY) {
-    throw new Error("CLERK_SECRET_KEY is not configured");
-  }
+type ClerkClient = ClerkAuthVariables["clerk"];
+type ClerkUser = Awaited<ReturnType<ClerkClient["users"]["getUser"]>>;
 
+// Get user by ID from Clerk using the context clerkClient
+async function getClerkUserById(
+  userId: string,
+  c: Context
+): Promise<ClerkUser> {
   try {
-    const response = await fetch(`https://api.clerk.com/v1/users/${userId}`, {
-      headers: {
-        Authorization: `Bearer ${process.env.CLERK_SECRET_KEY}`,
-      },
-    });
-
-    if (!response.ok) {
-      throw new Error(`Failed to get Clerk user: ${response.status}`);
-    }
-
-    return await response.json();
+    const clerkClient: ClerkClient = c.get("clerk");
+    return await clerkClient.users.getUser(userId);
   } catch (error) {
     console.error("Clerk user fetch error:", error);
     throw error;
@@ -29,8 +23,8 @@ async function getClerkUserById(userId: string): Promise<any> {
 }
 
 // Create user in database (only called when user doesn't exist)
-async function createUserInDatabase(clerkUser: any) {
-  const email = clerkUser.email_addresses?.[0]?.email_address;
+async function createUserInDatabase(clerkUser: ClerkUser) {
+  const email = clerkUser.emailAddresses?.[0]?.emailAddress;
 
   if (!email) {
     throw new Error("User email not found in Clerk data");
@@ -68,8 +62,7 @@ export function requireAuth() {
 
         // Get user details from Clerk
         // Since we're behind clerkMiddleware, the user should exist in Clerk
-        const clerkUser = await getClerkUserById(auth.userId);
-
+        const clerkUser = await getClerkUserById(auth.userId, c);
         // This should rarely happen, but handle gracefully if it does
         if (!clerkUser) {
           console.error(
@@ -97,7 +90,7 @@ export function requireAuth() {
 
 // Helper to get current user from context
 export function getCurrentUser(c: Context) {
-  return c.get("user") as User;
+  return c.get("user") as UserInternal;
 }
 
 // Helper to get current user ID from context

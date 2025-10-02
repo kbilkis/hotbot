@@ -2,6 +2,8 @@
  * Escalation processor - handles escalation notifications for old pull requests
  */
 
+import type { PullRequest } from "@/types/pull-request";
+
 import {
   getEscalationTracking,
   upsertEscalationTracking,
@@ -10,8 +12,6 @@ import {
 import type { CronJob, MessagingProvider } from "../database/schema";
 import { formatDiscordPRMessage, sendDiscordChannelMessage } from "../discord";
 import { sendSlackMessage, formatSlackPRMessage } from "../slack";
-
-import { PullRequest } from "./filters";
 
 /**
  * Process escalation notifications for pull requests that exceed the age threshold

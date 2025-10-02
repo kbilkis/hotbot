@@ -119,7 +119,7 @@ export class OAuthStateManager {
             if (ageInMinutes > 10) {
               await redis.del(key);
             }
-          } catch (error) {
+          } catch {
             // Invalid data, delete it
             await redis.del(key);
           }

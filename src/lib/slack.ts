@@ -1,45 +1,20 @@
 // Slack API functions for messaging provider integration
+import type { PullRequest, PRCategory } from "../types/pull-request";
+import type {
+  OauthV2AccessResponse,
+  ConversationsListResponse,
+  AuthTestResponse,
+  ChatPostMessageResponse,
+  Channel,
+  SlackChannel,
+  SlackBlock,
+  SlackMessage,
+  SlackTokenResponse,
+  SlackUserInfo,
+} from "../types/slack";
 
 const SLACK_CLIENT_ID = process.env.SLACK_CLIENT_ID!;
 const SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET!;
-
-export interface SlackChannel {
-  id: string;
-  name: string;
-  type: "public" | "private" | "direct";
-  memberCount?: number;
-  isArchived?: boolean;
-  isMember?: boolean;
-}
-
-interface SlackBlock {
-  type: string;
-  text?: {
-    type: string;
-    text: string;
-  };
-  elements?: Array<{
-    type: string;
-    text: string;
-  }>;
-}
-
-interface SlackMessage {
-  channel: string;
-  text: string;
-  blocks?: SlackBlock[];
-}
-
-interface SlackTokenResponse {
-  accessToken: string;
-  refreshToken?: string;
-  expiresAt?: Date;
-  scope: string;
-  tokenType: string;
-  teamId: string;
-  teamName: string;
-  userId: string;
-}
 
 // Generate Slack OAuth URL
 export function getSlackAuthUrl(
@@ -82,32 +57,32 @@ export async function exchangeSlackToken(
     throw new Error(`Slack token exchange failed: ${response.status}`);
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as OauthV2AccessResponse;
 
   if (!data.ok) {
     throw new Error(`Slack OAuth error: ${data.error || "Unknown error"}`);
   }
 
   return {
-    accessToken: data.access_token,
+    accessToken: data.access_token!,
     refreshToken: data.refresh_token,
     expiresAt: data.expires_in
       ? new Date(Date.now() + data.expires_in * 1000)
       : undefined,
-    scope: data.scope,
+    scope: data.scope!,
     tokenType: data.token_type || "Bearer",
-    teamId: data.team.id,
-    teamName: data.team.name,
-    userId: data.authed_user.id,
+    teamId: data.team!.id!,
+    teamName: data.team!.name!,
+    userId: data.authed_user!.id!,
   };
 }
 
 // Make authenticated Slack API request
-async function slackApiRequest(
+async function slackApiRequest<T extends { ok?: boolean; error?: string }>(
   endpoint: string,
   token: string,
   options: RequestInit = {}
-) {
+): Promise<T> {
   const response = await fetch(`https://slack.com/api${endpoint}`, {
     ...options,
     headers: {
@@ -123,7 +98,7 @@ async function slackApiRequest(
     );
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as T;
 
   if (!data.ok) {
     if (data.error === "invalid_auth" || data.error === "token_revoked") {
@@ -138,22 +113,14 @@ async function slackApiRequest(
   return data;
 }
 
-interface SlackChannelResponse {
-  id: string;
-  name: string;
-  is_archived: boolean;
-  is_member: boolean;
-  num_members: number;
-}
-
 // Get user's channels
 export async function getSlackChannels(token: string): Promise<SlackChannel[]> {
   const [publicChannels, privateChannels] = await Promise.all([
-    slackApiRequest(
+    slackApiRequest<ConversationsListResponse>(
       "/conversations.list?types=public_channel&limit=1000",
       token
     ),
-    slackApiRequest(
+    slackApiRequest<ConversationsListResponse>(
       "/conversations.list?types=private_channel&limit=1000",
       token
     ),
@@ -165,10 +132,10 @@ export async function getSlackChannels(token: string): Promise<SlackChannel[]> {
   if (publicChannels.channels) {
     channels.push(
       ...publicChannels.channels
-        .filter((channel: SlackChannelResponse) => !channel.is_archived)
-        .map((channel: SlackChannelResponse) => ({
-          id: channel.id,
-          name: channel.name,
+        .filter((channel: Channel) => !channel.is_archived)
+        .map((channel: Channel) => ({
+          id: channel.id!,
+          name: channel.name!,
           type: "public" as const,
           memberCount: channel.num_members,
           isArchived: channel.is_archived,
@@ -181,13 +148,10 @@ export async function getSlackChannels(token: string): Promise<SlackChannel[]> {
   if (privateChannels.channels) {
     channels.push(
       ...privateChannels.channels
-        .filter(
-          (channel: SlackChannelResponse) =>
-            !channel.is_archived && channel.is_member
-        )
-        .map((channel: SlackChannelResponse) => ({
-          id: channel.id,
-          name: channel.name,
+        .filter((channel: Channel) => !channel.is_archived && channel.is_member)
+        .map((channel: Channel) => ({
+          id: channel.id!,
+          name: channel.name!,
           type: "private" as const,
           memberCount: channel.num_members,
           isArchived: channel.is_archived,
@@ -216,31 +180,10 @@ export async function sendSlackMessage(
     body.blocks = payload.blocks;
   }
 
-  await slackApiRequest("/chat.postMessage", token, {
+  await slackApiRequest<ChatPostMessageResponse>("/chat.postMessage", token, {
     method: "POST",
     body: JSON.stringify(body),
   });
-}
-
-export interface PullRequest {
-  repository: string;
-  title: string;
-  url: string;
-  author: string;
-  createdAt: string;
-  hasApprovals?: boolean;
-  hasChangesRequested?: boolean;
-  reviewers?: string[];
-  labels?: string[];
-  additions?: number;
-  deletions?: number;
-}
-
-// Simple PR categorization
-interface PRCategory {
-  name: string;
-  emoji: string;
-  prs: PullRequest[];
 }
 
 // Format pull request notifications for Slack - simple blocks approach
@@ -458,7 +401,7 @@ function categorizePRs(prs: PullRequest[]): PRCategory[] {
 // Validate Slack token
 export async function validateSlackToken(token: string): Promise<boolean> {
   try {
-    await slackApiRequest("/auth.test", token);
+    await slackApiRequest<AuthTestResponse>("/auth.test", token);
     return true;
   } catch {
     return false;
@@ -466,19 +409,13 @@ export async function validateSlackToken(token: string): Promise<boolean> {
 }
 
 // Get Slack user info
-export async function getSlackUserInfo(token: string): Promise<{
-  id: string;
-  name: string;
-  email?: string;
-  teamId: string;
-  teamName: string;
-}> {
-  const authTest = await slackApiRequest("/auth.test", token);
+export async function getSlackUserInfo(token: string): Promise<SlackUserInfo> {
+  const authTest = await slackApiRequest<AuthTestResponse>("/auth.test", token);
 
   return {
-    id: authTest.user_id,
-    name: authTest.user,
-    teamId: authTest.team_id,
-    teamName: authTest.team,
+    id: authTest.user_id!,
+    name: authTest.user!,
+    teamId: authTest.team_id!,
+    teamName: authTest.team!,
   };
 }

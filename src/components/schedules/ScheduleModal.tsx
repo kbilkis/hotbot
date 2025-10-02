@@ -250,7 +250,7 @@ export default function ScheduleModal({
       // Validate as UTC since that's how it's stored
       CronExpressionParser.parse(expression, { tz: "UTC" });
       return true;
-    } catch (error) {
+    } catch {
       return false;
     }
   };

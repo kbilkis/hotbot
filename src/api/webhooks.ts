@@ -142,7 +142,7 @@ function safeTimestampToDate(
  * Extract period information from subscription items
  * For multiple items, uses the earliest start and latest end to cover the full period
  */
-function extractSubscriptionPeriod(subscription: any): {
+function extractSubscriptionPeriod(subscription: Stripe.Subscription): {
   currentPeriodStart: Date | undefined;
   currentPeriodEnd: Date | undefined;
 } {
@@ -156,7 +156,7 @@ function extractSubscriptionPeriod(subscription: any): {
   let earliestStart: number | undefined;
   let latestEnd: number | undefined;
 
-  items.forEach((item: any) => {
+  items.forEach((item) => {
     if (item.current_period_start) {
       if (!earliestStart || item.current_period_start < earliestStart) {
         earliestStart = item.current_period_start;

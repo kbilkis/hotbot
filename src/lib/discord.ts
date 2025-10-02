@@ -1,48 +1,25 @@
 // Discord API functions for messaging provider integration
+import {
+  type DiscordOAuth2TokenResponse,
+  type DiscordOAuth2TokenInfo,
+  type DiscordUser,
+  type DiscordGuild,
+  type DiscordChannel,
+  DiscordChannelType,
+  type DiscordMessage,
+} from "../types/discord";
+import type { PullRequest, PRCategory } from "../types/pull-request";
 
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID!;
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET!;
 
-export interface DiscordGuild {
-  id: string;
-  name: string;
-  icon?: string;
-  owner: boolean;
-  permissions: string;
-}
-
-export interface DiscordChannel {
-  id: string;
-  name: string;
-  type: number; // 0 = text, 2 = voice, 4 = category, etc.
-  guild_id?: string;
-  position?: number;
-  permission_overwrites?: unknown[];
-  nsfw?: boolean;
-  parent_id?: string;
-}
-
-interface DiscordMessage {
-  content: string;
-  embeds?: DiscordEmbed[];
-}
-
-interface DiscordEmbed {
-  title?: string;
-  description?: string;
-  url?: string;
-  color?: number;
-  fields?: Array<{
-    name: string;
-    value: string;
-    inline?: boolean;
-  }>;
-  footer?: {
-    text: string;
-    icon_url?: string;
-  };
-  timestamp?: string;
-}
+// Re-export commonly used types for convenience
+export type {
+  DiscordGuild,
+  DiscordChannel,
+  DiscordMessage,
+  DiscordEmbed,
+} from "../types/discord";
 
 interface DiscordTokenResponse {
   accessToken: string;
@@ -108,10 +85,11 @@ export async function exchangeDiscordToken(
     );
   }
 
-  const data = await response.json();
-  if (data.error) {
+  const data: DiscordOAuth2TokenResponse = await response.json();
+  if ("error" in data) {
+    const errorData = data as { error: string; error_description?: string };
     throw new Error(
-      `Discord OAuth error: ${data.error_description || data.error}`
+      `Discord OAuth error: ${errorData.error_description || errorData.error}`
     );
   }
 
@@ -130,11 +108,11 @@ export async function exchangeDiscordToken(
 }
 
 // Make authenticated Discord API request
-async function discordApiRequest(
+async function discordApiRequest<T>(
   endpoint: string,
   token: string,
   options: RequestInit = {}
-) {
+): Promise<T> {
   console.log("Discord API Request:", {
     endpoint,
     tokenLength: token?.length || 0,
@@ -173,14 +151,14 @@ async function discordApiRequest(
     throw new Error(`Discord API error: ${response.status} ${errorText}`);
   }
 
-  return response.json();
+  return response.json() as Promise<T>;
 }
 
 // Make Discord API request using bot token
-async function discordBotApiRequest(
+async function discordBotApiRequest<T>(
   endpoint: string,
   options: RequestInit = {}
-) {
+): Promise<T> {
   const botToken = process.env.DISCORD_BOT_TOKEN;
   if (!botToken) {
     throw new Error("Discord bot token not configured");
@@ -229,26 +207,26 @@ async function discordBotApiRequest(
     throw new Error(`Discord Bot API error: ${response.status} ${errorText}`);
   }
 
-  return response.json();
+  return response.json() as Promise<T>;
 }
 
 // Get channels for a guild using bot token
 export async function getDiscordChannels(
   guildId: string
 ): Promise<DiscordChannel[]> {
-  const channels: DiscordChannel[] = await discordBotApiRequest(
+  const channels = await discordBotApiRequest<DiscordChannel[]>(
     `/guilds/${guildId}/channels`
   );
 
   // Filter for text channels only
   return channels
-    .filter((channel) => channel.type === 0) // Text channels
+    .filter((channel) => channel.type === DiscordChannelType.GUILD_TEXT)
     .sort((a, b) => (a.position || 0) - (b.position || 0));
 }
 
 // Get guilds where the bot is installed
 export async function getBotGuilds(): Promise<DiscordGuild[]> {
-  const guilds: DiscordGuild[] = await discordBotApiRequest(
+  const guilds = await discordBotApiRequest<DiscordGuild[]>(
     "/users/@me/guilds"
   );
   return guilds;
@@ -278,31 +256,10 @@ export async function sendDiscordChannelMessage(
   channelId: string,
   message: DiscordMessage
 ): Promise<void> {
-  await discordBotApiRequest(`/channels/${channelId}/messages`, {
+  await discordBotApiRequest<void>(`/channels/${channelId}/messages`, {
     method: "POST",
     body: JSON.stringify(message),
   });
-}
-
-interface PullRequest {
-  repository: string;
-  title: string;
-  url: string;
-  author: string;
-  createdAt: string;
-  hasApprovals?: boolean;
-  hasChangesRequested?: boolean;
-  reviewers?: string[];
-  labels?: string[];
-  additions?: number;
-  deletions?: number;
-}
-
-// Simple PR categorization
-interface PRCategory {
-  name: string;
-  emoji: string;
-  prs: PullRequest[];
 }
 
 // Format pull request notifications for Discord - simple approach like Slack
@@ -465,7 +422,7 @@ export async function validateDiscordToken(token: string): Promise<boolean> {
     });
 
     if (response.ok) {
-      const tokenInfo = await response.json();
+      const tokenInfo: DiscordOAuth2TokenInfo = await response.json();
       console.log("Discord Token Info:", {
         scopes: tokenInfo.scopes,
         application: tokenInfo.application?.name,
@@ -475,7 +432,7 @@ export async function validateDiscordToken(token: string): Promise<boolean> {
     }
 
     // Fallback to basic user endpoint
-    await discordApiRequest("/users/@me", token);
+    await discordApiRequest<DiscordUser>("/users/@me", token);
     return true;
   } catch (error) {
     console.error("Discord token validation failed:", error);
@@ -490,12 +447,12 @@ export async function getDiscordUserInfo(token: string): Promise<{
   discriminator: string;
   email?: string;
 }> {
-  const user = await discordApiRequest("/users/@me", token);
+  const user = await discordApiRequest<DiscordUser>("/users/@me", token);
 
   return {
     id: user.id,
     username: user.username,
     discriminator: user.discriminator,
-    email: user.email,
+    email: user.email ?? undefined,
   };
 }

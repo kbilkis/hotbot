@@ -2,20 +2,8 @@
  * Filter processor - applies PR filters to pull request lists
  */
 
-import { PRFilters } from "../database/schema";
-
-export interface PullRequest {
-  id: string;
-  title: string;
-  author: string;
-  url: string;
-  createdAt: string;
-  repository: string;
-  labels?: string[];
-  reviewers?: string[];
-  hasApprovals?: boolean;
-  hasChangesRequested?: boolean;
-}
+import { PRFilters } from "@/lib/database/schema";
+import type { PullRequest } from "@/types/pull-request";
 
 /**
  * Apply filters to a list of pull requests

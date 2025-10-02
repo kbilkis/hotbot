@@ -1,102 +1,17 @@
 // Simple GitHub API functions
+import type {
+  GitHubUser,
+  GitHubRepository,
+  GitHubPullRequest,
+  GitHubReview,
+  GitHubRequestedReviewers,
+  GitHubOAuthTokenResponse,
+  GitHubPR,
+  PRFilters,
+} from "../types/github";
 
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID!;
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET!;
-
-// GitHub API response types
-interface GitHubLabel {
-  id: number;
-  name: string;
-  color: string;
-  description?: string;
-}
-
-interface GitHubUser {
-  login: string;
-  id: number;
-  avatar_url: string;
-  type: string;
-}
-
-interface GitHubTeam {
-  id: number;
-  name: string;
-  slug: string;
-}
-
-interface GitHubRepository {
-  id: number;
-  full_name: string;
-  name: string;
-  private: boolean;
-  archived: boolean;
-  disabled: boolean;
-}
-
-interface GitHubPullRequestFromAPI {
-  id: number;
-  number: number;
-  title: string;
-  body: string;
-  state: "open" | "closed";
-  merged: boolean;
-  html_url: string;
-  created_at: string;
-  updated_at: string;
-  user: GitHubUser;
-  labels: GitHubLabel[];
-  assignees: GitHubUser[];
-  requested_reviewers: GitHubUser[];
-  head: {
-    ref: string;
-    sha: string;
-  };
-  base: {
-    ref: string;
-    sha: string;
-  };
-}
-
-interface GitHubReview {
-  id: number;
-  user: GitHubUser;
-  state: "APPROVED" | "CHANGES_REQUESTED" | "COMMENTED" | "DISMISSED";
-  submitted_at: string;
-}
-
-interface GitHubRequestedReviewers {
-  users: GitHubUser[];
-  teams: GitHubTeam[];
-}
-
-interface GitHubPR {
-  id: string;
-  title: string;
-  author: string;
-  url: string;
-  createdAt: string;
-  updatedAt: string;
-  repository: string;
-  labels: string[];
-  status: "open" | "closed" | "merged";
-  reviewers?: string[];
-  assignees?: string[];
-  reviewStates?: Record<string, string>; // reviewer -> APPROVED/CHANGES_REQUESTED/etc
-  hasApprovals?: boolean;
-  hasChangesRequested?: boolean;
-  checksStatus?: "pending" | "success" | "failure" | "error";
-  additions?: number;
-  deletions?: number;
-}
-
-interface PRFilters {
-  repositories?: string[];
-  labels?: string[];
-  titleKeywords?: string[];
-  excludeAuthors?: string[];
-  minAge?: number;
-  maxAge?: number;
-}
 
 // Generate GitHub OAuth URL
 export function getGitHubAuthUrl(
@@ -137,7 +52,7 @@ export async function exchangeGitHubToken(code: string, redirectUri: string) {
     throw new Error(`GitHub token exchange failed: ${response.status}`);
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as GitHubOAuthTokenResponse;
 
   if (data.error) {
     throw new Error(
@@ -154,11 +69,11 @@ export async function exchangeGitHubToken(code: string, redirectUri: string) {
 }
 
 // Make authenticated GitHub API request
-async function githubApiRequest(
+async function githubApiRequest<T>(
   endpoint: string,
   token: string,
   options: RequestInit = {}
-) {
+): Promise<T> {
   const response = await fetch(`https://api.github.com${endpoint}`, {
     ...options,
     headers: {
@@ -182,12 +97,12 @@ async function githubApiRequest(
     throw new Error(`GitHub API error: ${response.status} ${errorText}`);
   }
 
-  return response.json();
+  return response.json() as Promise<T>;
 }
 
 // Get user repositories
 export async function getGitHubRepositories(token: string): Promise<string[]> {
-  const repos: GitHubRepository[] = await githubApiRequest(
+  const repos = await githubApiRequest<GitHubRepository[]>(
     "/user/repos?type=all&sort=updated&per_page=100",
     token
   );
@@ -211,7 +126,7 @@ export async function getGitHubPullRequests(
   // Fetch PRs from each repository
   for (const repo of reposToCheck) {
     try {
-      const prs: GitHubPullRequestFromAPI[] = await githubApiRequest(
+      const prs = await githubApiRequest<GitHubPullRequest[]>(
         `/repos/${repo}/pulls?state=open&per_page=100`,
         token
       );
@@ -221,9 +136,10 @@ export async function getGitHubPullRequests(
           // Get detailed review information and PR stats
           const [reviews, prDetails] = await Promise.all([
             getDetailedReviewInfo(token, repo, pr.number),
-            githubApiRequest(`/repos/${repo}/pulls/${pr.number}`, token).catch(
-              () => null
-            ),
+            githubApiRequest<GitHubPullRequest>(
+              `/repos/${repo}/pulls/${pr.number}`,
+              token
+            ).catch(() => null),
           ]);
 
           return {
@@ -268,17 +184,17 @@ async function getDetailedReviewInfo(
 ) {
   try {
     const [reviews, checks] = await Promise.all([
-      githubApiRequest(
+      githubApiRequest<GitHubReview[]>(
         `/repos/${repo}/pulls/${prNumber}/reviews`,
         token
-      ) as Promise<GitHubReview[]>,
-      githubApiRequest(
+      ),
+      githubApiRequest<GitHubRequestedReviewers>(
         `/repos/${repo}/pulls/${prNumber}/requested_reviewers`,
         token
       ).catch(() => ({
         users: [],
         teams: [],
-      })) as Promise<GitHubRequestedReviewers>,
+      })),
     ]);
 
     const reviewers = new Set<string>();
@@ -315,9 +231,7 @@ async function getDetailedReviewInfo(
 }
 
 // Determine PR status based on reviews and checks
-function determineStatus(
-  pr: GitHubPullRequestFromAPI
-): "open" | "closed" | "merged" {
+function determineStatus(pr: GitHubPullRequest): "open" | "closed" | "merged" {
   if (pr.state === "closed") {
     return pr.merged ? "merged" : "closed";
   }
@@ -386,8 +300,7 @@ function applyPRFilters(
 export async function getGitHubUserInfo(
   token: string
 ): Promise<{ login: string; name: string; email: string }> {
-  const user: GitHubUser & { name?: string; email?: string } =
-    await githubApiRequest("/user", token);
+  const user = await githubApiRequest<GitHubUser>("/user", token);
 
   return {
     login: user.login,

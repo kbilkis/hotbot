@@ -5,6 +5,8 @@
 import { CronExpressionParser } from "cron-parser";
 import { eq } from "drizzle-orm";
 
+import type { PullRequest } from "@/types/pull-request";
+
 import { db } from "../database/client";
 import {
   getActiveJobsForExecution,
@@ -22,7 +24,7 @@ import {
 import { formatDiscordPRMessage, sendDiscordChannelMessage } from "../discord";
 import { getGitHubPullRequests } from "../github";
 import { getGitLabMergeRequests } from "../gitlab";
-import { formatSlackPRMessage, PullRequest, sendSlackMessage } from "../slack";
+import { formatSlackPRMessage, sendSlackMessage } from "../slack";
 
 import { escalationProcessor } from "./escalation";
 import { filterProcessor } from "./filters";

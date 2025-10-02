@@ -1,83 +1,18 @@
 // GitLab API functions
+import type {
+  GitLabUser,
+  GitLabProject,
+  GitLabMergeRequestFromAPI,
+  GitLabOAuthTokenResponse,
+  GitLabApprovalsResponse,
+  GitLabNote,
+  GitLabMR,
+  MRFilters,
+} from "../types/gitlab";
 
 const GITLAB_CLIENT_ID = process.env.GITLAB_CLIENT_ID!;
 const GITLAB_CLIENT_SECRET = process.env.GITLAB_CLIENT_SECRET!;
 const GITLAB_BASE_URL = process.env.GITLAB_BASE_URL || "https://gitlab.com";
-
-interface GitLabUser {
-  id: number;
-  username: string;
-  name: string;
-  avatar_url: string;
-  state: string;
-}
-
-interface GitLabProject {
-  id: number;
-  name: string;
-  path_with_namespace: string;
-  visibility: "private" | "internal" | "public";
-  archived: boolean;
-  web_url: string;
-}
-
-interface GitLabMergeRequestFromAPI {
-  id: number;
-  iid: number;
-  title: string;
-  description: string;
-  state: "opened" | "closed" | "merged";
-  web_url: string;
-  created_at: string;
-  updated_at: string;
-  author: GitLabUser;
-  assignees: GitLabUser[];
-  reviewers: GitLabUser[];
-  labels: string[];
-  source_branch: string;
-  target_branch: string;
-  merge_status: "can_be_merged" | "cannot_be_merged" | "unchecked";
-  detailed_merge_status: string;
-  has_conflicts: boolean;
-  user_notes_count: number;
-  upvotes: number;
-  downvotes: number;
-}
-
-interface GitLabMergeRequestApproval {
-  id: number;
-  user: GitLabUser;
-  created_at: string;
-}
-
-interface GitLabMR {
-  id: string;
-  title: string;
-  author: string;
-  url: string;
-  createdAt: string;
-  updatedAt: string;
-  repository: string;
-  labels: string[];
-  status: "open" | "closed" | "merged";
-  reviewers?: string[];
-  assignees?: string[];
-  reviewStates?: Record<string, string>;
-  hasApprovals?: boolean;
-  hasChangesRequested?: boolean;
-  checksStatus?: "pending" | "success" | "failure" | "error";
-  additions?: number;
-  deletions?: number;
-}
-
-interface MRFilters {
-  repositories?: string[];
-  labels?: string[];
-  titleKeywords?: string[];
-  excludeAuthors?: string[];
-  minAge?: number;
-  maxAge?: number;
-}
 
 // Generate GitLab OAuth URL
 export function getGitLabAuthUrl(
@@ -119,7 +54,10 @@ export async function exchangeGitLabToken(code: string, redirectUri: string) {
     throw new Error(`GitLab token exchange failed: ${response.status}`);
   }
 
-  const data = await response.json();
+  const data = (await response.json()) as GitLabOAuthTokenResponse & {
+    error?: string;
+    error_description?: string;
+  };
 
   if (data.error) {
     throw new Error(
@@ -137,11 +75,11 @@ export async function exchangeGitLabToken(code: string, redirectUri: string) {
 }
 
 // Make authenticated GitLab API request
-async function gitlabApiRequest(
+async function gitlabApiRequest<T>(
   endpoint: string,
   token: string,
   options: RequestInit = {}
-) {
+): Promise<T> {
   const response = await fetch(`${GITLAB_BASE_URL}/api/v4${endpoint}`, {
     ...options,
     headers: {
@@ -165,12 +103,12 @@ async function gitlabApiRequest(
     throw new Error(`GitLab API error: ${response.status} ${errorText}`);
   }
 
-  return response.json();
+  return response.json() as Promise<T>;
 }
 
 // Get user projects (repositories)
 export async function getGitLabProjects(token: string): Promise<string[]> {
-  const projects: GitLabProject[] = await gitlabApiRequest(
+  const projects = await gitlabApiRequest<GitLabProject[]>(
     "/projects?membership=true&archived=false&per_page=100&order_by=updated_at&sort=desc",
     token
   );
@@ -196,12 +134,12 @@ export async function getGitLabMergeRequests(
     try {
       // Get project ID from path
       const encodedPath = encodeURIComponent(projectPath);
-      const project: GitLabProject = await gitlabApiRequest(
+      const project = await gitlabApiRequest<GitLabProject>(
         `/projects/${encodedPath}`,
         token
       );
 
-      const mrs: GitLabMergeRequestFromAPI[] = await gitlabApiRequest(
+      const mrs = await gitlabApiRequest<GitLabMergeRequestFromAPI[]>(
         `/projects/${project.id}/merge_requests?state=opened&per_page=100&order_by=updated_at&sort=desc`,
         token
       );
@@ -252,11 +190,11 @@ async function getDetailedApprovalInfo(
 ) {
   try {
     const [approvals, notes] = await Promise.all([
-      gitlabApiRequest(
+      gitlabApiRequest<GitLabApprovalsResponse>(
         `/projects/${projectId}/merge_requests/${mrIid}/approvals`,
         token
-      ).catch(() => ({ approved_by: [] })),
-      gitlabApiRequest(
+      ).catch(() => ({ approved_by: [] } as Partial<GitLabApprovalsResponse>)),
+      gitlabApiRequest<GitLabNote[]>(
         `/projects/${projectId}/merge_requests/${mrIid}/notes?per_page=100`,
         token
       ).catch(() => []),
@@ -268,7 +206,7 @@ async function getDetailedApprovalInfo(
 
     // Process approvals
     if (approvals.approved_by && approvals.approved_by.length > 0) {
-      approvals.approved_by.forEach((approval: GitLabMergeRequestApproval) => {
+      approvals.approved_by.forEach((approval) => {
         reviewStates[approval.user.username] = "APPROVED";
         hasApprovals = true;
       });
@@ -276,7 +214,7 @@ async function getDetailedApprovalInfo(
 
     // Process notes for change requests (look for specific patterns)
     if (Array.isArray(notes)) {
-      notes.forEach((note: any) => {
+      notes.forEach((note) => {
         if (note.system === false && note.body) {
           const body = note.body.toLowerCase();
           // Look for common change request patterns
@@ -394,10 +332,7 @@ function applyMRFilters(
 export async function getGitLabUserInfo(
   token: string
 ): Promise<{ login: string; name: string; email: string }> {
-  const user: GitLabUser & { email?: string } = await gitlabApiRequest(
-    "/user",
-    token
-  );
+  const user = await gitlabApiRequest<GitLabUser>("/user", token);
 
   return {
     login: user.username,
