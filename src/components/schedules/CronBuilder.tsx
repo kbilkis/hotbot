@@ -91,15 +91,6 @@ export default function CronBuilder({
   const displayCronExpression = getDisplayCronExpression(value);
   const cronParts = parseCronExpression(displayCronExpression);
 
-  // Convert current UTC cron to display timezone when timezone changes
-  useEffect(() => {
-    if (value) {
-      // When timezone changes, we need to update the display but keep the same UTC time
-      // The display will automatically update via getDisplayCronExpression
-      // No need to call onChange here as the UTC value shouldn't change
-    }
-  }, [timezone]);
-
   const updateCronPart = (field: keyof CronParts, newValue: string) => {
     const newParts = { ...cronParts, [field]: newValue };
     const newDisplayCron = buildCronExpression(newParts);
@@ -159,7 +150,7 @@ export default function CronBuilder({
           <select
             className="form-select"
             value={cronParts.minute}
-            onChange={(e) => updateCronPart("minute", e.target.value)}
+            onChange={(e) => updateCronPart("minute", e.currentTarget.value)}
           >
             <option value="*">Every minute</option>
             <option value="0">:00</option>
@@ -177,7 +168,7 @@ export default function CronBuilder({
           <select
             className="form-select"
             value={cronParts.hour}
-            onChange={(e) => updateCronPart("hour", e.target.value)}
+            onChange={(e) => updateCronPart("hour", e.currentTarget.value)}
           >
             <option value="*">Every hour</option>
             {Array.from({ length: 24 }, (_, i) => (
@@ -197,7 +188,7 @@ export default function CronBuilder({
           <select
             className="form-select"
             value={cronParts.dayOfWeek}
-            onChange={(e) => updateCronPart("dayOfWeek", e.target.value)}
+            onChange={(e) => updateCronPart("dayOfWeek", e.currentTarget.value)}
           >
             <option value="*">Every day</option>
             <option value="1-5">Weekdays (Mon-Fri)</option>
@@ -223,7 +214,7 @@ export default function CronBuilder({
             id="timezone"
             className="form-select"
             value={timezone || getUserTimezoneOrFallback()}
-            onChange={(e) => onTimezoneChange(e.target.value)}
+            onChange={(e) => onTimezoneChange(e.currentTarget.value)}
           >
             {getAllTimezones().map((tz) => (
               <option key={tz.value} value={tz.value}>
@@ -246,7 +237,7 @@ export default function CronBuilder({
           type="text"
           className={`form-input ${error ? "error" : ""}`}
           value={value}
-          onChange={(e) => onChange(e.target.value)}
+          onChange={(e) => onChange(e.currentTarget.value)}
           placeholder="0 9 * * 1-5"
         />
         <small className="form-help">{getCronDescription(value)}</small>

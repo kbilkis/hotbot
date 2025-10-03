@@ -86,9 +86,11 @@ export function handleTierLimitError(error: unknown, c: Context) {
   if (error instanceof TierLimitError) {
     return c.json(
       {
+        success: false,
         error: error.message,
         code: "TIER_LIMIT_EXCEEDED",
         details: error.validationResult,
+        message: error.validationResult.reason,
       },
       403
     );

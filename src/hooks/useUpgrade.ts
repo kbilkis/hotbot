@@ -1,5 +1,7 @@
 import { useState } from "preact/hooks";
 
+import { subscriptionsApi } from "../lib/api/client";
+
 interface UpgradeState {
   loading: boolean;
   error: string | null;
@@ -20,27 +22,30 @@ export function useUpgrade() {
       const successUrl = `${baseUrl}/upgrade/success`;
       const cancelUrl = `${baseUrl}/upgrade/cancel`;
 
-      const response = await fetch("/api/subscriptions/checkout", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
+      const response = await subscriptionsApi.checkout.$post({
+        json: {
           successUrl,
           cancelUrl,
-        }),
+        },
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Failed to create checkout session");
+      const data = await response.json();
+      if (!data.success) {
+        const errorMessage = data.error || "Failed to create checkout session";
+        throw new Error(errorMessage);
       }
 
-      const { checkoutUrl } = await response.json();
-
-      // Redirect to Stripe Checkout
-      window.location.href = checkoutUrl;
+      const checkoutUrl = data.checkoutUrl;
+      if (checkoutUrl) {
+        // Redirect to Stripe Checkout
+        window.location.href = checkoutUrl;
+      } else {
+        console.error("Upgrade not available at this moment.");
+        setState({
+          loading: false,
+          error: "Upgrade not available at this moment.",
+        });
+      }
     } catch (err) {
       console.error("Upgrade failed:", err);
       setState({

@@ -83,6 +83,7 @@ const app = new Hono()
 
       return c.json(
         {
+          success: true,
           message: "Cron job created successfully",
           job,
         },
@@ -105,7 +106,10 @@ const app = new Hono()
 
       // Verify the ID matches
       if (updateData.id !== id) {
-        return c.json({ success: false, error: "ID mismatch" }, 400);
+        return c.json(
+          { success: false, error: "ID mismatch", message: "ID mismatch" },
+          400
+        );
       }
 
       // Extract the update data (excluding id) - cron expression is already in UTC
@@ -120,7 +124,14 @@ const app = new Hono()
       const job = await updateCronJob(id, userId, jobUpdates);
 
       if (!job) {
-        return c.json({ success: false, error: "Cron job not found" }, 404);
+        return c.json(
+          {
+            success: false,
+            error: "Cron job not found",
+            message: "Cron job not found",
+          },
+          404
+        );
       }
 
       return c.json({
@@ -132,7 +143,14 @@ const app = new Hono()
       console.error("Error updating cron job:", error);
       return (
         handleTierLimitError(error, c) ||
-        c.json({ success: false, error: "Failed to update cron job" }, 500)
+        c.json(
+          {
+            success: false,
+            error: "Failed to update cron job",
+            message: "Failed to update cron job",
+          },
+          500
+        )
       );
     }
   })
@@ -144,7 +162,14 @@ const app = new Hono()
       const deleted = await deleteCronJob(id, userId);
 
       if (!deleted) {
-        return c.json({ success: false, error: "Cron job not found" }, 404);
+        return c.json(
+          {
+            success: false,
+            error: "Cron job not found",
+            message: "Cron job not found",
+          },
+          404
+        );
       }
 
       return c.json({
@@ -154,7 +179,11 @@ const app = new Hono()
     } catch (error) {
       console.error("Error deleting cron job:", error);
       return c.json(
-        { success: false, error: "Failed to delete cron job" },
+        {
+          success: false,
+          error: "Failed to delete cron job",
+          message: "Failed to delete cron job",
+        },
         500
       );
     }
@@ -168,7 +197,14 @@ const app = new Hono()
       const job = await toggleCronJobStatus(id, userId, isActive);
 
       if (!job) {
-        return c.json({ success: false, error: "Cron job not found" }, 404);
+        return c.json(
+          {
+            success: false,
+            error: "Cron job not found",
+            message: "Cron job not found",
+          },
+          404
+        );
       }
 
       return c.json({
@@ -179,7 +215,11 @@ const app = new Hono()
     } catch (error) {
       console.error("Error toggling cron job status:", error);
       return c.json(
-        { success: false, error: "Failed to toggle cron job status" },
+        {
+          success: false,
+          error: "Failed to toggle cron job status",
+          message: "Failed to toggle cron job status",
+        },
         500
       );
     }

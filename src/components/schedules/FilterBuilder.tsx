@@ -37,7 +37,7 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
   };
 
   const handleKeyPress = (
-    e: React.KeyboardEvent,
+    e: KeyboardEvent,
     type: keyof PRFilters,
     inputValue: string
   ) => {
@@ -84,7 +84,7 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
               className="form-input"
               placeholder="Add label (e.g., URGENT, bug, feature)"
               value={labelInput}
-              onChange={(e) => setLabelInput(e.target.value)}
+              onChange={(e) => setLabelInput(e.currentTarget.value)}
               onKeyPress={(e) => handleKeyPress(e, "labels", labelInput)}
             />
             <button
@@ -138,7 +138,7 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
               className="form-input"
               placeholder="Add keyword (e.g., fix, update)"
               value={keywordInput}
-              onChange={(e) => setKeywordInput(e.target.value)}
+              onChange={(e) => setKeywordInput(e.currentTarget.value)}
               onKeyPress={(e) =>
                 handleKeyPress(e, "titleKeywords", keywordInput)
               }

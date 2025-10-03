@@ -2,14 +2,15 @@ import CronExpressionParser from "cron-parser";
 import { useState, useEffect } from "preact/hooks";
 
 import { useChannels, useDiscordChannels } from "@/hooks/useChannels";
-import { usePrefetchRepositories } from "@/hooks/useRepositories";
+import { useRepositories } from "@/hooks/useRepositories";
 import { CronJob } from "@/lib/database/schema";
 import { DiscordChannel } from "@/lib/discord";
-import { SlackChannel } from "@/lib/slack";
 import { getUserTimezoneOrFallback } from "@/lib/utils/timezone";
+import { SlackChannel } from "@/types/slack";
 
 import { useGitProviders } from "../../hooks/useGitProviders";
 import { useMessagingProviders } from "../../hooks/useMessagingProviders";
+import { discordApi, schedulesApi } from "../../lib/api/client";
 
 import CronBuilder from "./CronBuilder";
 import FilterBuilder from "./FilterBuilder";
@@ -75,7 +76,7 @@ export default function ScheduleModal({
 
   // Prefetch all repositories for connected providers
   const { repositoriesByProvider, loading: loadingAllRepositories } =
-    usePrefetchRepositories(gitProviders, true);
+    useRepositories(gitProviders, true);
 
   // Get channels for each connected messaging provider using individual useChannels calls
   const connectedMessagingProviders = messagingProviders.filter(
@@ -190,11 +191,14 @@ export default function ScheduleModal({
         // Search through each guild to find the one containing our channel
         for (const guild of guilds) {
           try {
-            const response = await fetch(
-              `/api/providers/messaging/discord/guilds/${guild.id}/channels`
-            );
-            if (response.ok) {
-              const data = await response.json();
+            const response = await discordApi.guilds[":guildId"].channels.$get({
+              param: {
+                guildId: guild.id,
+              },
+            });
+
+            const data = await response.json();
+            if (data.success) {
               const channels = data.data?.channels || [];
 
               // Check if this guild contains our target channel
@@ -362,33 +366,29 @@ export default function ScheduleModal({
 
       if (schedule) {
         // Update existing schedule
-        response = await fetch(`/api/schedules/${schedule.id}`, {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
+        response = await schedulesApi[":id"].$put({
+          param: {
+            id: schedule.id,
           },
-          body: JSON.stringify({
+          json: {
             id: schedule.id,
             ...apiData,
-          }),
+          },
         });
       } else {
-        // Create new schedule
-        response = await fetch("/api/schedules", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(apiData),
+        // Create new schedul
+        response = await schedulesApi.$post({
+          json: apiData,
         });
       }
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}));
-        throw new Error(
-          errorData.error ||
-            `Failed to ${schedule ? "update" : "create"} schedule`
-        );
+      const data = await response.json();
+      if (!data.success) {
+        const errorMessage =
+          data.message ||
+          data.error ||
+          `Failed to ${schedule ? "update" : "create"} schedule`;
+        throw new Error(errorMessage);
       }
 
       // Close modal and refresh the schedules list
@@ -432,7 +432,10 @@ export default function ScheduleModal({
               placeholder="e.g., Critical PRs"
               value={formData.name}
               onChange={(e) =>
-                setFormData((prev) => ({ ...prev, name: e.target.value }))
+                setFormData((prev) => ({
+                  ...prev,
+                  name: e.currentTarget.value,
+                }))
               }
             />
             {errors.name && <div className="field-error">{errors.name}</div>}
@@ -450,7 +453,7 @@ export default function ScheduleModal({
                   }`}
                   value={formData.gitProviderId}
                   onChange={(e) => {
-                    const newGitProviderId = e.target.value;
+                    const newGitProviderId = e.currentTarget.value;
                     setFormData((prev) => ({
                       ...prev,
                       gitProviderId: newGitProviderId,
@@ -495,7 +498,7 @@ export default function ScheduleModal({
                         placeholder="Search repositories..."
                         value={repositorySearchTerm}
                         onChange={(e) =>
-                          setRepositorySearchTerm(e.target.value)
+                          setRepositorySearchTerm(e.currentTarget.value)
                         }
                         style={{ marginBottom: "8px" }}
                       />
@@ -515,7 +518,7 @@ export default function ScheduleModal({
                               type="checkbox"
                               checked={formData.repositories.includes(repo)}
                               onChange={(e) => {
-                                if (e.target.checked) {
+                                if (e.currentTarget.checked) {
                                   setFormData((prev) => ({
                                     ...prev,
                                     repositories: [...prev.repositories, repo],
@@ -564,7 +567,7 @@ export default function ScheduleModal({
                   }`}
                   value={formData.messagingProviderId}
                   onChange={(e) => {
-                    const newMessagingProviderId = e.target.value;
+                    const newMessagingProviderId = e.currentTarget.value;
                     setFormData((prev) => ({
                       ...prev,
                       messagingProviderId: newMessagingProviderId,
@@ -618,7 +621,7 @@ export default function ScheduleModal({
                         className="form-select"
                         value={selectedDiscordGuild}
                         onChange={(e) => {
-                          setSelectedDiscordGuild(e.target.value);
+                          setSelectedDiscordGuild(e.currentTarget.value);
                           setFormData((prev) => ({
                             ...prev,
                             messagingChannelId: "", // Clear channel when guild changes
@@ -653,7 +656,7 @@ export default function ScheduleModal({
                               onChange={(e) =>
                                 setFormData((prev) => ({
                                   ...prev,
-                                  messagingChannelId: e.target.value,
+                                  messagingChannelId: e.currentTarget.value,
                                 }))
                               }
                             >
@@ -687,7 +690,7 @@ export default function ScheduleModal({
                           onChange={(e) =>
                             setFormData((prev) => ({
                               ...prev,
-                              messagingChannelId: e.target.value,
+                              messagingChannelId: e.currentTarget.value,
                             }))
                           }
                         >
@@ -749,7 +752,7 @@ export default function ScheduleModal({
                   className="form-select"
                   value={formData.escalationProviderId}
                   onChange={(e) => {
-                    const newEscalationProviderId = e.target.value;
+                    const newEscalationProviderId = e.currentTarget.value;
                     setFormData((prev) => ({
                       ...prev,
                       escalationProviderId: newEscalationProviderId,
@@ -786,7 +789,7 @@ export default function ScheduleModal({
                     onChange={(e) =>
                       setFormData((prev) => ({
                         ...prev,
-                        escalationChannelId: e.target.value,
+                        escalationChannelId: e.currentTarget.value,
                       }))
                     }
                   >
@@ -819,7 +822,7 @@ export default function ScheduleModal({
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      escalationDays: parseInt(e.target.value) || 3,
+                      escalationDays: parseInt(e.currentTarget.value) || 3,
                     }))
                   }
                 />
@@ -842,7 +845,7 @@ export default function ScheduleModal({
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
-                    sendWhenEmpty: e.target.checked,
+                    sendWhenEmpty: e.currentTarget.checked,
                   }))
                 }
               />

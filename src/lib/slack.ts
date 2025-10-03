@@ -20,7 +20,12 @@ const SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET!;
 export function getSlackAuthUrl(
   state: string,
   redirectUri: string,
-  scopes: string[] = ["channels:read", "chat:write", "chat:write.public"]
+  scopes: string[] = [
+    "channels:read",
+    "chat:write",
+    "chat:write.public",
+    "groups:read",
+  ]
 ): string {
   const params = new URLSearchParams({
     client_id: SLACK_CLIENT_ID,

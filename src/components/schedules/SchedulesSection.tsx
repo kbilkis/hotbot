@@ -10,6 +10,7 @@ import { useState } from "preact/hooks";
 import { CronJob } from "@/lib/database/schema";
 
 import { useSchedules } from "../../hooks/useSchedules";
+import { schedulesApi } from "../../lib/api/client";
 
 import ScheduleModal from "./ScheduleModal";
 
@@ -70,12 +71,17 @@ export default function SchedulesSection() {
     }
 
     try {
-      const response = await fetch(`/api/schedules/${scheduleId}`, {
-        method: "DELETE",
+      const response = await schedulesApi[":id"].$delete({
+        param: {
+          id: scheduleId,
+        },
       });
+      const data = await response.json();
 
-      if (!response.ok) {
-        throw new Error(`Failed to delete schedule: ${response.statusText}`);
+      if (!data.success) {
+        const errorMessage =
+          data.message || data.error || "Failed to delete schedule";
+        throw new Error(errorMessage);
       }
 
       // Refetch data using SWR
@@ -95,19 +101,18 @@ export default function SchedulesSection() {
       const schedule = schedules.find((s) => s.id === scheduleId);
       if (!schedule) return;
 
-      const response = await fetch("/api/schedules/toggle", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      const response = await schedulesApi.toggle.$post({
+        json: {
           id: scheduleId,
           isActive: !schedule.isActive,
-        }),
+        },
       });
 
-      if (!response.ok) {
-        throw new Error(`Failed to toggle schedule: ${response.statusText}`);
+      const data = await response.json();
+      if (!data.success) {
+        const errorMessage =
+          data.message || data.error || "Failed to toggle schedule";
+        throw new Error(errorMessage);
       }
 
       // Refetch data using SWR

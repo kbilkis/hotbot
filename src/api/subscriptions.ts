@@ -164,6 +164,8 @@ const subscriptions = new Hono()
           {
             success: false,
             error: "No subscription found. Please create a subscription first.",
+            message:
+              "No subscription found. Please create a subscription first.",
           },
           404
         );
@@ -175,6 +177,7 @@ const subscriptions = new Hono()
           {
             success: false,
             error: "No billing account found. Please upgrade to Pro first.",
+            message: "No billing account found. Please upgrade to Pro first.",
           },
           400
         );
@@ -203,14 +206,19 @@ const subscriptions = new Hono()
               success: false,
               error:
                 "Billing portal is not configured. Please contact support to manage your subscription.",
-              errorCode: "BILLING_PORTAL_NOT_CONFIGURED",
+              message:
+                "Billing management is temporarily unavailable. Please contact support for subscription changes.",
             },
             503
           );
         }
         if (error.message.includes("Customer")) {
           return c.json(
-            { success: false, error: "Invalid customer account" },
+            {
+              success: false,
+              error: "Invalid customer account",
+              message: "Invalid customer account",
+            },
             400
           );
         }
@@ -219,6 +227,7 @@ const subscriptions = new Hono()
             {
               success: false,
               error: "Failed to create billing portal session",
+              message: "Failed to create billing portal session",
             },
             500
           );
@@ -229,6 +238,7 @@ const subscriptions = new Hono()
         {
           success: false,
           error: "Internal server error during portal creation",
+          message: "Internal server error during portal creation",
         },
         500
       );

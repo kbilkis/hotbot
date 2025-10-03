@@ -1,5 +1,7 @@
 import { useState } from "preact/hooks";
 
+import { subscriptionsApi } from "../lib/api/client";
+
 interface BillingState {
   loading: boolean;
   error: string | null;
@@ -18,33 +20,23 @@ export function useBilling() {
       // Use current URL as return URL
       const returnUrl = window.location.href;
 
-      const response = await fetch("/api/subscriptions/portal", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include",
-        body: JSON.stringify({
+      const response = await subscriptionsApi.portal.$post({
+        json: {
           returnUrl,
-        }),
+        },
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
+      const data = await response.json();
 
-        // Handle specific billing portal configuration error
-        if (errorData.errorCode === "BILLING_PORTAL_NOT_CONFIGURED") {
-          throw new Error(
-            "Billing management is temporarily unavailable. Please contact support for subscription changes."
-          );
-        }
-
-        throw new Error(
-          errorData.error || "Failed to create billing portal session"
-        );
+      if (!data.success) {
+        const errorMessage =
+          data.message ||
+          data.error ||
+          "Failed to create billing portal session";
+        throw new Error(errorMessage);
       }
 
-      const { portalUrl } = await response.json();
+      const portalUrl = data.portalUrl;
 
       // Redirect to Stripe Customer Portal
       window.location.href = portalUrl;

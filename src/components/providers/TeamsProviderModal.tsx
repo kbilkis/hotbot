@@ -126,7 +126,7 @@ export default function TeamsProviderModal({
                   className="form-input"
                   placeholder="https://outlook.office.com/webhook/..."
                   value={webhookUrl}
-                  onChange={(e) => setWebhookUrl(e.target.value)}
+                  onChange={(e) => setWebhookUrl(e.currentTarget.value)}
                 />
               </div>
               <small className="form-help">

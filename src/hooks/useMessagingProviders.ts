@@ -1,55 +1,39 @@
+import type { InferRequestType } from "hono/client";
 import useSWR from "swr";
 
-import { MessagingProviderDTO } from "@/api/providers/messaging";
-
-interface MessagingProviderResponseData {
-  success: boolean;
-  message: string;
-  data: {
-    providers: MessagingProviderDTO[];
-  };
-}
-
-const fetcher = async (url: string): Promise<MessagingProviderDTO[]> => {
-  const response = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    let errorMessage = `Request failed: ${response.status}`;
-
-    try {
-      const errorData = JSON.parse(errorText);
-      errorMessage = errorData.error || errorData.message || errorMessage;
-    } catch {
-      errorMessage = errorText || errorMessage;
-    }
-
-    throw new Error(errorMessage);
-  }
-
-  const data: MessagingProviderResponseData = await response.json();
-
-  if (data.success && data.data) {
-    return data.data.providers;
-  } else {
-    throw new Error("Invalid response format");
-  }
-};
+import { messagingApi } from "../lib/api/client";
 
 export function useMessagingProviders(shouldFetch: boolean = true) {
+  const $get = messagingApi.$get;
+
+  const fetcher = (arg: InferRequestType<typeof $get>) => async () => {
+    const res = await $get(arg);
+    const data = await res.json();
+    return data;
+  };
+
   const { data, error, isLoading, mutate } = useSWR(
-    shouldFetch ? "/api/providers/messaging" : null,
-    fetcher
+    shouldFetch ? "messaging-providers" : null,
+    shouldFetch ? fetcher({}) : null
   );
 
-  return {
-    providers: data || [],
-    loading: isLoading,
-    error: error?.message || null,
-    refetch: () => mutate(),
-  };
+  if (data?.success) {
+    return {
+      providers: data?.data?.providers || [],
+      loading: isLoading,
+      error: null,
+      refetch: () => mutate(),
+    };
+  } else {
+    let dataError;
+    if (!!data && !data.success) {
+      dataError = data.message || data.error;
+    }
+    return {
+      providers: [],
+      loading: isLoading,
+      error: dataError || error?.message || null,
+      refetch: () => mutate(),
+    };
+  }
 }

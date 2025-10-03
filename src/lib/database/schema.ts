@@ -6,6 +6,18 @@ import {
   index,
 } from "drizzle-orm/sqlite-core";
 
+// Helper function for timestamp fields with default values
+const timestampField = (name: string) =>
+  integer(name, { mode: "timestamp" })
+    .$defaultFn(() => new Date())
+    .notNull();
+
+// Helper function for audit timestamp fields (createdAt + updatedAt)
+const auditTimestamps = () => ({
+  createdAt: timestampField("created_at"),
+  updatedAt: timestampField("updated_at"),
+});
+
 // Define enum values as constants for type safety
 export const GIT_PROVIDERS = ["github", "bitbucket", "gitlab"] as const;
 export const MESSAGING_PROVIDERS = ["slack", "teams", "discord"] as const;
@@ -46,12 +58,7 @@ export const users = sqliteTable(
       .$defaultFn(() => crypto.randomUUID()),
     clerkId: text("clerk_id").notNull().unique(), // Clerk user ID
     email: text("email").notNull(),
-    createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(
-      () => new Date()
-    ),
-    updatedAt: integer("updated_at", { mode: "timestamp" }).$defaultFn(
-      () => new Date()
-    ),
+    ...auditTimestamps(),
   },
   (table) => [
     // Index on clerkId for authentication lookups
@@ -74,12 +81,7 @@ export const gitProviders = sqliteTable(
     refreshToken: text("refresh_token"),
     expiresAt: integer("expires_at", { mode: "timestamp" }),
     repositories: text("repositories", { mode: "json" }).$type<string[]>(),
-    createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(
-      () => new Date()
-    ),
-    updatedAt: integer("updated_at", { mode: "timestamp" }).$defaultFn(
-      () => new Date()
-    ),
+    ...auditTimestamps(),
   },
   (table) => [
     // Unique constraint: one provider per user
@@ -108,12 +110,7 @@ export const messagingProviders = sqliteTable(
     // Discord-specific fields (null for Slack/Teams)
     guildId: text("guild_id"), // Discord server/guild ID where bot was installed
     guildName: text("guild_name"), // Discord server/guild name for display
-    createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(
-      () => new Date()
-    ),
-    updatedAt: integer("updated_at", { mode: "timestamp" }).$defaultFn(
-      () => new Date()
-    ),
+    ...auditTimestamps(),
   },
   (table) => [
     // Unique constraint: one provider per user (applies to all providers: Slack, Teams, Discord)
@@ -162,17 +159,12 @@ export const cronJobs = sqliteTable(
     escalationChannelId: text("escalation_channel_id"), // Channel/room ID for escalation notifications
     escalationDays: integer("escalation_days").default(3),
     prFilters: text("pr_filters", { mode: "json" }).$type<PRFilters>(),
-    sendWhenEmpty: integer("send_when_empty", { mode: "boolean" }).default(
-      false
-    ),
-    isActive: integer("is_active", { mode: "boolean" }).default(true),
+    sendWhenEmpty: integer("send_when_empty", { mode: "boolean" })
+      .default(false)
+      .notNull(),
+    isActive: integer("is_active", { mode: "boolean" }).default(true).notNull(),
     lastExecuted: integer("last_executed", { mode: "timestamp" }),
-    createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(
-      () => new Date()
-    ),
-    updatedAt: integer("updated_at", { mode: "timestamp" }).$defaultFn(
-      () => new Date()
-    ),
+    ...auditTimestamps(),
   },
   (table) => [
     // Index on userId for user-specific cron job queries
@@ -192,15 +184,13 @@ export const executionLogs = sqliteTable("execution_logs", {
   cronJobId: text("cron_job_id")
     .references(() => cronJobs.id, { onDelete: "cascade" })
     .notNull(),
-  executedAt: integer("executed_at", { mode: "timestamp" }).$defaultFn(
-    () => new Date()
-  ),
+  executedAt: timestampField("executed_at"),
   status: text({ enum: EXECUTION_STATUSES }).notNull(),
-  pullRequestsFound: integer("pull_requests_found").default(0),
-  messagesSent: integer("messages_sent").default(0),
+  pullRequestsFound: integer("pull_requests_found").default(0).notNull(),
+  messagesSent: integer("messages_sent").default(0).notNull(),
   errorMessage: text("error_message"),
   executionTimeMs: integer("execution_time_ms"),
-  escalationsTriggered: integer("escalations_triggered").default(0),
+  escalationsTriggered: integer("escalations_triggered").default(0).notNull(),
 });
 
 // Escalation tracking - prevents duplicate escalation notifications
@@ -215,16 +205,10 @@ export const escalationTracking = sqliteTable(
       .notNull(),
     pullRequestId: text("pull_request_id").notNull(), // External PR ID from git provider
     pullRequestUrl: text("pull_request_url").notNull(),
-    firstEscalatedAt: integer("first_escalated_at", {
-      mode: "timestamp",
-    }).$defaultFn(() => new Date()),
-    lastEscalatedAt: integer("last_escalated_at", {
-      mode: "timestamp",
-    }).$defaultFn(() => new Date()),
-    escalationCount: integer("escalation_count").default(1),
-    createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(
-      () => new Date()
-    ),
+    firstEscalatedAt: timestampField("first_escalated_at"),
+    lastEscalatedAt: timestampField("last_escalated_at"),
+    escalationCount: integer("escalation_count").default(1).notNull(),
+    createdAt: timestampField("created_at"),
   },
   (table) => [
     // Unique constraint: one escalation tracking per cron job + pull request
@@ -255,13 +239,10 @@ export const subscriptions = sqliteTable(
     currentPeriodEnd: integer("current_period_end", { mode: "timestamp" }),
     cancelAtPeriodEnd: integer("cancel_at_period_end", {
       mode: "boolean",
-    }).default(false),
-    createdAt: integer("created_at", { mode: "timestamp" }).$defaultFn(
-      () => new Date()
-    ),
-    updatedAt: integer("updated_at", { mode: "timestamp" }).$defaultFn(
-      () => new Date()
-    ),
+    })
+      .default(false)
+      .notNull(),
+    ...auditTimestamps(),
   },
   (table) => [
     // Index on userId for user subscription lookups

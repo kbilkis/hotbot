@@ -34,10 +34,10 @@ const app = new Hono()
       ];
 
       // Build response with connection status
-      const providers = allProviders.map((provider) => {
+      const providers = allProviders.map((provider, idx) => {
         const connected = connectedMap.get(provider.type);
         return {
-          id: connected?.id || 0,
+          id: connected?.id || idx.toString(),
           provider: provider.type,
           name: provider.name,
           connected: !!connected,
@@ -46,23 +46,22 @@ const app = new Hono()
         };
       });
 
-      const responseData = {
+      return c.json({
         success: true,
         message: "Git providers fetched successfully",
         data: { providers },
-      };
-
-      return c.json(responseData);
+      });
     } catch (error) {
       console.error("Failed to fetch git providers:", error);
 
-      const errorData = {
-        success: false,
-        error: "Fetch failed",
-        message: "Failed to fetch git provider status",
-      };
-
-      return c.json(errorData, 500);
+      return c.json(
+        {
+          success: false,
+          error: "Fetch failed",
+          message: "Failed to fetch git provider status",
+        },
+        500
+      );
     }
   })
   // DELETE /api/providers/git - Disconnect git provider
@@ -75,32 +74,34 @@ const app = new Hono()
       const deleted = await deleteGitProvider(userId, type);
 
       if (!deleted) {
-        const errorData = {
-          success: false,
-          error: "Provider not found",
-          message: `No connection found for ${type}`,
-        };
-        return c.json(errorData, 404);
+        return c.json(
+          {
+            success: false,
+            error: "Provider not found",
+            message: `No connection found for ${type}`,
+          },
+          404
+        );
       }
 
-      const responseData = {
+      return c.json({
         success: true,
         message: `Successfully disconnected from ${type}`,
         data: {
           providers: [],
         },
-      };
-
-      return c.json(responseData);
+      });
     } catch (error) {
       console.error("Git provider disconnection failed:", error);
 
-      const errorData = {
-        success: false,
-        error: "Disconnection failed",
-        message: "Failed to disconnect git provider",
-      };
-      return c.json(errorData, 500);
+      return c.json(
+        {
+          success: false,
+          error: "Disconnection failed",
+          message: "Failed to disconnect git provider",
+        },
+        500
+      );
     }
   });
 

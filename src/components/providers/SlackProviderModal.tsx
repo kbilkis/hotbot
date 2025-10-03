@@ -3,6 +3,7 @@ import { mutate } from "swr";
 
 import type { SlackChannel } from "@/types/slack";
 
+import { slackApi, messagingApi } from "../../lib/api/client";
 import {
   getProviderColor,
   getProviderBgColor,
@@ -56,17 +57,20 @@ export default function SlackProviderModal({
     try {
       // Fetch channels and user info if connected
       const [channelsResponse, userResponse] = await Promise.all([
-        fetch("/api/providers/messaging/slack/channels"),
-        fetch("/api/providers/messaging/slack/user"),
+        slackApi.channels.$get(),
+        slackApi.user.$get(),
       ]);
 
-      if (channelsResponse.ok) {
-        const channelsData = await channelsResponse.json();
+      const [channelsData, userData] = await Promise.all([
+        channelsResponse.json(),
+        userResponse.json(),
+      ]);
+
+      if (channelsData.success) {
         setChannels(channelsData.data?.channels || []);
       }
 
-      if (userResponse.ok && !teamName) {
-        const userData = await userResponse.json();
+      if (userData.success && !teamName) {
         setTeamName(userData.data?.teamName || "Slack Workspace");
       }
     } catch (err) {
@@ -86,23 +90,14 @@ export default function SlackProviderModal({
       setChannelsLoading(true);
       setChannelsError(null);
 
-      const response = await fetch("/api/providers/messaging/slack/channels");
+      const response = await slackApi.channels.$get();
+      const data = await response.json();
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorMessage = `Request failed: ${response.status}`;
-
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.error || errorData.message || errorMessage;
-        } catch {
-          errorMessage = errorText || errorMessage;
-        }
-
+      if (!data.success) {
+        const errorMessage =
+          data.message || data.error || `Request failed: ${response.status}`;
         throw new Error(errorMessage);
       }
-
-      const data = await response.json();
       setChannels(data.data?.channels || []);
     } catch (err) {
       console.error("Failed to fetch channels:", err);
@@ -123,33 +118,24 @@ export default function SlackProviderModal({
       const redirectUri = `${window.location.origin}/auth/callback/slack`;
 
       // Get OAuth authorization URL
-      const response = await fetch("/api/providers/messaging/slack/auth-url", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
+      const response = await slackApi["auth-url"].$post({
+        json: {
           redirectUri,
-          scopes: ["channels:read", "chat:write", "chat:write.public"],
-        }),
+          scopes: [
+            "channels:read",
+            "chat:write",
+            "chat:write.public",
+            "groups:read",
+          ],
+        },
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.log("SLACK_AUTH_URL RESP BAD", errorText);
-        let errorMessage = `Request failed: ${response.status}`;
-
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.error || errorData.message || errorMessage;
-        } catch {
-          errorMessage = errorText || errorMessage;
-        }
-
+      const data = await response.json();
+      if (!data.success) {
+        const errorMessage =
+          data.message || data.error || `Request failed: ${response.status}`;
         throw new Error(errorMessage);
       }
-
-      const data = await response.json();
       // Redirect to Slack OAuth page
       window.location.href = data.authUrl;
     } catch (err) {
@@ -172,34 +158,18 @@ export default function SlackProviderModal({
       setError(null);
 
       // Call the manual connect API endpoint
-      const response = await fetch(
-        "/api/providers/messaging/slack/connect-manual",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            accessToken: accessToken.trim(),
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorMessage = `Request failed: ${response.status}`;
-
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.error || errorData.message || errorMessage;
-        } catch {
-          errorMessage = errorText || errorMessage;
-        }
-
-        throw new Error(errorMessage);
-      }
+      const response = await slackApi["connect-manual"].$post({
+        json: {
+          accessToken: accessToken.trim(),
+        },
+      });
 
       const data = await response.json();
+      if (!data.success) {
+        const errorMessage =
+          data.message || data.error || `Request failed: ${response.status}`;
+        throw new Error(errorMessage);
+      }
       console.log("Successfully connected Slack:", data);
 
       // Invalidate SWR cache to refresh provider data
@@ -233,35 +203,19 @@ export default function SlackProviderModal({
       setTestingChannel(channelId);
       setError(null);
 
-      const response = await fetch(
-        "/api/providers/messaging/slack/test-channel",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            channelId,
-            message: `🧪 Test message from HotBot - connection successful! (${new Date().toLocaleTimeString()})`,
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorMessage = `Request failed: ${response.status}`;
-
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.error || errorData.message || errorMessage;
-        } catch {
-          errorMessage = errorText || errorMessage;
-        }
-
-        throw new Error(errorMessage);
-      }
+      const response = await slackApi["test-channel"].$post({
+        json: {
+          channelId,
+          message: `🧪 Test message from HotBot - connection successful! (${new Date().toLocaleTimeString()})`,
+        },
+      });
 
       const data = await response.json();
+      if (!data.success) {
+        const errorMessage =
+          data.message || data.error || `Request failed: ${response.status}`;
+        throw new Error(errorMessage);
+      }
       console.log("Successfully sent test message:", data);
 
       // Store test result
@@ -295,25 +249,16 @@ export default function SlackProviderModal({
       setError(null);
 
       // Call the disconnect API endpoint
-      const response = await fetch("/api/providers/messaging?type=slack", {
-        method: "DELETE",
+      const response = await messagingApi.$delete({
+        query: { type: "slack" },
       });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorMessage = `Request failed: ${response.status}`;
-
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.error || errorData.message || errorMessage;
-        } catch {
-          errorMessage = errorText || errorMessage;
-        }
-
+      const data = await response.json();
+      if (!data.success) {
+        const errorMessage =
+          data.message || data.error || `Request failed: ${response.status}`;
         throw new Error(errorMessage);
       }
-
-      const data = await response.json();
       console.log("Successfully disconnected Slack:", data);
 
       // Invalidate SWR cache to refresh provider data
@@ -535,7 +480,9 @@ export default function SlackProviderModal({
                             className="form-input"
                             placeholder="xoxb-..."
                             value={accessToken}
-                            onChange={(e) => setAccessToken(e.target.value)}
+                            onChange={(e) =>
+                              setAccessToken(e.currentTarget.value)
+                            }
                           />
                         </div>
                         <div className="token-help">

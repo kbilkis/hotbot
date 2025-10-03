@@ -1,6 +1,7 @@
 import { useState, useEffect } from "preact/hooks";
 import { mutate } from "swr";
 
+import { gitApi, githubApi, gitlabApi } from "../../lib/api/client";
 import { GitProviderData } from "../../lib/validation/provider-schemas";
 import {
   getProviderColor,
@@ -71,25 +72,15 @@ export default function GitProviderModal({
       setRepositoriesLoading(true);
       setRepositoriesError(null);
 
-      const response = await fetch(
-        `/api/providers/git/${provider.provider}/repositories`
-      );
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorMessage = `Request failed: ${response.status}`;
-
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.error || errorData.message || errorMessage;
-        } catch {
-          errorMessage = errorText || errorMessage;
-        }
-
-        throw new Error(errorMessage);
-      }
+      const api = provider.provider === "github" ? githubApi : gitlabApi;
+      const response = await api.repositories.$get();
 
       const data = await response.json();
+      if (!data.success) {
+        const errorMessage =
+          data.message || data.error || `Request failed: ${response.status}`;
+        throw new Error(errorMessage);
+      }
       setRepositories(data.data?.repositories || []);
     } catch (err) {
       console.error("Failed to fetch repositories:", err);
@@ -177,36 +168,21 @@ export default function GitProviderModal({
       };
 
       // Get OAuth authorization URL
-      const response = await fetch(
-        `/api/providers/git/${provider.provider}/auth-url`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            redirectUri,
-            scopes: getScopes(),
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorMessage = `Request failed: ${response.status}`;
-
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.error || errorData.message || errorMessage;
-        } catch {
-          errorMessage = errorText || errorMessage;
-        }
-
-        throw new Error(errorMessage);
-      }
+      const api = provider.provider === "github" ? githubApi : gitlabApi;
+      const response = await api["auth-url"].$post({
+        json: {
+          redirectUri,
+          scopes: getScopes(),
+        },
+      });
 
       const data = await response.json();
-      // Redirect to GitHub OAuth page
+      if (!data.success) {
+        const errorMessage =
+          data.message || data.error || `Request failed: ${response.status}`;
+        throw new Error(errorMessage);
+      }
+      // Redirect to OAuth page
       window.location.href = data.authUrl;
     } catch (err) {
       console.error("Failed to initiate OAuth:", err);
@@ -227,35 +203,20 @@ export default function GitProviderModal({
       setLoading(true);
       setError(null);
 
-      // Call the manual connect API endpoint (we need to create this)
-      const response = await fetch(
-        `/api/providers/git/${provider.provider}/connect-manual`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            accessToken: accessToken.trim(),
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorMessage = `Request failed: ${response.status}`;
-
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.error || errorData.message || errorMessage;
-        } catch {
-          errorMessage = errorText || errorMessage;
-        }
-
-        throw new Error(errorMessage);
-      }
+      // Call the manual connect API endpoint
+      const api = provider.provider === "github" ? githubApi : gitlabApi;
+      const response = await api["connect-manual"].$post({
+        json: {
+          accessToken: accessToken.trim(),
+        },
+      });
 
       const data = await response.json();
+      if (!data.success) {
+        const errorMessage =
+          data.message || data.error || `Request failed: ${response.status}`;
+        throw new Error(errorMessage);
+      }
       console.log("Successfully connected git provider:", data);
 
       // Invalidate SWR cache to refresh provider data
@@ -286,28 +247,16 @@ export default function GitProviderModal({
       setError(null);
 
       // Call the disconnect API endpoint
-      const response = await fetch(
-        `/api/providers/git?type=${provider.provider}`,
-        {
-          method: "DELETE",
-        }
-      );
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorMessage = `Request failed: ${response.status}`;
-
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.error || errorData.message || errorMessage;
-        } catch {
-          errorMessage = errorText || errorMessage;
-        }
-
-        throw new Error(errorMessage);
-      }
+      const response = await gitApi.$delete({
+        query: { type: provider.provider },
+      });
 
       const data = await response.json();
+      if (!data.success) {
+        const errorMessage =
+          data.message || data.error || `Request failed: ${response.status}`;
+        throw new Error(errorMessage);
+      }
       console.log("Successfully disconnected git provider:", data);
 
       // Invalidate SWR cache to refresh provider data
@@ -505,7 +454,9 @@ export default function GitProviderModal({
                             className="form-input"
                             placeholder={config.placeholder}
                             value={accessToken}
-                            onChange={(e) => setAccessToken(e.target.value)}
+                            onChange={(e) =>
+                              setAccessToken(e.currentTarget.value)
+                            }
                           />
                         </div>
                         <div className="token-help">

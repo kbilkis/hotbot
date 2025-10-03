@@ -2,7 +2,10 @@ import { arktypeValidator } from "@hono/arktype-validator";
 import { Hono } from "hono";
 
 import { getCurrentUserId } from "@/lib/auth/clerk";
-import { MessagingProvider } from "@/lib/database/schema";
+import {
+  MessagingProvider,
+  MessagingProviderType,
+} from "@/lib/database/schema";
 
 import {
   deleteMessagingProvider,
@@ -15,11 +18,11 @@ import slackRoutes from "./slack";
 import teamsRoutes from "./teams";
 
 export interface MessagingProviderDTO {
-  id: string | null;
-  type: string;
+  id: string;
+  type: MessagingProviderType;
   name: string;
-  connected: boolean;
-  connectedAt?: string;
+  connected: true; // Always true since we only return connected providers
+  connectedAt: string;
   providerId?: string;
 }
 
@@ -43,44 +46,41 @@ const app = new Hono()
       );
 
       const messagingProviders: MessagingProviderDTO[] = [
-        {
-          id: providersByType.slack?.id || null,
-          type: "slack",
-          name: "Slack",
-          connected: !!providersByType.slack,
-          connectedAt: providersByType.slack?.createdAt?.toISOString(),
-        },
-        {
-          id: providersByType.teams?.id || null,
-          type: "teams",
-          name: "Microsoft Teams",
-          connected: !!providersByType.teams,
-          connectedAt: providersByType.teams?.createdAt?.toISOString(),
-        },
-        // For Discord, include all connected guilds as separate providers
-        ...discordProviders.map((provider) => ({
-          id: provider.id,
-          type: "discord",
-          name: provider.guildName
-            ? `Discord - ${provider.guildName}`
-            : "Discord",
-          connected: true,
-          connectedAt: provider.createdAt?.toISOString(),
-          guildId: provider.guildId,
-          guildName: provider.guildName,
-        })),
-        // If no Discord providers are connected, show the default entry
-        ...(discordProviders.length === 0
+        // Only include connected providers
+        ...(providersByType.slack
           ? [
               {
-                id: null,
-                type: "discord",
-                name: "Discord",
-                connected: false,
-                connectedAt: undefined,
+                id: providersByType.slack.id,
+                type: "slack" as const,
+                name: "Slack",
+                connected: true as const,
+                connectedAt: providersByType.slack.createdAt!.toISOString(),
               },
             ]
           : []),
+        ...(providersByType.teams
+          ? [
+              {
+                id: providersByType.teams.id,
+                type: "teams" as const,
+                name: "Microsoft Teams",
+                connected: true as const,
+                connectedAt: providersByType.teams.createdAt!.toISOString(),
+              },
+            ]
+          : []),
+        // For Discord, include all connected guilds as separate providers
+        ...discordProviders.map((provider) => ({
+          id: provider.id,
+          type: "discord" as const,
+          name: provider.guildName
+            ? `Discord - ${provider.guildName}`
+            : "Discord",
+          connected: true as const,
+          connectedAt: provider.createdAt!.toISOString(),
+          guildId: provider.guildId,
+          guildName: provider.guildName,
+        })),
       ];
 
       return c.json({

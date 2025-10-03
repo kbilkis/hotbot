@@ -1,56 +1,44 @@
+import type { InferRequestType } from "hono/client";
 import useSWR from "swr";
 
-import { DiscordChannel, DiscordGuild } from "@/lib/discord";
+import { MessagingProviderType } from "@/lib/database/schema";
 
-// Discord interfaces are inferred from API responses
-
-const fetcher = async (url: string) => {
-  const response = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    let errorMessage = `Request failed: ${response.status}`;
-
-    try {
-      const errorData = JSON.parse(errorText);
-      errorMessage = errorData.error || errorData.message || errorMessage;
-    } catch {
-      errorMessage = errorText || errorMessage;
-    }
-
-    throw new Error(errorMessage);
-  }
-
-  const data = await response.json();
-
-  if (data.success && data.data) {
-    return data.data;
-  } else {
-    throw new Error("Invalid response format");
-  }
-};
+import { discordApi, slackApi } from "../lib/api/client";
 
 // Hook for Discord guilds
 export function useDiscordGuilds(shouldFetch: boolean = true) {
-  const endpoint = shouldFetch
-    ? "/api/providers/messaging/discord/guilds"
-    : null;
+  const $get = discordApi.guilds.$get;
 
-  const { data, error, isLoading, mutate } = useSWR<{ guilds: DiscordGuild[] }>(
-    endpoint,
-    fetcher
+  const fetcher = (arg: InferRequestType<typeof $get>) => async () => {
+    const res = await $get(arg);
+    const data = await res.json();
+    return data;
+  };
+
+  const { data, error, isLoading, mutate } = useSWR(
+    shouldFetch ? "discord-guilds" : null,
+    shouldFetch ? fetcher({}) : null
   );
 
-  return {
-    guilds: data?.guilds || [],
-    loading: isLoading,
-    error: error?.message || null,
-    refetch: () => mutate(),
-  };
+  if (data?.success) {
+    return {
+      guilds: data.data?.guilds || [],
+      loading: isLoading,
+      error: null,
+      refetch: () => mutate(),
+    };
+  } else {
+    let dataError;
+    if (!!data && !data.success) {
+      dataError = data.message || data.error;
+    }
+    return {
+      guilds: [],
+      loading: isLoading,
+      error: dataError || error?.message || null,
+      refetch: () => mutate(),
+    };
+  }
 }
 
 // Hook for Discord channels in a specific guild
@@ -58,75 +46,126 @@ export function useDiscordChannels(
   guildId?: string,
   shouldFetch: boolean = true
 ) {
-  const endpoint =
-    shouldFetch && guildId
-      ? `/api/providers/messaging/discord/guilds/${guildId}/channels`
-      : null;
+  const $get = discordApi.guilds[":guildId"].channels.$get;
 
-  const { data, error, isLoading, mutate } = useSWR<{
-    channels: DiscordChannel[];
-  }>(endpoint, fetcher);
-
-  return {
-    channels: data?.channels || [],
-    loading: isLoading,
-    error: error?.message || null,
-    refetch: () => mutate(),
+  const fetcher = (arg: InferRequestType<typeof $get>) => async () => {
+    const res = await $get(arg);
+    const data = await res.json();
+    return data;
   };
+
+  const shouldFetchData = shouldFetch && !!guildId;
+
+  const { data, error, isLoading, mutate } = useSWR(
+    shouldFetchData ? `discord-channels-${guildId}` : null,
+    shouldFetchData ? fetcher({ param: { guildId: guildId! } }) : null
+  );
+
+  if (data?.success) {
+    return {
+      channels: data.data?.channels || [],
+      loading: isLoading,
+      error: null,
+      refetch: () => mutate(),
+    };
+  } else {
+    let dataError;
+    if (!!data && !data.success) {
+      dataError = data.message || data.error;
+    }
+    return {
+      channels: [],
+      loading: isLoading,
+      error: dataError || error?.message || null,
+      refetch: () => mutate(),
+    };
+  }
 }
 
+// Hook for Slack channels
+function useSlackChannels(shouldFetch: boolean = true) {
+  const $get = slackApi.channels.$get;
+
+  const fetcher = (arg: InferRequestType<typeof $get>) => async () => {
+    const res = await $get(arg);
+    const data = await res.json();
+    return data;
+  };
+
+  const { data, error, isLoading, mutate } = useSWR(
+    shouldFetch ? "slack-channels" : null,
+    shouldFetch ? fetcher({}) : null
+  );
+
+  if (data?.success) {
+    return {
+      channels: data.data?.channels || [],
+      loading: isLoading,
+      error: null,
+      refetch: () => mutate(),
+    };
+  } else {
+    let dataError;
+    if (!!data && !data.success) {
+      dataError = data.message || data.error;
+    }
+    return {
+      channels: [],
+      loading: isLoading,
+      error: dataError || error?.message || null,
+      refetch: () => mutate(),
+    };
+  }
+}
+
+// Unified hook that delegates to provider-specific hooks
 export function useChannels(
-  messagingProviderId?: string,
-  providerType?: string,
+  messagingProviderId: string,
+  providerType: MessagingProviderType,
   shouldFetch: boolean = true
 ) {
-  // Only fetch if we have a messaging provider ID and should fetch
   const shouldFetchData =
     shouldFetch && !!messagingProviderId && !!providerType;
 
-  // Build endpoint based on provider type
-  let endpoint: string | null = null;
-  if (shouldFetchData) {
-    switch (providerType) {
-      case "slack":
-        endpoint = "/api/providers/messaging/slack/channels";
-        break;
-      case "teams":
-        endpoint = "/api/providers/messaging/teams/channels";
-        break;
-      case "discord":
-        // For Discord, return guilds as "channels" for now
-        // The schedule modal will handle guild → channel selection
-        endpoint = "/api/providers/messaging/discord/guilds";
-        break;
-      default:
-        endpoint = null;
-    }
+  // Use provider-specific hooks
+  const slackChannels = useSlackChannels(
+    shouldFetchData && providerType === "slack"
+  );
+  const discordGuilds = useDiscordGuilds(
+    shouldFetchData && providerType === "discord"
+  );
+
+  // Return the appropriate data based on provider type
+  switch (providerType) {
+    case "slack":
+      return slackChannels;
+    case "discord":
+      // Transform guilds to look like channels for backward compatibility
+      return {
+        channels: discordGuilds.guilds.map((guild) => ({
+          id: guild.id,
+          name: guild.name,
+          type: "guild",
+          isGuild: true,
+        })),
+        loading: discordGuilds.loading,
+        error: discordGuilds.error,
+        refetch: discordGuilds.refetch,
+      };
+    case "teams":
+      // Teams not implemented yet
+      return {
+        channels: [],
+        loading: false,
+        error: "Teams provider not implemented yet",
+        refetch: () => {},
+      };
+    default:
+      return {
+        channels: [],
+        loading: false,
+        error: `Unknown provider type: ${providerType}`,
+        refetch: () => {},
+      };
   }
-
-  const { data, error, isLoading, mutate } = useSWR(endpoint, fetcher);
-
-  // Extract the appropriate data based on provider type
-  let extractedData = [];
-  if (data) {
-    if (providerType === "discord") {
-      // Transform guilds to look like channels for compatibility
-      const guilds = data.guilds || [];
-      extractedData = guilds.map((guild: DiscordGuild) => ({
-        id: guild.id,
-        name: guild.name,
-        type: "guild", // Mark as guild type
-        isGuild: true, // Flag to identify this as a guild
-      }));
-    } else {
-      extractedData = data.channels || [];
-    }
-  }
-
-  return {
-    channels: extractedData,
-    loading: isLoading,
-    error: error?.message || null,
-    refetch: () => mutate(),
-  };
 }

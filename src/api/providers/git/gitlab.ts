@@ -208,9 +208,7 @@ const app = new Hono()
         );
       }
     }
-  );
-
-app
+  )
   .get("/repositories", async (c) => {
     try {
       const userId = getCurrentUserId(c);

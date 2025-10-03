@@ -2,6 +2,7 @@ import { useState, useEffect } from "preact/hooks";
 import { mutate } from "swr";
 
 import { useDiscordGuilds, useDiscordChannels } from "../../hooks/useChannels";
+import { discordApi, messagingApi } from "../../lib/api/client";
 import {
   getProviderColor,
   getProviderBgColor,
@@ -44,7 +45,6 @@ export default function DiscordProviderModal({
     error: guildsError,
     refetch: refetchGuilds,
   } = useDiscordGuilds(isConnected);
-  console.log("guild", guilds);
   const { channels, loading: channelsLoading } = useDiscordChannels(
     selectedGuild || undefined,
     !!selectedGuild
@@ -72,15 +72,15 @@ export default function DiscordProviderModal({
 
   const fetchAdditionalData = async () => {
     try {
-      // Fetch user info if connected
-      const userResponse = await fetch("/api/providers/messaging/discord/user");
-
-      if (userResponse.ok && !username) {
-        const userData = await userResponse.json();
-        setUsername(userData.data?.username || "Discord User");
+      const userResponse = await discordApi.user.$get();
+      const userData = await userResponse.json();
+      if (userData.success && !username) {
+        setUsername(userData.data.username || "Discord User");
+      } else {
+        throw new Error(userData.message);
       }
     } catch (err) {
-      console.warn("Failed to fetch additional Discord info:", err);
+      console.error("Failed to fetch additional Discord info:", err);
     }
   };
 
@@ -95,38 +95,23 @@ export default function DiscordProviderModal({
       const redirectUri = `${window.location.origin}/auth/callback/discord`;
 
       // Get OAuth authorization URL
-      const response = await fetch(
-        "/api/providers/messaging/discord/auth-url",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            redirectUri,
-            scopes: ["bot", "applications.commands"],
-            permissions: "68608", // VIEW_CHANNEL + SEND_MESSAGES + READ_MESSAGE_HISTORY
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorMessage = `Request failed: ${response.status}`;
-
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.error || errorData.message || errorMessage;
-        } catch {
-          errorMessage = errorText || errorMessage;
-        }
-
-        throw new Error(errorMessage);
-      }
+      const response = await discordApi["auth-url"].$post({
+        json: {
+          redirectUri,
+          scopes: ["bot", "applications.commands"],
+          permissions: "68608", // VIEW_CHANNEL + SEND_MESSAGES + READ_MESSAGE_HISTORY
+        },
+      });
 
       const data = await response.json();
-      // Redirect to Discord OAuth page
-      window.location.href = data.authUrl;
+      if (data.success) {
+        // Redirect to Discord OAuth page
+        window.location.href = data.authUrl;
+      } else {
+        const errorMessage =
+          data.message || data.error || `Request failed: ${response.status}`;
+        throw new Error(errorMessage);
+      }
     } catch (err) {
       console.error("Failed to initiate Discord OAuth:", err);
       setError(
@@ -153,34 +138,19 @@ export default function DiscordProviderModal({
 
       if (connectionMethod === "manual") {
         // Call the manual connect API endpoint
-        const response = await fetch(
-          "/api/providers/messaging/discord/connect-manual",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              accessToken: accessToken.trim(),
-            }),
-          }
-        );
+        const response = await discordApi["connect-manual"].$post({
+          json: {
+            accessToken: accessToken.trim(),
+          },
+        });
 
-        if (!response.ok) {
-          const errorText = await response.text();
-          let errorMessage = `Request failed: ${response.status}`;
-
-          try {
-            const errorData = JSON.parse(errorText);
-            errorMessage = errorData.error || errorData.message || errorMessage;
-          } catch {
-            errorMessage = errorText || errorMessage;
-          }
-
+        const data = await response.json();
+        if (!data.success) {
+          const errorMessage =
+            data.message || data.error || `Request failed: ${response.status}`;
           throw new Error(errorMessage);
         }
 
-        const data = await response.json();
         console.log("Successfully connected Discord:", data);
 
         // Invalidate SWR cache to refresh provider data
@@ -217,35 +187,20 @@ export default function DiscordProviderModal({
       setTestingChannel(channelId);
       setError(null);
 
-      const response = await fetch(
-        "/api/providers/messaging/discord/test-channel",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            channelId,
-            message: `🧪 Test message from HotBot - connection successful! (${new Date().toLocaleTimeString()})`,
-          }),
-        }
-      );
+      const response = await discordApi["test-channel"].$post({
+        json: {
+          channelId,
+          message: `🧪 Test message from HotBot - connection successful! (${new Date().toLocaleTimeString()})`,
+        },
+      });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorMessage = `Request failed: ${response.status}`;
-
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.error || errorData.message || errorMessage;
-        } catch {
-          errorMessage = errorText || errorMessage;
-        }
-
+      const data = await response.json();
+      if (!data.success) {
+        const errorMessage =
+          data.message || data.error || `Request failed: ${response.status}`;
         throw new Error(errorMessage);
       }
 
-      const data = await response.json();
       console.log("Successfully sent test message:", data);
 
       // Store test result
@@ -278,35 +233,20 @@ export default function DiscordProviderModal({
       setTestingWebhook(webhookUrl);
       setError(null);
 
-      const response = await fetch(
-        "/api/providers/messaging/discord/test-webhook",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            webhookUrl,
-            message: `🧪 Test message from HotBot - connection successful! (${new Date().toLocaleTimeString()})`,
-          }),
-        }
-      );
+      const response = await discordApi["test-webhook"].$post({
+        json: {
+          webhookUrl,
+          message: `🧪 Test message from HotBot - connection successful! (${new Date().toLocaleTimeString()})`,
+        },
+      });
 
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorMessage = `Request failed: ${response.status}`;
-
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.error || errorData.message || errorMessage;
-        } catch {
-          errorMessage = errorText || errorMessage;
-        }
-
+      const data = await response.json();
+      if (!data.success) {
+        const errorMessage =
+          data.message || data.error || `Request failed: ${response.status}`;
         throw new Error(errorMessage);
       }
 
-      const data = await response.json();
       console.log("Successfully sent test message:", data);
 
       // Store test result
@@ -340,25 +280,16 @@ export default function DiscordProviderModal({
       setError(null);
 
       // Call the disconnect API endpoint
-      const response = await fetch("/api/providers/messaging?type=discord", {
-        method: "DELETE",
+      const response = await messagingApi.$delete({
+        query: { type: "discord" },
       });
-
-      if (!response.ok) {
-        const errorText = await response.text();
-        let errorMessage = `Request failed: ${response.status}`;
-
-        try {
-          const errorData = JSON.parse(errorText);
-          errorMessage = errorData.error || errorData.message || errorMessage;
-        } catch {
-          errorMessage = errorText || errorMessage;
-        }
-
+      const data = await response.json();
+      if (!data.success) {
+        const errorMessage =
+          data.message || data.error || `Request failed: ${response.status}`;
         throw new Error(errorMessage);
       }
 
-      const data = await response.json();
       console.log("Successfully disconnected Discord:", data);
 
       // Invalidate SWR cache to refresh provider data
@@ -449,14 +380,8 @@ export default function DiscordProviderModal({
                       {guilds.map((guild) => (
                         <div key={guild.id} className="guild-item">
                           <div className="guild-info">
-                            <span className="guild-icon">
-                              {guild.owner ? "👑" : "🏰"}
-                            </span>
                             <span className="guild-name">{guild.name}</span>
                             <div className="guild-meta">
-                              {guild.owner && (
-                                <span className="guild-owner">Owner</span>
-                              )}
                               <button
                                 className="select-guild-button"
                                 onClick={() => setSelectedGuild(guild.id)}
@@ -502,7 +427,8 @@ export default function DiscordProviderModal({
                                               onClick={() =>
                                                 handleTestChannel(
                                                   channel.id,
-                                                  channel.name
+                                                  channel.name ||
+                                                    "Unknown Channel"
                                                 )
                                               }
                                               disabled={
@@ -661,7 +587,9 @@ export default function DiscordProviderModal({
                               className="form-input"
                               placeholder="Bot token..."
                               value={accessToken}
-                              onChange={(e) => setAccessToken(e.target.value)}
+                              onChange={(e) =>
+                                setAccessToken(e.currentTarget.value)
+                              }
                             />
                           </div>
                           <div className="token-help">
@@ -727,7 +655,9 @@ export default function DiscordProviderModal({
                             className="form-input"
                             placeholder="https://discord.com/api/webhooks/..."
                             value={webhookUrl}
-                            onChange={(e) => setWebhookUrl(e.target.value)}
+                            onChange={(e) =>
+                              setWebhookUrl(e.currentTarget.value)
+                            }
                           />
                         </div>
                         <small className="form-help">

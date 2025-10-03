@@ -1,47 +1,45 @@
+import type { InferRequestType } from "hono/client";
 import useSWR from "swr";
 
-import { CronJob } from "@/lib/database/schema";
-
-interface SchedulesResponseData {
-  jobs: CronJob[];
-}
-
-const fetcher = async (url: string): Promise<CronJob[]> => {
-  const response = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    let errorMessage = `Request failed: ${response.status}`;
-
-    try {
-      const errorData = JSON.parse(errorText);
-      errorMessage = errorData.error || errorData.message || errorMessage;
-    } catch {
-      errorMessage = errorText || errorMessage;
-    }
-
-    throw new Error(errorMessage);
-  }
-
-  const data: SchedulesResponseData = await response.json();
-
-  return data.jobs;
-};
+import { schedulesApi } from "../lib/api/client";
 
 export function useSchedules(shouldFetch: boolean = true) {
+  const $get = schedulesApi.$get;
+
+  const fetcher = (arg: InferRequestType<typeof $get>) => async () => {
+    const res = await $get(arg);
+    const data = await res.json();
+    return data;
+  };
+
   const { data, error, isLoading, mutate } = useSWR(
-    shouldFetch ? "/api/schedules" : null,
-    fetcher
+    shouldFetch ? "schedules" : null,
+    shouldFetch ? fetcher({ query: {} }) : null
   );
 
-  return {
-    schedules: data || [],
-    loading: isLoading,
-    error: error?.message || null,
-    refetch: () => mutate(),
-  };
+  if (data?.success) {
+    return {
+      schedules:
+        data?.jobs.map((e) => ({
+          ...e,
+          createdAt: new Date(e.createdAt),
+          updatedAt: new Date(e.updatedAt),
+          lastExecuted: e.lastExecuted ? new Date(e.lastExecuted) : null,
+        })) || [],
+      loading: isLoading,
+      error: null,
+      refetch: () => mutate(),
+    };
+  } else {
+    let dataError;
+    if (!!data && !data.success) {
+      dataError = data.error;
+    }
+    return {
+      schedules: [],
+      loading: isLoading,
+      error: dataError || error?.message || null,
+      refetch: () => mutate(),
+    };
+  }
 }

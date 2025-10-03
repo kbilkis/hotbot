@@ -1,43 +1,44 @@
+import type { InferRequestType } from "hono/client";
 import useSWR from "swr";
 
-import { SubscriptionDataDto } from "@/api/subscriptions";
-
-const fetcher = async (url: string): Promise<SubscriptionDataDto> => {
-  const response = await fetch(url, {
-    credentials: "include",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    let errorMessage = `Request failed: ${response.status}`;
-
-    try {
-      const errorData = JSON.parse(errorText);
-      errorMessage = errorData.error || errorData.message || errorMessage;
-    } catch {
-      errorMessage = errorText || errorMessage;
-    }
-
-    throw new Error(errorMessage);
-  }
-
-  const data: SubscriptionDataDto = await response.json();
-  return data;
-};
+import { subscriptionsApi } from "../lib/api/client";
 
 export function useSubscription(shouldFetch: boolean = true) {
+  const $get = subscriptionsApi.current.$get;
+
+  const fetcher = (arg: InferRequestType<typeof $get>) => async () => {
+    const res = await $get(arg);
+    const data = await res.json();
+    return data;
+  };
+
   const { data, error, isLoading, mutate } = useSWR(
-    shouldFetch ? "/api/subscriptions/current" : null,
-    fetcher
+    shouldFetch ? "subscription-current" : null,
+    shouldFetch ? fetcher({}) : null
   );
 
-  return {
-    subscription: data || null,
-    loading: isLoading,
-    error: error?.message || null,
-    refetch: () => mutate(),
-  };
+  if (data && "success" in data) {
+    if (data.success) {
+      return {
+        subscription: data || null,
+        loading: isLoading,
+        error: null,
+        refetch: () => mutate(),
+      };
+    } else {
+      return {
+        subscription: null,
+        loading: isLoading,
+        error: data.error || null,
+        refetch: () => mutate(),
+      };
+    }
+  } else {
+    return {
+      subscription: data || null,
+      loading: isLoading,
+      error: error?.message || null,
+      refetch: () => mutate(),
+    };
+  }
 }

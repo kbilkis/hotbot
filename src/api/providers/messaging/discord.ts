@@ -23,6 +23,7 @@ import {
   validateDiscordToken,
   getDiscordUserInfo,
   getBotGuilds,
+  DiscordChannel,
 } from "../../../lib/discord";
 import { OAuthStateManager } from "../../../lib/redis/oauth-state";
 import {
@@ -116,7 +117,7 @@ const app = new Hono()
         const savedProvider = await upsertMessagingProvider(providerData);
 
         // Step 3: Get channels for the connected guild (if available)
-        let channels: unknown[] = [];
+        let channels: DiscordChannel[] = [];
         if (tokenResponse.guildId) {
           try {
             channels = await getDiscordChannels(tokenResponse.guildId);
@@ -269,8 +270,8 @@ const app = new Hono()
       const guilds = messagingProviders
         .filter((provider) => provider.guildId && provider.guildName)
         .map((provider) => ({
-          id: provider.guildId,
-          name: provider.guildName,
+          id: provider.guildId!,
+          name: provider.guildName!,
           connected: true,
           connectedAt: provider.createdAt?.toISOString(),
         }));
