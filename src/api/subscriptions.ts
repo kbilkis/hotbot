@@ -3,6 +3,7 @@ import { type } from "arktype";
 import { Hono } from "hono";
 
 import { getCurrentUserId, getCurrentUser } from "@/lib/auth/clerk";
+import { createErrorResponse, handleApiError } from "@/lib/errors/api-error";
 
 import {
   getSubscriptionByUserId,
@@ -115,34 +116,28 @@ const subscriptions = new Hono()
           sessionId: checkoutSession.id,
         });
       } catch (error) {
-        console.error("Checkout session creation failed:", error);
-
         // Handle specific Stripe errors
         if (error instanceof Error) {
           if (error.message.includes("Customer")) {
-            return c.json(
-              {
-                success: false,
-                error: "Failed to create or retrieve customer",
-              },
-              500
+            return handleApiError(
+              c,
+              error,
+              500,
+              "Failed to create or retrieve customer",
+              "Failed to create or retrieve customer"
             );
           }
           if (error.message.includes("checkout")) {
-            return c.json(
-              { success: false, error: "Failed to create checkout session" },
-              500
+            return handleApiError(
+              c,
+              error,
+              500,
+              "Failed to create checkout session",
+              "Failed to create checkout session"
             );
           }
         }
-
-        return c.json(
-          {
-            success: false,
-            error: "Internal server error during checkout creation",
-          },
-          500
-        );
+        throw error;
       }
     }
   )
@@ -160,26 +155,21 @@ const subscriptions = new Hono()
       const subscription = await getSubscriptionByUserId(userId);
 
       if (!subscription) {
-        return c.json(
-          {
-            success: false,
-            error: "No subscription found. Please create a subscription first.",
-            message:
-              "No subscription found. Please create a subscription first.",
-          },
-          404
+        return createErrorResponse(
+          c,
+          500,
+          "No subscription found. Please create a subscription first.",
+          "No subscription found. Please create a subscription first."
         );
       }
 
       // Only allow portal access for users with Stripe customers
       if (!subscription.stripeCustomerId) {
-        return c.json(
-          {
-            success: false,
-            error: "No billing account found. Please upgrade to Pro first.",
-            message: "No billing account found. Please upgrade to Pro first.",
-          },
-          400
+        return createErrorResponse(
+          c,
+          500,
+          "No billing account found. Please upgrade to Pro first.",
+          "No billing account found. Please upgrade to Pro first."
         );
       }
 
@@ -201,46 +191,39 @@ const subscriptions = new Hono()
       // Handle specific Stripe errors
       if (error instanceof Error) {
         if (error.message === "BILLING_PORTAL_NOT_CONFIGURED") {
-          return c.json(
-            {
-              success: false,
-              error:
-                "Billing portal is not configured. Please contact support to manage your subscription.",
-              message:
-                "Billing management is temporarily unavailable. Please contact support for subscription changes.",
-            },
-            503
+          return handleApiError(
+            c,
+            error,
+            503,
+            "Billing portal is not configured. Please contact support to manage your subscription.",
+            "Billing portal is not configured. Please contact support to manage your subscription."
           );
         }
         if (error.message.includes("Customer")) {
-          return c.json(
-            {
-              success: false,
-              error: "Invalid customer account",
-              message: "Invalid customer account",
-            },
-            400
+          return handleApiError(
+            c,
+            error,
+            400,
+            "Invalid customer account",
+            "Invalid customer account"
           );
         }
         if (error.message.includes("portal")) {
-          return c.json(
-            {
-              success: false,
-              error: "Failed to create billing portal session",
-              message: "Failed to create billing portal session",
-            },
-            500
+          return handleApiError(
+            c,
+            error,
+            500,
+            "Failed to create billing portal session",
+            "Failed to create billing portal session"
           );
         }
       }
-
-      return c.json(
-        {
-          success: false,
-          error: "Internal server error during portal creation",
-          message: "Internal server error during portal creation",
-        },
-        500
+      return handleApiError(
+        c,
+        error,
+        500,
+        "Internal server error during portal creation",
+        "Internal server error during portal creation"
       );
     }
   })
@@ -249,79 +232,68 @@ const subscriptions = new Hono()
    * Get current subscription status, tier, and usage information
    */
   .get("/current", async (c) => {
-    try {
-      const userId = getCurrentUserId(c);
+    const userId = getCurrentUserId(c);
 
-      // Get subscription and usage data in parallel
-      const [subscription, usage] = await Promise.all([
-        getSubscriptionByUserId(userId),
-        getUserUsage(userId),
-      ]);
+    // Get subscription and usage data in parallel
+    const [subscription, usage] = await Promise.all([
+      getSubscriptionByUserId(userId),
+      getUserUsage(userId),
+    ]);
 
-      // If no subscription exists, user is on free tier by default
-      if (!subscription) {
-        return c.json({
-          success: true,
-          tier: "free",
-          status: "active",
-          usage,
-          limits: {
-            gitProviders: 1,
-            messagingProviders: 1,
-            cronJobs: 1,
-            minCronInterval: 24,
-          },
-          billing: null,
-        });
-      }
-
-      // Define tier limits
-      const tierLimits = {
-        free: {
+    // If no subscription exists, user is on free tier by default
+    if (!subscription) {
+      return c.json({
+        success: true,
+        tier: "free",
+        status: "active",
+        usage,
+        limits: {
           gitProviders: 1,
           messagingProviders: 1,
           cronJobs: 1,
           minCronInterval: 24,
         },
-        pro: {
-          gitProviders: null, // unlimited
-          messagingProviders: null, // unlimited
-          cronJobs: null, // unlimited
-          minCronInterval: 0,
-        },
-      };
-
-      // Prepare billing information
-      const billing = subscription.stripeSubscriptionId
-        ? {
-            subscriptionId: subscription.stripeSubscriptionId,
-            customerId: subscription.stripeCustomerId,
-            currentPeriodStart: subscription.currentPeriodStart,
-            currentPeriodEnd: subscription.currentPeriodEnd,
-            cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
-          }
-        : null;
-
-      return c.json({
-        success: true,
-        tier: subscription.tier,
-        status: subscription.status,
-        usage,
-        limits: tierLimits[subscription.tier],
-        billing,
-        createdAt: subscription.createdAt?.toISOString(),
-        updatedAt: subscription.updatedAt?.toISOString(),
-      } as SubscriptionDataDto);
-    } catch (error) {
-      console.error("Failed to get subscription status:", error);
-      return c.json(
-        {
-          success: false,
-          error: "Internal server error while fetching subscription",
-        },
-        500
-      );
+        billing: null,
+      });
     }
+
+    // Define tier limits
+    const tierLimits = {
+      free: {
+        gitProviders: 1,
+        messagingProviders: 1,
+        cronJobs: 1,
+        minCronInterval: 24,
+      },
+      pro: {
+        gitProviders: null, // unlimited
+        messagingProviders: null, // unlimited
+        cronJobs: null, // unlimited
+        minCronInterval: 0,
+      },
+    };
+
+    // Prepare billing information
+    const billing = subscription.stripeSubscriptionId
+      ? {
+          subscriptionId: subscription.stripeSubscriptionId,
+          customerId: subscription.stripeCustomerId,
+          currentPeriodStart: subscription.currentPeriodStart,
+          currentPeriodEnd: subscription.currentPeriodEnd,
+          cancelAtPeriodEnd: subscription.cancelAtPeriodEnd,
+        }
+      : null;
+
+    return c.json({
+      success: true,
+      tier: subscription.tier,
+      status: subscription.status,
+      usage,
+      limits: tierLimits[subscription.tier],
+      billing,
+      createdAt: subscription.createdAt?.toISOString(),
+      updatedAt: subscription.updatedAt?.toISOString(),
+    } as SubscriptionDataDto);
   });
 
 export default subscriptions;

@@ -6,6 +6,7 @@ import {
   MessagingProvider,
   MessagingProviderType,
 } from "@/lib/database/schema";
+import { createErrorResponse } from "@/lib/errors/api-error";
 
 import {
   deleteMessagingProvider,
@@ -29,117 +30,89 @@ export interface MessagingProviderDTO {
 const app = new Hono()
   // GET /api/providers/messaging - List all messaging providers
   .get("/", async (c) => {
-    try {
-      const userId = getCurrentUserId(c);
+    const userId = getCurrentUserId(c);
 
-      const connectedProviders = await getUserMessagingProviders(userId);
+    const connectedProviders = await getUserMessagingProviders(userId);
 
-      // Create a map of connected providers by type
-      const providersByType = connectedProviders.reduce((acc, provider) => {
-        acc[provider.provider] = provider;
-        return acc;
-      }, {} as Record<string, MessagingProvider>);
+    // Create a map of connected providers by type
+    const providersByType = connectedProviders.reduce((acc, provider) => {
+      acc[provider.provider] = provider;
+      return acc;
+    }, {} as Record<string, MessagingProvider>);
 
-      // Group Discord providers by guild (since we can have multiple Discord connections)
-      const discordProviders = connectedProviders.filter(
-        (p) => p.provider === "discord"
-      );
+    // Group Discord providers by guild (since we can have multiple Discord connections)
+    const discordProviders = connectedProviders.filter(
+      (p) => p.provider === "discord"
+    );
 
-      const messagingProviders: MessagingProviderDTO[] = [
-        // Only include connected providers
-        ...(providersByType.slack
-          ? [
-              {
-                id: providersByType.slack.id,
-                type: "slack" as const,
-                name: "Slack",
-                connected: true as const,
-                connectedAt: providersByType.slack.createdAt!.toISOString(),
-              },
-            ]
-          : []),
-        ...(providersByType.teams
-          ? [
-              {
-                id: providersByType.teams.id,
-                type: "teams" as const,
-                name: "Microsoft Teams",
-                connected: true as const,
-                connectedAt: providersByType.teams.createdAt!.toISOString(),
-              },
-            ]
-          : []),
-        // For Discord, include all connected guilds as separate providers
-        ...discordProviders.map((provider) => ({
-          id: provider.id,
-          type: "discord" as const,
-          name: provider.guildName
-            ? `Discord - ${provider.guildName}`
-            : "Discord",
-          connected: true as const,
-          connectedAt: provider.createdAt!.toISOString(),
-          guildId: provider.guildId,
-          guildName: provider.guildName,
-        })),
-      ];
+    const messagingProviders: MessagingProviderDTO[] = [
+      // Only include connected providers
+      ...(providersByType.slack
+        ? [
+            {
+              id: providersByType.slack.id,
+              type: "slack" as const,
+              name: "Slack",
+              connected: true as const,
+              connectedAt: providersByType.slack.createdAt!.toISOString(),
+            },
+          ]
+        : []),
+      ...(providersByType.teams
+        ? [
+            {
+              id: providersByType.teams.id,
+              type: "teams" as const,
+              name: "Microsoft Teams",
+              connected: true as const,
+              connectedAt: providersByType.teams.createdAt!.toISOString(),
+            },
+          ]
+        : []),
+      // For Discord, include all connected guilds as separate providers
+      ...discordProviders.map((provider) => ({
+        id: provider.id,
+        type: "discord" as const,
+        name: provider.guildName
+          ? `Discord - ${provider.guildName}`
+          : "Discord",
+        connected: true as const,
+        connectedAt: provider.createdAt!.toISOString(),
+        guildId: provider.guildId,
+        guildName: provider.guildName,
+      })),
+    ];
 
-      return c.json({
-        success: true,
-        message: "Messaging providers fetched successfully",
-        data: { providers: messagingProviders },
-      });
-    } catch (error) {
-      console.error("Failed to fetch messaging providers:", error);
-
-      return c.json(
-        {
-          success: false,
-          error: "Fetch failed",
-          message: "Failed to fetch messaging provider status",
-        },
-        500
-      );
-    }
+    return c.json({
+      success: true,
+      message: "Messaging providers fetched successfully",
+      data: { providers: messagingProviders },
+    });
   })
   // DELETE /api/providers/messaging - Disconnect messaging provider
   .delete(
     "/",
     arktypeValidator("query", MessagingProviderQuerySchema),
     async (c) => {
-      try {
-        const { type } = c.req.valid("query");
-        const userId = getCurrentUserId(c);
+      const { type } = c.req.valid("query");
+      const userId = getCurrentUserId(c);
 
-        const deleted = await deleteMessagingProvider(userId, type);
+      const deleted = await deleteMessagingProvider(userId, type);
 
-        if (!deleted) {
-          return c.json(
-            {
-              success: false,
-              error: "Provider not found",
-              message: `No ${type} provider connection found for this user`,
-            },
-            404
-          );
-        }
-
-        return c.json({
-          success: true,
-          message: `Successfully disconnected ${type} provider`,
-          data: { provider: type },
-        });
-      } catch (error) {
-        console.error("Messaging provider disconnect failed:", error);
-
-        return c.json(
-          {
-            success: false,
-            error: "Disconnect failed",
-            message: "Failed to disconnect messaging provider",
-          },
-          500
+      if (!deleted) {
+        return createErrorResponse(
+          c,
+          404,
+          "Provider not found",
+          "Provider not found"
         );
       }
+
+      return c.json({
+        success: true,
+        message: `Successfully disconnected ${type} provider`,
+        data: { provider: type },
+      });
     }
   )
   .route("/slack", slackRoutes)

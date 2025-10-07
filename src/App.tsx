@@ -12,6 +12,16 @@ import Subscription from "./pages/Subscription";
 import UpgradeCancel from "./pages/UpgradeCancel";
 import UpgradeSuccess from "./pages/UpgradeSuccess";
 
+H.init("7e3y9r5g", {
+  serviceName: "hotbot-frontend",
+  tracingOrigins: true,
+  networkRecording: {
+    enabled: true,
+    recordHeadersAndBody: true,
+    urlBlocklist: [],
+  },
+});
+
 function App() {
   const clerkKey = getViteEnvKey("VITE_CLERK_PUBLISHABLE_KEY");
 

@@ -1,5 +1,8 @@
+import { H } from "@highlight-run/cloudflare";
 import { clerkMiddleware } from "@hono/clerk-auth";
 import { Hono } from "hono";
+
+import { TierLimitError } from "@/lib/access-control/middleware";
 
 import { requireAuth } from "../lib/auth/clerk";
 
@@ -10,6 +13,38 @@ import usageRoutes from "./usage";
 import webhooksRoutes from "./webhooks";
 
 const api = new Hono()
+  .use("*", async (_c, next) => {
+    H.init({ HIGHLIGHT_PROJECT_ID: "7e3y9r5g" }, "hotbot-backend");
+    await next();
+  })
+  .onError((err, c) => {
+    if (err instanceof TierLimitError) {
+      return c.json(
+        {
+          success: false,
+          error: err.message,
+          message: err.validationResult.reason,
+          code: "TIER_LIMIT_EXCEEDED",
+        },
+        403
+      );
+    }
+
+    console.log("consuming error:", err);
+    H.consumeError(err);
+    // Use waitUntil to ensure flush completes even after response is sent
+    c.executionCtx.waitUntil(H.flush());
+
+    // Return error response that matches our extended client types
+    return c.json(
+      {
+        success: false,
+        error: "Internal Server Error",
+        message: "An unexpected error occurred",
+      },
+      500
+    );
+  })
   // Apply Clerk middleware to all routes (makes auth context available everywhere)
   .use("/*", clerkMiddleware())
   .get("/health", (c) => {

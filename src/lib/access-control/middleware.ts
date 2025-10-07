@@ -1,5 +1,3 @@
-import { Context } from "hono";
-
 import {
   canCreateGitProvider,
   canCreateMessagingProvider,
@@ -11,7 +9,7 @@ import {
 /**
  * Error class for tier limit violations
  */
-class TierLimitError extends Error {
+export class TierLimitError extends Error {
   constructor(message: string, public validationResult: UsageValidationResult) {
     super(message);
     this.name = "TierLimitError";
@@ -77,25 +75,4 @@ export async function checkCronJobInterval(
       validation
     );
   }
-}
-
-/**
- * Helper function to handle tier limit errors in API endpoints
- */
-export function handleTierLimitError(error: unknown, c: Context) {
-  if (error instanceof TierLimitError) {
-    return c.json(
-      {
-        success: false,
-        error: error.message,
-        code: "TIER_LIMIT_EXCEEDED",
-        details: error.validationResult,
-        message: error.validationResult.reason,
-      },
-      403
-    );
-  }
-
-  // Re-throw if it's not a tier limit error
-  throw error;
 }

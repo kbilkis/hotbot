@@ -1,6 +1,8 @@
 import { Hono } from "hono";
 import Stripe from "stripe";
 
+import { handleApiError } from "@/lib/errors/api-error";
+
 import {
   getSubscriptionByStripeCustomerId,
   getSubscriptionByStripeSubscriptionId,
@@ -15,44 +17,46 @@ const webhooks = new Hono()
    * Handles subscription lifecycle events and keeps the database in sync
    */
   .post("/stripe", async (c) => {
+    // Get raw body and signature
+    const body = await c.req.text();
+    const signature = c.req.header("stripe-signature");
+
+    if (!signature) {
+      console.error("Missing Stripe signature header");
+      return c.json({ success: false, error: "Missing signature" }, 400);
+    }
+
+    // Verify webhook signature and construct event
+    let event: Stripe.Event;
+
     try {
-      // Get raw body and signature
-      const body = await c.req.text();
-      const signature = c.req.header("stripe-signature");
-
-      if (!signature) {
-        console.error("Missing Stripe signature header");
-        return c.json({ success: false, error: "Missing signature" }, 400);
-      }
-
-      // Verify webhook signature and construct event
-      let event: Stripe.Event;
-
-      try {
-        const stripeService = createStripeService();
-        event = await stripeService.constructWebhookEvent(body, signature);
-      } catch (error) {
-        console.error("Webhook signature verification failed:", error);
-        return c.json({ success: false, error: "Invalid signature" }, 400);
-      }
-
-      console.log(`Processing webhook event: ${event.type} (${event.id})`);
-
-      // Route event to appropriate handler
-      try {
-        await handleWebhookEvent(event);
-        console.log(`Successfully processed webhook event: ${event.type}`);
-        return c.json({ success: true, received: true });
-      } catch (error) {
-        console.error(
-          `Error processing webhook event ${event?.type || "unknown"}:`,
-          error
-        );
-        return c.json({ success: false, error: "Processing failed" }, 500);
-      }
+      const stripeService = createStripeService();
+      event = await stripeService.constructWebhookEvent(body, signature);
     } catch (error) {
-      console.error("Webhook endpoint success: false,error:", error);
-      return c.json({ success: false, error: "Internal server error" }, 500);
+      return handleApiError(
+        c,
+        error,
+        400,
+        "Webhook signature verification failed",
+        "Invalid signature"
+      );
+    }
+
+    console.log(`Processing webhook event: ${event.type} (${event.id})`);
+
+    // Route event to appropriate handler
+    try {
+      await handleWebhookEvent(event);
+      console.log(`Successfully processed webhook event: ${event.type}`);
+      return c.json({ success: true, received: true });
+    } catch (error) {
+      return handleApiError(
+        c,
+        error,
+        500,
+        `Error processing webhook event ${event?.type || "unknown"}:`,
+        "Processing failed"
+      );
     }
   });
 

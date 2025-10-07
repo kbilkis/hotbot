@@ -2,19 +2,41 @@ import { hc } from "hono/client";
 
 import type { AppType } from "../../../server";
 
+// Error response type that can come from middleware/global handlers
+export type ApiErrorResponse = {
+  success: false;
+  error: string;
+  message: string;
+  code?: "TIER_LIMIT_EXCEEDED";
+};
+
 // Create a typed Hono RPC client
 const client = hc<AppType>("/");
 
-// Export the API client
-export const apiClient = client.api;
+// Type that extends only the json() method return type
+type WithExtendedJson<T> = T extends { json(): Promise<infer U> }
+  ? Omit<T, "json"> & { json(): Promise<U | ApiErrorResponse> }
+  : T;
 
-// Export specific API sections for easier imports
-export const providersApi = client.api.providers;
-export const gitApi = client.api.providers.git;
-export const githubApi = client.api.providers.git.github;
-export const gitlabApi = client.api.providers.git.gitlab;
-export const messagingApi = client.api.providers.messaging;
-export const discordApi = client.api.providers.messaging.discord;
-export const slackApi = client.api.providers.messaging.slack;
-export const schedulesApi = client.api.schedules;
-export const subscriptionsApi = client.api.subscriptions;
+// Recursively apply the extension to all endpoints
+type ExtendedClient<T> = {
+  [K in keyof T]: T[K] extends (...args: infer Args) => Promise<infer Response>
+    ? (...args: Args) => Promise<WithExtendedJson<Response>>
+    : T[K] extends Record<string, unknown>
+    ? ExtendedClient<T[K]>
+    : T[K];
+};
+
+// Export the API client with extended response types
+export const apiClient = client.api as ExtendedClient<typeof client.api>;
+
+// Export specific API sections for easier imports (using extended client)
+export const providersApi = apiClient.providers;
+export const gitApi = apiClient.providers.git;
+export const githubApi = apiClient.providers.git.github;
+export const gitlabApi = apiClient.providers.git.gitlab;
+export const messagingApi = apiClient.providers.messaging;
+export const discordApi = apiClient.providers.messaging.discord;
+export const slackApi = apiClient.providers.messaging.slack;
+export const schedulesApi = apiClient.schedules;
+export const subscriptionsApi = apiClient.subscriptions;
