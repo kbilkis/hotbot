@@ -8,8 +8,15 @@ export async function SSRRender(url: string = "/") {
 
   const { html, links } = await prerender(<App />);
 
-  // Convert Set to Array for mapping
-  const linkArray = links ? Array.from(links) : [];
+  // Filter out non-HTTP links (mailto:, tel:, etc.) but keep internal routes for preloading
+  const linkArray = links
+    ? Array.from(links).filter(
+        (link: string) =>
+          link.startsWith("/") ||
+          link.startsWith("http://") ||
+          link.startsWith("https://")
+      )
+    : [];
 
   const fullHtml = `<!DOCTYPE html>
 <html lang="en">
@@ -24,9 +31,7 @@ export async function SSRRender(url: string = "/") {
     <title>HotBot - Code Review helper</title>
     <link href="/assets/main.css" rel="stylesheet" />
     ${linkArray
-      .map(
-        (link: string) => `<link rel="preload" href="${link}" as="script" />`
-      )
+      .map((link: string) => `<link rel="prefetch" href="${link}" />`)
       .join("\n    ")}
   </head>
   <body>
