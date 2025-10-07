@@ -1,4 +1,5 @@
 import { Hono } from "hono";
+import { cors } from "hono/cors";
 
 import { SSRRender } from "@/entry-server";
 
@@ -10,7 +11,17 @@ type Bindings = {
 
 const app = new Hono<{
   Bindings: Bindings;
-}>().route("/api", apiRoutes);
+}>()
+  .use(
+    "*",
+    cors({
+      origin: "https://hotbot.sh",
+      allowHeaders: ["Content-Type", "Authorization", "x-highlight-request"],
+      allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      credentials: true,
+    })
+  )
+  .route("/api", apiRoutes);
 
 // Handle all requests
 app.get("*", async (c) => {

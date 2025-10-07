@@ -1,4 +1,5 @@
 import { ClerkProvider } from "@clerk/clerk-react";
+import { H } from "highlight.run";
 import { LocationProvider, Router, Route } from "preact-iso";
 import { SWRConfig } from "swr";
 
@@ -18,7 +19,7 @@ H.init("7e3y9r5g", {
   networkRecording: {
     enabled: true,
     recordHeadersAndBody: true,
-    urlBlocklist: [],
+    urlBlocklist: ["https://clerk.hotbot.sh"],
   },
 });
 
