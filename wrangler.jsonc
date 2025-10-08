@@ -28,9 +28,10 @@
     "binding": "ASSETS"
   },
   "build": {
-    "command": "npm run build",
+    "command": "./scripts/build-and-upload-sourcemaps.sh",
     "watch_dir": "src"
   },
+  "upload_source_maps": true,
   "observability": {
     "logs": {
       "enabled": true

@@ -7,7 +7,7 @@
     "dev:server": "tsx watch --env-file=.env dev-server.ts",
     "dev:client": "vite",
     "build": "node esbuild.config.js && vite build",
-    "deploy": "wrangler deploy",
+    "deploy": "wrangler deploy --env=\"\"",
     "build:client": "vite build",
     "build:server": "node esbuild.config.js --metafile=./meta.json",
     "build:functions": "node esbuild.functions.config.js",

@@ -13,7 +13,7 @@ import Subscription from "./pages/Subscription";
 import UpgradeCancel from "./pages/UpgradeCancel";
 import UpgradeSuccess from "./pages/UpgradeSuccess";
 
-H.init("7e3y9r5g", {
+H.init("jdk573od", {
   serviceName: "hotbot-frontend",
   tracingOrigins: true,
   networkRecording: {

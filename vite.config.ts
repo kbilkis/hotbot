@@ -35,6 +35,7 @@ export default defineConfig(() => {
       minify: true,
       ssrManifest: true,
       emptyOutDir: false,
+      sourcemap: true,
       rollupOptions: {
         input: {
           main: resolve(__dirname, "./src/entry-client.tsx"),

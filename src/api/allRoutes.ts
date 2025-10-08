@@ -13,8 +13,8 @@ import usageRoutes from "./usage";
 import webhooksRoutes from "./webhooks";
 
 const api = new Hono()
-  .use("*", async (_c, next) => {
-    H.init({ HIGHLIGHT_PROJECT_ID: "7e3y9r5g" }, "hotbot-backend");
+  .use("*", async (c, next) => {
+    H.init({ HIGHLIGHT_PROJECT_ID: "jdk573od" }, "hotbot-backend");
     await next();
   })
   .onError((err, c) => {
