@@ -1,4 +1,4 @@
-import { H } from "@highlight-run/cloudflare";
+import * as Sentry from "@sentry/cloudflare";
 import type { Context } from "hono";
 import { ContentfulStatusCode } from "hono/utils/http-status";
 
@@ -11,10 +11,10 @@ export function handleApiError(
   message: string = "An unexpected error occurred"
 ) {
   const errorToLog = error instanceof Error ? error : new Error(String(error));
-  H.consumeError(errorToLog);
-  c.executionCtx.waitUntil(H.flush());
 
   console.error("API Error:", error);
+
+  Sentry.captureException(errorToLog);
 
   // Return structured response for RPC types
   return c.json(

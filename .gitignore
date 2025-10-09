@@ -8,6 +8,7 @@ yarn-error.log*
 dist/
 dist_hono/
 dist_functions/
+dist_wrangler_sourcemaps/
 build/
 
 # Environment variables
@@ -106,3 +107,5 @@ jspm_packages/
 
 .vercel
 .wrangler
+# Sentry Config File
+.sentryclirc

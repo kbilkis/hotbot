@@ -1,11 +1,12 @@
 import { ClerkProvider } from "@clerk/clerk-react";
-import { H } from "highlight.run";
 import { LocationProvider, Router, Route } from "preact-iso";
 import { SWRConfig } from "swr";
 
 import ProtectedRoute from "./components/auth/ProtectedRoute";
+import SentryIdentifier from "./components/auth/SentryIdentifier";
 import Layout from "./components/layout/Layout";
 import { getViteEnvKey } from "./lib/getViteEnvKey";
+import { initSentryClient } from "./lib/sentry";
 import AuthCallback from "./pages/AuthCallback";
 import Dashboard from "./pages/Dashboard";
 import LandingPage from "./pages/LandingPage";
@@ -13,22 +14,14 @@ import Subscription from "./pages/Subscription";
 import UpgradeCancel from "./pages/UpgradeCancel";
 import UpgradeSuccess from "./pages/UpgradeSuccess";
 
-H.init("jdk573od", {
-  serviceName: "hotbot-frontend",
-  tracingOrigins: true,
-  networkRecording: {
-    enabled: true,
-    recordHeadersAndBody: true,
-    urlBlocklist: ["https://clerk.hotbot.sh"],
-  },
-});
-
 function App() {
+  initSentryClient();
   const clerkKey = getViteEnvKey("VITE_CLERK_PUBLISHABLE_KEY");
 
   return (
     <LocationProvider>
       <ClerkProvider publishableKey={clerkKey}>
+        <SentryIdentifier />
         <SWRConfig
           value={{
             // Global SWR configuration

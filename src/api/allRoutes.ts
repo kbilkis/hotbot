@@ -1,5 +1,5 @@
-import { H } from "@highlight-run/cloudflare";
 import { clerkMiddleware } from "@hono/clerk-auth";
+import * as Sentry from "@sentry/cloudflare";
 import { Hono } from "hono";
 
 import { TierLimitError } from "@/lib/access-control/middleware";
@@ -13,10 +13,6 @@ import usageRoutes from "./usage";
 import webhooksRoutes from "./webhooks";
 
 const api = new Hono()
-  .use("*", async (c, next) => {
-    H.init({ HIGHLIGHT_PROJECT_ID: "jdk573od" }, "hotbot-backend");
-    await next();
-  })
   .onError((err, c) => {
     if (err instanceof TierLimitError) {
       return c.json(
@@ -30,10 +26,8 @@ const api = new Hono()
       );
     }
 
-    console.log("consuming error:", err);
-    H.consumeError(err);
-    // Use waitUntil to ensure flush completes even after response is sent
-    c.executionCtx.waitUntil(H.flush());
+    console.error("API Error:", err);
+    Sentry.captureException(err);
 
     // Return error response that matches our extended client types
     return c.json(
