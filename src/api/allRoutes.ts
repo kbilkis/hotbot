@@ -4,11 +4,12 @@ import { Hono } from "hono";
 
 import { TierLimitError } from "@/lib/access-control/middleware";
 
-import { requireAuth } from "../lib/auth/clerk";
+import { dbUserMiddleware, requireAuth } from "../lib/auth/clerk";
 
 import providersRoutes from "./providers";
 import schedulesRoutes from "./schedules";
 import subscriptionsRoutes from "./subscriptions";
+import tunnelRoutes from "./tunnel";
 import usageRoutes from "./usage";
 import webhooksRoutes from "./webhooks";
 
@@ -40,7 +41,11 @@ const api = new Hono()
     );
   })
   // Apply Clerk middleware to all routes (makes auth context available everywhere)
-  .use("/*", clerkMiddleware())
+  .use(clerkMiddleware())
+  .use(dbUserMiddleware())
+  .get("/make-error", (_c) => {
+    throw new Error("Test error");
+  })
   .get("/health", (c) => {
     // Health check endpoint
     return c.json({
@@ -59,7 +64,8 @@ const api = new Hono()
   .route("/schedules", schedulesRoutes)
   .route("/subscriptions", subscriptionsRoutes)
   .route("/usage", usageRoutes)
-  // Public webhook routes (no auth required for Stripe webhooks)
+  // Public routes (no auth required)
+  .route("/tunnel", tunnelRoutes)
   .route("/webhooks", webhooksRoutes);
 
 export default api;

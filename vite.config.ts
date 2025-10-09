@@ -1,15 +1,25 @@
 import { resolve } from "node:path";
 
 import { preact } from "@preact/preset-vite";
-import { defineConfig } from "vite";
+import { sentryVitePlugin } from "@sentry/vite-plugin";
+import { defineConfig, PluginOption } from "vite";
 import { analyzer } from "vite-bundle-analyzer";
 
 export default defineConfig(() => {
-  const plugins = preact();
+  const plugins: PluginOption[] = [preact()];
   if (process.env.ANALYZE === "true") {
     plugins.push(
       analyzer({
         openAnalyzer: false,
+      })
+    );
+  }
+  if (process.env.VITE_ENVIRONMENT !== "development") {
+    plugins.push(
+      sentryVitePlugin({
+        authToken: process.env.SENTRY_AUTH_TOKEN,
+        org: process.env.SENTRY_ORG || "bilkis",
+        project: process.env.SENTRY_PROJECT_REACT || "hotbot-fe",
       })
     );
   }

@@ -1,28 +1,23 @@
-import { withSentry } from "@sentry/cloudflare";
-import { Env, Hono } from "hono";
+import * as Sentry from "@sentry/cloudflare";
+import { Hono } from "hono";
 import { cors } from "hono/cors";
 
 import { SSRRender } from "@/entry-server";
+import { getViteEnvKey } from "@/lib/getViteEnvKey";
 
 import apiRoutes from "./src/api/allRoutes";
 
-type Bindings = {
-  __STATIC_CONTENT: KVNamespace;
-  CF_VERSION_METADATA: {
-    id: string;
-    tag: string;
-    timestamp: string;
-  };
-};
-
-const app = new Hono<{
-  Bindings: Bindings;
-}>()
+const app = new Hono()
   .use(
     "*",
     cors({
       origin: "https://hotbot.sh",
-      allowHeaders: ["Content-Type", "Authorization"],
+      allowHeaders: [
+        "Content-Type",
+        "Authorization",
+        "sentry-trace",
+        "baggage",
+      ],
       allowMethods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
       credentials: true,
     })
@@ -45,15 +40,22 @@ app.get("*", async (c) => {
   }
 });
 
-export default withSentry((env: Env) => {
-  const { id: versionId } = (env as any).CF_VERSION_METADATA;
-  console.log("versionId=" + versionId);
-  return {
-    dsn: "https://5e32db286691535cd9e6fd8c04c9f498@o4510160209969152.ingest.us.sentry.io/4510160388489216",
-    release: versionId,
-    sendDefaultPii: true,
-  };
-}, app);
+// Conditionally wrap with Sentry based on environment
+const environment = getViteEnvKey("VITE_ENVIRONMENT");
+const isDevelopment = environment === "development" || environment === "local";
+
+export default isDevelopment
+  ? app
+  : Sentry.withSentry(() => {
+      return {
+        dsn: process.env.SENTRY_DSN,
+        environment: environment,
+        release: process.env.SENTRY_RELEASE,
+        sendDefaultPii: true,
+        enableLogs: true,
+        tracesSampleRate: 1,
+      };
+    }, app);
 
 // export default app;
 export type AppType = typeof app;
