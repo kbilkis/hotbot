@@ -5,13 +5,15 @@ import { Request, Response } from "@google-cloud/functions-framework";
 
 import { refreshExpiringTokens } from "../lib/oauth/scheduled-refresh";
 
-export async function tokenProcessor(_req: Request, res: Response) {
-  const startTime = Date.now();
-  console.log(
-    `[${new Date().toISOString()}] Starting token refresh processor...`
-  );
+import { wrapWithSentry } from "./sentry-helper";
 
-  try {
+export const tokenProcessor = wrapWithSentry(
+  async (_req: Request, res: Response) => {
+    const startTime = Date.now();
+    console.log(
+      `[${new Date().toISOString()}] Starting token refresh processor...`
+    );
+
     const tokenResult = await refreshExpiringTokens();
     const tokensRefreshed =
       tokenResult.gitProvidersRefreshed +
@@ -38,14 +40,5 @@ export async function tokenProcessor(_req: Request, res: Response) {
       executionTime,
       errors: tokenResult.errors,
     });
-  } catch (error) {
-    console.error(
-      `[${new Date().toISOString()}] Token refresh processor failed:`,
-      error
-    );
-    res.status(500).json({
-      success: false,
-      error: error instanceof Error ? error.message : "Unknown error",
-    });
   }
-}
+);

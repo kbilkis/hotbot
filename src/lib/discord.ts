@@ -268,16 +268,16 @@ export function formatDiscordPRMessage(
   repositoryName?: string,
   scheduleName?: string
 ): DiscordMessage {
+  const title = scheduleName || "DAILY REMINDER FOR OPEN PULL REQUESTS";
+
   if (pullRequests.length === 0) {
     return {
-      content: `✅ All clear! No open pull requests${
+      content: `📋 **${title.toUpperCase()}**\n\n✅ All clear! No open pull requests${
         repositoryName ? ` in ${repositoryName}` : ""
       }`,
     };
   }
 
-  // Build message content similar to Slack format
-  const title = scheduleName || "DAILY REMINDER FOR OPEN PULL REQUESTS";
   let content = `📋 **${title.toUpperCase()}**\n\n`;
 
   // Categorize PRs

@@ -198,9 +198,10 @@ export function formatSlackPRMessage(
   scheduleName?: string
 ): SlackMessage {
   if (pullRequests.length === 0) {
+    const title = scheduleName || "DAILY REMINDER FOR OPEN PULL REQUESTS";
     return {
       channel: "",
-      text: `✅ All clear! No open pull requests ${
+      text: `📋 *${title.toUpperCase()}*\n\n✅ All clear! No open pull requests${
         repositoryName ? ` in ${repositoryName}` : ""
       }`,
     };

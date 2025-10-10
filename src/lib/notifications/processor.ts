@@ -2,6 +2,7 @@
  * Cron job scheduler - processes scheduled jobs and sends notifications
  */
 
+import * as Sentry from "@sentry/google-cloud-serverless";
 import { CronExpressionParser } from "cron-parser";
 import { eq } from "drizzle-orm";
 
@@ -33,55 +34,38 @@ import { filterProcessor } from "./filters";
  * Main notification processor - runs every minute to check for due jobs and send notifications
  */
 export async function processScheduledNotifications(): Promise<void> {
-  const startTime = Date.now();
+  // Get all active cron jobs
+  const activeJobs = await getActiveJobsForExecution();
 
-  try {
-    // Get all active cron jobs
-    const activeJobs = await getActiveJobsForExecution();
-
-    if (activeJobs.length === 0) {
-      console.log("No active cron jobs found");
-      return;
-    }
-
-    console.log(`Found ${activeJobs.length} active cron jobs`);
-
-    // Filter jobs that are due for execution
-    const dueJobs = filterDueJobs(activeJobs);
-
-    if (dueJobs.length === 0) {
-      console.log("No jobs due for execution at this time");
-      return;
-    }
-
-    console.log(`Processing ${dueJobs.length} due jobs`);
-
-    // Process each due job
-    const results = await Promise.allSettled(
-      dueJobs.map((job) => processJob(job))
-    );
-
-    // Log overall results
-    const successful = results.filter((r) => r.status === "fulfilled").length;
-    const failed = results.filter((r) => r.status === "rejected").length;
-
-    console.log(
-      `Job processing completed: ${successful} successful, ${failed} failed`
-    );
-
-    // Log any failures
-    results.forEach((result, index) => {
-      if (result.status === "rejected") {
-        console.error(`Job ${dueJobs[index].name} failed:`, result.reason);
-      }
-    });
-  } catch (error) {
-    console.error("Cron job processor error:", error);
-    throw error;
-  } finally {
-    const executionTime = Date.now() - startTime;
-    console.log(`Total execution time: ${executionTime}ms`);
+  if (activeJobs.length === 0) {
+    console.log("No active cron jobs found");
+    return;
   }
+
+  console.log(`Found ${activeJobs.length} active cron jobs`);
+
+  // Filter jobs that are due for execution
+  const dueJobs = filterDueJobs(activeJobs);
+
+  if (dueJobs.length === 0) {
+    console.log("No jobs due for execution at this time");
+    return;
+  }
+
+  console.log(`Processing ${dueJobs.length} due jobs`);
+
+  // Process each due job
+  const results = await Promise.allSettled(
+    dueJobs.map((job) => processJob(job))
+  );
+
+  // Log overall results
+  const successful = results.filter((r) => r.status === "fulfilled").length;
+  const failed = results.filter((r) => r.status === "rejected").length;
+
+  console.log(
+    `Job processing completed: ${successful} successful, ${failed} failed`
+  );
 }
 
 /**
@@ -128,7 +112,7 @@ function filterDueJobs(jobs: CronJob[]): CronJob[] {
 
       if (isDue) {
         console.log(
-          `Job "${job.name}" is due for execution (UTC cron: ${
+          `Job "${job.id}" is due for execution (UTC cron: ${
             job.cronExpression
           }, scheduled for: ${prevRun.toISOString()})`
         );
@@ -137,9 +121,10 @@ function filterDueJobs(jobs: CronJob[]): CronJob[] {
       return isDue;
     } catch (error) {
       console.error(
-        `Invalid cron expression for job "${job.name}": ${job.cronExpression}`,
+        `Invalid cron expression for job "${job.id}": ${job.cronExpression}`,
         error
       );
+      Sentry.captureException(error);
       return false;
     }
   });
@@ -156,7 +141,7 @@ async function processJob(job: CronJob): Promise<void> {
   let errorMessage: string | null = null;
 
   try {
-    console.log(`Processing job: ${job.name} (ID: ${job.id})`);
+    console.log(`Processing job: ${job.id}`);
 
     // Get provider connections by ID
     const [gitProvider, messagingProvider, escalationProvider] =
@@ -169,18 +154,18 @@ async function processJob(job: CronJob): Promise<void> {
       ]);
 
     if (!gitProvider) {
-      throw new Error(`Git provider not found for job ${job.name}`);
+      throw new Error(`Git provider not found for job ${job.id}`);
     }
 
     if (!messagingProvider) {
-      throw new Error(`Messaging provider not found for job ${job.name}`);
+      throw new Error(`Messaging provider not found for job ${job.id}`);
     }
 
     // Fetch pull requests
     const pullRequests = await fetchPullRequests(job, gitProvider);
     pullRequestsFound = pullRequests.length;
 
-    console.log(`Found ${pullRequestsFound} pull requests for job ${job.name}`);
+    console.log(`Found ${pullRequestsFound} pull requests for job ${job.id}`);
 
     // Apply filters
     const filteredPRs = filterProcessor(pullRequests, job.prFilters);
@@ -214,11 +199,11 @@ async function processJob(job: CronJob): Promise<void> {
     // Update last executed timestamp
     await updateJobLastExecuted(job.id);
 
-    console.log(`Job ${job.name} completed successfully`);
+    console.log(`Job ${job.id} completed successfully`);
   } catch (error) {
     errorMessage = error instanceof Error ? error.message : String(error);
-    console.error(`Job ${job.name} failed:`, error);
-    throw error;
+    console.error(`Job ${job.id} failed:`, error);
+    Sentry.captureException(error);
   } finally {
     // Log execution results
     const executionTime = Date.now() - startTime;

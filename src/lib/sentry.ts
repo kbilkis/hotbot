@@ -6,7 +6,11 @@ export function initSentryClient() {
   const environment = getViteEnvKey("VITE_ENVIRONMENT");
   const isDevelopment = environment === "development";
 
-  if (isDevelopment) {
+  const isDeployDomain =
+    typeof window !== "undefined" &&
+    window.location.hostname.endsWith("hotbot.sh");
+
+  if (isDevelopment && !isDeployDomain) {
     console.log("Sentry disabled in development environment");
     return;
   }
