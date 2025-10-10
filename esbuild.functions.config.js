@@ -1,8 +1,24 @@
 import fs from "fs";
 
+import { sentryEsbuildPlugin } from "@sentry/esbuild-plugin";
 import esbuild from "esbuild";
 
-// Simple build - just compile the existing  index.ts
+// Build plugins - only include Sentry if auth token is available
+const plugins = [];
+if (process.env.SENTRY_AUTH_TOKEN) {
+  plugins.push(
+    sentryEsbuildPlugin({
+      authToken: process.env.SENTRY_AUTH_TOKEN,
+      org: "bilkis",
+      project: "hotbot-functions",
+    })
+  );
+  console.log("✅ Sentry plugin enabled for source maps upload");
+} else {
+  console.log("⚠️  Sentry auth token not found - skipping source maps upload");
+}
+
+// Simple build - just compile the existing index.ts
 await esbuild.build({
   entryPoints: ["src/functions/index.ts"],
   bundle: true,
@@ -12,6 +28,7 @@ await esbuild.build({
   outfile: "dist_functions/index.js",
   minify: false,
   sourcemap: true,
+  plugins,
 });
 
 // Create minimal package.json for Cloud Functions

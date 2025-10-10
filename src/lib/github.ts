@@ -125,52 +125,48 @@ export async function getGitHubPullRequests(
 
   // Fetch PRs from each repository
   for (const repo of reposToCheck) {
-    try {
-      const prs = await githubApiRequest<GitHubPullRequest[]>(
-        `/repos/${repo}/pulls?state=open&per_page=100`,
-        token
-      );
+    const prs = await githubApiRequest<GitHubPullRequest[]>(
+      `/repos/${repo}/pulls?state=open&per_page=100`,
+      token
+    );
 
-      const mappedPRs: GitHubPR[] = await Promise.all(
-        prs.map(async (pr) => {
-          // Get detailed review information and PR stats
-          const [reviews, prDetails] = await Promise.all([
-            getDetailedReviewInfo(token, repo, pr.number),
-            githubApiRequest<GitHubPullRequest>(
-              `/repos/${repo}/pulls/${pr.number}`,
-              token
-            ).catch(() => null),
-          ]);
+    const mappedPRs: GitHubPR[] = await Promise.all(
+      prs.map(async (pr) => {
+        // Get detailed review information and PR stats
+        const [reviews, prDetails] = await Promise.all([
+          getDetailedReviewInfo(token, repo, pr.number),
+          githubApiRequest<GitHubPullRequest>(
+            `/repos/${repo}/pulls/${pr.number}`,
+            token
+          ).catch(() => null),
+        ]);
 
-          return {
-            id: pr.id.toString(),
-            title: pr.title,
-            author: pr.user.login,
-            url: pr.html_url,
-            createdAt: pr.created_at,
-            updatedAt: pr.updated_at,
-            repository: repo,
-            labels: pr.labels.map((label) => label.name),
-            status: determineStatus(pr),
-            reviewers: [
-              ...(pr.requested_reviewers?.map((reviewer) => reviewer.login) ||
-                []),
-              ...reviews.reviewers,
-            ],
-            assignees: pr.assignees?.map((assignee) => assignee.login) || [],
-            reviewStates: reviews.reviewStates,
-            hasApprovals: reviews.hasApprovals,
-            hasChangesRequested: reviews.hasChangesRequested,
-            additions: prDetails?.additions,
-            deletions: prDetails?.deletions,
-          };
-        })
-      );
+        return {
+          id: pr.id.toString(),
+          title: pr.title,
+          author: pr.user.login,
+          url: pr.html_url,
+          createdAt: pr.created_at,
+          updatedAt: pr.updated_at,
+          repository: repo,
+          labels: pr.labels.map((label) => label.name),
+          status: determineStatus(pr),
+          reviewers: [
+            ...(pr.requested_reviewers?.map((reviewer) => reviewer.login) ||
+              []),
+            ...reviews.reviewers,
+          ],
+          assignees: pr.assignees?.map((assignee) => assignee.login) || [],
+          reviewStates: reviews.reviewStates,
+          hasApprovals: reviews.hasApprovals,
+          hasChangesRequested: reviews.hasChangesRequested,
+          additions: prDetails?.additions,
+          deletions: prDetails?.deletions,
+        };
+      })
+    );
 
-      allPRs.push(...mappedPRs);
-    } catch (error) {
-      console.warn(`Failed to fetch PRs from ${repo}:`, error);
-    }
+    allPRs.push(...mappedPRs);
   }
 
   return applyPRFilters(allPRs, filters);

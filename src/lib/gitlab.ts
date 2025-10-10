@@ -131,52 +131,48 @@ export async function getGitLabMergeRequests(
 
   // Fetch MRs from each project
   for (const projectPath of projectsToCheck) {
-    try {
-      // Get project ID from path
-      const encodedPath = encodeURIComponent(projectPath);
-      const project = await gitlabApiRequest<GitLabProject>(
-        `/projects/${encodedPath}`,
-        token
-      );
+    // Get project ID from path
+    const encodedPath = encodeURIComponent(projectPath);
+    const project = await gitlabApiRequest<GitLabProject>(
+      `/projects/${encodedPath}`,
+      token
+    );
 
-      const mrs = await gitlabApiRequest<GitLabMergeRequestFromAPI[]>(
-        `/projects/${project.id}/merge_requests?state=opened&per_page=100&order_by=updated_at&sort=desc`,
-        token
-      );
+    const mrs = await gitlabApiRequest<GitLabMergeRequestFromAPI[]>(
+      `/projects/${project.id}/merge_requests?state=opened&per_page=100&order_by=updated_at&sort=desc`,
+      token
+    );
 
-      const mappedMRs: GitLabMR[] = await Promise.all(
-        mrs.map(async (mr) => {
-          // Get detailed approval information
-          const approvals = await getDetailedApprovalInfo(
-            token,
-            project.id,
-            mr.iid
-          );
+    const mappedMRs: GitLabMR[] = await Promise.all(
+      mrs.map(async (mr) => {
+        // Get detailed approval information
+        const approvals = await getDetailedApprovalInfo(
+          token,
+          project.id,
+          mr.iid
+        );
 
-          return {
-            id: mr.id.toString(),
-            title: mr.title,
-            author: mr.author.username,
-            url: mr.web_url,
-            createdAt: mr.created_at,
-            updatedAt: mr.updated_at,
-            repository: projectPath,
-            labels: mr.labels || [],
-            status: determineStatus(mr),
-            reviewers: mr.reviewers?.map((reviewer) => reviewer.username) || [],
-            assignees: mr.assignees?.map((assignee) => assignee.username) || [],
-            reviewStates: approvals.reviewStates,
-            hasApprovals: approvals.hasApprovals,
-            hasChangesRequested: approvals.hasChangesRequested,
-            checksStatus: determinePipelineStatus(mr),
-          };
-        })
-      );
+        return {
+          id: mr.id.toString(),
+          title: mr.title,
+          author: mr.author.username,
+          url: mr.web_url,
+          createdAt: mr.created_at,
+          updatedAt: mr.updated_at,
+          repository: projectPath,
+          labels: mr.labels || [],
+          status: determineStatus(mr),
+          reviewers: mr.reviewers?.map((reviewer) => reviewer.username) || [],
+          assignees: mr.assignees?.map((assignee) => assignee.username) || [],
+          reviewStates: approvals.reviewStates,
+          hasApprovals: approvals.hasApprovals,
+          hasChangesRequested: approvals.hasChangesRequested,
+          checksStatus: determinePipelineStatus(mr),
+        };
+      })
+    );
 
-      allMRs.push(...mappedMRs);
-    } catch (error) {
-      console.warn(`Failed to fetch MRs from ${projectPath}:`, error);
-    }
+    allMRs.push(...mappedMRs);
   }
 
   return applyMRFilters(allMRs, filters);

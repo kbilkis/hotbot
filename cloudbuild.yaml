@@ -3,6 +3,7 @@ steps:
   # Build TypeScript functions with esbuild
   - name: "node:22"
     entrypoint: "bash"
+    secretEnv: ["SENTRY_AUTH_TOKEN"]
     args:
       - "-c"
       - |
@@ -98,5 +99,11 @@ steps:
       - "--location"
       - "us-central1"
     allowFailure: true
+
+availableSecrets:
+  secretManager:
+    - versionName: projects/1089098574327/secrets/SENTRY_AUTH_TOKEN/versions/latest
+      env: "SENTRY_AUTH_TOKEN"
+
 options:
   logging: CLOUD_LOGGING_ONLY

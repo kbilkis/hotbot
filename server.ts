@@ -41,9 +41,8 @@ app.get("*", async (c) => {
 });
 
 // Conditionally wrap with Sentry based on environment
-const environment = getViteEnvKey("VITE_ENVIRONMENT");
-const isDevelopment = environment === "development" || environment === "local";
-
+const environment = getViteEnvKey("VITE_ENVIRONMENT_DEPL");
+const isDevelopment = environment === "development";
 export default isDevelopment
   ? app
   : Sentry.withSentry(() => {
@@ -53,7 +52,7 @@ export default isDevelopment
         release: process.env.SENTRY_RELEASE,
         sendDefaultPii: true,
         enableLogs: true,
-        tracesSampleRate: 1,
+        tracesSampleRate: 0.1,
       };
     }, app);
 
