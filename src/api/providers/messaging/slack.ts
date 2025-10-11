@@ -12,6 +12,7 @@ import {
   getUserMessagingProvider,
   upsertMessagingProvider,
 } from "../../../lib/database/queries/providers";
+import { expensiveRateLimit } from "../../../lib/middleware/rate-limit";
 import {
   getSlackAuthUrl,
   exchangeSlackToken,
@@ -189,6 +190,7 @@ const app = new Hono()
   // Send message to Slack channel
   .post(
     "/send-message",
+    expensiveRateLimit("send-message"),
     arktypeValidator("json", SlackSendMessageSchema),
     async (c) => {
       const authHeader = c.req.header("Authorization");
@@ -222,7 +224,7 @@ const app = new Hono()
     }
   )
   // Test channel by sending a test message
-  .post("/test-channel", async (c) => {
+  .post("/test-channel", expensiveRateLimit("send-message"), async (c) => {
     const userId = getCurrentUserId(c);
     const body = await c.req.json();
 

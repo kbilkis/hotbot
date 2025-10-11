@@ -13,7 +13,7 @@ export default function GitProviders() {
   const [showModal, setShowModal] = useState(false);
   const [selectedProvider, setSelectedProvider] =
     useState<GitProviderData | null>(null);
-  const { providers, loading, error, refetch } = useGitProviders();
+  const { providers, loading, error } = useGitProviders();
 
   const handleConnectProvider = (provider: GitProviderData) => {
     setSelectedProvider(provider);
@@ -23,7 +23,6 @@ export default function GitProviders() {
   const handleCloseModal = () => {
     setShowModal(false);
     setSelectedProvider(null);
-    // No need to refetch here - the modal already invalidates SWR cache after successful operations
   };
 
   if (loading) {
@@ -40,7 +39,6 @@ export default function GitProviders() {
       <div className="provider-section">
         <h2>Git Providers</h2>
         <p className="error">Error: {error}</p>
-        <button onClick={refetch}>Retry</button>
       </div>
     );
   }

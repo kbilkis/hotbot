@@ -5,6 +5,7 @@ import { Hono } from "hono";
 
 import { getCurrentUserId } from "@/lib/auth/clerk";
 import { createErrorResponse } from "@/lib/errors/api-error";
+import { expensiveRateLimit } from "@/lib/middleware/rate-limit";
 
 import { checkMessagingProviderLimits } from "../../../lib/access-control/middleware";
 import {
@@ -258,7 +259,7 @@ const app = new Hono()
     });
   })
   // Test channel by sending a test message
-  .post("/test-channel", async (c) => {
+  .post("/test-channel", expensiveRateLimit("send-message"), async (c) => {
     const body = await c.req.json();
 
     if (!body.channelId || !body.message) {
@@ -287,7 +288,7 @@ const app = new Hono()
     });
   })
   // Test webhook by sending a test message
-  .post("/test-webhook", async (c) => {
+  .post("/test-webhook", expensiveRateLimit("send-message"), async (c) => {
     const body = await c.req.json();
 
     if (!body.webhookUrl || !body.message) {
