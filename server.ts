@@ -1,6 +1,7 @@
 import * as Sentry from "@sentry/cloudflare";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
+import { csrf } from "hono/csrf";
 
 import { SSRRender } from "@/entry-server";
 import { getViteEnvKey } from "@/lib/getViteEnvKey";
@@ -8,6 +9,7 @@ import { getViteEnvKey } from "@/lib/getViteEnvKey";
 import apiRoutes from "./src/api/allRoutes";
 
 const app = new Hono()
+  .use(csrf())
   .use(
     "*",
     cors({
@@ -55,6 +57,3 @@ export default isDevelopment
         tracesSampleRate: 0.1,
       };
     }, app);
-
-// export default app;
-export type AppType = typeof app;

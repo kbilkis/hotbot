@@ -26,6 +26,7 @@ import {
   SlackTokenExchangeSchema,
   SlackSendMessageSchema,
   ManualTokenSchema,
+  TestChannelSchema,
 } from "../../../lib/validation/provider-schemas";
 
 const app = new Hono()
@@ -224,47 +225,41 @@ const app = new Hono()
     }
   )
   // Test channel by sending a test message
-  .post("/test-channel", expensiveRateLimit("send-message"), async (c) => {
-    const userId = getCurrentUserId(c);
-    const body = await c.req.json();
+  .post(
+    "/test-channel",
+    expensiveRateLimit("send-message"),
+    arktypeValidator("json", TestChannelSchema),
+    async (c) => {
+      const userId = getCurrentUserId(c);
+      const body = c.req.valid("json");
 
-    if (!body.channelId || !body.message) {
-      return c.json(
-        {
-          success: false,
-          error: "Missing parameters",
-          message: "channelId and message are required",
+      // Get the user's Slack provider connection
+      const messagingProvider = await getUserMessagingProvider(userId, "slack");
+
+      if (!messagingProvider) {
+        return createErrorResponse(
+          c,
+          404,
+          "Provider not connected",
+          "Slack provider is not connected"
+        );
+      }
+
+      await sendSlackMessage(messagingProvider.accessToken, body.channelId, {
+        channel: body.channelId,
+        text: body.message,
+      });
+
+      return c.json({
+        success: true,
+        message: "Test message sent successfully",
+        data: {
+          channelId: body.channelId,
+          message: body.message,
         },
-        400
-      );
+      });
     }
-
-    // Get the user's Slack provider connection
-    const messagingProvider = await getUserMessagingProvider(userId, "slack");
-
-    if (!messagingProvider) {
-      return createErrorResponse(
-        c,
-        404,
-        "Provider not connected",
-        "Slack provider is not connected"
-      );
-    }
-
-    await sendSlackMessage(messagingProvider.accessToken, body.channelId, {
-      channel: body.channelId,
-      text: body.message,
-    });
-
-    return c.json({
-      success: true,
-      message: "Test message sent successfully",
-      data: {
-        channelId: body.channelId,
-        message: body.message,
-      },
-    });
-  })
+  )
   // Get user info
   .get("/user", async (c) => {
     const userId = getCurrentUserId(c);

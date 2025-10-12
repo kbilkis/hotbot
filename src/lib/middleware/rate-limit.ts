@@ -1,4 +1,6 @@
+import * as Sentry from "@sentry/cloudflare";
 import { Context, Next } from "hono";
+import { bodyLimit } from "hono/body-limit";
 
 export interface RateLimitBinding {
   limit(options: { key: string }): Promise<{ success: boolean }>;
@@ -49,6 +51,7 @@ function rateLimitMiddleware(options: RateLimitOptions) {
     const rateLimiter = env[limiter];
 
     if (!rateLimiter) {
+      Sentry.captureException(new Error(`Rate limiter ${limiter} not found`));
       console.warn(`Rate limiter ${limiter} not found in environment`);
       return next();
     }
@@ -165,3 +168,50 @@ function createFingerprint(c: Context): string {
   )}`;
   return fingerprint;
 }
+
+/**
+ * Standard body size limits for different endpoint types
+ */
+export const bodyLimits = {
+  // Small JSON payloads (auth, tokens, simple configs)
+  small: bodyLimit({
+    maxSize: 10 * 1024, // 10KB
+    onError: (c) =>
+      c.json(
+        {
+          success: false,
+          error: "Request too large",
+          message: "Request body exceeds 10KB limit",
+        },
+        413
+      ),
+  }),
+
+  // Medium JSON payloads (messages, configurations)
+  medium: bodyLimit({
+    maxSize: 100 * 1024, // 100KB
+    onError: (c) =>
+      c.json(
+        {
+          success: false,
+          error: "Request too large",
+          message: "Request body exceeds 100KB limit",
+        },
+        413
+      ),
+  }),
+
+  // Large payloads (webhooks, bulk operations)
+  large: bodyLimit({
+    maxSize: 1024 * 1024, // 1MB
+    onError: (c) =>
+      c.json(
+        {
+          success: false,
+          error: "Request too large",
+          message: "Request body exceeds 1MB limit",
+        },
+        413
+      ),
+  }),
+};

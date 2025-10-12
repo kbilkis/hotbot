@@ -119,6 +119,17 @@ export const ManualTokenSchema = type({
   accessToken: "string",
 });
 
+// Test message schemas
+export const TestChannelSchema = type({
+  channelId: "string",
+  message: "string",
+});
+
+export const TestWebhookSchema = type({
+  webhookUrl: "string",
+  message: "string",
+});
+
 // Extract TypeScript types from arktype schemas
 export type GitProviderData = typeof GitProviderSchema.infer;
 export type GitProviderResponseData = typeof _GitProviderResponseSchema.infer;

@@ -29,6 +29,8 @@ import {
   DiscordAuthUrlSchema,
   DiscordTokenExchangeSchema,
   ManualTokenSchema,
+  TestChannelSchema,
+  TestWebhookSchema,
 } from "../../../lib/validation/provider-schemas";
 
 const app = new Hono()
@@ -259,62 +261,50 @@ const app = new Hono()
     });
   })
   // Test channel by sending a test message
-  .post("/test-channel", expensiveRateLimit("send-message"), async (c) => {
-    const body = await c.req.json();
+  .post(
+    "/test-channel",
+    expensiveRateLimit("send-message"),
+    arktypeValidator("json", TestChannelSchema),
+    async (c) => {
+      const body = c.req.valid("json");
 
-    if (!body.channelId || !body.message) {
-      return c.json(
-        {
-          success: false,
-          error: "Missing parameters",
-          message: "channelId and message are required",
+      // Send message using bot token to the specified channel
+      await sendDiscordChannelMessage(body.channelId, {
+        content: body.message,
+      });
+
+      return c.json({
+        success: true,
+        message: "Test message sent successfully",
+        data: {
+          channelId: body.channelId,
+          message: body.message,
         },
-        400
-      );
+      });
     }
-
-    // Send message using bot token to the specified channel
-    await sendDiscordChannelMessage(body.channelId, {
-      content: body.message,
-    });
-
-    return c.json({
-      success: true,
-      message: "Test message sent successfully",
-      data: {
-        channelId: body.channelId,
-        message: body.message,
-      },
-    });
-  })
+  )
   // Test webhook by sending a test message
-  .post("/test-webhook", expensiveRateLimit("send-message"), async (c) => {
-    const body = await c.req.json();
+  .post(
+    "/test-webhook",
+    expensiveRateLimit("send-message"),
+    arktypeValidator("json", TestWebhookSchema),
+    async (c) => {
+      const body = c.req.valid("json");
 
-    if (!body.webhookUrl || !body.message) {
-      return c.json(
-        {
-          success: false,
-          error: "Missing parameters",
-          message: "webhookUrl and message are required",
+      await sendDiscordMessage(body.webhookUrl, {
+        content: body.message,
+      });
+
+      return c.json({
+        success: true,
+        message: "Test message sent successfully",
+        data: {
+          webhookUrl: body.webhookUrl,
+          message: body.message,
         },
-        400
-      );
+      });
     }
-
-    await sendDiscordMessage(body.webhookUrl, {
-      content: body.message,
-    });
-
-    return c.json({
-      success: true,
-      message: "Test message sent successfully",
-      data: {
-        webhookUrl: body.webhookUrl,
-        message: body.message,
-      },
-    });
-  })
+  )
   // Get user info
   .get("/user", async (c) => {
     const userId = getCurrentUserId(c);

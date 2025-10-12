@@ -1,6 +1,6 @@
 import { hc } from "hono/client";
 
-import type { AppType } from "../../../server";
+import api from "@/api/allRoutes";
 
 // Error response type that can come from middleware/global handlers
 export type ApiErrorResponse = {
@@ -9,9 +9,6 @@ export type ApiErrorResponse = {
   message: string;
   code?: "TIER_LIMIT_EXCEEDED";
 };
-
-// Create a typed Hono RPC client
-const client = hc<AppType>("/");
 
 // Type that extends only the json() method return type
 type WithExtendedJson<T> = T extends { json(): Promise<infer U> }
@@ -27,8 +24,16 @@ type ExtendedClient<T> = {
     : T[K];
 };
 
+// this is a trick to calculate the type when compiling
+export type Client = ReturnType<typeof hc<typeof api>>;
+export const hcWithType = (...args: Parameters<typeof hc>): Client =>
+  hc<typeof api>(...args);
+
+// Create a typed Hono RPC client
+const client = hcWithType("/api");
+
 // Export the API client with extended response types
-export const apiClient = client.api as ExtendedClient<typeof client.api>;
+export const apiClient = client as ExtendedClient<typeof client>;
 
 // Export specific API sections for easier imports (using extended client)
 export const providersApi = apiClient.providers;
@@ -40,3 +45,4 @@ export const discordApi = apiClient.providers.messaging.discord;
 export const slackApi = apiClient.providers.messaging.slack;
 export const schedulesApi = apiClient.schedules;
 export const subscriptionsApi = apiClient.subscriptions;
+export const tawkApi = apiClient.tawk;

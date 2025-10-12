@@ -36,7 +36,9 @@ export default function LandingPage() {
             <div className="hero-split">
               <div className="slack-case-image">
                 <img
-                  src="/images/landing/slack-case.png"
+                  src="/images/landing/slack-case.jpg"
+                  width="600"
+                  height="359"
                   alt="Slack PR digest showing daily pull request summaries with review status and quick actions"
                   className="slack-screenshot"
                 />
@@ -261,7 +263,7 @@ export default function LandingPage() {
 
           <div className="integrations-demo-image">
             <img
-              src="/images/landing/integrations-demo.png"
+              src="/images/landing/integrations-demo.jpg"
               alt="Integration setup showing connected GitHub repositories and Slack channels with configuration options"
               className="integrations-screenshot"
             />
@@ -560,7 +562,7 @@ export default function LandingPage() {
             <div className="testimonial-author">
               <div className="author-avatar">
                 <img
-                  src="/images/landing/hero.png"
+                  src="/images/landing/hero.jpg"
                   alt="Staff Engineer avatar"
                   className="avatar-image"
                 />

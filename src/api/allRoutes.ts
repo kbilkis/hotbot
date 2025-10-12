@@ -9,13 +9,14 @@ import {
   webhookRateLimit,
   tunnelRateLimit,
   apiRateLimit,
+  bodyLimits,
 } from "../lib/middleware/rate-limit";
 
 import providersRoutes from "./providers";
 import schedulesRoutes from "./schedules";
 import subscriptionsRoutes from "./subscriptions";
+import tawkRoutes from "./tawk";
 import tunnelRoutes from "./tunnel";
-import usageRoutes from "./usage";
 import webhooksRoutes from "./webhooks";
 
 const api = new Hono()
@@ -50,14 +51,14 @@ const api = new Hono()
   .use(dbUserMiddleware())
 
   // Public routes with specific rate limiting
-  .use("/webhooks/*", webhookRateLimit())
+  .use("/webhooks/*", webhookRateLimit(), bodyLimits.large) // Webhooks can be large
   .route("/webhooks", webhooksRoutes)
 
-  .use("/tunnel/*", tunnelRateLimit())
+  .use("/tunnel/*", tunnelRateLimit(), bodyLimits.medium) // Tunnel requests are medium
   .route("/tunnel", tunnelRoutes)
 
   // Apply middleware to ALL routes in this group
-  .use(apiRateLimit())
+  .use(apiRateLimit(), bodyLimits.medium) // Default medium limit for API routes
   .use(requireAuth())
   .get("/health", (c) => {
     return c.json({
@@ -70,12 +71,7 @@ const api = new Hono()
   .route("/providers", providersRoutes)
   .route("/schedules", schedulesRoutes)
   .route("/subscriptions", subscriptionsRoutes)
-  .route("/usage", usageRoutes);
+  .route("/tawk", tawkRoutes);
 
 export default api;
 export type ApiType = typeof api;
-
-// this is a trick to calculate the type when compiling
-// export type Client = ReturnType<typeof hc<typeof api>>;
-// export const hcWithType = (...args: Parameters<typeof hc>): Client =>
-//   hc<typeof api>(...args);

@@ -4,6 +4,7 @@ import { SWRConfig } from "swr";
 
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import SentryIdentifier from "./components/auth/SentryIdentifier";
+import TawkIdentifier from "./components/auth/TawkIdentifier";
 import Layout from "./components/layout/Layout";
 import { getViteEnvKey } from "./lib/getViteEnvKey";
 import { initSentryClient } from "./lib/sentry";
@@ -22,6 +23,7 @@ function App() {
     <LocationProvider>
       <ClerkProvider publishableKey={clerkKey}>
         <SentryIdentifier />
+        <TawkIdentifier />
         <SWRConfig
           value={{
             // Global SWR configuration

@@ -30,6 +30,8 @@ export default function Layout({
             <a href="/">
               <img
                 src="/images/hotbot-l.svg"
+                width="191"
+                height="40"
                 alt="HotBot"
                 className="logo-image"
               />
