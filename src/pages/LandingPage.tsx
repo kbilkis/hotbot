@@ -35,13 +35,17 @@ export default function LandingPage() {
           <div className="hero-visual">
             <div className="hero-split">
               <div className="slack-case-image">
-                <img
-                  src="/images/landing/slack-case.jpg"
-                  width="600"
-                  height="359"
-                  alt="Slack PR digest showing daily pull request summaries with review status and quick actions"
-                  className="slack-screenshot"
-                />
+                <picture>
+                  <source
+                    media="(max-width: 768px)"
+                    srcSet="/images/landing/slack-case-mobile.jpg"
+                  />
+                  <img
+                    src="/images/landing/slack-case.jpg"
+                    alt="Slack PR digest showing daily pull request summaries with review status and quick actions"
+                    className="slack-screenshot"
+                  />
+                </picture>
               </div>
               <div className="analytics-tiles">
                 <div className="stat-tile">

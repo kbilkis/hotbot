@@ -4,8 +4,6 @@
   "type": "module",
   "scripts": {
     "dev:wrangler": "concurrently \"wrangler dev --port 8787\" \"vite\"",
-    "dev:server": "tsx watch --env-file=.env dev-server.ts",
-    "dev:client": "vite",
     "build": "vite build",
     "deploy": "wrangler deploy --env=\"\" --outdir dist --upload-source-maps --var SENTRY_RELEASE:$(sentry-cli releases propose-version)",
     "deploy:production": "wrangler deploy --env=\"production\" --outdir dist --upload-source-maps --var SENTRY_RELEASE:$(sentry-cli releases propose-version)",

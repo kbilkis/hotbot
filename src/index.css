@@ -5301,6 +5301,7 @@ Builder Presets */
 @media (max-width: 768px) {
   .hero-split {
     gap: 1rem;
+    align-items: center;
   }
 
   .analytics-tiles {
@@ -5390,4 +5391,25 @@ Builder Presets */
   height: auto;
   border-radius: 0.5rem;
   display: block;
+}
+
+/* Ensure parent containers don't constrain the image */
+@media (max-width: 768px) {
+  .slack-case-image {
+    max-width: none;
+    flex: none;
+    width: 80vw;
+    height: auto;
+  }
+  .slack-screenshot {
+    min-width: auto;
+  }
+}
+
+/* Desktop styling */
+@media (min-width: 769px) {
+  .slack-case-image img {
+    min-width: 500px;
+    max-width: 600px;
+  }
 }

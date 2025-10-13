@@ -57,9 +57,8 @@ const api = new Hono()
   .use("/tunnel/*", tunnelRateLimit(), bodyLimits.medium) // Tunnel requests are medium
   .route("/tunnel", tunnelRoutes)
 
-  // Apply middleware to ALL routes in this group
+  // Apply rate limit middleware to ALL routes in this group
   .use(apiRateLimit(), bodyLimits.medium) // Default medium limit for API routes
-  .use(requireAuth())
   .get("/health", (c) => {
     return c.json({
       success: true,
@@ -67,6 +66,8 @@ const api = new Hono()
       timestamp: new Date().toISOString(),
     });
   })
+  .use(requireAuth())
+
   // Add the protected routes
   .route("/providers", providersRoutes)
   .route("/schedules", schedulesRoutes)
