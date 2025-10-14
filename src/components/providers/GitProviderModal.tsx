@@ -3,6 +3,8 @@ import { mutate } from "swr";
 
 import { gitApi, githubApi, gitlabApi } from "../../lib/api/client";
 import { GitProviderData } from "../../lib/validation/provider-schemas";
+import * as modalStyles from "../../styles/providers/modal.css";
+import * as repoStyles from "../../styles/providers/repositories.css";
 import {
   getProviderColor,
   getProviderBgColor,
@@ -99,14 +101,14 @@ export default function GitProviderModal({
         <img
           src="/images/providers/github/GitHub_Lockup_Light.svg"
           alt="GitHub"
-          className="provider-logo-button"
+          className={modalStyles.providerLogoButton}
         />
       ),
       logoDark: (
         <img
           src="/images/providers/github/GitHub_Lockup_Dark.svg"
           alt="GitHub"
-          className="provider-logo-button"
+          className={modalStyles.providerLogoButton}
         />
       ),
       placeholder: "ghp_xxxxxxxxxxxxxxxxxxxx",
@@ -117,7 +119,7 @@ export default function GitProviderModal({
         <img
           src="/images/providers/gitlab/gitlab-logo-200-rgb.svg"
           alt="GitLab"
-          className="provider-logo-button gitlab"
+          className={modalStyles.providerLogoButtonGitlab}
         />
       ),
       logoDark: null,
@@ -129,14 +131,14 @@ export default function GitProviderModal({
         <img
           src="/images/providers/bitbucket/Bitbucket_attribution_dark.svg"
           alt="Bitbucket"
-          className="provider-logo-button"
+          className={modalStyles.providerLogoButton}
         />
       ),
       logoDark: (
         <img
           src="/images/providers/bitbucket/Bitbucket_attribution_light.svg"
           alt="Bitbucket"
-          className="provider-logo-button"
+          className={modalStyles.providerLogoButton}
         />
       ),
       placeholder: "ATBB-xxxxxxxxxxxxxxxxxxxx",
@@ -278,9 +280,9 @@ export default function GitProviderModal({
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className={modalStyles.modalOverlay} onClick={onClose}>
       <div
-        className="modal-content"
+        className={modalStyles.modalContent}
         onClick={(e) => e.stopPropagation()}
         style={
           {
@@ -289,47 +291,51 @@ export default function GitProviderModal({
             "--provider-accent-color": getProviderAccentColor(
               provider.provider
             ),
-          } as React.CSSProperties
+          } as preact.CSSProperties
         }
       >
-        <div className="modal-header">
-          <h2>Connect {config.name} Provider</h2>
-          <button className="modal-close" onClick={onClose}>
+        <div className={modalStyles.modalHeader}>
+          <h2 className={modalStyles.modalTitle}>
+            Connect {config.name} Provider
+          </h2>
+          <button className={modalStyles.modalClose} onClick={onClose}>
             ×
           </button>
         </div>
 
-        <div className="modal-body">
-          <p className="modal-description">
+        <div className={modalStyles.modalBody}>
+          <p className={modalStyles.modalDescription}>
             {isConnected
               ? `Manage your ${config.name} connection and settings.`
               : `Connect your ${config.name} account to receive notifications for pull requests and repository events.`}
           </p>
           {isConnected && (
             <>
-              <div className="form-group">
-                <div className="provider-display">
-                  <span className="connection-status connected">
+              <div className={modalStyles.formGroup}>
+                <div className={modalStyles.providerDisplay}>
+                  <span className={modalStyles.connectionStatusConnected}>
                     ✓ Connected
                   </span>
                 </div>
               </div>
-              <div className="form-group">
-                <label>Accessible Repositories</label>
-                <div className="repositories-section">
+              <div className={modalStyles.formGroup}>
+                <label className={modalStyles.formLabel}>
+                  Accessible Repositories
+                </label>
+                <div className={repoStyles.repositoriesSection}>
                   {repositoriesLoading && (
-                    <div className="repositories-loading">
+                    <div className={repoStyles.repositoriesLoading}>
                       <span>Loading repositories...</span>
                     </div>
                   )}
 
                   {repositoriesError && (
-                    <div className="repositories-error">
+                    <div className={repoStyles.repositoriesError}>
                       <span>
                         Error loading repositories: {repositoriesError}
                       </span>
                       <button
-                        className="retry-button"
+                        className={repoStyles.retryButton}
                         onClick={fetchRepositories}
                         disabled={repositoriesLoading}
                       >
@@ -341,23 +347,28 @@ export default function GitProviderModal({
                   {!repositoriesLoading &&
                     !repositoriesError &&
                     repositories.length > 0 && (
-                      <div className="repositories-list">
-                        <div className="repositories-count">
+                      <div className={repoStyles.repositoriesList}>
+                        <div className={repoStyles.repositoriesCount}>
                           {repositories.length} repositories accessible
                         </div>
-                        <div className="repositories-container">
+                        <div className={repoStyles.repositoriesContainer}>
                           {(showAllRepositories
                             ? repositories
                             : repositories.slice(0, 10)
                           ).map((repo) => (
-                            <div key={repo} className="repository-item">
-                              <span className="repo-icon">📁</span>
-                              <span className="repo-name">{repo}</span>
+                            <div
+                              key={repo}
+                              className={repoStyles.repositoryItem}
+                            >
+                              <span className={repoStyles.repoIcon}>📁</span>
+                              <span className={repoStyles.repoName}>
+                                {repo}
+                              </span>
                             </div>
                           ))}
                           {repositories.length > 10 && !showAllRepositories && (
                             <button
-                              className="show-more-button"
+                              className={repoStyles.showMoreButton}
                               onClick={() => setShowAllRepositories(true)}
                             >
                               ⋯ Show {repositories.length - 10} more
@@ -366,7 +377,7 @@ export default function GitProviderModal({
                           )}
                           {showAllRepositories && repositories.length > 10 && (
                             <button
-                              className="show-less-button"
+                              className={repoStyles.showLessButton}
                               onClick={() => setShowAllRepositories(false)}
                             >
                               Show less
@@ -379,7 +390,7 @@ export default function GitProviderModal({
                   {!repositoriesLoading &&
                     !repositoriesError &&
                     repositories.length === 0 && (
-                      <div className="repositories-empty">
+                      <div className={repoStyles.repositoriesEmpty}>
                         <span>No repositories found</span>
                       </div>
                     )}
@@ -388,34 +399,34 @@ export default function GitProviderModal({
             </>
           )}
           {!isConnected && (
-            <div className="form-group">
+            <div className={modalStyles.formGroup}>
               {/* Primary OAuth connection - always visible */}
-              <div className="primary-connection-section">
+              <div>
                 <button
-                  className="oauth-connect-button primary provider-branded"
+                  className={`${modalStyles.oauthButtonPrimary} ${modalStyles.providerBranded}`}
                   onClick={handleOAuthConnect}
                   disabled={loading}
                 >
                   {loading ? (
-                    <span className="oauth-button-content">
+                    <span className={modalStyles.oauthButtonContent}>
                       Redirecting to {config.logoDark || config.logo}
                     </span>
                   ) : (
-                    <span className="oauth-button-content">
+                    <span className={modalStyles.oauthButtonContent}>
                       Sign in with {config.logo}
                     </span>
                   )}
                 </button>
-                <small className="form-help oauth-help">
+                <small className={modalStyles.formHelp}>
                   {`🔒 Secure OAuth 2.0 authorization - you'll be redirected to
                   {config.name} to grant repository access permissions.`}
                 </small>
               </div>
               {/* Alternative connection option - hidden by default */}
-              <div className="alternative-connection-section">
+              <div className={modalStyles.alternativeSection}>
                 {!showManualOption ? (
                   <button
-                    className="show-alternative-button"
+                    className={modalStyles.showAlternativeButton}
                     onClick={() => {
                       setShowManualOption(true);
                     }}
@@ -424,11 +435,11 @@ export default function GitProviderModal({
                     Use personal access token instead
                   </button>
                 ) : (
-                  <div className="manual-connection-wrapper">
-                    <div className="alternative-header">
+                  <div className={modalStyles.manualConnectionWrapper}>
+                    <div className={modalStyles.alternativeHeader}>
                       <span>Alternative: Personal Access Token</span>
                       <button
-                        className="hide-alternative-button"
+                        className={modalStyles.hideAlternativeButton}
                         onClick={() => {
                           setShowManualOption(false);
                           setAccessToken("");
@@ -440,18 +451,21 @@ export default function GitProviderModal({
                       </button>
                     </div>
 
-                    <div className="manual-connect-section">
-                      <div className="token-input-group">
-                        <label htmlFor="access-token">
+                    <div className={modalStyles.manualConnectSection}>
+                      <div className={modalStyles.formGroup}>
+                        <label
+                          htmlFor="access-token"
+                          className={modalStyles.formLabel}
+                        >
                           Personal Access Token{" "}
-                          <span className="required">*</span>
+                          <span className={modalStyles.required}>*</span>
                         </label>
-                        <div className="input-with-icon">
-                          <span className="input-icon">🔑</span>
+                        <div className={modalStyles.inputWithIcon}>
+                          <span className={modalStyles.inputIcon}>🔑</span>
                           <input
                             id="access-token"
                             type="password"
-                            className="form-input"
+                            className={modalStyles.formInput}
                             placeholder={config.placeholder}
                             value={accessToken}
                             onChange={(e) =>
@@ -459,27 +473,27 @@ export default function GitProviderModal({
                             }
                           />
                         </div>
-                        <div className="token-help">
-                          <div className="token-option">
+                        <div className={modalStyles.helpSection}>
+                          <div className={modalStyles.helpContent}>
                             <strong>Option 1 (Recommended):</strong>{" "}
                             <a
                               href={getFineGrainedTokenUrl()}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="help-link"
+                              className={modalStyles.helpLink}
                             >
                               Create a fine-grained token
                             </a>{" "}
                             with repository access and Contents, Metadata, and
                             Pull requests permissions.
                           </div>
-                          <div className="token-option">
+                          <div className={modalStyles.helpContent}>
                             <strong>Option 2 (Quick):</strong>{" "}
                             <a
                               href={getClassicTokenUrl()}
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="help-link"
+                              className={modalStyles.helpLink}
                             >
                               Create a classic token
                             </a>{" "}
@@ -488,7 +502,7 @@ export default function GitProviderModal({
                         </div>
                       </div>
                       <button
-                        className="manual-connect-button"
+                        className={modalStyles.manualConnectButton}
                         onClick={handleManualConnect}
                         disabled={!accessToken.trim() || loading}
                       >
@@ -502,16 +516,16 @@ export default function GitProviderModal({
           )}
         </div>
 
-        <div className="modal-footer">
+        <div className={modalStyles.modalFooter}>
           {error && (
-            <div className="modal-footer-error">
-              <div className="error-message prominent-error">{error}</div>
+            <div className={modalStyles.modalFooterError}>
+              <div className={modalStyles.errorMessage}>{error}</div>
             </div>
           )}
-          <div className="modal-footer-buttons">
+          <div className={modalStyles.modalFooterButtons}>
             {isConnected ? (
               <button
-                className="disconnect-button"
+                className={modalStyles.disconnectButton}
                 onClick={handleDisconnect}
                 disabled={loading}
               >
@@ -519,7 +533,7 @@ export default function GitProviderModal({
               </button>
             ) : (
               <button
-                className="cancel-button"
+                className={modalStyles.cancelButton}
                 onClick={onClose}
                 disabled={loading}
               >

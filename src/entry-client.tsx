@@ -1,6 +1,6 @@
 import { hydrate } from "preact-iso";
 
-import "./index.css";
+import "./styles/base/index.css";
 
 import App from "./App";
 

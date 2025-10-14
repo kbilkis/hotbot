@@ -1,5 +1,7 @@
 import { useState, useEffect } from "preact/hooks";
 
+import * as channelStyles from "../../styles/providers/channels.css";
+import * as modalStyles from "../../styles/providers/modal.css";
 import {
   getProviderColor,
   getProviderBgColor,
@@ -70,9 +72,9 @@ export default function TeamsProviderModal({
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className={modalStyles.modalOverlay} onClick={onClose}>
       <div
-        className="modal-content"
+        className={modalStyles.modalContent}
         onClick={(e) => e.stopPropagation()}
         style={{
           "--provider-color": getProviderColor("teams"),
@@ -80,90 +82,95 @@ export default function TeamsProviderModal({
           "--provider-accent-color": getProviderAccentColor("teams"),
         }}
       >
-        <div className="modal-header">
-          <h2>Connect Microsoft Teams</h2>
-          <button className="modal-close" onClick={onClose}>
+        <div className={modalStyles.modalHeader}>
+          <h2 className={modalStyles.modalTitle}>Connect Microsoft Teams</h2>
+          <button className={modalStyles.modalClose} onClick={onClose}>
             ×
           </button>
         </div>
 
-        <div className="modal-body">
-          <p className="modal-description">
+        <div className={modalStyles.modalBody}>
+          <p className={modalStyles.modalDescription}>
             {isConnected
               ? "Manage your Microsoft Teams webhook connection."
               : "Connect Microsoft Teams to receive pull request notifications in your team channels."}
           </p>
 
           {isConnected && (
-            <div className="form-group">
-              <div className="provider-display">
-                <span className="connection-status connected">✓ Connected</span>
-                <span className="team-name">to Microsoft Teams</span>
+            <div className={modalStyles.formGroup}>
+              <div className={modalStyles.providerDisplay}>
+                <span className={modalStyles.connectionStatusConnected}>
+                  ✓ Connected
+                </span>
+                <span className={modalStyles.teamName}>to Microsoft Teams</span>
               </div>
             </div>
           )}
 
           {!isConnected && (
-            <div className="form-group">
-              <div className="teams-setup-info">
+            <div className={modalStyles.formGroup}>
+              <div className={channelStyles.discordSetupInfo}>
                 <h3>How to set up Teams webhook:</h3>
                 <ol>
                   <li>Go to your Teams channel</li>
-                  <li>{`Click "..." → "Connectors" → "Incoming Webhook"`}</li>
+                  <li>
+                    Click &quot;...&quot; → &quot;Connectors&quot; →
+                    &quot;Incoming Webhook&quot;
+                  </li>
                   <li>Configure the webhook and copy the URL</li>
                   <li>Paste the URL below</li>
                 </ol>
               </div>
 
-              <label htmlFor="webhook-url">
-                Webhook URL <span className="required">*</span>
+              <label htmlFor="webhook-url" className={modalStyles.formLabel}>
+                Webhook URL <span className={modalStyles.required}>*</span>
               </label>
-              <div className="input-with-icon">
-                <span className="input-icon">🔗</span>
+              <div className={modalStyles.inputWithIcon}>
+                <span className={modalStyles.inputIcon}>🔗</span>
                 <input
                   id="webhook-url"
                   type="url"
-                  className="form-input"
+                  className={modalStyles.formInput}
                   placeholder="https://outlook.office.com/webhook/..."
                   value={webhookUrl}
                   onChange={(e) => setWebhookUrl(e.currentTarget.value)}
                 />
               </div>
-              <small className="form-help">
+              <small className={modalStyles.formHelp}>
                 Create a webhook URL in your Microsoft Teams channel settings
               </small>
 
-              {error && <div className="error-message">{error}</div>}
+              {error && <div className={modalStyles.errorMessage}>{error}</div>}
             </div>
           )}
         </div>
 
-        <div className="modal-footer">
+        <div className={modalStyles.modalFooter}>
           {isConnected ? (
             <button
-              className="disconnect-button"
+              className={modalStyles.disconnectButton}
               onClick={handleDisconnect}
               disabled={loading}
             >
               {loading ? "Disconnecting..." : "Disconnect"}
             </button>
           ) : (
-            <>
+            <div className={modalStyles.modalFooterButtons}>
               <button
-                className="cancel-button"
+                className={modalStyles.cancelButton}
                 onClick={onClose}
                 disabled={loading}
               >
                 Cancel
               </button>
               <button
-                className="connect-button-modal provider-branded"
+                className={`${modalStyles.connectButton} ${modalStyles.providerBranded}`}
                 onClick={handleConnect}
                 disabled={!webhookUrl.trim() || loading}
               >
                 {loading ? "Connecting..." : "Connect Teams"}
               </button>
-            </>
+            </div>
           )}
         </div>
       </div>

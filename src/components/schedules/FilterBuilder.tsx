@@ -1,5 +1,7 @@
 import { useState } from "preact/hooks";
 
+import * as styles from "../../styles/schedules/filter-builder.css";
+
 interface PRFilters {
   labels: string[];
   titleKeywords: string[];
@@ -71,17 +73,17 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
   ];
 
   return (
-    <div className="filter-builder">
-      <div className="filter-section">
-        <div className="form-group">
-          <label>Labels</label>
-          <p className="form-help">
+    <div className={styles.filterBuilder}>
+      <div className={styles.filterSection}>
+        <div>
+          <label className={styles.filterLabel}>Labels</label>
+          <p className={styles.filterHelp}>
             Filter PRs by GitHub labels (e.g., bug, URGENT, feature)
           </p>
-          <div className="filter-input-group">
+          <div className={styles.filterInputGroup}>
             <input
               type="text"
-              className="form-input"
+              className={styles.filterInput}
               placeholder="Add label (e.g., URGENT, bug, feature)"
               value={labelInput}
               onChange={(e) => setLabelInput(e.currentTarget.value)}
@@ -89,7 +91,7 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
             />
             <button
               type="button"
-              className="add-filter-button"
+              className={styles.addFilterButton}
               onClick={() => addFilterItem("labels", labelInput)}
               disabled={!labelInput.trim()}
             >
@@ -97,14 +99,14 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
             </button>
           </div>
 
-          <div className="common-filters">
-            <small>Common labels:</small>
-            <div className="common-filter-buttons">
+          <div className={styles.commonFilters}>
+            <small className={styles.commonFiltersLabel}>Common labels:</small>
+            <div className={styles.commonFilterButtons}>
               {commonLabels.map((label) => (
                 <button
                   key={label}
                   type="button"
-                  className="common-filter-button"
+                  className={styles.commonFilterButton}
                   onClick={() => addFilterItem("labels", label)}
                   disabled={value.labels.includes(label)}
                 >
@@ -114,14 +116,14 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
             </div>
           </div>
 
-          <div className="filter-items">
+          <div className={styles.filterItems}>
             {value.labels.map((label, index) => (
-              <span key={index} className="filter-item">
+              <span key={index} className={styles.filterItem}>
                 {label}
                 <button
                   type="button"
                   onClick={() => removeFilterItem("labels", index)}
-                  className="remove-tag"
+                  className={styles.removeTag}
                 >
                   ×
                 </button>
@@ -130,12 +132,12 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
           </div>
         </div>
 
-        <div className="form-group">
-          <label>Title Keywords</label>
-          <div className="filter-input-group">
+        <div>
+          <label className={styles.filterLabel}>Title Keywords</label>
+          <div className={styles.filterInputGroup}>
             <input
               type="text"
-              className="form-input"
+              className={styles.filterInput}
               placeholder="Add keyword (e.g., fix, update)"
               value={keywordInput}
               onChange={(e) => setKeywordInput(e.currentTarget.value)}
@@ -145,7 +147,7 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
             />
             <button
               type="button"
-              className="add-filter-button"
+              className={styles.addFilterButton}
               onClick={() => addFilterItem("titleKeywords", keywordInput)}
               disabled={!keywordInput.trim()}
             >
@@ -153,14 +155,16 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
             </button>
           </div>
 
-          <div className="common-filters">
-            <small>Common keywords:</small>
-            <div className="common-filter-buttons">
+          <div className={styles.commonFilters}>
+            <small className={styles.commonFiltersLabel}>
+              Common keywords:
+            </small>
+            <div className={styles.commonFilterButtons}>
               {commonKeywords.map((keyword) => (
                 <button
                   key={keyword}
                   type="button"
-                  className="common-filter-button"
+                  className={styles.commonFilterButton}
                   onClick={() => addFilterItem("titleKeywords", keyword)}
                   disabled={value.titleKeywords.includes(keyword)}
                 >
@@ -170,14 +174,14 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
             </div>
           </div>
 
-          <div className="filter-items">
+          <div className={styles.filterItems}>
             {value.titleKeywords.map((keyword, index) => (
-              <span key={index} className="filter-item">
+              <span key={index} className={styles.filterItem}>
                 {keyword}
                 <button
                   type="button"
                   onClick={() => removeFilterItem("titleKeywords", index)}
-                  className="remove-tag"
+                  className={styles.removeTag}
                 >
                   ×
                 </button>
@@ -188,18 +192,28 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
       </div>
 
       {(value.labels.length > 0 || value.titleKeywords.length > 0) && (
-        <div className="filter-preview">
-          <h4>Filter Preview</h4>
-          <p>
+        <div className={styles.filterPreview}>
+          <h4 className={styles.filterPreviewTitle}>Filter Preview</h4>
+          <p className={styles.filterPreviewText}>
             Pull requests will be included if they match <strong>any</strong> of
             the specified criteria:
           </p>
           <ul>
             {value.labels.length > 0 && (
-              <li>Labels: {value.labels.join(", ")}</li>
+              <li>
+                Labels:{" "}
+                <code className={styles.filterPreviewCode}>
+                  {value.labels.join(", ")}
+                </code>
+              </li>
             )}
             {value.titleKeywords.length > 0 && (
-              <li>Title contains: {value.titleKeywords.join(", ")}</li>
+              <li>
+                Title contains:{" "}
+                <code className={styles.filterPreviewCode}>
+                  {value.titleKeywords.join(", ")}
+                </code>
+              </li>
             )}
           </ul>
         </div>

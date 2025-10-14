@@ -5,12 +5,18 @@ import devServer from "@hono/vite-dev-server";
 import { default as cloudflareAdapter } from "@hono/vite-dev-server/cloudflare";
 import { preact } from "@preact/preset-vite";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
+import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin";
 import { defineConfig, loadEnv, PluginOption } from "vite";
 import { analyzer } from "vite-bundle-analyzer";
 
 export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), "");
-  const plugins: PluginOption[] = [preact()];
+  const plugins: PluginOption[] = [
+    preact(),
+    vanillaExtractPlugin({
+      identifiers: mode === "production" ? "short" : "debug",
+    }),
+  ];
 
   // In development, use @hono/vite-dev-server to run the Hono app
   if (mode === "development") {

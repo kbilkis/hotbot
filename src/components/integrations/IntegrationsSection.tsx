@@ -1,20 +1,22 @@
+import * as styles from "../../styles/dashboard/base.css";
+
 import GitProviders from "./GitProviders";
 import MessagingProviders from "./MessagingProviders";
 
 export default function IntegrationsSection() {
   return (
-    <div className="section">
-      <div className="section-header">
-        <div className="section-content">
-          <h1>Integrations</h1>
-          <p>
+    <div className={styles.section}>
+      <div className={styles.sectionHeader}>
+        <div className={styles.sectionContent}>
+          <h1 className={styles.sectionTitle}>Integrations</h1>
+          <p className={styles.sectionDescription}>
             Connect your Git and messaging providers to start receiving
             notifications.
           </p>
         </div>
       </div>
 
-      <div className="integrations-grid">
+      <div className={styles.integrationsGrid}>
         <GitProviders />
         <MessagingProviders />
       </div>

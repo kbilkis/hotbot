@@ -3,6 +3,8 @@ import { mutate } from "swr";
 
 import { useDiscordGuilds, useDiscordChannels } from "../../hooks/useChannels";
 import { discordApi, messagingApi } from "../../lib/api/client";
+import * as channelStyles from "../../styles/providers/channels.css";
+import * as modalStyles from "../../styles/providers/modal.css";
 import {
   getProviderColor,
   getProviderBgColor,
@@ -312,56 +314,60 @@ export default function DiscordProviderModal({
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className={modalStyles.modalOverlay} onClick={onClose}>
       <div
-        className="modal-content"
+        className={modalStyles.modalContent}
         onClick={(e) => e.stopPropagation()}
         style={
           {
             "--provider-color": getProviderColor("discord"),
             "--provider-bg-color": getProviderBgColor("discord"),
             "--provider-accent-color": getProviderAccentColor("discord"),
-          } as React.CSSProperties
+          } as preact.CSSProperties
         }
       >
-        <div className="modal-header">
-          <h2>Connect Discord</h2>
-          <button className="modal-close" onClick={onClose}>
+        <div className={modalStyles.modalHeader}>
+          <h2 className={modalStyles.modalTitle}>Connect Discord</h2>
+          <button className={modalStyles.modalClose} onClick={onClose}>
             ×
           </button>
         </div>
 
-        <div className="modal-body">
-          <p className="modal-description">
+        <div className={modalStyles.modalBody}>
+          <p className={modalStyles.modalDescription}>
             {isConnected
               ? `Manage your Discord connection and server settings.`
               : `Connect your Discord server to receive pull request notifications in your channels.`}
           </p>
 
           {isConnected && (
-            <div className="form-group">
-              <div className="provider-display">
-                <span className="connection-status connected">✓ Connected</span>
-                {username && <span className="team-name">as {username}</span>}
+            <div className={modalStyles.formGroup}>
+              <div className={modalStyles.providerDisplay}>
+                <span className={modalStyles.connectionStatusConnected}>
+                  ✓ Connected
+                </span>
+                {username && (
+                  <span className={modalStyles.teamName}>as {username}</span>
+                )}
               </div>
             </div>
           )}
 
           {isConnected && (
-            <div className="form-group">
-              <label>Available Servers</label>
-              <div className="guilds-section">
+            <div className={modalStyles.formGroup}>
+              <label className={modalStyles.formLabel}>Available Servers</label>
+              <div>
                 {guildsLoading && (
-                  <div className="guilds-loading">
+                  <div className={modalStyles.loadingState}>
                     <span>Loading servers...</span>
                   </div>
                 )}
 
                 {guildsError && (
-                  <div className="guilds-error">
+                  <div className={modalStyles.errorState}>
                     <span>Error loading servers: {guildsError}</span>
                     <button
-                      className="retry-button"
+                      className={modalStyles.retryButton}
                       onClick={refetchGuilds}
                       disabled={guildsLoading}
                     >
@@ -371,84 +377,112 @@ export default function DiscordProviderModal({
                 )}
 
                 {!guildsLoading && !guildsError && guilds.length > 0 && (
-                  <div className="guilds-list">
-                    <div className="guilds-count">
+                  <div>
+                    <div className={modalStyles.itemCount}>
                       {guilds.length} server{guilds.length !== 1 ? "s" : ""}{" "}
                       available
                     </div>
-                    <div className="guilds-container scrollable">
+                    <div className={channelStyles.guildsContainer}>
                       {guilds.map((guild) => (
-                        <div key={guild.id} className="guild-item">
-                          <div className="guild-info">
-                            <span className="guild-name">{guild.name}</span>
-                            <div className="guild-meta">
-                              <button
-                                className="select-guild-button"
-                                onClick={() => setSelectedGuild(guild.id)}
-                                disabled={selectedGuild === guild.id}
-                              >
-                                {selectedGuild === guild.id
-                                  ? "Selected"
-                                  : "Select"}
-                              </button>
-                            </div>
+                        <div key={guild.id} className={channelStyles.guildItem}>
+                          <div className={channelStyles.guildHeader}>
+                            <div className={channelStyles.guildIcon}>🏰</div>
+                            <span className={channelStyles.guildName}>
+                              {guild.name}
+                            </span>
+                            <button
+                              className={
+                                selectedGuild === guild.id
+                                  ? channelStyles.selectGuildButtonSelected
+                                  : channelStyles.selectGuildButton
+                              }
+                              onClick={() => setSelectedGuild(guild.id)}
+                              disabled={selectedGuild === guild.id}
+                            >
+                              {selectedGuild === guild.id
+                                ? "Selected"
+                                : "Select"}
+                            </button>
                           </div>
 
                           {selectedGuild === guild.id && (
-                            <div className="channels-section">
+                            <div className={channelStyles.guildChannels}>
+                              <div className={channelStyles.guildChannelsTitle}>
+                                Channels
+                              </div>
                               {channelsLoading && (
-                                <div className="channels-loading">
+                                <div className={modalStyles.loadingState}>
                                   <span>Loading channels...</span>
                                 </div>
                               )}
 
                               {!channelsLoading && channels.length > 0 && (
-                                <div className="channels-list">
-                                  <div className="channels-count">
+                                <div>
+                                  <div className={modalStyles.itemCount}>
                                     {channels.length} text channel
                                     {channels.length !== 1 ? "s" : ""}
                                   </div>
-                                  <div className="channels-container">
+                                  <div
+                                    className={channelStyles.channelsContainer}
+                                  >
                                     {channels.map((channel) => (
                                       <div
                                         key={channel.id}
-                                        className="channel-item"
+                                        className={channelStyles.channelItem}
                                       >
-                                        <div className="channel-info">
-                                          <span className="channel-icon">
+                                        <div
+                                          className={channelStyles.channelInfo}
+                                        >
+                                          <span
+                                            className={
+                                              channelStyles.channelIcon
+                                            }
+                                          >
                                             #
                                           </span>
-                                          <span className="channel-name">
+                                          <span
+                                            className={
+                                              channelStyles.channelName
+                                            }
+                                          >
                                             {channel.name}
                                           </span>
-                                          <div className="channel-meta">
-                                            <button
-                                              className="test-channel-button"
-                                              onClick={() =>
-                                                handleTestChannel(
-                                                  channel.id,
-                                                  channel.name ||
-                                                    "Unknown Channel"
-                                                )
-                                              }
-                                              disabled={
-                                                testingChannel === channel.id
-                                              }
-                                              title={`Send test message to #${channel.name}`}
-                                            >
-                                              {testingChannel === channel.id
-                                                ? "Sending..."
-                                                : "Test message"}
-                                            </button>
-                                          </div>
+                                        </div>
+                                        <div
+                                          className={
+                                            channelStyles.channelActions
+                                          }
+                                        >
+                                          <button
+                                            className={
+                                              testingChannel === channel.id
+                                                ? channelStyles.testButtonTesting
+                                                : channelStyles.testButton
+                                            }
+                                            onClick={() =>
+                                              handleTestChannel(
+                                                channel.id,
+                                                channel.name ||
+                                                  "Unknown Channel"
+                                              )
+                                            }
+                                            disabled={
+                                              testingChannel === channel.id
+                                            }
+                                            title={`Send test message to #${channel.name}`}
+                                          >
+                                            {testingChannel === channel.id
+                                              ? "Sending..."
+                                              : "Test message"}
+                                          </button>
                                         </div>
                                         {testResults[channel.id] && (
                                           <div
-                                            className={`test-result ${
+                                            className={
                                               testResults[channel.id].success
-                                                ? "success"
-                                                : "error"
-                                            }`}
+                                                ? channelStyles.testResultSuccess
+                                                : channelStyles.testResultError
+                                            }
                                           >
                                             {testResults[channel.id].message}
                                           </div>
@@ -460,7 +494,7 @@ export default function DiscordProviderModal({
                               )}
 
                               {!channelsLoading && channels.length === 0 && (
-                                <div className="channels-empty">
+                                <div className={modalStyles.emptyState}>
                                   <span>No text channels found</span>
                                 </div>
                               )}
@@ -473,7 +507,7 @@ export default function DiscordProviderModal({
                 )}
 
                 {!guildsLoading && !guildsError && guilds.length === 0 && (
-                  <div className="guilds-empty">
+                  <div className={modalStyles.emptyState}>
                     <span>No servers found with webhook permissions</span>
                   </div>
                 )}
@@ -482,45 +516,45 @@ export default function DiscordProviderModal({
           )}
 
           {!isConnected && (
-            <div className="form-group">
+            <div className={modalStyles.formGroup}>
               {/* Primary OAuth connection - always visible */}
-              <div className="primary-connection-section">
+              <div>
                 <button
-                  className="oauth-connect-button primary provider-branded"
+                  className={`${modalStyles.oauthButtonPrimary} ${modalStyles.providerBranded}`}
                   onClick={handleOAuthConnect}
                   disabled={loading}
                 >
                   {loading ? (
-                    <span className="oauth-button-content">
+                    <span className={modalStyles.oauthButtonContent}>
                       Redirecting to{" "}
                       <img
                         src="/images/providers/discord/Discord-Logo-White.svg"
                         alt="Discord"
-                        className="oauth-button-content-discord"
+                        className={modalStyles.oauthButtonLogo}
                       />
                     </span>
                   ) : (
-                    <span className="oauth-button-content">
+                    <span className={modalStyles.oauthButtonContent}>
                       Sign in with{" "}
                       <img
                         src="/images/providers/discord/Discord-Logo-White.svg"
                         alt="Discord"
-                        className="oauth-button-content-discord"
+                        className={modalStyles.oauthButtonLogo}
                       />
                     </span>
                   )}
                 </button>
-                <small className="form-help oauth-help">
+                <small className={modalStyles.formHelp}>
                   {`🔒 Secure OAuth 2.0 authorization - you'll be redirected to
                   Discord to grant server access permissions.`}
                 </small>
               </div>
 
               {/* Alternative connection options - hidden by default */}
-              <div className="alternative-connection-section">
+              <div className={modalStyles.alternativeSection}>
                 {!showManualOption ? (
                   <button
-                    className="show-alternative-button"
+                    className={modalStyles.showAlternativeButton}
                     onClick={() => {
                       setShowManualOption(true);
                       setConnectionMethod("manual");
@@ -530,11 +564,11 @@ export default function DiscordProviderModal({
                     Use bot token or webhook instead
                   </button>
                 ) : (
-                  <div className="manual-connection-wrapper">
-                    <div className="alternative-header">
+                  <div className={modalStyles.manualConnectionWrapper}>
+                    <div className={modalStyles.alternativeHeader}>
                       <span>Alternative Connection Methods</span>
                       <button
-                        className="hide-alternative-button"
+                        className={modalStyles.hideAlternativeButton}
                         onClick={() => {
                           setShowManualOption(false);
                           setConnectionMethod("oauth");
@@ -548,11 +582,13 @@ export default function DiscordProviderModal({
                       </button>
                     </div>
 
-                    <div className="connection-method-tabs">
+                    <div className={channelStyles.connectionMethodTabs}>
                       <button
-                        className={`method-tab ${
-                          connectionMethod === "manual" ? "active" : ""
-                        }`}
+                        className={
+                          connectionMethod === "manual"
+                            ? channelStyles.methodTabActive
+                            : channelStyles.methodTab
+                        }
                         onClick={() => {
                           setConnectionMethod("manual");
                           setError(null);
@@ -561,9 +597,11 @@ export default function DiscordProviderModal({
                         Bot Token
                       </button>
                       <button
-                        className={`method-tab ${
-                          connectionMethod === "webhook" ? "active" : ""
-                        }`}
+                        className={
+                          connectionMethod === "webhook"
+                            ? channelStyles.methodTabActive
+                            : channelStyles.methodTab
+                        }
                         onClick={() => {
                           setConnectionMethod("webhook");
                           setError(null);
@@ -574,17 +612,21 @@ export default function DiscordProviderModal({
                     </div>
 
                     {connectionMethod === "manual" && (
-                      <div className="manual-connect-section">
-                        <div className="token-input-group">
-                          <label htmlFor="bot-token">
-                            Bot Token <span className="required">*</span>
+                      <div className={modalStyles.manualConnectSection}>
+                        <div className={modalStyles.formGroup}>
+                          <label
+                            htmlFor="bot-token"
+                            className={modalStyles.formLabel}
+                          >
+                            Bot Token{" "}
+                            <span className={modalStyles.required}>*</span>
                           </label>
-                          <div className="input-with-icon">
-                            <span className="input-icon">🤖</span>
+                          <div className={modalStyles.inputWithIcon}>
+                            <span className={modalStyles.inputIcon}>🤖</span>
                             <input
                               id="bot-token"
                               type="password"
-                              className="form-input"
+                              className={modalStyles.formInput}
                               placeholder="Bot token..."
                               value={accessToken}
                               onChange={(e) =>
@@ -592,8 +634,8 @@ export default function DiscordProviderModal({
                               }
                             />
                           </div>
-                          <div className="token-help">
-                            <div className="token-option">
+                          <div className={modalStyles.helpSection}>
+                            <div className={modalStyles.helpContent}>
                               <strong>How to get a bot token:</strong>
                               <ol>
                                 <li>
@@ -602,7 +644,7 @@ export default function DiscordProviderModal({
                                     href="https://discord.com/developers/applications"
                                     target="_blank"
                                     rel="noopener noreferrer"
-                                    className="help-link"
+                                    className={modalStyles.helpLink}
                                   >
                                     Discord Developer Portal
                                   </a>
@@ -623,7 +665,7 @@ export default function DiscordProviderModal({
                           </div>
                         </div>
                         <button
-                          className="manual-connect-button"
+                          className={modalStyles.manualConnectButton}
                           onClick={handleManualConnect}
                           disabled={!accessToken.trim() || loading}
                         >
@@ -633,39 +675,50 @@ export default function DiscordProviderModal({
                     )}
 
                     {connectionMethod === "webhook" && (
-                      <div className="webhook-connect-section">
-                        <div className="discord-setup-info">
+                      <div className={channelStyles.webhookConnectSection}>
+                        <div className={channelStyles.discordSetupInfo}>
                           <h3>How to set up Discord webhook:</h3>
                           <ol>
                             <li>Go to your Discord server channel</li>
-                            <li>{`Click "Edit Channel" → "Integrations" → "Webhooks"`}</li>
-                            <li>{`Click "New Webhook" and configure it`}</li>
+                            <li>
+                              Click &quot;Edit Channel&quot; →
+                              &quot;Integrations&quot; → &quot;Webhooks&quot;
+                            </li>
+                            <li>
+                              Click &quot;New Webhook&quot; and configure it
+                            </li>
                             <li>Copy the webhook URL and paste it below</li>
                           </ol>
                         </div>
 
-                        <label htmlFor="webhook-url">
-                          Webhook URL <span className="required">*</span>
-                        </label>
-                        <div className="input-with-icon">
-                          <span className="input-icon">🔗</span>
-                          <input
-                            id="webhook-url"
-                            type="url"
-                            className="form-input"
-                            placeholder="https://discord.com/api/webhooks/..."
-                            value={webhookUrl}
-                            onChange={(e) =>
-                              setWebhookUrl(e.currentTarget.value)
-                            }
-                          />
+                        <div className={modalStyles.formGroup}>
+                          <label
+                            htmlFor="webhook-url"
+                            className={modalStyles.formLabel}
+                          >
+                            Webhook URL{" "}
+                            <span className={modalStyles.required}>*</span>
+                          </label>
+                          <div className={modalStyles.inputWithIcon}>
+                            <span className={modalStyles.inputIcon}>🔗</span>
+                            <input
+                              id="webhook-url"
+                              type="url"
+                              className={modalStyles.formInput}
+                              placeholder="https://discord.com/api/webhooks/..."
+                              value={webhookUrl}
+                              onChange={(e) =>
+                                setWebhookUrl(e.currentTarget.value)
+                              }
+                            />
+                          </div>
+                          <small className={modalStyles.formHelp}>
+                            Create a webhook URL in your Discord server settings
+                          </small>
                         </div>
-                        <small className="form-help">
-                          Create a webhook URL in your Discord server settings
-                        </small>
 
                         <button
-                          className="webhook-connect-button"
+                          className={channelStyles.webhookConnectButton}
                           onClick={handleManualConnect}
                           disabled={!webhookUrl.trim() || loading}
                         >
@@ -674,7 +727,7 @@ export default function DiscordProviderModal({
 
                         {webhookUrl.trim() && (
                           <button
-                            className="test-channel-button"
+                            className={channelStyles.testButton}
                             onClick={() =>
                               handleTestWebhook(webhookUrl, "Discord Server")
                             }
@@ -689,11 +742,11 @@ export default function DiscordProviderModal({
 
                         {testResults[webhookUrl] && (
                           <div
-                            className={`test-result ${
+                            className={
                               testResults[webhookUrl].success
-                                ? "success"
-                                : "error"
-                            }`}
+                                ? channelStyles.testResultSuccess
+                                : channelStyles.testResultError
+                            }
                           >
                             {testResults[webhookUrl].message}
                           </div>
@@ -707,16 +760,16 @@ export default function DiscordProviderModal({
           )}
         </div>
 
-        <div className="modal-footer">
+        <div className={modalStyles.modalFooter}>
           {error && (
-            <div className="modal-footer-error">
-              <div className="error-message prominent-error">{error}</div>
+            <div className={modalStyles.modalFooterError}>
+              <div className={modalStyles.errorMessage}>{error}</div>
             </div>
           )}
-          <div className="modal-footer-buttons">
+          <div className={modalStyles.modalFooterButtons}>
             {isConnected ? (
               <button
-                className="disconnect-button"
+                className={modalStyles.disconnectButton}
                 onClick={handleDisconnect}
                 disabled={loading}
               >
@@ -724,7 +777,7 @@ export default function DiscordProviderModal({
               </button>
             ) : (
               <button
-                className="cancel-button"
+                className={modalStyles.cancelButton}
                 onClick={onClose}
                 disabled={loading}
               >

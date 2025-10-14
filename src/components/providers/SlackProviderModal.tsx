@@ -4,6 +4,8 @@ import { mutate } from "swr";
 import type { SlackChannel } from "@/types/slack";
 
 import { slackApi, messagingApi } from "../../lib/api/client";
+import * as channelStyles from "../../styles/providers/channels.css";
+import * as modalStyles from "../../styles/providers/modal.css";
 import {
   getProviderColor,
   getProviderBgColor,
@@ -281,60 +283,64 @@ export default function SlackProviderModal({
   };
 
   return (
-    <div className="modal-overlay" onClick={onClose}>
+    <div className={modalStyles.modalOverlay} onClick={onClose}>
       <div
-        className="modal-content slack-modal"
+        className={modalStyles.modalContent}
         onClick={(e) => e.stopPropagation()}
         style={
           {
             "--provider-color": getProviderColor("slack"),
             "--provider-bg-color": getProviderBgColor("slack"),
             "--provider-accent-color": getProviderAccentColor("slack"),
-          } as React.CSSProperties
+          } as preact.CSSProperties
         }
       >
-        <div className="modal-header">
-          <h2>Connect Slack</h2>
-          <button className="modal-close" onClick={onClose}>
+        <div className={modalStyles.modalHeader}>
+          <h2 className={modalStyles.modalTitle}>Connect Slack</h2>
+          <button className={modalStyles.modalClose} onClick={onClose}>
             ×
           </button>
         </div>
 
-        <div className="modal-body">
-          <p className="modal-description">
+        <div className={modalStyles.modalBody}>
+          <p className={modalStyles.modalDescription}>
             {isConnected
               ? `Manage your Slack connection and channel settings.`
               : `Connect your Slack workspace to receive pull request notifications in your team channels.`}
           </p>
 
           {isConnected && (
-            <div className="form-group">
-              <div className="provider-display">
+            <div className={modalStyles.formGroup}>
+              <div className={modalStyles.providerDisplay}>
                 <>
-                  <span className="connection-status connected">
+                  <span className={modalStyles.connectionStatusConnected}>
                     ✓ Connected
                   </span>
-                  {teamName && <span className="team-name">to {teamName}</span>}
+                  {teamName && (
+                    <span className={modalStyles.teamName}>to {teamName}</span>
+                  )}
                 </>
               </div>
             </div>
           )}
 
           {isConnected && (
-            <div className="form-group">
-              <label>Available Channels</label>
-              <div className="channels-section">
+            <div className={modalStyles.formGroup}>
+              <label className={modalStyles.formLabel}>
+                Available Channels
+              </label>
+              <div>
                 {channelsLoading && (
-                  <div className="channels-loading">
+                  <div className={modalStyles.loadingState}>
                     <span>Loading channels...</span>
                   </div>
                 )}
 
                 {channelsError && (
-                  <div className="channels-error">
+                  <div className={modalStyles.errorState}>
                     <span>Error loading channels: {channelsError}</span>
                     <button
-                      className="retry-button"
+                      className={modalStyles.retryButton}
                       onClick={fetchChannels}
                       disabled={channelsLoading}
                     >
@@ -344,45 +350,58 @@ export default function SlackProviderModal({
                 )}
 
                 {!channelsLoading && !channelsError && channels.length > 0 && (
-                  <div className="channels-list">
-                    <div className="channels-count">
+                  <div>
+                    <div className={modalStyles.itemCount}>
                       {channels.length} channels available
                     </div>
-                    <div className="channels-container scrollable">
+                    <div className={channelStyles.channelsContainerScrollable}>
                       {channels.map((channel) => (
-                        <div key={channel.id} className="channel-item">
-                          <div className="channel-info">
-                            <span className="channel-icon">
+                        <div
+                          key={channel.id}
+                          className={channelStyles.channelItem}
+                        >
+                          <div className={channelStyles.channelInfo}>
+                            <span className={channelStyles.channelIcon}>
                               {channel.type === "private" ? "🔒" : "#"}
                             </span>
-                            <span className="channel-name">{channel.name}</span>
-                            <div className="channel-meta">
+                            <div>
+                              <span className={channelStyles.channelName}>
+                                {channel.name}
+                              </span>
                               {channel.memberCount && (
-                                <span className="channel-members">
+                                <div
+                                  className={channelStyles.channelDescription}
+                                >
                                   {channel.memberCount} members
-                                </span>
+                                </div>
                               )}
-                              <button
-                                className="test-channel-button"
-                                onClick={() =>
-                                  handleTestChannel(channel.id, channel.name)
-                                }
-                                disabled={testingChannel === channel.id}
-                                title={`Send test message to #${channel.name}`}
-                              >
-                                {testingChannel === channel.id
-                                  ? "Sending..."
-                                  : "Test message"}
-                              </button>
                             </div>
+                          </div>
+                          <div className={channelStyles.channelActions}>
+                            <button
+                              className={
+                                testingChannel === channel.id
+                                  ? channelStyles.testButtonTesting
+                                  : channelStyles.testButton
+                              }
+                              onClick={() =>
+                                handleTestChannel(channel.id, channel.name)
+                              }
+                              disabled={testingChannel === channel.id}
+                              title={`Send test message to #${channel.name}`}
+                            >
+                              {testingChannel === channel.id
+                                ? "Sending..."
+                                : "Test message"}
+                            </button>
                           </div>
                           {testResults[channel.id] && (
                             <div
-                              className={`test-result ${
+                              className={
                                 testResults[channel.id].success
-                                  ? "success"
-                                  : "error"
-                              }`}
+                                  ? channelStyles.testResultSuccess
+                                  : channelStyles.testResultError
+                              }
                             >
                               {testResults[channel.id].message}
                             </div>
@@ -396,7 +415,7 @@ export default function SlackProviderModal({
                 {!channelsLoading &&
                   !channelsError &&
                   channels.length === 0 && (
-                    <div className="channels-empty">
+                    <div className={modalStyles.emptyState}>
                       <span>No channels found</span>
                     </div>
                   )}
@@ -404,45 +423,45 @@ export default function SlackProviderModal({
             </div>
           )}
           {!isConnected && (
-            <div className="form-group">
+            <div className={modalStyles.formGroup}>
               {/* Primary OAuth connection - always visible */}
-              <div className="primary-connection-section">
+              <div>
                 <button
-                  className="oauth-connect-button primary provider-branded"
+                  className={`${modalStyles.oauthButtonPrimary} ${modalStyles.providerBranded}`}
                   onClick={handleOAuthConnect}
                   disabled={loading}
                 >
                   {loading ? (
-                    <span className="oauth-button-content">
+                    <span className={modalStyles.oauthButtonContent}>
                       Redirecting to{" "}
                       <img
                         src="images/providers/slack/SLA-Slack-from-Salesforce-logo-inverse.png"
                         alt="Slack"
-                        className="oauth-button-content-slack"
+                        className={modalStyles.oauthButtonLogo}
                       />
                     </span>
                   ) : (
-                    <span className="oauth-button-content">
+                    <span className={modalStyles.oauthButtonContent}>
                       Sign in with{" "}
                       <img
                         src="images/providers/slack/SLA-Slack-from-Salesforce-logo-inverse.png"
                         alt="Slack"
-                        className="oauth-button-content-slack"
+                        className={modalStyles.oauthButtonLogo}
                       />
                     </span>
                   )}
                 </button>
-                <small className="form-help oauth-help">
+                <small className={modalStyles.formHelp}>
                   {`🔒 Secure OAuth 2.0 authorization - you'll be redirected to
                   Slack to grant channel access permissions.`}
                 </small>
               </div>
 
               {/* Alternative connection option - hidden by default */}
-              <div className="alternative-connection-section">
+              <div className={modalStyles.alternativeSection}>
                 {!showManualOption ? (
                   <button
-                    className="show-alternative-button"
+                    className={modalStyles.showAlternativeButton}
                     onClick={() => {
                       setShowManualOption(true);
                     }}
@@ -451,11 +470,11 @@ export default function SlackProviderModal({
                     Use bot token instead
                   </button>
                 ) : (
-                  <div className="manual-connection-wrapper">
-                    <div className="alternative-header">
+                  <div className={modalStyles.manualConnectionWrapper}>
+                    <div className={modalStyles.alternativeHeader}>
                       <span>Alternative: Bot Token</span>
                       <button
-                        className="hide-alternative-button"
+                        className={modalStyles.hideAlternativeButton}
                         onClick={() => {
                           setShowManualOption(false);
                           setAccessToken("");
@@ -467,17 +486,21 @@ export default function SlackProviderModal({
                       </button>
                     </div>
 
-                    <div className="manual-connect-section">
-                      <div className="token-input-group">
-                        <label htmlFor="bot-token">
-                          Bot Token <span className="required">*</span>
+                    <div className={modalStyles.manualConnectSection}>
+                      <div className={modalStyles.formGroup}>
+                        <label
+                          htmlFor="bot-token"
+                          className={modalStyles.formLabel}
+                        >
+                          Bot Token{" "}
+                          <span className={modalStyles.required}>*</span>
                         </label>
-                        <div className="input-with-icon">
-                          <span className="input-icon">🤖</span>
+                        <div className={modalStyles.inputWithIcon}>
+                          <span className={modalStyles.inputIcon}>🤖</span>
                           <input
                             id="bot-token"
                             type="password"
-                            className="form-input"
+                            className={modalStyles.formInput}
                             placeholder="xoxb-..."
                             value={accessToken}
                             onChange={(e) =>
@@ -485,8 +508,8 @@ export default function SlackProviderModal({
                             }
                           />
                         </div>
-                        <div className="token-help">
-                          <div className="token-option">
+                        <div className={modalStyles.helpSection}>
+                          <div className={modalStyles.helpContent}>
                             <strong>How to get a bot token:</strong>
                             <ol>
                               <li>
@@ -495,7 +518,7 @@ export default function SlackProviderModal({
                                   href="https://api.slack.com/apps"
                                   target="_blank"
                                   rel="noopener noreferrer"
-                                  className="help-link"
+                                  className={modalStyles.helpLink}
                                 >
                                   api.slack.com/apps
                                 </a>
@@ -527,7 +550,7 @@ export default function SlackProviderModal({
                         </div>
                       </div>
                       <button
-                        className="manual-connect-button"
+                        className={modalStyles.manualConnectButton}
                         onClick={handleManualConnect}
                         disabled={!accessToken.trim() || loading}
                       >
@@ -541,16 +564,16 @@ export default function SlackProviderModal({
           )}
         </div>
 
-        <div className="modal-footer">
+        <div className={modalStyles.modalFooter}>
           {error && (
-            <div className="modal-footer-error">
-              <div className="error-message prominent-error">{error}</div>
+            <div className={modalStyles.modalFooterError}>
+              <div className={modalStyles.errorMessage}>{error}</div>
             </div>
           )}
-          <div className="modal-footer-buttons">
+          <div className={modalStyles.modalFooterButtons}>
             {isConnected ? (
               <button
-                className="disconnect-button"
+                className={modalStyles.disconnectButton}
                 onClick={handleDisconnect}
                 disabled={loading}
               >
@@ -558,7 +581,7 @@ export default function SlackProviderModal({
               </button>
             ) : (
               <button
-                className="cancel-button"
+                className={modalStyles.cancelButton}
                 onClick={onClose}
                 disabled={loading}
               >

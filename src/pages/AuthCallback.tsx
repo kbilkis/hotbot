@@ -2,6 +2,8 @@ import { useState, useEffect } from "preact/hooks";
 import { useRoute, useLocation } from "preact-iso";
 import { mutate } from "swr";
 
+import * as authStyles from "../styles/auth/auth.css";
+
 export default function AuthCallback() {
   const { params, query } = useRoute();
   const location = useLocation();
@@ -104,30 +106,34 @@ export default function AuthCallback() {
   }, [provider, query]);
 
   return (
-    <div className="auth-callback-container">
-      <div className="auth-callback-content">
+    <div className={authStyles.authCallbackContainer}>
+      <div
+        className={`${authStyles.authCallbackContent} ${authStyles.mobileOptimized}`}
+      >
         {status === "loading" && (
           <>
-            <div className="loading-spinner">⏳</div>
+            <div className={authStyles.loadingSpinner}>⏳</div>
             <h2>Connecting your account...</h2>
-            <p>Please wait while we complete the authorization process.</p>
+            <p className={authStyles.loadingText}>
+              Please wait while we complete the authorization process.
+            </p>
           </>
         )}
 
         {status === "success" && (
           <>
-            <div className="success-icon">✅</div>
+            <div className={authStyles.successIcon}>✅</div>
             <h2>Successfully Connected!</h2>
-            <p>{message}</p>
+            <p className={authStyles.successText}>{message}</p>
             <p>Redirecting you to the dashboard...</p>
           </>
         )}
 
         {status === "error" && (
           <>
-            <div className="error-icon">❌</div>
+            <div className={authStyles.errorIcon}>❌</div>
             <h2>Connection Failed</h2>
-            <p>{message}</p>
+            <p className={authStyles.errorText}>{message}</p>
             <p>Redirecting you back to the dashboard...</p>
           </>
         )}

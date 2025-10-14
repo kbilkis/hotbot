@@ -1,6 +1,7 @@
 import { useBilling } from "../../hooks/useBilling";
 import { useSubscription } from "../../hooks/useSubscription";
 import { useUpgrade } from "../../hooks/useUpgrade";
+import * as subscriptionStyles from "../../styles/subscriptions/subscription.css";
 import Tooltip from "../ui/Tooltip";
 
 interface ProgressBarProps {
@@ -12,15 +13,15 @@ interface ProgressBarProps {
 function ProgressBar({ current, max, label }: ProgressBarProps) {
   if (max === null) {
     return (
-      <div className="usage-item">
-        <div className="usage-label">
+      <div className={subscriptionStyles.usageItem}>
+        <div className={subscriptionStyles.usageLabel}>
           <span>{label}</span>
-          <span className="usage-count">{current}</span>
+          <span className={subscriptionStyles.usageCount}>{current}</span>
         </div>
-        <div className="usage-bar unlimited">
-          <div className="usage-fill unlimited-fill" />
+        <div className={subscriptionStyles.usageBarUnlimited}>
+          <div className={subscriptionStyles.usageFillUnlimited} />
         </div>
-        <span className="usage-text">Unlimited</span>
+        <span className={subscriptionStyles.usageText}>Unlimited</span>
       </div>
     );
   }
@@ -29,20 +30,32 @@ function ProgressBar({ current, max, label }: ProgressBarProps) {
   const isAtLimit = current >= max;
 
   return (
-    <div className="usage-item">
-      <div className="usage-label">
+    <div className={subscriptionStyles.usageItem}>
+      <div className={subscriptionStyles.usageLabel}>
         <span>{label}</span>
-        <span className={`usage-count ${isAtLimit ? "at-limit" : ""}`}>
+        <span
+          className={
+            isAtLimit
+              ? subscriptionStyles.usageCountAtLimit
+              : subscriptionStyles.usageCount
+          }
+        >
           {current}/{max}
         </span>
       </div>
-      <div className="usage-bar">
+      <div className={subscriptionStyles.usageBar}>
         <div
-          className={`usage-fill ${isAtLimit ? "at-limit" : ""}`}
+          className={
+            isAtLimit
+              ? subscriptionStyles.usageFillAtLimit
+              : subscriptionStyles.usageFill
+          }
           style={{ width: `${percentage}%` }}
         />
       </div>
-      {isAtLimit && <span className="usage-warning">Limit reached</span>}
+      {isAtLimit && (
+        <span className={subscriptionStyles.usageWarning}>Limit reached</span>
+      )}
     </div>
   );
 }
@@ -64,9 +77,9 @@ export default function SubscriptionStatus() {
 
   if (loading) {
     return (
-      <div className="section">
-        <div className="section-header">
-          <div className="section-content">
+      <div className={subscriptionStyles.section}>
+        <div className={subscriptionStyles.sectionHeader}>
+          <div className={subscriptionStyles.sectionContent}>
             <h1>Subscription</h1>
             <p>Loading subscription information...</p>
           </div>
@@ -77,11 +90,13 @@ export default function SubscriptionStatus() {
 
   if (error) {
     return (
-      <div className="section">
-        <div className="section-header">
-          <div className="section-content">
+      <div className={subscriptionStyles.section}>
+        <div className={subscriptionStyles.sectionHeader}>
+          <div className={subscriptionStyles.sectionContent}>
             <h1>Subscription</h1>
-            <p className="error-text">Failed to load subscription: {error}</p>
+            <p className={subscriptionStyles.errorText}>
+              Failed to load subscription: {error}
+            </p>
           </div>
         </div>
       </div>
@@ -90,9 +105,9 @@ export default function SubscriptionStatus() {
 
   if (!subscription) {
     return (
-      <div className="section">
-        <div className="section-header">
-          <div className="section-content">
+      <div className={subscriptionStyles.section}>
+        <div className={subscriptionStyles.sectionHeader}>
+          <div className={subscriptionStyles.sectionContent}>
             <h1>Subscription</h1>
             <p>No subscription information available.</p>
           </div>
@@ -106,15 +121,31 @@ export default function SubscriptionStatus() {
   const isPro = tier === "pro";
 
   return (
-    <div className="section">
-      <div className="section-header">
-        <div className="section-content">
-          <div className="subscription-header">
+    <div className={subscriptionStyles.section}>
+      <div className={subscriptionStyles.sectionHeader}>
+        <div className={subscriptionStyles.sectionContent}>
+          <div className={subscriptionStyles.subscriptionHeader}>
             <h1>Subscription</h1>
-            <div className="tier-badge-container">
-              <span className={`tier-badge ${tier}`}>{tier.toUpperCase()}</span>
+            <div className={subscriptionStyles.tierBadgeContainer}>
+              <span
+                className={
+                  tier === "free"
+                    ? subscriptionStyles.tierBadgeFree
+                    : subscriptionStyles.tierBadgePro
+                }
+              >
+                {tier.toUpperCase()}
+              </span>
               {status !== "active" && (
-                <span className={`status-badge ${status}`}>
+                <span
+                  className={
+                    status === "canceled"
+                      ? subscriptionStyles.statusBadgeCanceled
+                      : status === "past_due"
+                      ? subscriptionStyles.statusBadgePastDue
+                      : subscriptionStyles.statusBadgeActive
+                  }
+                >
                   {status.replace("_", " ").toUpperCase()}
                 </span>
               )}
@@ -128,14 +159,14 @@ export default function SubscriptionStatus() {
         </div>
       </div>
 
-      <div className="subscription-content">
+      <div className={subscriptionStyles.subscriptionContent}>
         {isFree && (
-          <div className="usage-section">
-            <div className="usage-header">
+          <div className={subscriptionStyles.usageSection}>
+            <div className={subscriptionStyles.usageHeader}>
               <h3>Usage & Limits</h3>
               <Tooltip text="Free tier has limited resources. Upgrade to Pro for unlimited access." />
             </div>
-            <div className="usage-grid">
+            <div className={subscriptionStyles.usageGrid}>
               <ProgressBar
                 current={usage.gitProvidersCount}
                 max={limits.gitProviders}
@@ -152,7 +183,7 @@ export default function SubscriptionStatus() {
                 label="Schedules"
               />
             </div>
-            <div className="cron-limit-info">
+            <div className={subscriptionStyles.cronLimitInfo}>
               <p>
                 <strong>Schedule Frequency:</strong> Minimum 24 hours between
                 executions
@@ -162,41 +193,49 @@ export default function SubscriptionStatus() {
         )}
 
         {isPro && (
-          <div className="pro-section">
-            <div className="pro-features">
+          <div className={subscriptionStyles.proSection}>
+            <div className={subscriptionStyles.proFeatures}>
               <h3>Pro Features</h3>
-              <div className="subscription-grid">
-                <div className="subscription-item">
-                  <span className="subscription-icon">∞</span>
+              <div className={subscriptionStyles.subscriptionGrid}>
+                <div className={subscriptionStyles.subscriptionItem}>
+                  <span className={subscriptionStyles.subscriptionIcon}>∞</span>
                   <span>Unlimited Git Providers</span>
                 </div>
-                <div className="subscription-item">
-                  <span className="subscription-icon">∞</span>
+                <div className={subscriptionStyles.subscriptionItem}>
+                  <span className={subscriptionStyles.subscriptionIcon}>∞</span>
                   <span>Unlimited Messaging Providers</span>
                 </div>
-                <div className="subscription-item">
-                  <span className="subscription-icon">∞</span>
+                <div className={subscriptionStyles.subscriptionItem}>
+                  <span className={subscriptionStyles.subscriptionIcon}>∞</span>
                   <span>Unlimited Schedules</span>
                 </div>
-                <div className="subscription-item">
-                  <span className="subscription-icon">⚡</span>
+                <div className={subscriptionStyles.subscriptionItem}>
+                  <span className={subscriptionStyles.subscriptionIcon}>
+                    ⚡
+                  </span>
                   <span>Any Schedule Frequency</span>
                 </div>
               </div>
             </div>
 
             {subscription.billing && (
-              <div className="billing-info">
+              <div className={subscriptionStyles.billingInfo}>
                 <h3>Billing Information</h3>
-                <div className="billing-details">
-                  <div className="billing-item">
-                    <span className="billing-label">Plan:</span>
-                    <span className="billing-value">Pro - $15/month</span>
+                <div className={subscriptionStyles.billingDetails}>
+                  <div className={subscriptionStyles.billingItem}>
+                    <span className={subscriptionStyles.billingLabel}>
+                      Plan:
+                    </span>
+                    <span className={subscriptionStyles.billingValue}>
+                      Pro - $15/month
+                    </span>
                   </div>
                   {subscription.billing.currentPeriodEnd && (
-                    <div className="billing-item">
-                      <span className="billing-label">Next billing date:</span>
-                      <span className="billing-value">
+                    <div className={subscriptionStyles.billingItem}>
+                      <span className={subscriptionStyles.billingLabel}>
+                        Next billing date:
+                      </span>
+                      <span className={subscriptionStyles.billingValue}>
                         {new Date(
                           subscription.billing.currentPeriodEnd
                         ).toLocaleDateString()}
@@ -204,9 +243,11 @@ export default function SubscriptionStatus() {
                     </div>
                   )}
                   {subscription.billing.cancelAtPeriodEnd && (
-                    <div className="billing-item">
-                      <span className="billing-label">Status:</span>
-                      <span className="billing-value cancel-notice">
+                    <div className={subscriptionStyles.billingItem}>
+                      <span className={subscriptionStyles.billingLabel}>
+                        Status:
+                      </span>
+                      <span className={subscriptionStyles.cancelNotice}>
                         Cancels at period end
                       </span>
                     </div>
@@ -217,14 +258,14 @@ export default function SubscriptionStatus() {
           </div>
         )}
 
-        <div className="subscription-actions">
+        <div className={subscriptionStyles.subscriptionActions}>
           {isFree && (
-            <div className="upgrade-section">
+            <div className={subscriptionStyles.upgradeSection}>
               {upgradeError && (
-                <div className="error-message">
+                <div className={subscriptionStyles.errorMessage}>
                   <span>{upgradeError}</span>
                   <button
-                    className="error-dismiss"
+                    className={subscriptionStyles.errorDismiss}
                     onClick={clearError}
                     aria-label="Dismiss error"
                   >
@@ -233,13 +274,15 @@ export default function SubscriptionStatus() {
                 </div>
               )}
               <button
-                className="btn btn-primary upgrade-btn"
+                className={subscriptionStyles.upgradeBtn}
                 onClick={startUpgrade}
                 disabled={upgradeLoading}
               >
                 {upgradeLoading ? (
                   <>
-                    <span className="loading-subscription-spinner"></span>
+                    <span
+                      className={subscriptionStyles.loadingSubscriptionSpinner}
+                    ></span>
                     Processing...
                   </>
                 ) : (
@@ -249,12 +292,12 @@ export default function SubscriptionStatus() {
             </div>
           )}
           {isPro && (
-            <div className="billing-section">
+            <div className={subscriptionStyles.billingSection}>
               {billingError && (
-                <div className="error-message">
+                <div className={subscriptionStyles.errorMessage}>
                   <span>{billingError}</span>
                   <button
-                    className="error-dismiss"
+                    className={subscriptionStyles.errorDismiss}
                     onClick={clearBillingError}
                     aria-label="Dismiss error"
                   >
@@ -262,15 +305,19 @@ export default function SubscriptionStatus() {
                   </button>
                 </div>
               )}
-              <div className="billing-actions">
+              <div className={subscriptionStyles.billingActions}>
                 <button
-                  className="btn btn-secondary manage-billing-btn"
+                  className={subscriptionStyles.manageBillingBtn}
                   onClick={openBillingPortal}
                   disabled={billingLoading}
                 >
                   {billingLoading ? (
                     <>
-                      <span className="loading-subscription-spinner"></span>
+                      <span
+                        className={
+                          subscriptionStyles.loadingSubscriptionSpinner
+                        }
+                      ></span>
                       Opening...
                     </>
                   ) : (
@@ -279,11 +326,11 @@ export default function SubscriptionStatus() {
                 </button>
                 {billingError &&
                   billingError.includes("temporarily unavailable") && (
-                    <div className="support-info">
+                    <div className={subscriptionStyles.supportInfo}>
                       <p>Need to make changes to your subscription?</p>
                       <a
                         href="mailto:hello@hotbot.sh?subject=Subscription Management Request"
-                        className="btn btn-outline"
+                        className={subscriptionStyles.btnOutline}
                       >
                         Contact Support
                       </a>

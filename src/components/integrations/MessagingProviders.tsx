@@ -2,6 +2,7 @@ import { useState } from "preact/hooks";
 
 import { useMessagingProviders } from "@/hooks/useMessagingProviders";
 
+import * as styles from "../../styles/dashboard/providers.css";
 import { Provider } from "../../types/dashboard";
 import {
   getProviderColor,
@@ -67,64 +68,70 @@ export default function MessagingProviders() {
 
   if (loading) {
     return (
-      <div className="provider-section">
-        <h2>Messaging Providers</h2>
-        <p>Loading messaging providers...</p>
+      <div className={styles.providerSection}>
+        <h2 className={styles.providerSectionTitle}>Messaging Providers</h2>
+        <p className={styles.providerSectionDescription}>
+          Loading messaging providers...
+        </p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="provider-section">
-        <h2>Messaging Providers</h2>
-        <p>Error loading messaging providers. Please try again.</p>
+      <div className={styles.providerSection}>
+        <h2 className={styles.providerSectionTitle}>Messaging Providers</h2>
+        <p className={styles.providerSectionDescription}>
+          Error loading messaging providers. Please try again.
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="provider-section">
-      <h2>Messaging Providers</h2>
-      <p>Connect your messaging provider to receive notifications.</p>
-      <div className="provider-list">
+    <div className={styles.providerSection}>
+      <h2 className={styles.providerSectionTitle}>Messaging Providers</h2>
+      <p className={styles.providerSectionDescription}>
+        Connect your messaging provider to receive notifications.
+      </p>
+      <div className={styles.providerList}>
         {messagingProviders.map((provider) => (
           <div
             key={provider.id}
-            className="provider-card"
+            className={styles.providerCard}
             style={{
               backgroundColor: getProviderBgColor(provider.type),
               borderColor: getProviderColor(provider.type) + "20",
             }}
           >
-            <div className="provider-info">
-              <div className="provider-icon">
+            <div className={styles.providerInfo}>
+              <div className={styles.providerIcon}>
                 {provider.type === "slack" && (
                   <img
                     src="/images/providers/slack/SLA-appIcon-iOS.png"
                     alt="Slack"
-                    className="provider-logo"
+                    className={styles.providerLogo}
                   />
                 )}
                 {provider.type === "discord" && (
                   <img
                     src="/images/providers/discord/Discord-Symbol-Blurple.svg"
                     alt="Discord"
-                    className="provider-logo"
+                    className={styles.providerLogo}
                   />
                 )}
                 {provider.type === "teams" && (
                   <img
                     src="/images/providers/teams/icons8-microsoft-teams.svg"
                     alt="Teams"
-                    className="provider-logo"
+                    className={styles.providerLogo}
                   />
                 )}
               </div>
-              <span className="provider-name">{provider.name}</span>
+              <span className={styles.providerName}>{provider.name}</span>
               {provider.connected && (
                 <span
-                  className="connection-status connected"
+                  className={styles.connectionStatusConnected}
                   style={{ color: getProviderColor(provider.type) }}
                 >
                   ✓ Connected
@@ -132,9 +139,13 @@ export default function MessagingProviders() {
               )}
             </div>
             <button
-              className={`connect-button ${
-                provider.connected ? "connected" : ""
-              } ${provider.type === "teams" ? "coming-soon" : ""}`}
+              className={
+                provider.type === "teams"
+                  ? styles.connectButtonComingSoon
+                  : provider.connected
+                  ? styles.connectButtonConnected
+                  : styles.connectButton
+              }
               onClick={() => handleConnectProvider(provider)}
               disabled={provider.type === "teams"}
             >

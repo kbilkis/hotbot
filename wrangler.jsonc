@@ -93,6 +93,7 @@
     }
   },
   "assets": {
+    "directory": "./dist",
     "binding": "ASSETS"
   },
   "upload_source_maps": true,

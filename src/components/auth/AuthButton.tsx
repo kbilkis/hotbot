@@ -1,5 +1,7 @@
 import { useAuth, useUser, useClerk } from "@clerk/clerk-react";
 
+import * as authStyles from "../../styles/auth/auth.css";
+
 export default function AuthButton() {
   const { isLoaded, isSignedIn } = useAuth();
   const { user } = useUser();
@@ -7,7 +9,7 @@ export default function AuthButton() {
 
   if (!isLoaded) {
     return (
-      <button className="auth-button loading" disabled>
+      <button className={authStyles.authButtonLoading} disabled>
         Loading...
       </button>
     );
@@ -15,12 +17,12 @@ export default function AuthButton() {
 
   if (isSignedIn) {
     return (
-      <div className="auth-section">
-        <span className="user-email">
+      <div className={authStyles.authSection}>
+        <span className={authStyles.userEmail}>
           {user?.primaryEmailAddress?.emailAddress}
         </span>
         <button
-          className="auth-button sign-out"
+          className={authStyles.authButtonSignOut}
           onClick={() => clerk.signOut()}
         >
           Sign Out
@@ -30,7 +32,10 @@ export default function AuthButton() {
   }
 
   return (
-    <button className="auth-button sign-in" onClick={() => clerk.openSignIn()}>
+    <button
+      className={authStyles.authButtonSignIn}
+      onClick={() => clerk.openSignIn()}
+    >
       Sign In
     </button>
   );

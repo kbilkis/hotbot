@@ -11,6 +11,8 @@ import { SlackChannel } from "@/types/slack";
 import { useGitProviders } from "../../hooks/useGitProviders";
 import { useMessagingProviders } from "../../hooks/useMessagingProviders";
 import { discordApi, schedulesApi } from "../../lib/api/client";
+import * as formStyles from "../../styles/schedules/forms.css";
+import * as styles from "../../styles/schedules/modal.css";
 
 import CronBuilder from "./CronBuilder";
 import FilterBuilder from "./FilterBuilder";
@@ -407,28 +409,31 @@ export default function ScheduleModal({
   };
 
   return (
-    <div className="modal-overlay" onClick={() => onClose()}>
-      <div
-        className="modal-content schedule-modal"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="modal-header">
-          <div className="modal-title-with-icon">
-            <div className="schedule-icon">📅</div>
-            <h2>{schedule ? "Edit Schedule" : "Create New Schedule"}</h2>
+    <div className={styles.modalOverlay} onClick={() => onClose()}>
+      <div className={styles.modalContent} onClick={(e) => e.stopPropagation()}>
+        <div className={styles.modalHeader}>
+          <div className={styles.modalTitleWithIcon}>
+            <div className={styles.scheduleIcon}>📅</div>
+            <h2 className={styles.modalTitle}>
+              {schedule ? "Edit Schedule" : "Create New Schedule"}
+            </h2>
           </div>
-          <button className="modal-close" onClick={() => onClose()}>
+          <button className={styles.modalClose} onClick={() => onClose()}>
             ×
           </button>
         </div>
 
-        <div className="modal-body">
-          <div className="form-group">
-            <label htmlFor="schedule-name">Schedule Name</label>
+        <div className={styles.modalBody}>
+          <div className={formStyles.formGroup}>
+            <label htmlFor="schedule-name" className={formStyles.formLabel}>
+              Schedule Name
+            </label>
             <input
               id="schedule-name"
               type="text"
-              className={`form-input ${errors.name ? "error" : ""}`}
+              className={
+                errors.name ? formStyles.formInputError : formStyles.formInput
+              }
               placeholder="e.g., Critical PRs"
               value={formData.name}
               onChange={(e) =>
@@ -438,13 +443,15 @@ export default function ScheduleModal({
                 }))
               }
             />
-            {errors.name && <div className="field-error">{errors.name}</div>}
+            {errors.name && (
+              <div className={formStyles.fieldError}>{errors.name}</div>
+            )}
           </div>
 
-          <div className="form-section">
-            <h3>Providers</h3>
-            <div className="form-row">
-              <div className="form-group">
+          <div className={formStyles.formSection}>
+            <h3 className={formStyles.formSectionTitle}>Providers</h3>
+            <div className={formStyles.formRow}>
+              <div className={formStyles.formGroup}>
                 <label htmlFor="git-provider">Git Provider</label>
                 <select
                   id="git-provider"
@@ -480,21 +487,25 @@ export default function ScheduleModal({
                     )}
                 </select>
                 {errors.gitProviderId && (
-                  <div className="field-error">{errors.gitProviderId}</div>
+                  <div className={formStyles.fieldError}>
+                    {errors.gitProviderId}
+                  </div>
                 )}
               </div>
 
               {/* Repository Selection */}
-              <div className="form-group">
+              <div className={formStyles.formGroup}>
                 <label htmlFor="repositories">Repositories to Monitor</label>
-                <div className="repository-selection">
+                <div className={formStyles.repositorySelection}>
                   {loadingRepositories && formData.gitProviderId ? (
-                    <div className="loading-text">Loading repositories...</div>
+                    <div className={formStyles.loadingText}>
+                      Loading repositories...
+                    </div>
                   ) : availableRepositories.length > 0 ? (
                     <>
                       <input
                         type="text"
-                        className="form-input"
+                        className={formStyles.formInput}
                         placeholder="Search repositories..."
                         value={repositorySearchTerm}
                         onChange={(e) =>
@@ -502,18 +513,12 @@ export default function ScheduleModal({
                         }
                         style={{ marginBottom: "8px" }}
                       />
-                      <div
-                        className="checkbox-group"
-                        style={{
-                          maxHeight: "200px",
-                          overflowY: "auto",
-                          border: "1px solid #ddd",
-                          padding: "8px",
-                          borderRadius: "4px",
-                        }}
-                      >
+                      <div className={formStyles.checkboxGroup}>
                         {filteredRepositories.map((repo) => (
-                          <label key={repo} className="checkbox-label">
+                          <label
+                            key={repo}
+                            className={formStyles.checkboxLabel}
+                          >
                             <input
                               type="checkbox"
                               checked={formData.repositories.includes(repo)}
@@ -538,27 +543,29 @@ export default function ScheduleModal({
                         ))}
                         {filteredRepositories.length === 0 &&
                           repositorySearchTerm && (
-                            <div className="no-repositories">
+                            <div className={formStyles.noRepositories}>
                               No repositories match your search
                             </div>
                           )}
                       </div>
                     </>
                   ) : formData.gitProviderId ? (
-                    <div className="no-repositories">
+                    <div className={formStyles.noRepositories}>
                       No repositories found for this provider
                     </div>
                   ) : (
-                    <div className="select-provider-first">
+                    <div className={formStyles.selectProviderFirst}>
                       Select a git provider first
                     </div>
                   )}
                 </div>
                 {errors.repositories && (
-                  <div className="field-error">{errors.repositories}</div>
+                  <div className={formStyles.fieldError}>
+                    {errors.repositories}
+                  </div>
                 )}
               </div>
-              <div className="form-group">
+              <div className={formStyles.formGroup}>
                 <label htmlFor="messaging-provider">Messaging Provider</label>
                 <select
                   id="messaging-provider"
@@ -599,26 +606,26 @@ export default function ScheduleModal({
                     )}
                 </select>
                 {errors.messagingProviderId && (
-                  <div className="field-error">
+                  <div className={formStyles.fieldError}>
                     {errors.messagingProviderId}
                   </div>
                 )}
               </div>
 
               {/* Channel Selection */}
-              <div className="form-group">
+              <div className={formStyles.formGroup}>
                 <label htmlFor="messaging-channel">Notification Channel</label>
-                <div className="channel-selection">
+                <div className={formStyles.channelSelection}>
                   {!formData.messagingProviderId ? (
-                    <div className="select-provider-first">
+                    <div className={formStyles.selectProviderFirst}>
                       Select a messaging provider first
                     </div>
                   ) : isDiscordProvider ? (
                     // Discord: Guild → Channel selection
-                    <div className="discord-selection">
+                    <div className={formStyles.discordSelection}>
                       {/* Guild Selection */}
                       <select
-                        className="form-select"
+                        className={formStyles.formSelect}
                         value={selectedDiscordGuild}
                         onChange={(e) => {
                           setSelectedDiscordGuild(e.currentTarget.value);
@@ -643,7 +650,7 @@ export default function ScheduleModal({
                       {selectedDiscordGuild && (
                         <>
                           {loadingDiscordChannels ? (
-                            <div className="loading-text">
+                            <div className={formStyles.loadingText}>
                               Loading channels...
                             </div>
                           ) : availableChannels.length > 0 ? (
@@ -668,7 +675,7 @@ export default function ScheduleModal({
                               ))}
                             </select>
                           ) : (
-                            <div className="no-channels">
+                            <div className={formStyles.noChannels}>
                               No channels found in this server
                             </div>
                           )}
@@ -679,7 +686,9 @@ export default function ScheduleModal({
                     // Slack/Teams: Direct channel selection
                     <>
                       {loadingChannels ? (
-                        <div className="loading-text">Loading channels...</div>
+                        <div className={formStyles.loadingText}>
+                          Loading channels...
+                        </div>
                       ) : availableChannels.length > 0 ? (
                         <select
                           id="messaging-channel"
@@ -703,7 +712,7 @@ export default function ScheduleModal({
                           ))}
                         </select>
                       ) : (
-                        <div className="no-channels">
+                        <div className={formStyles.noChannels}>
                           No channels found for this provider
                         </div>
                       )}
@@ -711,13 +720,15 @@ export default function ScheduleModal({
                   )}
                 </div>
                 {errors.messagingChannelId && (
-                  <div className="field-error">{errors.messagingChannelId}</div>
+                  <div className={formStyles.fieldError}>
+                    {errors.messagingChannelId}
+                  </div>
                 )}
               </div>
             </div>
           </div>
 
-          <div className="form-section">
+          <div className={formStyles.formSection}>
             <h3>Schedule</h3>
             <CronBuilder
               value={formData.cronExpression}
@@ -732,7 +743,7 @@ export default function ScheduleModal({
             />
           </div>
 
-          <div className="form-section">
+          <div className={formStyles.formSection}>
             <h3>PR Filters</h3>
             <FilterBuilder
               value={formData.prFilters}
@@ -742,14 +753,14 @@ export default function ScheduleModal({
             />
           </div>
 
-          <div className="form-section">
+          <div className={formStyles.formSection}>
             <h3>Escalation Settings</h3>
-            <div className="form-row">
-              <div className="form-group">
+            <div className={formStyles.formRow}>
+              <div className={formStyles.formGroup}>
                 <label htmlFor="escalation-provider">Escalation Provider</label>
                 <select
                   id="escalation-provider"
-                  className="form-select"
+                  className={formStyles.formSelect}
                   value={formData.escalationProviderId}
                   onChange={(e) => {
                     const newEscalationProviderId = e.currentTarget.value;
@@ -776,7 +787,7 @@ export default function ScheduleModal({
               </div>
 
               {formData.escalationProviderId && (
-                <div className="form-group">
+                <div className={formStyles.formGroup}>
                   <label htmlFor="escalation-channel">Escalation Channel</label>
                   {/* For now, use the same channels as the main notification */}
                   {/* TODO: Could add separate guild selection for escalation if needed */}
@@ -801,14 +812,14 @@ export default function ScheduleModal({
                     ))}
                   </select>
                   {errors.escalationChannelId && (
-                    <div className="field-error">
+                    <div className={formStyles.fieldError}>
                       {errors.escalationChannelId}
                     </div>
                   )}
                 </div>
               )}
 
-              <div className="form-group">
+              <div className={formStyles.formGroup}>
                 <label htmlFor="escalation-days">Escalation Days</label>
                 <input
                   id="escalation-days"
@@ -827,18 +838,20 @@ export default function ScheduleModal({
                   }
                 />
                 {errors.escalationDays && (
-                  <div className="field-error">{errors.escalationDays}</div>
+                  <div className={formStyles.fieldError}>
+                    {errors.escalationDays}
+                  </div>
                 )}
               </div>
             </div>
-            <small className="form-help">
+            <small className={formStyles.formHelp}>
               Send escalation notifications for PRs older than the specified
               number of days to a different channel
             </small>
           </div>
 
-          <div className="form-group">
-            <label className="checkbox-label">
+          <div className={formStyles.formGroup}>
+            <label className={formStyles.checkboxLabel}>
               <input
                 type="checkbox"
                 checked={formData.sendWhenEmpty}
@@ -854,35 +867,28 @@ export default function ScheduleModal({
           </div>
         </div>
 
-        <div className="modal-footer">
+        <div className={styles.modalFooter}>
           {errors.submit && (
-            <div className="modal-footer-error">
-              <div className="error-message">{errors.submit}</div>
-            </div>
+            <div className={formStyles.fieldError}>{errors.submit}</div>
           )}
 
           {/* Show validation summary if form is invalid and not currently submitting */}
           {!isFormValid() && !isSubmitting && (
-            <div className="modal-footer-validation">
-              <div className="validation-summary">
-                <span className="validation-icon">⚠️</span>
-                <span className="validation-text">
-                  Please complete: {getValidationSummary().join(", ")}
-                </span>
-              </div>
+            <div className={formStyles.fieldError}>
+              ⚠️ Please complete: {getValidationSummary().join(", ")}
             </div>
           )}
 
-          <div className="modal-footer-buttons">
+          <div>
             <button
-              className="cancel-button"
+              className={styles.cancelButton}
               onClick={() => onClose()}
               disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
-              className="save-button"
+              className={styles.saveButton}
               onClick={handleSubmit}
               disabled={isSubmitting || !isFormValid()}
               title={

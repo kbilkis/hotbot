@@ -5,6 +5,7 @@ import { useMessagingProviders } from "@/hooks/useMessagingProviders";
 import { useSchedules } from "@/hooks/useSchedules";
 import { useSubscription } from "@/hooks/useSubscription";
 
+import * as styles from "../../styles/layout/layout.css";
 import AuthButton from "../auth/AuthButton";
 
 export default function Layout({
@@ -23,33 +24,41 @@ export default function Layout({
   useSubscription(shouldFetch);
 
   return (
-    <div className="app-layout">
-      <header>
-        <nav>
-          <div className="logo">
-            <a href="/">
+    <div className={styles.appLayout}>
+      <header className={styles.header}>
+        <nav className={styles.nav}>
+          <div className={styles.logo}>
+            <a href="/" className={styles.logoLink}>
               <img
                 src="/images/hotbot-l.svg"
                 width="191"
                 height="40"
                 alt="HotBot"
-                className="logo-image"
+                className={styles.logoImage}
               />
             </a>
           </div>
-          <div className="nav-links">
-            <a href="/">Home</a>
-            <a href="/dashboard">Dashboard</a>
-            {isSignedIn && <a href="/subscription">Subscription</a>}
+          <div className={styles.navLinks}>
+            <a href="/" className={styles.navLink}>
+              Home
+            </a>
+            <a href="/dashboard" className={styles.navLink}>
+              Dashboard
+            </a>
+            {isSignedIn && (
+              <a href="/subscription" className={styles.navLink}>
+                Subscription
+              </a>
+            )}
             <AuthButton />
           </div>
         </nav>
       </header>
 
-      <main>{children}</main>
+      <main className={styles.main}>{children}</main>
 
-      <footer>
-        <div className="container">
+      <footer className={styles.footer}>
+        <div className={styles.footerContainer}>
           <p>&copy; 2025 HotBot. Never wait for a code review again.</p>
         </div>
       </footer>

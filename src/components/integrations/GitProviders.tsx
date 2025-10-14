@@ -3,6 +3,7 @@ import { useState } from "preact/hooks";
 import { GitProviderData } from "@/lib/validation/provider-schemas";
 
 import { useGitProviders } from "../../hooks/useGitProviders";
+import * as styles from "../../styles/dashboard/providers.css";
 import {
   getProviderColor,
   getProviderBgColor,
@@ -27,67 +28,69 @@ export default function GitProviders() {
 
   if (loading) {
     return (
-      <div className="provider-section">
-        <h2>Git Providers</h2>
-        <p>Loading providers...</p>
+      <div className={styles.providerSection}>
+        <h2 className={styles.providerSectionTitle}>Git Providers</h2>
+        <p className={styles.providerSectionDescription}>
+          Loading providers...
+        </p>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="provider-section">
-        <h2>Git Providers</h2>
-        <p className="error">Error: {error}</p>
+      <div className={styles.providerSection}>
+        <h2 className={styles.providerSectionTitle}>Git Providers</h2>
+        <p className={styles.providerSectionDescription}>Error: {error}</p>
       </div>
     );
   }
 
   return (
-    <div className="provider-section">
-      <h2>Git Providers</h2>
-      <p>
+    <div className={styles.providerSection}>
+      <h2 className={styles.providerSectionTitle}>Git Providers</h2>
+      <p className={styles.providerSectionDescription}>
         Connect your Git provider to start receiving notifications for pull
         requests.
       </p>
-      <div className="provider-list">
+      <div className={styles.providerList}>
         {providers.map((provider) => (
           <div
             key={provider.provider}
-            className="provider-card"
+            className={styles.providerCard}
             style={{
               backgroundColor: getProviderBgColor(provider.provider),
               borderColor: getProviderColor(provider.provider) + "20",
             }}
           >
-            <div className="provider-info">
-              <div className="provider-icon">
+            <div className={styles.providerInfo}>
+              <div className={styles.providerIcon}>
                 {provider.provider === "github" && (
                   <img
                     src="/images/providers/github/GitHub_Invertocat_Dark.svg"
                     alt="GitHub"
-                    className="provider-logo"
+                    className={styles.providerLogo}
                   />
                 )}
                 {provider.provider === "gitlab" && (
                   <img
                     src="/images/providers/gitlab/gitlab-logo-500-rgb.svg"
                     alt="GitLab"
-                    className="provider-logo gitlab"
+                    className={styles.providerLogoGitlab}
                   />
                 )}
                 {provider.provider === "bitbucket" && (
                   <img
                     src="/images/providers/bitbucket/Bitbucket_mark_brand_RGB.svg"
                     alt="Bitbucket"
-                    className="provider-logo"
+                    className={styles.providerLogo}
                   />
                 )}
               </div>
-              <span className="provider-name">{provider.name}</span>
+              <span className={styles.providerName}>{provider.name}</span>
               {provider.connected && (
                 <span
-                  className="connection-status connected"
+                  className={styles.connectionStatusConnected}
                   style={{ color: getProviderColor(provider.provider) }}
                 >
                   ✓ Connected
@@ -95,9 +98,13 @@ export default function GitProviders() {
               )}
             </div>
             <button
-              className={`connect-button ${
-                provider.connected ? "connected" : ""
-              } ${provider.provider === "bitbucket" ? "coming-soon" : ""}`}
+              className={
+                provider.provider === "bitbucket"
+                  ? styles.connectButtonComingSoon
+                  : provider.connected
+                  ? styles.connectButtonConnected
+                  : styles.connectButton
+              }
               onClick={() => handleConnectProvider(provider)}
               disabled={provider.provider === "bitbucket"}
             >

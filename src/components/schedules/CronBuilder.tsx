@@ -6,6 +6,7 @@ import {
   convertCronToUTC,
   convertCronFromUTC,
 } from "../../lib/utils/timezone";
+import * as styles from "../../styles/schedules/cron-builder.css";
 import Tooltip from "../ui/Tooltip";
 
 interface CronBuilderProps {
@@ -125,17 +126,15 @@ export default function CronBuilder({
   };
 
   return (
-    <div className="cron-builder">
-      <div className="cron-presets">
-        <label>Quick Presets</label>
-        <div className="preset-buttons">
+    <div className={styles.cronBuilder}>
+      <div className={styles.cronPresets}>
+        <label className={styles.cronLabel}>Quick Presets</label>
+        <div className={styles.presetButtons}>
           {presetSchedules.map((preset) => (
             <button
               key={preset.value}
               type="button"
-              className={`preset-button ${
-                displayCronExpression === preset.value ? "active" : ""
-              }`}
+              className={styles.presetButton}
               onClick={() => handlePresetClick(preset.value)}
             >
               {preset.label}
@@ -144,11 +143,11 @@ export default function CronBuilder({
         </div>
       </div>
 
-      <div className="cron-builder-grid">
-        <div className="form-group">
-          <label>Minute</label>
+      <div className={styles.cronBuilderGrid}>
+        <div className={styles.cronField}>
+          <label className={styles.cronLabel}>Minute</label>
           <select
-            className="form-select"
+            className={styles.cronSelect}
             value={cronParts.minute}
             onChange={(e) => updateCronPart("minute", e.currentTarget.value)}
           >
@@ -163,10 +162,10 @@ export default function CronBuilder({
           </select>
         </div>
 
-        <div className="form-group">
-          <label>Hour</label>
+        <div className={styles.cronField}>
+          <label className={styles.cronLabel}>Hour</label>
           <select
-            className="form-select"
+            className={styles.cronSelect}
             value={cronParts.hour}
             onChange={(e) => updateCronPart("hour", e.currentTarget.value)}
           >
@@ -183,10 +182,10 @@ export default function CronBuilder({
           </select>
         </div>
 
-        <div className="form-group">
-          <label>Day of Week</label>
+        <div className={styles.cronField}>
+          <label className={styles.cronLabel}>Day of Week</label>
           <select
-            className="form-select"
+            className={styles.cronSelect}
             value={cronParts.dayOfWeek}
             onChange={(e) => updateCronPart("dayOfWeek", e.currentTarget.value)}
           >
@@ -205,14 +204,14 @@ export default function CronBuilder({
       </div>
 
       {onTimezoneChange && (
-        <div className="form-group">
-          <label htmlFor="timezone">
+        <div className={styles.timezoneSection}>
+          <label htmlFor="timezone" className={styles.timezoneLabel}>
             Timezone{" "}
             <Tooltip text="Schedule will run at the specified time in this timezone" />
           </label>
           <select
             id="timezone"
-            className="form-select"
+            className={styles.timezoneSelect}
             value={timezone || getUserTimezoneOrFallback()}
             onChange={(e) => onTimezoneChange(e.currentTarget.value)}
           >
@@ -225,23 +224,25 @@ export default function CronBuilder({
         </div>
       )}
 
-      <div className="form-group">
-        <label htmlFor="cron-expression">
+      <div className={styles.cronExpression}>
+        <label htmlFor="cron-expression" className={styles.cronExpressionLabel}>
           Cron Expression{" "}
-          <span className="schedule-utc0">
+          <span className={styles.scheduleUtc}>
             (UTC format - no timezone conversion)
           </span>
         </label>
         <input
           id="cron-expression"
           type="text"
-          className={`form-input ${error ? "error" : ""}`}
+          className={error ? styles.cronInputError : styles.cronInput}
           value={value}
           onChange={(e) => onChange(e.currentTarget.value)}
           placeholder="0 9 * * 1-5"
         />
-        <small className="form-help">{getCronDescription(value)}</small>
-        {error && <div className="field-error">{error}</div>}
+        <small className={styles.cronDescription}>
+          {getCronDescription(value)}
+        </small>
+        {error && <div className={styles.fieldError}>{error}</div>}
       </div>
     </div>
   );

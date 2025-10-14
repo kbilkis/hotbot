@@ -1,49 +1,14 @@
-import {
-  PencilSquareIcon,
-  PlayIcon,
-  PauseCircleIcon,
-  TrashIcon,
-} from "@heroicons/react/24/outline";
-import { CronExpressionParser } from "cron-parser";
 import { useState } from "preact/hooks";
 
 import { CronJob } from "@/lib/database/schema";
 
 import { useSchedules } from "../../hooks/useSchedules";
 import { schedulesApi } from "../../lib/api/client";
+import * as baseStyles from "../../styles/dashboard/base.css";
+import * as styles from "../../styles/dashboard/schedules.css";
 
 import ScheduleModal from "./ScheduleModal";
-
-const calculateNextExecution = (
-  utcCronExpression: string
-): string | undefined => {
-  try {
-    // Parse as UTC since that's how it's stored
-    const interval = CronExpressionParser.parse(utcCronExpression, {
-      tz: "UTC",
-    });
-    const nextRun = interval.next().toDate();
-
-    // Format in user's local timezone for better UX
-    const date = nextRun.toLocaleDateString("en-US", {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-      timeZoneName: "short",
-    });
-
-    const time = nextRun.toLocaleTimeString("en-US", {
-      hour: "2-digit",
-      minute: "2-digit",
-      hour12: false,
-    });
-
-    return `${date}, ${time}`;
-  } catch (error) {
-    console.error("Error calculating next execution:", error);
-    return undefined;
-  }
-};
+import SchedulesTable from "./SchedulesTable";
 
 export default function SchedulesSection() {
   const [showScheduleModal, setShowScheduleModal] = useState(false);
@@ -135,32 +100,19 @@ export default function SchedulesSection() {
     }
   };
 
-  const getStatusColor = (isActive: boolean) => {
-    if (isActive) {
-      return "status-active";
-    }
-    return "status-paused";
-  };
-
-  const getStatusDot = (isActive: boolean) => {
-    if (isActive) {
-      return "bg-green-500";
-    } else {
-      return "bg-yellow-500";
-    }
-  };
-
   if (loading) {
     return (
-      <div className="section">
-        <div className="section-header">
-          <div className="section-content">
-            <h1>Schedules</h1>
-            <p>Manage your notification schedules and create new ones.</p>
+      <div className={baseStyles.section}>
+        <div className={baseStyles.sectionHeader}>
+          <div className={baseStyles.sectionContent}>
+            <h1 className={baseStyles.sectionTitle}>Schedules</h1>
+            <p className={baseStyles.sectionDescription}>
+              Manage your notification schedules and create new ones.
+            </p>
           </div>
         </div>
-        <div className="schedules-section">
-          <div className="loading-section">
+        <div className={styles.schedulesSection}>
+          <div className={styles.loadingSection}>
             <p>Loading schedules...</p>
           </div>
         </div>
@@ -170,21 +122,19 @@ export default function SchedulesSection() {
 
   if (error) {
     return (
-      <div className="section">
-        <div className="section-header">
-          <div className="section-content">
-            <h1>Schedules</h1>
-            <p>Manage your notification schedules and create new ones.</p>
+      <div className={baseStyles.section}>
+        <div className={baseStyles.sectionHeader}>
+          <div className={baseStyles.sectionContent}>
+            <h1 className={baseStyles.sectionTitle}>Schedules</h1>
+            <p className={baseStyles.sectionDescription}>
+              Manage your notification schedules and create new ones.
+            </p>
           </div>
         </div>
-        <div className="schedules-section">
-          <div className="error-message">
+        <div className={styles.schedulesSection}>
+          <div className={styles.errorMessage}>
             {error}
-            <button
-              onClick={() => refetch()}
-              className="retry-button"
-              style={{ marginLeft: "10px" }}
-            >
+            <button onClick={() => refetch()} className={styles.retryButton}>
               Retry
             </button>
           </div>
@@ -194,110 +144,30 @@ export default function SchedulesSection() {
   }
 
   return (
-    <div className="section">
-      <div className="section-header">
-        <div className="section-content">
-          <h1>Schedules</h1>
-          <p>Manage your notification schedules and create new ones.</p>
+    <div className={baseStyles.section}>
+      <div className={baseStyles.sectionHeader}>
+        <div className={baseStyles.sectionContent}>
+          <h1 className={baseStyles.sectionTitle}>Schedules</h1>
+          <p className={baseStyles.sectionDescription}>
+            Manage your notification schedules and create new ones.
+          </p>
         </div>
         <button
-          className="create-schedule-button"
+          className={styles.createScheduleButton}
           onClick={handleCreateSchedule}
         >
           + Create Schedule
         </button>
       </div>
 
-      <div className="schedules-section">
-        {schedules.length === 0 ? (
-          <div className="empty-state">
-            <p>
-              No schedules created yet. Create your first schedule to get
-              started.
-            </p>
-          </div>
-        ) : (
-          <div className="schedules-table">
-            <div className="table-header">
-              <div>Status</div>
-              <div>Name</div>
-              <div>Schedule</div>
-              <div>Next Run</div>
-              <div>Actions</div>
-            </div>
-            {schedules.map((schedule) => (
-              <div key={schedule.id} className="table-row">
-                <div className="status-cell">
-                  <div
-                    className={`status-dot ${getStatusDot(
-                      !!schedule.isActive
-                    )}`}
-                  ></div>
-                  <span className={getStatusColor(!!schedule.isActive)}>
-                    {schedule.isActive ? "Active" : "Paused"}
-                  </span>
-                </div>
-                <div>
-                  <div className="schedule-name">{schedule.name}</div>
-                  <div className="schedule-details">
-                    {schedule.repositories.length} repositories
-                  </div>
-                </div>
-                <div className="schedule-description">
-                  <div>
-                    {schedule.cronExpression}{" "}
-                    <span className="schedule-utc0">(UTC+0)</span>
-                  </div>
-                </div>
-                <div className="next-run-time">
-                  {schedule.isActive
-                    ? calculateNextExecution(schedule.cronExpression) || "-"
-                    : "-"}
-                </div>
-                <div className="actions-cell">
-                  <div className="schedule-actions">
-                    <button
-                      className="edit-button"
-                      onClick={() => handleEditSchedule(schedule)}
-                      title="Edit schedule"
-                    >
-                      <PencilSquareIcon className="schedule-action-icon" />
-                    </button>
-                    <button
-                      className={`toggle-button ${
-                        schedule.isActive ? "" : "paused"
-                      } ${togglingScheduleId === schedule.id ? "loading" : ""}`}
-                      onClick={() => handleToggleSchedule(schedule.id)}
-                      disabled={togglingScheduleId === schedule.id}
-                      title={
-                        togglingScheduleId === schedule.id
-                          ? "Processing..."
-                          : schedule.isActive
-                          ? "Pause schedule"
-                          : "Resume schedule"
-                      }
-                    >
-                      {togglingScheduleId === schedule.id ? (
-                        <div className="loading-spinner-button" />
-                      ) : schedule.isActive ? (
-                        <PauseCircleIcon className="schedule-action-icon" />
-                      ) : (
-                        <PlayIcon className="schedule-action-icon" />
-                      )}
-                    </button>
-                    <button
-                      className="delete-button"
-                      onClick={() => handleDeleteSchedule(schedule.id)}
-                      title="Delete schedule"
-                    >
-                      <TrashIcon className="schedule-action-icon" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+      <div className={styles.schedulesSection}>
+        <SchedulesTable
+          schedules={schedules}
+          onEdit={handleEditSchedule}
+          onDelete={handleDeleteSchedule}
+          onToggle={handleToggleSchedule}
+          togglingScheduleId={togglingScheduleId}
+        />
       </div>
 
       {showScheduleModal && (
