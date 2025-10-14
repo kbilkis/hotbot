@@ -1,4 +1,3 @@
-import { clerkMiddleware } from "@hono/clerk-auth";
 import * as Sentry from "@sentry/cloudflare";
 import { Hono } from "hono";
 
@@ -46,8 +45,6 @@ const api = new Hono()
       500
     );
   })
-  // Apply Clerk middleware to all routes (makes auth context available everywhere)
-  .use(clerkMiddleware())
   .use(dbUserMiddleware())
 
   // Public routes with specific rate limiting
@@ -57,8 +54,9 @@ const api = new Hono()
   .use("/tunnel/*", tunnelRateLimit(), bodyLimits.medium) // Tunnel requests are medium
   .route("/tunnel", tunnelRoutes)
 
-  // Apply rate limit middleware to ALL routes in this group
   .use(apiRateLimit(), bodyLimits.medium) // Default medium limit for API routes
+
+  // Public routes
   .get("/health", (c) => {
     return c.json({
       success: true,
@@ -66,9 +64,8 @@ const api = new Hono()
       timestamp: new Date().toISOString(),
     });
   })
+  // Protected routes
   .use(requireAuth())
-
-  // Add the protected routes
   .route("/providers", providersRoutes)
   .route("/schedules", schedulesRoutes)
   .route("/subscriptions", subscriptionsRoutes)

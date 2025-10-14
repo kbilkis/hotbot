@@ -1,3 +1,4 @@
+import { clerkMiddleware } from "@hono/clerk-auth";
 import * as Sentry from "@sentry/cloudflare";
 import { Hono } from "hono";
 import { cors } from "hono/cors";
@@ -24,6 +25,7 @@ const app = new Hono()
       credentials: true,
     })
   )
+  .use(clerkMiddleware())
   .route("/api", apiRoutes);
 
 // Handle all requests
@@ -42,9 +44,10 @@ app.get("*", async (c) => {
   }
 });
 
-// Conditionally wrap with Sentry based on environment
 const environment = getViteEnvKey("VITE_ENVIRONMENT_DEPL");
-const isDevelopment = environment === "development";
+const isDevelopment = !!import.meta.env?.DEV;
+
+// Conditionally wrap with Sentry based on environment
 export default isDevelopment
   ? app
   : Sentry.withSentry(() => {

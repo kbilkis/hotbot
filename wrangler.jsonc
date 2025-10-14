@@ -93,12 +93,7 @@
     }
   },
   "assets": {
-    "directory": "./dist",
     "binding": "ASSETS"
-  },
-  "build": {
-    "command": "pnpm run build",
-    "watch_dir": "src"
   },
   "upload_source_maps": true,
   "observability": {

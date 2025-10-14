@@ -44,6 +44,8 @@ export default function LandingPage() {
                     src="/images/landing/slack-case.jpg"
                     alt="Slack PR digest showing daily pull request summaries with review status and quick actions"
                     className="slack-screenshot"
+                    width="1972px"
+                    height="1182px"
                   />
                 </picture>
               </div>

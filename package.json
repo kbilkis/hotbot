@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "dev:wrangler": "concurrently \"wrangler dev --port 8787\" \"vite\"",
+    "dev": "vite",
     "build": "vite build",
-    "deploy": "wrangler deploy --env=\"\" --outdir dist --upload-source-maps --var SENTRY_RELEASE:$(sentry-cli releases propose-version)",
-    "deploy:production": "wrangler deploy --env=\"production\" --outdir dist --upload-source-maps --var SENTRY_RELEASE:$(sentry-cli releases propose-version)",
+    "deploy": "pnpm run build && wrangler deploy --env=\"\" --outdir dist --upload-source-maps --var SENTRY_RELEASE:$(sentry-cli releases propose-version)",
+    "deploy:production": "pnpm run build && wrangler deploy --env=\"production\" --outdir dist --upload-source-maps --var SENTRY_RELEASE:$(sentry-cli releases propose-version)",
     "build:client": "vite build",
     "build:server": "wrangler build",
     "build:functions": "node esbuild.functions.config.js",
@@ -23,7 +23,7 @@
     "type-check": "tsc --noEmit",
     "vite-analyzer": "ANALYZE=true vite build",
     "knip": "knip",
-    "sentry:sourcemaps": "_SENTRY_RELEASE=$(sentry-cli releases propose-version) && sentry-cli releases new $_SENTRY_RELEASE --org=bilkis --project=hotbot-be && sentry-cli sourcemaps upload --org=bilkis --project=hotbot-be --release=$_SENTRY_RELEASE --strip-prefix 'dist/..' dist",
+    "sentry:sourcemaps": "_SENTRY_RELEASE=$(sentry-cli releases propose-version) && sentry-cli releases new $_SENTRY_RELEASE --org=bilkis --project=hotbot-be && sentry-cli sourcemaps upload --org=bilkis --project=hotbot-be --release=$_SENTRY_RELEASE --strip-prefix 'dist/hotbot/assets..' dist/hotbot/assets",
     "postdeploy": "pnpm sentry:sourcemaps"
   },
   "dependencies": {
@@ -53,17 +53,20 @@
     "swr": "^2.3.6"
   },
   "devDependencies": {
+    "@cloudflare/vite-plugin": "^1.13.12",
     "@cloudflare/workers-types": "^4.20250919.0",
     "@eslint/eslintrc": "^3.3.1",
     "@eslint/js": "^9.35.0",
     "@google-cloud/functions-framework": "^3.5.1",
     "@hono/node-server": "^1.19.3",
+    "@hono/vite-dev-server": "^0.23.0",
     "@preact/preset-vite": "^2.10.2",
     "@sentry/cli": "^2.39.0",
     "@testing-library/preact": "^3.2.4",
     "@types/node": "^22.18.6",
     "@typescript-eslint/eslint-plugin": "^8.44.0",
     "@typescript-eslint/parser": "^8.44.0",
+    "@vanilla-extract/vite-plugin": "^5.1.1",
     "@vitejs/plugin-react": "^5.0.3",
     "concurrently": "^9.2.1",
     "dotenv": "^17.2.2",
