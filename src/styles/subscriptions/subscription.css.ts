@@ -1,494 +1,476 @@
-import { style, keyframes, globalStyle } from "@vanilla-extract/css";
+import { style, globalStyle } from "@vanilla-extract/css";
 
-// Keyframes
-const spin = keyframes({
-  "0%": { transform: "rotate(0deg)" },
-  "100%": { transform: "rotate(360deg)" },
-});
+import { spin } from "../theme/animations.css";
+import {
+  tokens,
+  buttonStyles,
+  badgeStyles,
+  utils,
+  iconStyles,
+} from "../theme/index.css";
 
 // Subscription Header
-export const subscriptionHeader = style({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  marginBottom: "1rem",
-  "@media": {
-    "(max-width: 768px)": {
-      flexDirection: "column",
-      alignItems: "flex-start",
-      gap: "0.5rem",
+export const subscriptionHeader = style([
+  utils.flexBetween,
+  {
+    marginBottom: tokens.space[4],
+    "@media": {
+      "(max-width: 768px)": {
+        flexDirection: "column",
+        alignItems: "flex-start",
+        gap: tokens.space[2],
+      },
     },
   },
-});
+]);
 
-export const tierBadgeContainer = style({
-  display: "flex",
-  gap: "0.5rem",
-  alignItems: "center",
-});
+export const tierBadgeContainer = style([
+  utils.flex,
+  utils.gap2,
+  {
+    alignItems: "center",
+  },
+]);
 
-const tierBadge = style({
-  padding: "0.25rem 0.75rem",
-  borderRadius: "1rem",
-  fontSize: "0.75rem",
-  fontWeight: 600,
-  textTransform: "uppercase",
-  letterSpacing: "0.05em",
-});
+// Tier Badges
+const tierBadgeBase = style([
+  badgeStyles.neutral,
+  {
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
+  },
+]);
 
 export const tierBadgeFree = style([
-  tierBadge,
+  tierBadgeBase,
   {
-    background: "#f3f4f6",
-    color: "#374151",
+    background: tokens.colors.gray100,
+    color: tokens.colors.gray700,
   },
 ]);
 
 export const tierBadgePro = style([
-  tierBadge,
+  tierBadgeBase,
   {
-    background: "linear-gradient(135deg, #ff8000 0%, #cc5500 100%)",
-    color: "white",
+    background: `linear-gradient(135deg, ${tokens.colors.primary} 0%, ${tokens.colors.primaryHover} 100%)`,
+    color: tokens.colors.white,
   },
 ]);
 
-const statusBadge = style({
-  padding: "0.25rem 0.75rem",
-  borderRadius: "1rem",
-  fontSize: "0.75rem",
-  fontWeight: 600,
-  textTransform: "uppercase",
-  letterSpacing: "0.05em",
-});
+// Status Badges
+const statusBadgeBase = style([
+  badgeStyles.neutral,
+  {
+    textTransform: "uppercase",
+    letterSpacing: "0.05em",
+  },
+]);
 
 export const statusBadgeActive = style([
-  statusBadge,
+  statusBadgeBase,
   {
-    background: "#dcfce7",
-    color: "#166534",
+    background: tokens.colors.successBg,
+    color: tokens.colors.success,
   },
 ]);
 
 export const statusBadgeCanceled = style([
-  statusBadge,
+  statusBadgeBase,
   {
-    background: "#fef2f2",
-    color: "#dc2626",
+    background: tokens.colors.errorBg,
+    color: tokens.colors.error,
   },
 ]);
 
 export const statusBadgePastDue = style([
-  statusBadge,
+  statusBadgeBase,
   {
-    background: "#fef3c7",
-    color: "#d97706",
+    background: tokens.colors.warningBg,
+    color: tokens.colors.warning,
   },
 ]);
 
 // Subscription Content
-export const subscriptionContent = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "2rem",
-});
+export const subscriptionContent = style([utils.flexCol, utils.gap8]);
 
 // Usage Section
-export const usageSection = style({
-  background: "#f8fafc",
-  border: "1px solid #e2e8f0",
-  borderRadius: "0.75rem",
-  padding: "1.5rem",
-});
+export const usageSection = style([
+  utils.cardSmall,
+  {
+    background: tokens.colors.gray50,
+    border: `1px solid ${tokens.colors.border}`,
+    borderRadius: tokens.borderRadius.xl,
+    padding: tokens.space[6],
+  },
+]);
 
-export const usageHeader = style({
-  display: "flex",
-  alignItems: "center",
-  gap: "0.5rem",
-  marginBottom: "1.5rem",
-});
+export const usageHeader = style([
+  utils.flex,
+  utils.gap2,
+  {
+    alignItems: "center",
+    marginBottom: tokens.space[6],
+  },
+]);
 
 globalStyle(`${usageHeader} h3`, {
   margin: 0,
-  fontSize: "1.125rem",
-  fontWeight: 600,
-  color: "#111827",
+  fontSize: tokens.fontSize.lg,
+  fontWeight: tokens.fontWeight.semibold,
+  color: tokens.colors.text,
 });
 
-export const usageGrid = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "1rem",
-  marginBottom: "1.5rem",
-});
+export const usageGrid = style([
+  utils.flexCol,
+  utils.gap4,
+  {
+    marginBottom: tokens.space[6],
+  },
+]);
 
-export const usageItem = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "0.5rem",
-});
+export const usageItem = style([utils.flexCol, utils.gap2]);
 
-export const usageLabel = style({
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  fontSize: "0.875rem",
-  fontWeight: 500,
-  color: "#374151",
-});
+export const usageLabel = style([
+  utils.flexBetween,
+  {
+    alignItems: "center",
+    fontSize: tokens.fontSize.sm,
+    fontWeight: tokens.fontWeight.medium,
+    color: tokens.colors.gray700,
+  },
+]);
 
 export const usageCount = style({
-  fontSize: "0.875rem",
-  fontWeight: 600,
-  color: "#111827",
+  fontSize: tokens.fontSize.sm,
+  fontWeight: tokens.fontWeight.semibold,
+  color: tokens.colors.text,
 });
 
 export const usageCountAtLimit = style([
   usageCount,
   {
-    color: "#dc2626",
+    color: tokens.colors.error,
   },
 ]);
 
 export const usageBar = style({
   width: "100%",
   height: "8px",
-  background: "#e5e7eb",
-  borderRadius: "4px",
+  background: tokens.colors.border,
+  borderRadius: tokens.borderRadius.base,
   overflow: "hidden",
 });
 
 export const usageBarUnlimited = style([
   usageBar,
   {
-    background: "linear-gradient(90deg, #10b981 0%, #059669 100%)",
+    background: `linear-gradient(90deg, ${tokens.colors.success} 0%, ${tokens.colors.successHover} 100%)`,
   },
 ]);
 
 export const usageFill = style({
   height: "100%",
-  background: "linear-gradient(90deg, #3b82f6 0%, #2563eb 100%)",
-  borderRadius: "4px",
+  background: `linear-gradient(90deg, ${tokens.colors.info} 0%, #2563eb 100%)`,
+  borderRadius: tokens.borderRadius.base,
   transition: "width 0.3s ease",
 });
 
 export const usageFillAtLimit = style([
   usageFill,
   {
-    background: "linear-gradient(90deg, #ef4444 0%, #dc2626 100%)",
+    background: `linear-gradient(90deg, ${tokens.colors.error} 0%, ${tokens.colors.errorHover} 100%)`,
   },
 ]);
 
 export const usageFillUnlimited = style([
   usageFill,
   {
-    background: "linear-gradient(90deg, #10b981 0%, #059669 100%)",
+    background: `linear-gradient(90deg, ${tokens.colors.success} 0%, ${tokens.colors.successHover} 100%)`,
     width: "100% !important",
   },
 ]);
 
-export const usageText = style({
-  fontSize: "0.75rem",
-  color: "#10b981",
-  fontWeight: 600,
-  textAlign: "center",
-});
+export const usageText = style([
+  utils.textCenter,
+  {
+    fontSize: tokens.fontSize.xs,
+    color: tokens.colors.success,
+    fontWeight: tokens.fontWeight.semibold,
+  },
+]);
 
-export const usageWarning = style({
-  fontSize: "0.75rem",
-  color: "#dc2626",
-  fontWeight: 600,
-  textAlign: "center",
-});
+export const usageWarning = style([
+  utils.textCenter,
+  {
+    fontSize: tokens.fontSize.xs,
+    color: tokens.colors.error,
+    fontWeight: tokens.fontWeight.semibold,
+  },
+]);
 
 export const cronLimitInfo = style({
-  background: "#fef3c7",
-  border: "1px solid #fbbf24",
-  borderRadius: "0.5rem",
-  padding: "1rem",
+  background: tokens.colors.warningBg,
+  border: `1px solid ${tokens.colors.warning}`,
+  borderRadius: tokens.borderRadius.lg,
+  padding: tokens.space[4],
 });
 
 globalStyle(`${cronLimitInfo} p`, {
   margin: 0,
-  fontSize: "0.875rem",
-  color: "#92400e",
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.warning,
 });
 
 globalStyle(`${cronLimitInfo} strong`, {
-  color: "#78350f",
+  color: tokens.colors.warning,
+  fontWeight: tokens.fontWeight.bold,
 });
 
 // Pro Section
-export const proSection = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "2rem",
-});
+export const proSection = style([utils.flexCol, utils.gap8]);
 
 export const proFeatures = style({
-  background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)",
-  border: "1px solid #cbd5e1",
-  borderRadius: "0.75rem",
-  padding: "1.5rem",
+  background: `linear-gradient(135deg, ${tokens.colors.gray50} 0%, ${tokens.colors.gray200} 100%)`,
+  border: `1px solid ${tokens.colors.gray300}`,
+  borderRadius: tokens.borderRadius.xl,
+  padding: tokens.space[6],
 });
 
 globalStyle(`${proFeatures} h3`, {
-  margin: "0 0 1rem 0",
-  fontSize: "1.125rem",
-  fontWeight: 600,
-  color: "#111827",
+  margin: `0 0 ${tokens.space[4]} 0`,
+  fontSize: tokens.fontSize.lg,
+  fontWeight: tokens.fontWeight.semibold,
+  color: tokens.colors.text,
 });
 
 export const subscriptionGrid = style({
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(250px, 1fr))",
-  gap: "1rem",
+  gap: tokens.space[4],
 });
 
-export const subscriptionItem = style({
-  display: "flex",
-  alignItems: "center",
-  gap: "0.75rem",
-  padding: "0.75rem",
-  background: "white",
-  border: "1px solid #e5e7eb",
-  borderRadius: "0.5rem",
-  fontSize: "0.875rem",
-  fontWeight: 500,
-  color: "#374151",
-});
+export const subscriptionItem = style([
+  utils.flex,
+  utils.gap3,
+  {
+    alignItems: "center",
+    padding: tokens.space[3],
+    background: tokens.colors.white,
+    border: `1px solid ${tokens.colors.border}`,
+    borderRadius: tokens.borderRadius.lg,
+    fontSize: tokens.fontSize.sm,
+    fontWeight: tokens.fontWeight.medium,
+    color: tokens.colors.gray700,
+  },
+]);
 
-export const subscriptionIcon = style({
-  fontSize: "1.25rem",
-  color: "#10b981",
-});
+export const subscriptionIcon = style([
+  iconStyles.base,
+  {
+    fontSize: tokens.fontSize.xl,
+    color: tokens.colors.success,
+  },
+]);
 
 // Billing Section
 export const billingInfo = style({
-  background: "#f8fafc",
-  border: "1px solid #e2e8f0",
-  borderRadius: "0.75rem",
-  padding: "1.5rem",
+  background: tokens.colors.gray50,
+  border: `1px solid ${tokens.colors.border}`,
+  borderRadius: tokens.borderRadius.xl,
+  padding: tokens.space[6],
 });
 
 globalStyle(`${billingInfo} h3`, {
-  margin: "0 0 1rem 0",
-  fontSize: "1.125rem",
-  fontWeight: 600,
-  color: "#111827",
+  margin: `0 0 ${tokens.space[4]} 0`,
+  fontSize: tokens.fontSize.lg,
+  fontWeight: tokens.fontWeight.semibold,
+  color: tokens.colors.text,
 });
 
-export const billingDetails = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "0.75rem",
-});
+export const billingDetails = style([utils.flexCol, utils.gap3]);
 
-export const billingItem = style({
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  "@media": {
-    "(max-width: 768px)": {
-      flexDirection: "column",
-      alignItems: "flex-start",
-      gap: "0.25rem",
+export const billingItem = style([
+  utils.flexBetween,
+  {
+    alignItems: "center",
+    "@media": {
+      "(max-width: 768px)": {
+        flexDirection: "column",
+        alignItems: "flex-start",
+        gap: tokens.space[1],
+      },
     },
   },
-});
+]);
 
 export const billingLabel = style({
-  fontSize: "0.875rem",
-  color: "#6b7280",
-  fontWeight: 500,
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.textMuted,
+  fontWeight: tokens.fontWeight.medium,
 });
 
 export const billingValue = style({
-  fontSize: "0.875rem",
-  color: "#111827",
-  fontWeight: 600,
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.text,
+  fontWeight: tokens.fontWeight.semibold,
 });
 
 export const cancelNotice = style([
   billingValue,
   {
-    color: "#dc2626",
+    color: tokens.colors.error,
   },
 ]);
 
 // Actions Section
 export const subscriptionActions = style({
-  borderTop: "1px solid #e5e7eb",
-  paddingTop: "2rem",
+  borderTop: `1px solid ${tokens.colors.border}`,
+  paddingTop: tokens.space[8],
 });
 
-export const upgradeSection = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "1rem",
-  alignItems: "center",
-  textAlign: "center",
-});
+export const upgradeSection = style([
+  utils.flexCol,
+  utils.gap4,
+  utils.textCenter,
+  {
+    alignItems: "center",
+  },
+]);
 
-export const billingSection = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "1rem",
-});
+export const billingSection = style([utils.flexCol, utils.gap4]);
 
-export const billingActions = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "1rem",
-  alignItems: "center",
-});
+export const billingActions = style([
+  utils.flexCol,
+  utils.gap4,
+  {
+    alignItems: "center",
+  },
+]);
 
-export const supportInfo = style({
-  textAlign: "center",
-  padding: "1rem",
-  background: "#f8fafc",
-  border: "1px solid #e2e8f0",
-  borderRadius: "0.5rem",
-});
+export const supportInfo = style([
+  utils.textCenter,
+  {
+    padding: tokens.space[4],
+    background: tokens.colors.gray50,
+    border: `1px solid ${tokens.colors.border}`,
+    borderRadius: tokens.borderRadius.lg,
+  },
+]);
 
 globalStyle(`${supportInfo} p`, {
-  margin: "0 0 0.5rem 0",
-  fontSize: "0.875rem",
-  color: "#6b7280",
+  margin: `0 0 ${tokens.space[2]} 0`,
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.textMuted,
 });
 
 // Buttons
-export const upgradeBtn = style({
-  padding: "0.75rem 2rem",
-  background: "linear-gradient(135deg, #ff8000 0%, #cc5500 100%)",
-  color: "white",
-  border: "none",
-  borderRadius: "0.5rem",
-  fontSize: "1rem",
-  fontWeight: 600,
-  cursor: "pointer",
-  transition: "all 0.2s",
-  display: "flex",
-  alignItems: "center",
-  gap: "0.5rem",
-  ":hover": {
-    transform: "translateY(-1px)",
-    boxShadow: "0 4px 12px rgba(255, 128, 0, 0.3)",
+export const upgradeBtn = style([
+  buttonStyles.primary,
+  utils.flex,
+  utils.gap2,
+  {
+    padding: `${tokens.space[3]} ${tokens.space[8]}`,
+    alignItems: "center",
+    selectors: {
+      "&:hover": {
+        transform: "translateY(-1px)",
+        boxShadow: `0 4px 12px ${tokens.colors.primaryLight}`,
+      },
+      "&:disabled": {
+        opacity: 0.6,
+        cursor: "not-allowed",
+        transform: "none",
+        boxShadow: "none",
+      },
+    },
   },
-  ":disabled": {
-    opacity: 0.6,
-    cursor: "not-allowed",
-    transform: "none",
-    boxShadow: "none",
-  },
-});
+]);
 
-export const manageBillingBtn = style({
-  padding: "0.75rem 1.5rem",
-  background: "white",
-  color: "#374151",
-  border: "1px solid #d1d5db",
-  borderRadius: "0.5rem",
-  fontSize: "0.875rem",
-  fontWeight: 600,
-  cursor: "pointer",
-  transition: "all 0.2s",
-  display: "flex",
-  alignItems: "center",
-  gap: "0.5rem",
-  ":hover": {
-    borderColor: "#9ca3af",
-    background: "#f9fafb",
+export const manageBillingBtn = style([
+  buttonStyles.outline,
+  utils.flex,
+  utils.gap2,
+  {
+    padding: `${tokens.space[3]} ${tokens.space[6]}`,
+    alignItems: "center",
+    background: tokens.colors.white,
+    color: tokens.colors.gray700,
+    border: `1px solid ${tokens.colors.gray300}`,
+    selectors: {
+      "&:hover": {
+        borderColor: tokens.colors.gray400,
+        background: tokens.colors.gray50,
+      },
+      "&:disabled": {
+        opacity: 0.6,
+        cursor: "not-allowed",
+      },
+    },
   },
-  ":disabled": {
-    opacity: 0.6,
-    cursor: "not-allowed",
-  },
-});
+]);
 
 // Loading Spinner
-export const loadingSubscriptionSpinner = style({
-  width: "1rem",
-  height: "1rem",
-  border: "2px solid transparent",
-  borderTop: "2px solid currentColor",
-  borderRadius: "50%",
-  animation: `${spin} 1s linear infinite`,
-});
+export const loadingSubscriptionSpinner = style([
+  utils.spinner,
+  {
+    width: tokens.space[4],
+    height: tokens.space[4],
+    animation: `${spin} 1s linear infinite`,
+  },
+]);
 
 // Error Message
-export const errorMessage = style({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  padding: "0.75rem 1rem",
-  background: "#fef2f2",
-  border: "1px solid #fecaca",
-  borderRadius: "0.5rem",
-  color: "#dc2626",
-  fontSize: "0.875rem",
-  fontWeight: 500,
-});
+export const errorMessage = style([
+  utils.flexBetween,
+  {
+    alignItems: "center",
+    padding: `${tokens.space[3]} ${tokens.space[4]}`,
+    background: tokens.colors.errorBg,
+    border: `1px solid ${tokens.colors.error}`,
+    borderRadius: tokens.borderRadius.lg,
+    color: tokens.colors.error,
+    fontSize: tokens.fontSize.sm,
+    fontWeight: tokens.fontWeight.medium,
+  },
+]);
 
 export const errorDismiss = style({
   background: "none",
   border: "none",
-  color: "#dc2626",
+  color: tokens.colors.error,
   cursor: "pointer",
-  padding: "0.25rem",
-  borderRadius: "0.25rem",
-  fontSize: "1rem",
-  ":hover": {
-    background: "rgba(220, 38, 38, 0.1)",
+  padding: tokens.space[1],
+  borderRadius: tokens.borderRadius.base,
+  fontSize: tokens.fontSize.base,
+  selectors: {
+    "&:hover": {
+      background: tokens.colors.errorBg,
+    },
   },
 });
-// Section Layout (for pages that use section structure)
-export const section = style({
-  background: "white",
-  borderRadius: "1rem",
-  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.05)",
-  overflow: "hidden",
-});
+// Section Layout
+export const section = utils.section;
 
-export const sectionHeader = style({
-  padding: "2rem 2rem 1rem",
-  borderBottom: "1px solid #e5e7eb",
-});
+export const sectionHeader = utils.sectionHeader;
 
-export const sectionContent = style({});
+export const sectionContent = utils.sectionContent;
 
 globalStyle(`${sectionContent} h1`, {
-  fontSize: "1.875rem",
-  fontWeight: 700,
-  color: "#111827",
-  margin: "0 0 0.5rem 0",
+  fontSize: tokens.fontSize["3xl"],
+  fontWeight: tokens.fontWeight.bold,
+  color: tokens.colors.text,
+  margin: `0 0 ${tokens.space[2]} 0`,
 });
 
 globalStyle(`${sectionContent} p`, {
-  color: "#6b7280",
+  color: tokens.colors.textMuted,
   margin: 0,
-  lineHeight: 1.6,
+  lineHeight: tokens.lineHeight.normal,
 });
 
 export const errorText = style({
-  color: "#ef4444",
-  fontWeight: 500,
+  color: tokens.colors.error,
+  fontWeight: tokens.fontWeight.medium,
 });
 
-// Button styles for links
-export const btnOutline = style({
-  display: "inline-block",
-  padding: "0.5rem 1rem",
-  background: "transparent",
-  color: "#3b82f6",
-  border: "1px solid #3b82f6",
-  borderRadius: "0.375rem",
-  fontSize: "0.875rem",
-  fontWeight: 500,
-  textDecoration: "none",
-  cursor: "pointer",
-  transition: "all 0.2s",
-  ":hover": {
-    background: "#3b82f6",
-    color: "white",
-  },
-});
+export const btnOutline = buttonStyles.outline;

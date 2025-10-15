@@ -195,35 +195,45 @@ export const typography = styleVariants({
 // Icon styles
 export const icon = styleVariants({
   sm: {
-    fontSize: tokens.fontSize.sm,
+    width: tokens.fontSize.base, // 1rem - explicit width for SVGs
+    height: tokens.fontSize.base, // 1rem - explicit height for SVGs
+    fontSize: tokens.fontSize.sm, // 0.875rem - for icon fonts
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
   },
 
   base: {
-    fontSize: tokens.fontSize.base,
+    width: tokens.fontSize.lg, // 1.125rem - explicit width for SVGs
+    height: tokens.fontSize.lg, // 1.125rem - explicit height for SVGs
+    fontSize: tokens.fontSize.base, // 1rem - for icon fonts
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
   },
 
   lg: {
-    fontSize: tokens.fontSize.lg,
+    width: tokens.fontSize.xl, // 1.25rem - explicit width for SVGs
+    height: tokens.fontSize.xl, // 1.25rem - explicit height for SVGs
+    fontSize: tokens.fontSize.lg, // 1.125rem - for icon fonts
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
   },
 
   xl: {
-    fontSize: tokens.fontSize["3xl"],
+    width: tokens.fontSize["2xl"], // 1.5rem - explicit width for SVGs
+    height: tokens.fontSize["2xl"], // 1.5rem - explicit height for SVGs
+    fontSize: tokens.fontSize["3xl"], // 1.875rem - for icon fonts
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
   },
 
   success: {
-    fontSize: tokens.fontSize["3xl"],
+    width: tokens.fontSize["2xl"], // 1.5rem - explicit width for SVGs
+    height: tokens.fontSize["2xl"], // 1.5rem - explicit height for SVGs
+    fontSize: tokens.fontSize["3xl"], // 1.875rem - for icon fonts
     color: tokens.colors.success,
     display: "flex",
     alignItems: "center",
@@ -231,7 +241,9 @@ export const icon = styleVariants({
   },
 
   error: {
-    fontSize: tokens.fontSize["3xl"],
+    width: tokens.fontSize["2xl"], // 1.5rem - explicit width for SVGs
+    height: tokens.fontSize["2xl"], // 1.5rem - explicit height for SVGs
+    fontSize: tokens.fontSize["3xl"], // 1.875rem - for icon fonts
     color: tokens.colors.error,
     display: "flex",
     alignItems: "center",

@@ -1,26 +1,29 @@
 import { style, globalStyle } from "@vanilla-extract/css";
 
+import { tokens, utils } from "../theme/index.css";
+
 // Value Proposition Section
 export const valueProposition = style({
-  padding: "4rem 0",
+  padding: `${tokens.space[16]} 0`,
   background: "transparent",
   position: "relative",
-  zIndex: 2,
 });
 
-export const valueTitle = style({
-  fontSize: "2.5rem",
-  fontWeight: 700,
-  textAlign: "center",
-  marginBottom: "3rem",
-  color: "#111827",
-});
+export const valueTitle = style([
+  utils.textCenter,
+  {
+    fontSize: "2.5rem",
+    fontWeight: tokens.fontWeight.bold,
+    marginBottom: tokens.space[12],
+    color: tokens.colors.text,
+  },
+]);
 
 export const valueGrid = style({
   display: "grid",
   gridTemplateColumns: "repeat(3, 1fr)",
-  gap: "2rem",
-  marginBottom: "3rem",
+  gap: tokens.space[8],
+  marginBottom: tokens.space[12],
   "@media": {
     "(max-width: 768px)": {
       gridTemplateColumns: "1fr",
@@ -28,55 +31,60 @@ export const valueGrid = style({
   },
 });
 
-export const valueItem = style({
-  textAlign: "center",
-  padding: "2rem",
-  background: "rgba(255, 255, 255, 0.8)",
-  backdropFilter: "blur(10px)",
-  border: "1px solid rgba(148, 163, 184, 0.3)",
-  borderRadius: "1rem",
-  transition: "all 0.3s ease",
-  ":hover": {
-    transform: "translateY(-4px)",
-    boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15)",
+export const valueItem = style([
+  utils.textCenter,
+  {
+    padding: tokens.space[8],
+    background: "rgba(255, 255, 255, 0.8)",
+    backdropFilter: "blur(10px)",
+    border: `1px solid ${tokens.colors.border}`,
+    borderRadius: tokens.borderRadius.lg,
+    transition: "all 0.3s ease",
+    selectors: {
+      "&:hover": {
+        transform: "translateY(-4px)",
+        boxShadow: tokens.boxShadow.xl,
+      },
+    },
   },
-});
+]);
 
 export const valueIcon = style({
   fontSize: "3rem",
-  marginBottom: "1rem",
+  marginBottom: tokens.space[4],
 });
 
 export const valueItemTitle = style({
-  fontSize: "1.25rem",
-  fontWeight: 600,
-  color: "#111827",
-  marginBottom: "0.5rem",
+  fontSize: tokens.fontSize.xl,
+  fontWeight: tokens.fontWeight.semibold,
+  color: tokens.colors.text,
+  marginBottom: tokens.space[2],
 });
 
 // Product Context Section
 export const productContext = style({
-  padding: "4rem 0",
-  background: "rgba(249, 250, 251, 0.5)",
+  padding: `${tokens.space[16]} 0`,
+  background: tokens.colors.background,
   backdropFilter: "blur(20px)",
-  borderTop: "1px solid rgba(148, 163, 184, 0.2)",
-  borderBottom: "1px solid rgba(148, 163, 184, 0.2)",
+  borderTop: `1px solid ${tokens.colors.border}`,
+  borderBottom: `1px solid ${tokens.colors.border}`,
   position: "relative",
-  zIndex: 2,
 });
 
-export const productContextTitle = style({
-  fontSize: "2rem",
-  fontWeight: 700,
-  textAlign: "center",
-  marginBottom: "3rem",
-  color: "#111827",
-});
+export const productContextTitle = style([
+  utils.textCenter,
+  {
+    fontSize: "2rem",
+    fontWeight: tokens.fontWeight.bold,
+    marginBottom: tokens.space[12],
+    color: tokens.colors.text,
+  },
+]);
 
 export const contextGrid = style({
   display: "grid",
   gridTemplateColumns: "repeat(3, 1fr)",
-  gap: "2rem",
+  gap: tokens.space[8],
   "@media": {
     "(max-width: 768px)": {
       gridTemplateColumns: "1fr",
@@ -87,46 +95,51 @@ export const contextGrid = style({
 export const contextCard = style({
   background: "rgba(255, 255, 255, 0.9)",
   backdropFilter: "blur(10px)",
-  border: "1px solid rgba(148, 163, 184, 0.3)",
-  borderRadius: "1rem",
-  padding: "2rem",
-  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+  border: `1px solid ${tokens.colors.border}`,
+  borderRadius: tokens.borderRadius.lg,
+  padding: tokens.space[8],
+  boxShadow: tokens.boxShadow.md,
   transition: "all 0.3s ease",
-  ":hover": {
-    transform: "translateY(-2px)",
-    boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15)",
+  selectors: {
+    "&:hover": {
+      transform: "translateY(-2px)",
+      boxShadow: tokens.boxShadow.xl,
+    },
   },
 });
 
-export const contextHeader = style({
-  fontSize: "1.125rem",
-  fontWeight: 600,
-  color: "#111827",
-  marginBottom: "1rem",
-  textAlign: "center",
-});
+export const contextHeader = style([
+  utils.textCenter,
+  {
+    fontSize: tokens.fontSize.lg,
+    fontWeight: tokens.fontWeight.semibold,
+    color: tokens.colors.text,
+    marginBottom: tokens.space[4],
+  },
+]);
 
 // How It Works Section
 export const howItWorks = style({
-  padding: "4rem 0 6rem",
+  padding: `${tokens.space[16]} 0 ${tokens.space[20]}`,
   position: "relative",
-  zIndex: 2,
   background: "transparent",
 });
 
-export const howItWorksTitle = style({
-  fontSize: "2rem",
-  fontWeight: 700,
-  marginBottom: "3rem",
-  color: "#111827",
-  textAlign: "center",
-});
+export const howItWorksTitle = style([
+  utils.textCenter,
+  {
+    fontSize: "2rem",
+    fontWeight: tokens.fontWeight.bold,
+    marginBottom: tokens.space[12],
+    color: tokens.colors.text,
+  },
+]);
 
 export const steps = style({
   display: "grid",
   gridTemplateColumns: "repeat(3, 1fr)",
-  gap: "2rem",
-  marginBottom: "3rem",
+  gap: tokens.space[8],
+  marginBottom: tokens.space[12],
   "@media": {
     "(max-width: 768px)": {
       gridTemplateColumns: "1fr",
@@ -134,84 +147,85 @@ export const steps = style({
   },
 });
 
-export const step = style({
-  textAlign: "center",
-});
+export const step = utils.textCenter;
 
-export const stepNumber = style({
-  width: "60px",
-  height: "60px",
-  border: "2px solid #ff8000",
-  borderRadius: "50%",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  margin: "0 auto 1rem",
-  fontSize: "1.5rem",
-  fontWeight: 600,
-  color: "#ff8000",
-});
+export const stepNumber = style([
+  utils.flexCenter,
+  {
+    width: "60px",
+    height: "60px",
+    border: `2px solid ${tokens.colors.primary}`,
+    borderRadius: tokens.borderRadius.full,
+    margin: `0 auto ${tokens.space[4]}`,
+    fontSize: tokens.fontSize.xl,
+    fontWeight: tokens.fontWeight.semibold,
+    color: tokens.colors.primary,
+  },
+]);
 
 export const stepTitle = style({
-  fontSize: "1.25rem",
-  fontWeight: 600,
-  marginBottom: "0.75rem",
-  color: "#111827",
+  fontSize: tokens.fontSize.xl,
+  fontWeight: tokens.fontWeight.semibold,
+  marginBottom: tokens.space[3],
+  color: tokens.colors.text,
 });
 
 export const stepDescription = style({
-  color: "#6b7280",
-  lineHeight: 1.6,
-  fontSize: "0.875rem",
+  color: tokens.colors.textMuted,
+  lineHeight: tokens.lineHeight.relaxed,
+  fontSize: tokens.fontSize.sm,
 });
 
 // Demo and Flow Diagram Styles
 export const integrationsDemoImage = style({
   background: "rgba(255, 255, 255, 0.9)",
-  border: "1px solid rgba(148, 163, 184, 0.3)",
-  borderRadius: "1rem",
-  padding: "1.5rem",
-  margin: "2rem 0",
-  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
+  backdropFilter: "blur(10px)",
+  border: `1px solid ${tokens.colors.border}`,
+  borderRadius: tokens.borderRadius.lg,
+  padding: tokens.space[6],
+  margin: `${tokens.space[8]} 0`,
+  boxShadow: tokens.boxShadow.md,
 });
 
 export const integrationsScreenshot = style({
   width: "100%",
   height: "auto",
-  borderRadius: "0.5rem",
+  borderRadius: tokens.borderRadius.md,
 });
 
-export const flowDiagram = style({
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-  gap: "2rem",
-  margin: "3rem 0",
-  "@media": {
-    "(max-width: 768px)": {
-      flexDirection: "column",
-      gap: "1rem",
+export const flowDiagram = style([
+  utils.flexCenter,
+  {
+    gap: tokens.space[8],
+    margin: `${tokens.space[12]} 0`,
+    "@media": {
+      "(max-width: 768px)": {
+        flexDirection: "column",
+        gap: tokens.space[4],
+      },
     },
   },
-});
+]);
 
-export const flowStep = style({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "center",
-  gap: "0.5rem",
-});
+export const flowStep = style([
+  utils.flexCol,
+  {
+    alignItems: "center",
+    gap: tokens.space[2],
+  },
+]);
 
-export const flowIcon = style({
-  width: "60px",
-  height: "60px",
-  borderRadius: "50%",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "rgba(255, 255, 255, 0.9)",
-  border: "1px solid rgba(148, 163, 184, 0.3)",
-});
+export const flowIcon = style([
+  utils.flexCenter,
+  {
+    width: "60px",
+    height: "60px",
+    borderRadius: tokens.borderRadius.full,
+    background: "rgba(255, 255, 255, 0.9)",
+    backdropFilter: "blur(10px)",
+    border: `1px solid ${tokens.colors.border}`,
+  },
+]);
 
 globalStyle(`${flowIcon} img`, {
   width: "30px",
@@ -219,8 +233,8 @@ globalStyle(`${flowIcon} img`, {
 });
 
 export const flowArrow = style({
-  fontSize: "1.5rem",
-  color: "#6b7280",
+  fontSize: tokens.fontSize.xl,
+  color: tokens.colors.textMuted,
   "@media": {
     "(max-width: 768px)": {
       transform: "rotate(90deg)",
@@ -229,111 +243,122 @@ export const flowArrow = style({
 });
 
 export const flowLabel = style({
-  fontSize: "0.875rem",
-  color: "#6b7280",
-  fontWeight: 500,
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.textMuted,
+  fontWeight: tokens.fontWeight.medium,
 });
 
 // CTA Repeat Section
-export const ctaRepeat = style({
-  textAlign: "center",
-  marginTop: "3rem",
-});
+export const ctaRepeat = style([
+  utils.textCenter,
+  {
+    marginTop: tokens.space[12],
+  },
+]);
 
 export const ctaPrimary = style({
-  background: "#ff8000",
-  color: "white",
+  background: tokens.colors.primary,
+  color: tokens.colors.white,
   border: "none",
-  padding: "1rem 2rem",
+  padding: `${tokens.space[4]} ${tokens.space[8]}`,
   fontSize: "1.1rem",
-  borderRadius: "0.5rem",
+  borderRadius: tokens.borderRadius.md,
   cursor: "pointer",
-  fontWeight: 600,
-  transition: "all 0.2s",
-  ":hover": {
-    background: "#cc5500",
-    transform: "translateY(-2px)",
+  fontWeight: tokens.fontWeight.semibold,
+  transition: "all 0.2s ease",
+  selectors: {
+    "&:hover": {
+      background: tokens.colors.primaryHover,
+      transform: "translateY(-2px)",
+    },
   },
 });
 // Slack Digest Styles
-export const slackDigestFull = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "1rem",
-});
+export const slackDigestFull = style([
+  utils.flexCol,
+  {
+    gap: tokens.space[4],
+  },
+]);
 
-export const digestItem = style({
-  display: "flex",
-  alignItems: "center",
-  gap: "1rem",
-  padding: "1rem",
-  background: "#f8fafc",
-  borderRadius: "0.5rem",
-});
+export const digestItem = style([
+  utils.flex,
+  {
+    alignItems: "center",
+    gap: tokens.space[4],
+    padding: tokens.space[4],
+    background: tokens.colors.background,
+    borderRadius: tokens.borderRadius.md,
+  },
+]);
 
-export const avatar = style({
-  width: "40px",
-  height: "40px",
-  borderRadius: "50%",
-  background: "#ff8000",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  color: "white",
-  fontWeight: 600,
-  fontSize: "0.875rem",
-});
+export const avatar = style([
+  utils.flexCenter,
+  {
+    width: "40px",
+    height: "40px",
+    borderRadius: tokens.borderRadius.full,
+    background: tokens.colors.primary,
+    color: tokens.colors.white,
+    fontWeight: tokens.fontWeight.semibold,
+    fontSize: tokens.fontSize.sm,
+  },
+]);
 
 export const details = style({
   flex: 1,
 });
 
 export const title = style({
-  fontWeight: 600,
-  color: "#111827",
-  marginBottom: "0.25rem",
+  fontWeight: tokens.fontWeight.semibold,
+  color: tokens.colors.text,
+  marginBottom: tokens.space[1],
 });
 
 export const meta = style({
-  fontSize: "0.875rem",
-  color: "#6b7280",
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.textMuted,
 });
 
-export const actions = style({
-  display: "flex",
-  gap: "0.5rem",
-});
+export const actions = style([
+  utils.flex,
+  {
+    gap: tokens.space[2],
+  },
+]);
 
 globalStyle(`${actions} button`, {
-  padding: "0.5rem 1rem",
-  border: "1px solid #d1d5db",
-  background: "white",
-  borderRadius: "0.25rem",
-  fontSize: "0.875rem",
+  padding: `${tokens.space[2]} ${tokens.space[4]}`,
+  border: `1px solid ${tokens.colors.border}`,
+  background: tokens.colors.white,
+  borderRadius: tokens.borderRadius.sm,
+  fontSize: tokens.fontSize.sm,
   cursor: "pointer",
-  transition: "all 0.2s",
+  transition: "all 0.2s ease",
 });
 
 globalStyle(`${actions} button:hover`, {
-  borderColor: "#ff8000",
-  color: "#ff8000",
+  borderColor: tokens.colors.primary,
+  color: tokens.colors.primary,
 });
 
 // Escalation Example Styles
 export const escalationExample = style({
-  padding: "1rem",
-  background: "#f8fafc",
-  borderRadius: "0.5rem",
+  padding: tokens.space[4],
+  background: tokens.colors.background,
+  borderRadius: tokens.borderRadius.md,
 });
 
-export const escalationMessage = style({
-  display: "flex",
-  gap: "0.75rem",
-  alignItems: "flex-start",
-});
+export const escalationMessage = style([
+  utils.flex,
+  {
+    gap: tokens.space[3],
+    alignItems: "flex-start",
+  },
+]);
 
 export const botIcon = style({
-  fontSize: "1.25rem",
+  fontSize: tokens.fontSize.xl,
 });
 
 export const messageContent = style({
@@ -341,56 +366,56 @@ export const messageContent = style({
 });
 
 export const messageText = style({
-  fontWeight: 500,
-  color: "#111827",
-  marginBottom: "0.25rem",
+  fontWeight: tokens.fontWeight.medium,
+  color: tokens.colors.text,
+  marginBottom: tokens.space[1],
 });
 
 export const messageMentions = style({
-  fontSize: "0.875rem",
-  color: "#6b7280",
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.textMuted,
 });
 
 // Dashboard Preview Styles
 export const dashboardPreview = style({
-  padding: "1rem",
-  background: "#f8fafc",
-  borderRadius: "0.5rem",
+  padding: tokens.space[4],
+  background: tokens.colors.background,
+  borderRadius: tokens.borderRadius.md,
 });
 
-export const dashboardStat = style({
-  textAlign: "center",
-});
+export const dashboardStat = utils.textCenter;
 
 export const statNumber = style({
   fontSize: "2rem",
-  fontWeight: 700,
-  color: "#111827",
-  marginBottom: "0.5rem",
+  fontWeight: tokens.fontWeight.bold,
+  color: tokens.colors.text,
+  marginBottom: tokens.space[2],
 });
 
 export const trend = style({
-  fontSize: "1rem",
-  color: "#10b981",
+  fontSize: tokens.fontSize.base,
+  color: tokens.colors.success,
 });
 
 export const statLabel = style({
-  fontSize: "0.875rem",
-  color: "#6b7280",
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.textMuted,
 });
 
 // Mini Sparkline Styles
-export const miniSparkline = style({
-  display: "flex",
-  alignItems: "end",
-  gap: "2px",
-  height: "30px",
-  marginTop: "1rem",
-  justifyContent: "center",
-});
+export const miniSparkline = style([
+  utils.flex,
+  {
+    alignItems: "end",
+    gap: "2px",
+    height: "30px",
+    marginTop: tokens.space[4],
+    justifyContent: "center",
+  },
+]);
 
 export const sparklineBar = style({
   width: "4px",
-  background: "#10b981",
+  background: tokens.colors.success,
   borderRadius: "2px",
 });

@@ -1,68 +1,70 @@
 import { style } from "@vanilla-extract/css";
 
-export const providerSection = style({
-  background: "#ffffff",
-  border: "1px solid rgba(148, 163, 184, 0.2)",
-  borderRadius: "1rem",
-  padding: "2rem",
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-});
+import {
+  tokens,
+  buttonStyles,
+  badgeStyles,
+  utils,
+  iconStyles,
+} from "../theme/index.css";
+
+export const providerSection = utils.card;
 
 export const providerSectionTitle = style({
-  fontSize: "1.125rem",
-  fontWeight: 600,
-  color: "#111827",
-  marginBottom: "0.25rem",
-  lineHeight: 1.2,
+  fontSize: tokens.fontSize.lg,
+  fontWeight: tokens.fontWeight.semibold,
+  color: tokens.colors.text,
+  marginBottom: tokens.space[1],
+  lineHeight: tokens.lineHeight.tight,
 });
 
 export const providerSectionDescription = style({
-  color: "#6b7280",
-  fontSize: "0.8125rem",
-  marginBottom: "1.5rem",
-  lineHeight: 1.4,
+  color: tokens.colors.textMuted,
+  fontSize: tokens.fontSize.sm,
+  marginBottom: tokens.space[6],
+  lineHeight: tokens.lineHeight.normal,
 });
 
-export const providerList = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "1rem",
-});
+export const providerList = style([utils.flexCol, utils.gap4]);
 
-export const providerCard = style({
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  padding: "1rem 1.5rem",
-  background: "#f9fafb",
-  border: "1px solid rgba(148, 163, 184, 0.2)",
-  borderRadius: "0.5rem",
-  transition: "all 0.2s ease",
-  ":hover": {
-    transform: "translateY(-2px)",
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+export const providerCard = style([
+  utils.flexBetween,
+  {
+    alignItems: "center",
+    padding: `${tokens.space[4]} ${tokens.space[6]}`,
+    background: tokens.colors.gray50,
+    border: `1px solid ${tokens.colors.border}`,
+    borderRadius: tokens.borderRadius.lg,
+    transition: "all 0.2s ease",
+    selectors: {
+      "&:hover": {
+        transform: "translateY(-2px)",
+        boxShadow: tokens.boxShadow.md,
+      },
+    },
   },
-});
+]);
 
-export const providerInfo = style({
-  display: "flex",
-  alignItems: "center",
-  gap: "0.75rem",
-});
+export const providerInfo = style([
+  utils.flex,
+  utils.gap3,
+  {
+    alignItems: "center",
+  },
+]);
 
-export const providerIcon = style({
-  fontSize: "1rem",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  width: "1.5rem",
-  height: "1.5rem",
-  marginRight: "0.5rem",
-});
+export const providerIcon = style([
+  iconStyles.base,
+  {
+    width: tokens.space[6],
+    height: tokens.space[6],
+    marginRight: tokens.space[2],
+  },
+]);
 
 export const providerLogo = style({
-  width: "2rem",
-  height: "2rem",
+  width: tokens.space[8],
+  height: tokens.space[8],
   minWidth: "40px",
   minHeight: "100px",
   objectFit: "contain",
@@ -76,64 +78,62 @@ export const providerLogoGitlab = style([
 ]);
 
 export const providerName = style({
-  fontWeight: 500,
-  color: "#111827",
+  fontWeight: tokens.fontWeight.medium,
+  color: tokens.colors.text,
 });
 
-const connectionStatus = style({
-  fontSize: "0.75rem",
-  fontWeight: 600,
-  padding: "0.25rem 0.5rem",
-  borderRadius: "0.25rem",
-});
+const connectionStatus = badgeStyles.neutral;
 
 export const connectionStatusConnected = style([
   connectionStatus,
   {
-    background: "rgba(16, 185, 129, 0.1)",
-    color: "#10b981",
+    background: tokens.colors.successBg,
+    color: tokens.colors.success,
   },
 ]);
 
-export const connectButton = style({
-  background: "#10b981",
-  color: "white",
-  border: "none",
-  padding: "0.5rem 1rem",
-  borderRadius: "0.375rem",
-  fontWeight: 500,
-  cursor: "pointer",
-  transition: "all 0.2s",
-  ":hover": {
-    background: "#059669",
-    transform: "translateY(-1px)",
+export const connectButton = style([
+  buttonStyles.primary,
+  {
+    background: tokens.colors.success,
+    padding: `${tokens.space[2]} ${tokens.space[4]}`,
+    selectors: {
+      "&:hover": {
+        background: tokens.colors.successHover,
+        transform: "translateY(-1px)",
+      },
+    },
   },
-});
+]);
 
 export const connectButtonConnected = style([
-  connectButton,
+  buttonStyles.outline,
   {
-    background: "white",
-    color: "#10b981",
-    border: "1px solid #10b981",
-    ":hover": {
-      color: "#059669",
-      borderColor: "#059669",
-      background: "white",
+    background: tokens.colors.white,
+    color: tokens.colors.success,
+    border: `1px solid ${tokens.colors.success}`,
+    selectors: {
+      "&:hover": {
+        color: tokens.colors.successHover,
+        borderColor: tokens.colors.successHover,
+        background: tokens.colors.white,
+      },
     },
   },
 ]);
 
 export const connectButtonComingSoon = style([
-  connectButton,
+  buttonStyles.secondary,
   {
-    backgroundColor: "#f5f5f5",
-    color: "#999",
+    backgroundColor: tokens.colors.gray100,
+    color: tokens.colors.gray400,
     cursor: "not-allowed",
     opacity: 0.6,
-    ":hover": {
-      transform: "none",
-      background: "#f5f5f5",
+    selectors: {
+      "&:hover": {
+        transform: "none",
+        background: tokens.colors.gray100,
+      },
     },
   },
 ]);

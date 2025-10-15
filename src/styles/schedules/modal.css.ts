@@ -1,78 +1,88 @@
 import { style } from "@vanilla-extract/css";
 
-export const modalOverlay = style({
-  position: "fixed",
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  background: "rgba(0, 0, 0, 0.5)",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  zIndex: 1000,
-  backdropFilter: "blur(4px)",
-});
+import { tokens, buttonStyles, utils } from "../theme/index.css";
 
-export const modalContent = style({
-  background: "white",
-  borderRadius: "1rem",
-  boxShadow: "0 25px 50px rgba(0, 0, 0, 0.25)",
-  maxWidth: "800px",
-  width: "90%",
-  maxHeight: "90vh",
-  overflow: "hidden",
-  display: "flex",
-  flexDirection: "column",
-});
+export const modalOverlay = style([
+  utils.flexCenter,
+  {
+    position: "fixed",
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    background: "rgba(0, 0, 0, 0.5)",
+    zIndex: tokens.zIndex.modal,
+    backdropFilter: "blur(4px)",
+  },
+]);
 
-export const modalHeader = style({
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "center",
-  padding: "2rem 2rem 1rem",
-  borderBottom: "1px solid rgba(148, 163, 184, 0.2)",
-  flexShrink: 0,
-});
+export const modalContent = style([
+  utils.flexCol,
+  {
+    background: tokens.colors.white,
+    borderRadius: tokens.borderRadius["2xl"],
+    boxShadow: tokens.boxShadow["2xl"],
+    maxWidth: "800px",
+    width: "90%",
+    maxHeight: "90vh",
+    overflow: "hidden",
+  },
+]);
 
-export const modalTitleWithIcon = style({
-  display: "flex",
-  alignItems: "center",
-  gap: "0.75rem",
-});
+export const modalHeader = style([
+  utils.flexBetween,
+  {
+    alignItems: "center",
+    padding: `${tokens.space[8]} ${tokens.space[8]} ${tokens.space[4]}`,
+    borderBottom: `1px solid ${tokens.colors.border}`,
+    flexShrink: 0,
+  },
+]);
 
-export const scheduleIcon = style({
-  background: "#10b981",
-  color: "white",
-  width: "32px",
-  height: "32px",
-  borderRadius: "0.5rem",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  fontSize: "1rem",
-});
+export const modalTitleWithIcon = style([
+  utils.flex,
+  utils.gap3,
+  {
+    alignItems: "center",
+  },
+]);
+
+export const scheduleIcon = style([
+  utils.flexCenter,
+  {
+    background: tokens.colors.success,
+    color: tokens.colors.white,
+    width: "32px",
+    height: "32px",
+    borderRadius: tokens.borderRadius.lg,
+    fontSize: tokens.fontSize.base,
+  },
+]);
 
 export const modalTitle = style({
-  fontSize: "1.5rem",
-  fontWeight: 600,
-  color: "#111827",
+  fontSize: tokens.fontSize["2xl"],
+  fontWeight: tokens.fontWeight.semibold,
+  color: tokens.colors.text,
   margin: 0,
 });
 
-export const modalClose = style({
-  background: "none",
-  border: "none",
-  fontSize: "1.5rem",
-  color: "#6b7280",
-  cursor: "pointer",
-  padding: "0.25rem",
-  borderRadius: "0.25rem",
-  transition: "all 0.2s",
-  ":hover": {
-    background: "rgba(107, 114, 128, 0.1)",
+export const modalClose = style([
+  buttonStyles.ghost,
+  {
+    background: "none",
+    border: "none",
+    fontSize: tokens.fontSize["2xl"],
+    color: tokens.colors.textMuted,
+    cursor: "pointer",
+    padding: tokens.space[1],
+    borderRadius: tokens.borderRadius.base,
+    selectors: {
+      "&:hover": {
+        background: tokens.colors.gray100,
+      },
+    },
   },
-});
+]);
 
 export const modalBody = style({
   padding: "1.5rem 2rem",
@@ -95,34 +105,38 @@ export const modalFooter = style({
 });
 
 export const saveButton = style({
-  background: "#ff8000",
-  color: "white",
+  background: tokens.colors.primary,
+  color: tokens.colors.white,
   border: "none",
-  padding: "0.75rem 1.5rem",
-  borderRadius: "0.5rem",
-  fontWeight: 600,
+  padding: `${tokens.space[3]} ${tokens.space[6]}`,
+  borderRadius: tokens.borderRadius.md,
+  fontWeight: tokens.fontWeight.semibold,
   cursor: "pointer",
-  transition: "all 0.2s",
-  ":hover": {
-    background: "#cc5500",
-  },
-  ":disabled": {
-    background: "#9ca3af",
-    cursor: "not-allowed",
+  transition: "all 0.2s ease",
+  selectors: {
+    "&:hover": {
+      background: tokens.colors.primaryHover,
+    },
+    "&:disabled": {
+      background: tokens.colors.gray400,
+      cursor: "not-allowed",
+    },
   },
 });
 
 export const cancelButton = style({
   background: "transparent",
-  color: "#6b7280",
-  border: "1px solid rgba(148, 163, 184, 0.3)",
-  padding: "0.75rem 1.5rem",
-  borderRadius: "0.5rem",
-  fontWeight: 500,
+  color: tokens.colors.textMuted,
+  border: `1px solid ${tokens.colors.border}`,
+  padding: `${tokens.space[3]} ${tokens.space[6]}`,
+  borderRadius: tokens.borderRadius.md,
+  fontWeight: tokens.fontWeight.medium,
   cursor: "pointer",
-  transition: "all 0.2s",
-  ":hover": {
-    borderColor: "#ff8000",
-    color: "#ff8000",
+  transition: "all 0.2s ease",
+  selectors: {
+    "&:hover": {
+      borderColor: tokens.colors.primary,
+      color: tokens.colors.primary,
+    },
   },
 });

@@ -1,5 +1,7 @@
 import { globalStyle } from "@vanilla-extract/css";
 
+import { tokens } from "../theme/tokens.css";
+
 // Modern CSS Reset - Based on Josh Comeau's CSS Reset + Normalize.css
 // https://www.joshwcomeau.com/css/custom-css-reset/
 
@@ -30,8 +32,8 @@ globalStyle("body", {
   fontFamily: `-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif`,
-  color: "var(--color-text)",
-  background: "var(--color-background)",
+  color: tokens.colors.text,
+  background: tokens.colors.background,
   overflowX: "hidden",
 });
 
@@ -127,7 +129,7 @@ globalStyle('input[type="number"]', {
 globalStyle(
   "button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, a:focus-visible",
   {
-    outline: "2px solid var(--color-primary)",
+    outline: `2px solid ${tokens.colors.primary}`,
     outlineOffset: "2px",
     borderRadius: "2px",
   }

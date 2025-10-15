@@ -1,12 +1,20 @@
 import { style, globalStyle } from "@vanilla-extract/css";
 
+import {
+  tokens,
+  buttonStyles,
+  badgeStyles,
+  utils,
+  iconStyles,
+} from "../theme/index.css";
+
 // Channel Management (Slack/Discord)
 export const channelsContainer = style({
   maxHeight: "300px",
   overflowY: "auto",
-  border: "1px solid #e5e7eb",
-  borderRadius: "0.5rem",
-  padding: "0.5rem",
+  border: `1px solid ${tokens.colors.border}`,
+  borderRadius: tokens.borderRadius.lg,
+  padding: tokens.space[2],
 });
 
 export const channelsContainerScrollable = style([
@@ -17,272 +25,286 @@ export const channelsContainerScrollable = style([
         width: "6px",
       },
       "&::-webkit-scrollbar-track": {
-        background: "#f1f5f9",
+        background: tokens.colors.gray100,
         borderRadius: "3px",
       },
       "&::-webkit-scrollbar-thumb": {
-        background: "#cbd5e1",
+        background: tokens.colors.gray300,
         borderRadius: "3px",
       },
       "&::-webkit-scrollbar-thumb:hover": {
-        background: "#94a3b8",
+        background: tokens.colors.gray400,
       },
     },
   },
 ]);
 
-export const channelItem = style({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "space-between",
-  padding: "0.75rem",
-  borderRadius: "0.25rem",
-  transition: "background 0.2s",
-  ":hover": {
-    background: "#f8fafc",
+export const channelItem = style([
+  utils.flexBetween,
+  {
+    alignItems: "center",
+    padding: tokens.space[3],
+    borderRadius: tokens.borderRadius.base,
+    transition: "background 0.2s",
+    selectors: {
+      "&:hover": {
+        background: tokens.colors.gray50,
+      },
+    },
   },
-});
+]);
 
-export const channelInfo = style({
-  display: "flex",
-  alignItems: "center",
-  gap: "0.5rem",
-  flex: 1,
-});
+export const channelInfo = style([
+  utils.flex,
+  utils.gap2,
+  {
+    alignItems: "center",
+    flex: 1,
+  },
+]);
 
-export const channelIcon = style({
-  fontSize: "1rem",
-  color: "#6b7280",
-});
+export const channelIcon = style([
+  iconStyles.base,
+  {
+    color: tokens.colors.textMuted,
+  },
+]);
 
 export const channelName = style({
-  fontSize: "0.875rem",
-  color: "#374151",
-  fontWeight: 500,
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.gray700,
+  fontWeight: tokens.fontWeight.medium,
 });
 
 export const channelDescription = style({
-  fontSize: "0.75rem",
-  color: "#9ca3af",
-  marginTop: "0.125rem",
+  fontSize: tokens.fontSize.xs,
+  color: tokens.colors.textLight,
+  marginTop: tokens.space[1],
 });
 
-export const channelActions = style({
-  display: "flex",
-  gap: "0.5rem",
-});
+export const channelActions = style([utils.flex, utils.gap2]);
 
-export const testButton = style({
-  padding: "0.25rem 0.75rem",
-  background: "#3b82f6",
-  color: "white",
-  border: "none",
-  borderRadius: "0.375rem",
-  fontSize: "0.75rem",
-  cursor: "pointer",
-  transition: "all 0.2s",
-  ":hover": {
-    background: "#2563eb",
+export const testButton = style([
+  buttonStyles.primary,
+  {
+    padding: `${tokens.space[1]} ${tokens.space[3]}`,
+    background: tokens.colors.info,
+    fontSize: tokens.fontSize.xs,
+    selectors: {
+      "&:hover": {
+        background: tokens.colors.info,
+        opacity: "0.8",
+      },
+      "&:disabled": {
+        background: tokens.colors.gray400,
+        cursor: "not-allowed",
+      },
+    },
   },
-  ":disabled": {
-    background: "#9ca3af",
-    cursor: "not-allowed",
-  },
-});
+]);
 
 export const testButtonTesting = style([
   testButton,
   {
-    background: "#f59e0b",
-    ":hover": {
-      background: "#d97706",
+    background: tokens.colors.warning,
+    selectors: {
+      "&:hover": {
+        background: tokens.colors.warning,
+        opacity: "0.8",
+      },
     },
   },
 ]);
 
-const testResult = style({
-  fontSize: "0.75rem",
-  padding: "0.25rem 0.5rem",
-  borderRadius: "0.25rem",
-  fontWeight: 500,
-});
+const testResult = style([
+  badgeStyles.neutral,
+  {
+    fontSize: tokens.fontSize.xs,
+    fontWeight: tokens.fontWeight.medium,
+  },
+]);
 
 export const testResultSuccess = style([
   testResult,
   {
-    background: "#dcfce7",
-    color: "#166534",
+    background: tokens.colors.successBg,
+    color: tokens.colors.success,
   },
 ]);
 
 export const testResultError = style([
   testResult,
   {
-    background: "#fef2f2",
-    color: "#dc2626",
+    background: tokens.colors.errorBg,
+    color: tokens.colors.error,
   },
 ]);
 
 // Guild Management (Discord)
-export const guildsContainer = style([channelsContainer]);
+export const guildsContainer = channelsContainer;
 
-export const guildItem = style({
-  display: "flex",
-  flexDirection: "column",
-  padding: "1rem",
-  border: "1px solid #e5e7eb",
-  borderRadius: "0.5rem",
-  marginBottom: "1rem",
-  transition: "all 0.2s",
-  ":hover": {
-    borderColor: "#d1d5db",
-    boxShadow: "0 2px 4px rgba(0, 0, 0, 0.05)",
+export const guildItem = style([
+  utils.flexCol,
+  {
+    padding: tokens.space[4],
+    border: `1px solid ${tokens.colors.border}`,
+    borderRadius: tokens.borderRadius.lg,
+    marginBottom: tokens.space[4],
+    transition: "all 0.2s",
+    selectors: {
+      "&:hover": {
+        borderColor: tokens.colors.gray300,
+        boxShadow: tokens.boxShadow.sm,
+      },
+    },
   },
-});
+]);
 
-export const guildHeader = style({
-  display: "flex",
-  alignItems: "center",
-  gap: "0.75rem",
-  marginBottom: "0.75rem",
-});
+export const guildHeader = style([
+  utils.flex,
+  utils.gap3,
+  {
+    alignItems: "center",
+    marginBottom: tokens.space[3],
+  },
+]);
 
-export const guildIcon = style({
-  width: "32px",
-  height: "32px",
-  borderRadius: "50%",
-  background: "#f3f4f6",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  fontSize: "1rem",
-});
+export const guildIcon = style([
+  utils.flexCenter,
+  {
+    width: "32px",
+    height: "32px",
+    borderRadius: tokens.borderRadius.full,
+    background: tokens.colors.gray100,
+    fontSize: tokens.fontSize.base,
+  },
+]);
 
 export const guildName = style({
-  fontSize: "1rem",
-  fontWeight: 600,
-  color: "#111827",
+  fontSize: tokens.fontSize.base,
+  fontWeight: tokens.fontWeight.semibold,
+  color: tokens.colors.text,
 });
 
 export const guildChannels = style({
-  paddingLeft: "1rem",
+  paddingLeft: tokens.space[4],
 });
 
 export const guildChannelsTitle = style({
-  fontSize: "0.875rem",
-  fontWeight: 500,
-  color: "#374151",
-  marginBottom: "0.5rem",
+  fontSize: tokens.fontSize.sm,
+  fontWeight: tokens.fontWeight.medium,
+  color: tokens.colors.gray700,
+  marginBottom: tokens.space[2],
 });
 
 // Guild Selection
-export const selectGuildButton = style({
-  padding: "0.25rem 0.75rem",
-  background: "#3b82f6",
-  color: "white",
-  border: "none",
-  borderRadius: "0.375rem",
-  fontSize: "0.75rem",
-  cursor: "pointer",
-  transition: "all 0.2s",
-  ":hover": {
-    background: "#2563eb",
+export const selectGuildButton = style([
+  buttonStyles.primary,
+  {
+    padding: `${tokens.space[1]} ${tokens.space[3]}`,
+    background: tokens.colors.info,
+    fontSize: tokens.fontSize.xs,
+    selectors: {
+      "&:hover": {
+        background: "#2563eb",
+      },
+      "&:disabled": {
+        background: tokens.colors.gray400,
+        cursor: "not-allowed",
+      },
+    },
   },
-  ":disabled": {
-    background: "#9ca3af",
-    cursor: "not-allowed",
-  },
-});
+]);
 
 export const selectGuildButtonSelected = style([
   selectGuildButton,
   {
-    background: "#10b981",
-    ":hover": {
-      background: "#059669",
+    background: tokens.colors.success,
+    selectors: {
+      "&:hover": {
+        background: tokens.colors.successHover,
+      },
     },
   },
 ]);
 
 // Connection Method Tabs
-export const connectionMethodTabs = style({
-  display: "flex",
-  gap: "0.5rem",
-  marginBottom: "1rem",
-  borderBottom: "1px solid #e5e7eb",
-});
+export const connectionMethodTabs = style([
+  utils.flex,
+  utils.gap2,
+  {
+    marginBottom: tokens.space[4],
+    borderBottom: `1px solid ${tokens.colors.border}`,
+  },
+]);
 
 export const methodTab = style({
-  padding: "0.5rem 1rem",
+  padding: `${tokens.space[2]} ${tokens.space[4]}`,
   background: "transparent",
   border: "none",
   borderBottom: "2px solid transparent",
   cursor: "pointer",
-  fontSize: "0.875rem",
-  color: "#6b7280",
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.textMuted,
   transition: "all 0.2s",
-  ":hover": {
-    color: "#374151",
+  selectors: {
+    "&:hover": {
+      color: tokens.colors.gray700,
+    },
   },
 });
 
 export const methodTabActive = style([
   methodTab,
   {
-    color: "#3b82f6",
-    borderBottomColor: "#3b82f6",
-    fontWeight: 500,
+    color: tokens.colors.info,
+    borderBottomColor: tokens.colors.info,
+    fontWeight: tokens.fontWeight.medium,
   },
 ]);
 
 // Webhook Section
-export const webhookConnectSection = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "1rem",
-});
+export const webhookConnectSection = style([utils.flexCol, utils.gap4]);
 
 export const discordSetupInfo = style({
-  background: "#f8fafc",
-  border: "1px solid #e2e8f0",
-  borderRadius: "0.5rem",
-  padding: "1rem",
-  fontSize: "0.875rem",
+  background: tokens.colors.gray50,
+  border: `1px solid ${tokens.colors.border}`,
+  borderRadius: tokens.borderRadius.lg,
+  padding: tokens.space[4],
+  fontSize: tokens.fontSize.sm,
 });
 
 // Child element styles using globalStyle (industry standard)
 globalStyle(`${discordSetupInfo} h3`, {
-  margin: "0 0 0.5rem 0",
-  fontSize: "0.875rem",
-  fontWeight: 600,
-  color: "#374151",
+  margin: `0 0 ${tokens.space[2]} 0`,
+  fontSize: tokens.fontSize.sm,
+  fontWeight: tokens.fontWeight.semibold,
+  color: tokens.colors.gray700,
 });
 
 globalStyle(`${discordSetupInfo} ol`, {
-  paddingLeft: "1rem",
-  margin: "0.5rem 0 0 0",
+  paddingLeft: tokens.space[4],
+  margin: `${tokens.space[2]} 0 0 0`,
 });
 
 globalStyle(`${discordSetupInfo} li`, {
-  marginBottom: "0.25rem",
-  color: "#6b7280",
+  marginBottom: tokens.space[1],
+  color: tokens.colors.textMuted,
 });
 
-export const webhookConnectButton = style({
-  padding: "0.75rem 1.5rem",
-  background: "#7c3aed",
-  color: "white",
-  border: "none",
-  borderRadius: "0.5rem",
-  fontSize: "1rem",
-  fontWeight: 600,
-  cursor: "pointer",
-  transition: "all 0.2s",
-  ":hover": {
-    background: "#6d28d9",
+export const webhookConnectButton = style([
+  buttonStyles.primary,
+  {
+    padding: `${tokens.space[3]} ${tokens.space[6]}`,
+    background: "#7c3aed", // Discord purple
+    selectors: {
+      "&:hover": {
+        background: "#6d28d9",
+      },
+      "&:disabled": {
+        background: tokens.colors.gray400,
+        cursor: "not-allowed",
+      },
+    },
   },
-  ":disabled": {
-    background: "#9ca3af",
-    cursor: "not-allowed",
-  },
-});
+]);

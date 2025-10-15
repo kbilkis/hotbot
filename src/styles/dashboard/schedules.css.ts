@@ -1,38 +1,21 @@
-import { style, keyframes } from "@vanilla-extract/css";
+import { style } from "@vanilla-extract/css";
 
-const spin = keyframes({
-  "0%": { transform: "rotate(0deg)" },
-  "100%": { transform: "rotate(360deg)" },
-});
+import { spin } from "../theme/animations.css";
+import { tokens, buttonStyles, utils, iconStyles } from "../theme/index.css";
 
-export const schedulesSection = style({
-  background: "#ffffff",
-  border: "1px solid rgba(148, 163, 184, 0.2)",
-  borderRadius: "1rem",
-  padding: "2rem",
-  boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-  margin: "0 2rem",
-  "@media": {
-    "(max-width: 768px)": {
-      margin: "0 1rem",
+export const schedulesSection = style([
+  utils.card,
+  {
+    margin: `0 ${tokens.space[8]}`,
+    "@media": {
+      "(max-width: 768px)": {
+        margin: `0 ${tokens.space[4]}`,
+      },
     },
   },
-});
+]);
 
-export const createScheduleButton = style({
-  background: "#ff8000",
-  color: "white",
-  border: "none",
-  padding: "0.75rem 1.5rem",
-  borderRadius: "0.5rem",
-  fontWeight: 600,
-  cursor: "pointer",
-  transition: "all 0.2s",
-  ":hover": {
-    background: "#cc5500",
-    transform: "translateY(-1px)",
-  },
-});
+export const createScheduleButton = buttonStyles.primary;
 
 export const schedulesTable = style({
   width: "100%",
@@ -41,16 +24,16 @@ export const schedulesTable = style({
 export const tableHeader = style({
   display: "grid",
   gridTemplateColumns: "0.75fr 1fr 1.5fr 2fr 0.75fr",
-  gap: "1rem",
-  padding: "0.75rem 0",
-  borderBottom: "1px solid rgba(148, 163, 184, 0.2)",
-  fontWeight: 600,
-  color: "#6b7280",
-  fontSize: "0.875rem",
+  gap: tokens.space[4],
+  padding: `${tokens.space[3]} 0`,
+  borderBottom: `1px solid ${tokens.colors.border}`,
+  fontWeight: tokens.fontWeight.semibold,
+  color: tokens.colors.textMuted,
+  fontSize: tokens.fontSize.sm,
   "@media": {
     "(max-width: 1024px)": {
       gridTemplateColumns: "1fr 2fr 1fr",
-      gap: "0.5rem",
+      gap: tokens.space[2],
     },
   },
 });
@@ -58,124 +41,146 @@ export const tableHeader = style({
 export const tableRow = style({
   display: "grid",
   gridTemplateColumns: "0.75fr 1fr 1.5fr 2fr 0.75fr",
-  gap: "1rem",
-  padding: "1rem 0",
-  borderBottom: "1px solid rgba(148, 163, 184, 0.1)",
+  gap: tokens.space[4],
+  padding: `${tokens.space[4]} 0`,
+  borderBottom: `1px solid ${tokens.colors.borderLight}`,
   alignItems: "center",
   transition: "background-color 0.2s ease",
-  ":hover": {
-    background: "#f8fafc",
+  selectors: {
+    "&:hover": {
+      background: tokens.colors.gray50,
+    },
   },
   "@media": {
     "(max-width: 1024px)": {
       gridTemplateColumns: "1fr 2fr 1fr",
-      gap: "0.5rem",
+      gap: tokens.space[2],
     },
   },
 });
 
-export const statusCell = style({
-  display: "flex",
-  alignItems: "center",
-  gap: "0.5rem",
-});
+export const statusCell = style([
+  utils.flex,
+  utils.gap2,
+  {
+    alignItems: "center",
+  },
+]);
 
 const statusDot = style({
   width: "8px",
   height: "8px",
-  borderRadius: "50%",
+  borderRadius: tokens.borderRadius.full,
 });
 
 export const statusDotActive = style([
   statusDot,
   {
-    backgroundColor: "#10b981",
+    backgroundColor: tokens.colors.success,
   },
 ]);
 
 export const statusDotPaused = style([
   statusDot,
   {
-    backgroundColor: "#f59e0b",
+    backgroundColor: tokens.colors.warning,
   },
 ]);
 
 export const statusActive = style({
-  color: "#10b981",
-  fontWeight: 500,
+  color: tokens.colors.success,
+  fontWeight: tokens.fontWeight.medium,
 });
 
 export const statusPaused = style({
-  color: "#f59e0b",
-  fontWeight: 500,
+  color: tokens.colors.warning,
+  fontWeight: tokens.fontWeight.medium,
 });
 
 export const scheduleName = style({
-  fontWeight: 600,
-  color: "#111827",
-  marginBottom: "0.25rem",
+  fontWeight: tokens.fontWeight.semibold,
+  color: tokens.colors.text,
+  marginBottom: tokens.space[1],
 });
 
 export const scheduleDetails = style({
-  fontSize: "0.875rem",
-  color: "#6b7280",
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.textMuted,
 });
 
 export const scheduleDescription = style({
-  fontSize: "0.875rem",
-  color: "#374151",
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.gray700,
 });
 
 export const scheduleUtc = style({
-  fontSize: "0.75rem",
-  color: "#9ca3af",
+  fontSize: tokens.fontSize.xs,
+  color: tokens.colors.textLight,
 });
 
 export const nextRunTime = style({
-  fontSize: "0.875rem",
-  color: "#374151",
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.gray700,
 });
 
-export const actionsCell = style({
-  display: "flex",
-  justifyContent: "flex-end",
-});
-
-export const scheduleActions = style({
-  display: "flex",
-  gap: "0.5rem",
-});
-
-const actionButton = style({
-  background: "none",
-  border: "none",
-  color: "#6b7280",
-  cursor: "pointer",
-  padding: "0.5rem",
-  borderRadius: "0.25rem",
-  transition: "all 0.2s",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  ":hover": {
-    background: "rgba(107, 114, 128, 0.1)",
-    color: "#374151",
+export const actionsCell = style([
+  utils.flex,
+  {
+    justifyContent: "flex-end",
   },
-});
+]);
 
-export const scheduleActionIcon = style({
-  width: "1rem",
-  height: "1rem",
-});
+export const scheduleActions = style([utils.flex, utils.gap2]);
 
-export const editButton = style([actionButton]);
+const actionButton = style([
+  utils.flexCenter,
+  {
+    background: "none",
+    border: "none",
+    color: tokens.colors.textMuted,
+    cursor: "pointer",
+    padding: tokens.space[2],
+    borderRadius: tokens.borderRadius.base,
+    transition: "all 0.2s",
+    selectors: {
+      "&:hover": {
+        background: tokens.colors.gray100,
+        color: tokens.colors.gray700,
+      },
+    },
+  },
+]);
+
+export const scheduleActionIcon = style([iconStyles.sm]);
+
+export const editButton = style([
+  actionButton,
+  {
+    selectors: {
+      "&:hover": {
+        background: tokens.colors.infoBg,
+        color: tokens.colors.info,
+      },
+    },
+  },
+]);
 
 export const toggleButton = style([
   actionButton,
   {
-    ":disabled": {
-      cursor: "not-allowed",
-      opacity: 0.5,
+    selectors: {
+      "&:hover": {
+        background: tokens.colors.warningBg,
+        color: tokens.colors.warning,
+      },
+      "&:disabled": {
+        cursor: "not-allowed",
+        opacity: 0.5,
+      },
+      "&:disabled:hover": {
+        background: "none",
+        color: tokens.colors.textMuted,
+      },
     },
   },
 ]);
@@ -183,66 +188,72 @@ export const toggleButton = style([
 export const toggleButtonPaused = style([
   toggleButton,
   {
-    color: "#f59e0b",
+    color: tokens.colors.warning,
   },
 ]);
 
 export const deleteButton = style([
   actionButton,
   {
-    ":hover": {
-      background: "rgba(239, 68, 68, 0.1)",
-      color: "#ef4444",
+    selectors: {
+      "&:hover": {
+        background: tokens.colors.errorBg,
+        color: tokens.colors.error,
+      },
     },
   },
 ]);
 
-export const loadingSpinnerButton = style({
-  width: "14px",
-  height: "14px",
-  border: "2px solid #e5e7eb",
-  borderTop: "2px solid #6b7280",
-  borderRadius: "50%",
-  animation: `${spin} 1s linear infinite`,
-});
-
-export const emptyState = style({
-  textAlign: "center",
-  padding: "3rem 2rem",
-  color: "#6b7280",
-});
-
-export const loadingSection = style({
-  textAlign: "center",
-  padding: "2rem",
-  color: "#6b7280",
-});
-
-export const errorMessage = style({
-  textAlign: "center",
-  padding: "2rem",
-  color: "#ef4444",
-  background: "#fef2f2",
-  border: "1px solid #fecaca",
-  borderRadius: "0.5rem",
-  margin: "1rem 0",
-});
-
-export const retryButton = style({
-  marginLeft: "0.5rem",
-  padding: "0.25rem 0.5rem",
-  background: "#ef4444",
-  color: "white",
-  border: "none",
-  borderRadius: "0.25rem",
-  fontSize: "0.75rem",
-  cursor: "pointer",
-  transition: "background 0.2s",
-  ":hover": {
-    background: "#dc2626",
+export const loadingSpinnerButton = style([
+  utils.spinner,
+  {
+    width: "14px",
+    height: "14px",
+    border: `2px solid ${tokens.colors.border}`,
+    borderTop: `2px solid ${tokens.colors.textMuted}`,
+    animation: `${spin} 1s linear infinite`,
   },
-  ":disabled": {
-    background: "#9ca3af",
-    cursor: "not-allowed",
+]);
+
+export const emptyState = style([
+  utils.textCenter,
+  {
+    padding: `${tokens.space[12]} ${tokens.space[8]}`,
+    color: tokens.colors.textMuted,
   },
-});
+]);
+
+export const loadingSection = style([
+  utils.textCenter,
+  {
+    padding: tokens.space[8],
+    color: tokens.colors.textMuted,
+  },
+]);
+
+export const errorMessage = style([
+  utils.textCenter,
+  {
+    padding: tokens.space[8],
+    color: tokens.colors.error,
+    background: tokens.colors.errorBg,
+    border: `1px solid ${tokens.colors.error}`,
+    borderRadius: tokens.borderRadius.lg,
+    margin: `${tokens.space[4]} 0`,
+  },
+]);
+
+export const retryButton = style([
+  buttonStyles.danger,
+  {
+    marginLeft: tokens.space[2],
+    padding: `${tokens.space[1]} ${tokens.space[2]}`,
+    fontSize: tokens.fontSize.xs,
+    selectors: {
+      "&:disabled": {
+        background: tokens.colors.gray400,
+        cursor: "not-allowed",
+      },
+    },
+  },
+]);

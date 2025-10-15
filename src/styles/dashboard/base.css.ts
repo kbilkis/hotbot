@@ -1,66 +1,66 @@
 import { style } from "@vanilla-extract/css";
 
+import { tokens, utils } from "../theme/index.css";
+
 export const dashboard = style({
   minHeight: "calc(100vh - 80px)",
   paddingTop: 0,
   background: "transparent",
 });
 
-export const dashboardContainer = style({
-  maxWidth: "1200px",
-  margin: "0 auto",
-  padding: "0 1rem",
-});
+export const dashboardContainer = utils.container;
 
 export const section = style({
-  marginBottom: "3rem",
+  marginBottom: tokens.space[12],
 });
 
-export const sectionHeader = style({
-  display: "flex",
-  justifyContent: "space-between",
-  alignItems: "flex-start",
-  padding: "0 2rem",
-  marginBottom: "1.5rem",
-  "@media": {
-    "(max-width: 768px)": {
-      flexDirection: "column",
-      gap: "1rem",
-      alignItems: "stretch",
+export const sectionHeader = style([
+  utils.flexBetween,
+  {
+    alignItems: "flex-start",
+    padding: `0 ${tokens.space[8]}`,
+    marginBottom: tokens.space[6],
+    "@media": {
+      "(max-width: 768px)": {
+        flexDirection: "column",
+        gap: tokens.space[4],
+        alignItems: "stretch",
+      },
     },
   },
-});
+]);
 
-export const sectionContent = style({
-  display: "flex",
-  flexDirection: "column",
-  alignItems: "start",
-});
+export const sectionContent = style([
+  utils.flexCol,
+  {
+    alignItems: "start",
+  },
+]);
 
 export const sectionTitle = style({
-  fontSize: "1.5rem",
-  fontWeight: 600,
-  color: "#111827",
-  marginBottom: "0.25rem",
-  lineHeight: 1.2,
+  fontSize: tokens.fontSize["2xl"],
+  fontWeight: tokens.fontWeight.semibold,
+  color: tokens.colors.text,
+  marginBottom: tokens.space[1],
+  lineHeight: tokens.lineHeight.tight,
 });
 
 export const sectionDescription = style({
-  color: "#6b7280",
-  fontSize: "0.875rem",
-  lineHeight: 1.4,
+  color: tokens.colors.textMuted,
+  fontSize: tokens.fontSize.sm,
+  lineHeight: tokens.lineHeight.normal,
   margin: 0,
 });
 
 export const integrationsGrid = style({
   display: "grid",
   gridTemplateColumns: "1fr 1fr",
-  gap: "2rem",
-  padding: "0 2rem",
+  gap: tokens.space[8],
+  padding: `0 ${tokens.space[8]}`,
   "@media": {
     "(max-width: 768px)": {
       gridTemplateColumns: "1fr",
-      padding: "0 1rem",
+      padding: `0 ${tokens.space[4]}`,
     },
   },
 });

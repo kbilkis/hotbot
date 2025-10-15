@@ -1,29 +1,35 @@
 import { style } from "@vanilla-extract/css";
 
-export const beforeAfterChart = style({
-  background: "rgba(255, 255, 255, 0.9)",
-  backdropFilter: "blur(10px)",
-  border: "1px solid rgba(148, 163, 184, 0.3)",
-  borderRadius: "1rem",
-  padding: "2rem",
-  marginTop: "3rem",
-  textAlign: "center",
-});
+import { tokens, utils } from "../theme/index.css";
+
+export const beforeAfterChart = style([
+  utils.textCenter,
+  {
+    background: "rgba(255, 255, 255, 0.9)",
+    backdropFilter: "blur(10px)",
+    border: `1px solid ${tokens.colors.border}`,
+    borderRadius: tokens.borderRadius.lg,
+    padding: tokens.space[8],
+    marginTop: tokens.space[12],
+  },
+]);
 
 export const chartTitle = style({
-  fontSize: "1.25rem",
-  fontWeight: 600,
-  color: "#111827",
-  marginBottom: "2rem",
+  fontSize: tokens.fontSize.xl,
+  fontWeight: tokens.fontWeight.semibold,
+  color: tokens.colors.text,
+  marginBottom: tokens.space[8],
 });
 
-export const chartContainer = style({
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "end",
-  gap: "3rem",
-  height: "120px",
-});
+export const chartContainer = style([
+  utils.flex,
+  {
+    justifyContent: "center",
+    alignItems: "end",
+    gap: tokens.space[12],
+    height: "120px",
+  },
+]);
 
 export const chartBar = style({
   display: "flex",

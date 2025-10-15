@@ -1,28 +1,29 @@
 import { style } from "@vanilla-extract/css";
 
+import { tokens, utils } from "../theme/index.css";
+
 // Smart Git Webhooks Section
 export const smartWebhooks = style({
-  padding: "6rem 0",
+  padding: `${tokens.space[20]} 0`,
   position: "relative",
-  zIndex: 2,
   background: "transparent",
 });
 
-export const featureHeader = style({
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "1rem",
-  marginBottom: "2rem",
-});
+export const featureHeader = style([
+  utils.flexCenter,
+  {
+    gap: tokens.space[4],
+    marginBottom: tokens.space[8],
+  },
+]);
 
 export const comingSoonBadge = style({
-  background: "#ff6b35",
-  color: "white",
-  fontSize: "0.75rem",
-  fontWeight: 600,
-  padding: "0.25rem 0.75rem",
-  borderRadius: "1rem",
+  background: tokens.colors.warning,
+  color: tokens.colors.white,
+  fontSize: tokens.fontSize.xs,
+  fontWeight: tokens.fontWeight.semibold,
+  padding: `${tokens.space[1]} ${tokens.space[3]}`,
+  borderRadius: tokens.borderRadius.lg,
   textTransform: "uppercase",
   letterSpacing: "0.5px",
 });

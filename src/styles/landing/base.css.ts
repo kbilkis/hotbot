@@ -1,9 +1,11 @@
 import { style, globalStyle } from "@vanilla-extract/css";
 
+import { tokens, utils } from "../theme/index.css";
+
 // Landing page base styles
 export const landingPage = style({
   minHeight: "100vh",
-  paddingTop: "2rem",
+  paddingTop: tokens.space[8],
   position: "relative",
 });
 
@@ -16,25 +18,21 @@ globalStyle(`${landingPage}::before`, {
   width: "100%",
   height: "100%",
   background: `
-    linear-gradient(rgba(148, 163, 184, 0.1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(148, 163, 184, 0.1) 1px, transparent 1px),
+    linear-gradient(${tokens.colors.gray300}1a 1px, transparent 1px),
+    linear-gradient(90deg, ${tokens.colors.gray300}1a 1px, transparent 1px),
     radial-gradient(
       300px circle at var(--mouse-x) var(--mouse-y),
-      rgba(255, 128, 0, 0.08) 0%,
-      rgba(255, 128, 0, 0.04) 30%,
-      rgba(156, 163, 175, 0.02) 50%,
+      ${tokens.colors.primary}14 0%,
+      ${tokens.colors.primary}0a 30%,
+      ${tokens.colors.gray400}05 50%,
       transparent 70%
     )
   `,
   backgroundSize: "50px 50px, 50px 50px, 100% 100%",
   pointerEvents: "none",
-  zIndex: 1,
+  zIndex: tokens.zIndex.dropdown,
   transition: "all 0.3s ease",
 });
 
 // Container utility
-export const container = style({
-  maxWidth: "1200px",
-  margin: "0 auto",
-  padding: "0 1rem",
-});
+export const container = utils.container;

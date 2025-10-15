@@ -1,49 +1,51 @@
 import { style } from "@vanilla-extract/css";
 
+import { tokens, utils } from "../theme/index.css";
+
 export const hero = style({
-  padding: "0rem 0 4rem",
+  padding: `0 0 ${tokens.space[16]}`,
   position: "relative",
   background: "transparent",
-  zIndex: 2,
 });
 
-export const heroContainer = style({
-  maxWidth: "1200px",
-  margin: "0 auto",
-  padding: "0 1rem",
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr",
-  gap: "4rem",
-  alignItems: "center",
-  position: "relative",
-  zIndex: 2,
-  "@media": {
-    "(max-width: 768px)": {
-      gridTemplateColumns: "1fr",
-      gap: "2rem",
-      textAlign: "center",
+export const heroContainer = style([
+  utils.container,
+  {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: tokens.space[16],
+    alignItems: "center",
+    position: "relative",
+    "@media": {
+      "(max-width: 768px)": {
+        gridTemplateColumns: "1fr",
+        gap: tokens.space[8],
+        textAlign: "center",
+      },
     },
   },
-});
+]);
 
-export const heroContent = style({
-  textAlign: "left",
-  "@media": {
-    "(max-width: 768px)": {
-      textAlign: "center",
+export const heroContent = style([
+  utils.textLeft,
+  {
+    "@media": {
+      "(max-width: 768px)": {
+        textAlign: "center",
+      },
     },
   },
-});
+]);
 
 export const heroTitle = style({
   fontSize: "3.5rem",
-  fontWeight: 800,
-  marginBottom: "1rem",
-  background: "linear-gradient(135deg, #111827 0%, #374151 100%)",
+  fontWeight: tokens.fontWeight.bold,
+  marginBottom: tokens.space[4],
+  background: `linear-gradient(135deg, ${tokens.colors.text} 0%, ${tokens.colors.gray700} 100%)`,
   WebkitBackgroundClip: "text",
   WebkitTextFillColor: "transparent",
   backgroundClip: "text",
-  lineHeight: 1.1,
+  lineHeight: tokens.lineHeight.tight,
   "@media": {
     "(max-width: 768px)": {
       fontSize: "2.5rem",
@@ -52,10 +54,10 @@ export const heroTitle = style({
 });
 
 export const heroDescription = style({
-  fontSize: "1.25rem",
-  marginBottom: "2rem",
-  color: "#6b7280",
-  lineHeight: 1.6,
+  fontSize: tokens.fontSize.xl,
+  marginBottom: tokens.space[8],
+  color: tokens.colors.textMuted,
+  lineHeight: tokens.lineHeight.relaxed,
   "@media": {
     "(max-width: 768px)": {
       fontSize: "1.1rem",
@@ -63,32 +65,36 @@ export const heroDescription = style({
   },
 });
 
-export const heroButtons = style({
-  display: "flex",
-  gap: "1rem",
-  marginBottom: "1rem",
-  "@media": {
-    "(max-width: 768px)": {
-      justifyContent: "center",
-      flexDirection: "column",
-      alignItems: "center",
+export const heroButtons = style([
+  utils.flex,
+  {
+    gap: tokens.space[4],
+    marginBottom: tokens.space[4],
+    "@media": {
+      "(max-width: 768px)": {
+        justifyContent: "center",
+        flexDirection: "column",
+        alignItems: "center",
+      },
     },
   },
-});
+]);
 
 export const ctaPrimary = style({
-  background: "#ff8000",
-  color: "white",
+  background: tokens.colors.primary,
+  color: tokens.colors.white,
   border: "none",
-  padding: "1rem 2rem",
+  padding: `${tokens.space[4]} ${tokens.space[8]}`,
   fontSize: "1.1rem",
-  borderRadius: "0.5rem",
+  borderRadius: tokens.borderRadius.md,
   cursor: "pointer",
-  fontWeight: 600,
-  transition: "all 0.2s",
-  ":hover": {
-    background: "#cc5500",
-    transform: "translateY(-2px)",
+  fontWeight: tokens.fontWeight.semibold,
+  transition: "all 0.2s ease",
+  selectors: {
+    "&:hover": {
+      background: tokens.colors.primaryHover,
+      transform: "translateY(-2px)",
+    },
   },
   "@media": {
     "(max-width: 768px)": {
@@ -98,28 +104,25 @@ export const ctaPrimary = style({
   },
 });
 
-export const heroVisual = style({
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-});
+export const heroVisual = style([utils.flexCenter]);
 
-export const heroSplit = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "2rem",
-  "@media": {
-    "(max-width: 768px)": {
-      gap: "1rem",
-      alignItems: "center",
+export const heroSplit = style([
+  utils.flexCol,
+  {
+    gap: tokens.space[8],
+    "@media": {
+      "(max-width: 768px)": {
+        gap: tokens.space[4],
+        alignItems: "center",
+      },
     },
   },
-});
+]);
 
 export const slackCaseImage = style({
-  borderRadius: "1rem",
+  borderRadius: tokens.borderRadius.lg,
   overflow: "hidden",
-  boxShadow: "0 20px 40px rgba(0, 0, 0, 0.15)",
+  boxShadow: tokens.boxShadow.xl,
 });
 
 export const slackScreenshot = style({
@@ -131,28 +134,30 @@ export const slackScreenshot = style({
 export const analyticsTiles = style({
   display: "grid",
   gridTemplateColumns: "repeat(3, 1fr)",
-  gap: "1rem",
+  gap: tokens.space[4],
 });
 
-export const statTile = style({
-  background: "rgba(255, 255, 255, 0.9)",
-  backdropFilter: "blur(10px)",
-  border: "1px solid rgba(148, 163, 184, 0.3)",
-  borderRadius: "0.5rem",
-  padding: "1rem",
-  textAlign: "center",
-  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-});
+export const statTile = style([
+  utils.textCenter,
+  {
+    background: "rgba(255, 255, 255, 0.9)",
+    backdropFilter: "blur(10px)",
+    border: `1px solid ${tokens.colors.border}`,
+    borderRadius: tokens.borderRadius.md,
+    padding: tokens.space[4],
+    boxShadow: tokens.boxShadow.md,
+  },
+]);
 
 export const statLabel = style({
-  fontSize: "0.75rem",
-  color: "#6b7280",
-  marginBottom: "0.25rem",
-  fontWeight: 500,
+  fontSize: tokens.fontSize.xs,
+  color: tokens.colors.textMuted,
+  marginBottom: tokens.space[1],
+  fontWeight: tokens.fontWeight.medium,
 });
 
 export const statValue = style({
-  fontSize: "1.25rem",
-  fontWeight: 700,
-  color: "#10b981",
+  fontSize: tokens.fontSize.xl,
+  fontWeight: tokens.fontWeight.bold,
+  color: tokens.colors.success,
 });

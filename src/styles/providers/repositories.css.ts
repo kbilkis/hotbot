@@ -1,126 +1,136 @@
 import { style } from "@vanilla-extract/css";
 
+import { tokens, buttonStyles, utils, iconStyles } from "../theme/index.css";
+
 // Repository Management
 export const repositoriesSection = style({
-  marginTop: "0.5rem",
+  marginTop: tokens.space[2],
 });
 
-export const repositoriesLoading = style({
-  padding: "1rem",
-  textAlign: "center",
-  background: "#f8fafc",
-  border: "1px solid #e2e8f0",
-  borderRadius: "0.5rem",
-  color: "#64748b",
-  fontSize: "0.875rem",
-});
-
-export const repositoriesError = style({
-  padding: "1rem",
-  textAlign: "center",
-  background: "#fef2f2",
-  border: "1px solid #fecaca",
-  borderRadius: "0.5rem",
-  color: "#dc2626",
-  fontSize: "0.875rem",
-});
-
-export const repositoriesEmpty = style({
-  padding: "1rem",
-  textAlign: "center",
-  background: "#f8fafc",
-  border: "1px solid #e2e8f0",
-  borderRadius: "0.5rem",
-  color: "#64748b",
-  fontSize: "0.875rem",
-});
-
-export const retryButton = style({
-  marginLeft: "0.5rem",
-  padding: "0.25rem 0.5rem",
-  background: "#dc2626",
-  color: "white",
-  border: "none",
-  borderRadius: "0.25rem",
-  fontSize: "0.75rem",
-  cursor: "pointer",
-  transition: "background 0.2s",
-  ":hover": {
-    background: "#b91c1c",
+export const repositoriesLoading = style([
+  utils.textCenter,
+  {
+    padding: tokens.space[4],
+    background: tokens.colors.gray50,
+    border: `1px solid ${tokens.colors.border}`,
+    borderRadius: tokens.borderRadius.lg,
+    color: tokens.colors.gray500,
+    fontSize: tokens.fontSize.sm,
   },
-  ":disabled": {
-    background: "#9ca3af",
-    cursor: "not-allowed",
+]);
+
+export const repositoriesError = style([
+  utils.textCenter,
+  {
+    padding: tokens.space[4],
+    background: tokens.colors.errorBg,
+    border: `1px solid ${tokens.colors.error}`,
+    borderRadius: tokens.borderRadius.lg,
+    color: tokens.colors.error,
+    fontSize: tokens.fontSize.sm,
   },
-});
+]);
+
+export const repositoriesEmpty = style([
+  utils.textCenter,
+  {
+    padding: tokens.space[4],
+    background: tokens.colors.gray50,
+    border: `1px solid ${tokens.colors.border}`,
+    borderRadius: tokens.borderRadius.lg,
+    color: tokens.colors.gray500,
+    fontSize: tokens.fontSize.sm,
+  },
+]);
+
+export const retryButton = style([
+  buttonStyles.danger,
+  {
+    marginLeft: tokens.space[2],
+    padding: `${tokens.space[1]} ${tokens.space[2]}`,
+    fontSize: tokens.fontSize.xs,
+  },
+]);
 
 export const repositoriesList = style({
-  marginTop: "1rem",
+  marginTop: tokens.space[4],
 });
 
 export const repositoriesCount = style({
-  fontSize: "0.875rem",
-  color: "#64748b",
-  marginBottom: "0.75rem",
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.gray500,
+  marginBottom: tokens.space[3],
 });
 
 export const repositoriesContainer = style({
   maxHeight: "300px",
   overflowY: "auto",
-  border: "1px solid #e5e7eb",
-  borderRadius: "0.5rem",
-  padding: "0.5rem",
+  border: `1px solid ${tokens.colors.border}`,
+  borderRadius: tokens.borderRadius.lg,
+  padding: tokens.space[2],
 });
 
-export const repositoryItem = style({
-  display: "flex",
-  alignItems: "center",
-  gap: "0.5rem",
-  padding: "0.5rem",
-  borderRadius: "0.25rem",
-  transition: "background 0.2s",
-  ":hover": {
-    background: "#f3f4f6",
+export const repositoryItem = style([
+  utils.flex,
+  utils.gap2,
+  {
+    alignItems: "center",
+    padding: tokens.space[2],
+    borderRadius: tokens.borderRadius.base,
+    transition: "background 0.2s",
+    selectors: {
+      "&:hover": {
+        background: tokens.colors.gray100,
+      },
+    },
   },
-});
+]);
 
-export const repoIcon = style({
-  fontSize: "1rem",
-  color: "#6b7280",
-});
+export const repoIcon = style([
+  iconStyles.base,
+  {
+    color: tokens.colors.textMuted,
+  },
+]);
 
 export const repoName = style({
-  fontSize: "0.875rem",
-  color: "#374151",
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.gray700,
   fontFamily: "monospace",
 });
 
-export const showMoreButton = style({
-  width: "100%",
-  padding: "0.5rem",
-  background: "#f8fafc",
-  border: "1px solid #e2e8f0",
-  borderRadius: "0.25rem",
-  color: "#6b7280",
-  fontSize: "0.875rem",
-  cursor: "pointer",
-  transition: "all 0.2s",
-  marginTop: "0.5rem",
-  ":hover": {
-    background: "#f1f5f9",
-    color: "#374151",
+export const showMoreButton = style([
+  buttonStyles.ghost,
+  {
+    width: "100%",
+    padding: tokens.space[2],
+    background: tokens.colors.gray50,
+    border: `1px solid ${tokens.colors.border}`,
+    borderRadius: tokens.borderRadius.base,
+    color: tokens.colors.textMuted,
+    fontSize: tokens.fontSize.sm,
+    marginTop: tokens.space[2],
+    selectors: {
+      "&:hover": {
+        background: tokens.colors.gray100,
+        color: tokens.colors.gray700,
+      },
+    },
   },
-});
+]);
 
 export const showLessButton = style([
   showMoreButton,
   {
-    background: "#fff7ed",
-    borderColor: "#fed7aa",
-    color: "#ea580c",
-    ":hover": {
-      background: "#ffedd5",
-      color: "#c2410c",
+    background: tokens.colors.warningBg,
+    borderColor: tokens.colors.warning,
+    color: tokens.colors.warning,
+    selectors: {
+      "&:hover": {
+        background: tokens.colors.warningBg,
+        color: tokens.colors.warning,
+        opacity: "0.8",
+      },
     },
   },
 ]);

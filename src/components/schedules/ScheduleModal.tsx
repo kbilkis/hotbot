@@ -454,8 +454,8 @@ export default function ScheduleModal({
                 <label htmlFor="git-provider">Git Provider</label>
                 <select
                   id="git-provider"
-                  className={`form-select ${
-                    errors.gitProviderId ? "error" : ""
+                  className={`${formStyles.formSelect} ${
+                    errors.gitProviderId ? formStyles.fieldError : ""
                   }`}
                   value={formData.gitProviderId}
                   onChange={(e) => {
@@ -568,8 +568,8 @@ export default function ScheduleModal({
                 <label htmlFor="messaging-provider">Messaging Provider</label>
                 <select
                   id="messaging-provider"
-                  className={`form-select ${
-                    errors.messagingProviderId ? "error" : ""
+                  className={`${formStyles.formSelect} ${
+                    errors.messagingProviderId ? formStyles.fieldError : ""
                   }`}
                   value={formData.messagingProviderId}
                   onChange={(e) => {
@@ -655,8 +655,10 @@ export default function ScheduleModal({
                           ) : availableChannels.length > 0 ? (
                             <select
                               id="messaging-channel"
-                              className={`form-select ${
-                                errors.messagingChannelId ? "error" : ""
+                              className={`${formStyles.formSelect} ${
+                                errors.messagingChannelId
+                                  ? formStyles.fieldError
+                                  : ""
                               }`}
                               value={formData.messagingChannelId}
                               onChange={(e) =>
@@ -691,8 +693,10 @@ export default function ScheduleModal({
                       ) : availableChannels.length > 0 ? (
                         <select
                           id="messaging-channel"
-                          className={`form-select ${
-                            errors.messagingChannelId ? "error" : ""
+                          className={`${formStyles.formSelect} ${
+                            errors.messagingChannelId
+                              ? formStyles.fieldError
+                              : ""
                           }`}
                           value={formData.messagingChannelId}
                           onChange={(e) =>
@@ -792,8 +796,8 @@ export default function ScheduleModal({
                   {/* TODO: Could add separate guild selection for escalation if needed */}
                   <select
                     id="escalation-channel"
-                    className={`form-select ${
-                      errors.escalationChannelId ? "error" : ""
+                    className={`${formStyles.formSelect} ${
+                      errors.escalationChannelId ? formStyles.fieldError : ""
                     }`}
                     value={formData.escalationChannelId}
                     onChange={(e) =>

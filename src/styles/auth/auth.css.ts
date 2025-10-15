@@ -3,7 +3,7 @@ import { style, globalStyle } from "@vanilla-extract/css";
 import { spin, fadeIn } from "../theme/animations.css";
 import { tokens, buttonStyles, utils, iconStyles } from "../theme/index.css";
 
-// Auth Section - Using Theme System
+// Auth Section
 export const authSection = style([
   utils.flexBetween,
   utils.gap4,
@@ -29,7 +29,7 @@ export const userEmail = style({
   },
 });
 
-// Auth Callback Styles - Using Theme System
+// Auth Callback Styles
 export const authCallbackContainer = style([
   utils.flexCenter,
   {
@@ -62,7 +62,7 @@ globalStyle(`${authCallbackContent} p`, {
   lineHeight: tokens.lineHeight.normal,
 });
 
-// Status Icons - Using Theme System
+// Status Icons
 export const loadingSpinner = style([
   iconStyles.xl,
   {
@@ -87,7 +87,7 @@ export const errorIcon = style([
   },
 ]);
 
-// Loading States - Using Theme System
+// Loading States
 export const loadingText = style({
   color: tokens.colors.textMuted,
   fontSize: tokens.fontSize.base,
@@ -106,7 +106,7 @@ export const errorText = style({
   fontWeight: tokens.fontWeight.medium,
 });
 
-// Responsive Design - Using Theme System
+// Responsive Design
 export const mobileOptimized = style({
   "@media": {
     "(max-width: 768px)": {
@@ -115,7 +115,7 @@ export const mobileOptimized = style({
   },
 });
 
-// Mobile typography styles - Using Theme System
+// Mobile typography styles
 globalStyle(`${mobileOptimized} h1`, {
   "@media": {
     "(max-width: 768px)": {
@@ -147,7 +147,7 @@ globalStyle(`${mobileOptimized} p`, {
     },
   },
 });
-// Upgrade Result Pages - Using Theme System
+// Upgrade Result Pages
 export const upgradeResultPage = style([
   utils.flexCenter,
   {
@@ -273,7 +273,7 @@ export const actionButtons = style([
   },
 ]);
 
-// Button Styles for Upgrade Pages - Using Theme System
+// Button Styles for Upgrade Pages
 export const btnPrimary = style([
   buttonStyles.primary,
   {

@@ -1,6 +1,7 @@
 import { useAuth, useClerk } from "@clerk/clerk-react";
 
 import * as authStyles from "@/styles/auth/auth.css";
+import { buttonStyles } from "@/styles/theme/index.css";
 
 interface ProtectedRouteProps {
   children: preact.ComponentChildren;
@@ -32,7 +33,7 @@ export default function ProtectedRoute({
             <h2>Authentication Required</h2>
             <p>Please sign in to access this page.</p>
             <button
-              className={authStyles.authButtonSignIn}
+              className={buttonStyles.primary}
               onClick={() => clerk.openSignIn()}
             >
               Sign In

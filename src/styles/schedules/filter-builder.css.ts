@@ -1,164 +1,165 @@
 import { style } from "@vanilla-extract/css";
 
-export const filterBuilder = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "1.5rem",
-});
+import { tokens, buttonStyles, badgeStyles, utils } from "../theme/index.css";
 
-export const filterSection = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "1rem",
-});
+export const filterBuilder = style([utils.flexCol, utils.gap6]);
 
-export const filterInputGroup = style({
-  display: "flex",
-  gap: "0.5rem",
-  alignItems: "flex-start",
-});
+export const filterSection = style([utils.flexCol, utils.gap4]);
 
-export const filterInput = style({
-  flex: 1,
-  padding: "0.75rem",
-  border: "1px solid #d1d5db",
-  borderRadius: "0.375rem",
-  fontSize: "0.875rem",
-  transition: "all 0.2s",
-  ":focus": {
-    outline: "none",
-    borderColor: "#ff8000",
-    boxShadow: "0 0 0 3px rgba(255, 128, 0, 0.1)",
+export const filterInputGroup = style([
+  utils.flex,
+  utils.gap2,
+  {
+    alignItems: "flex-start",
   },
-});
+]);
 
-export const addFilterButton = style({
-  padding: "0.75rem 1rem",
-  background: "#10b981",
-  color: "white",
-  border: "none",
-  borderRadius: "0.375rem",
-  fontSize: "0.875rem",
-  fontWeight: 500,
-  cursor: "pointer",
-  transition: "all 0.2s",
-  whiteSpace: "nowrap",
-  ":hover": {
-    background: "#059669",
+export const filterInput = style([
+  utils.inputBase,
+  {
+    flex: 1,
+    fontSize: tokens.fontSize.sm,
   },
-  ":disabled": {
-    background: "#9ca3af",
-    cursor: "not-allowed",
+]);
+
+export const addFilterButton = style([
+  buttonStyles.primary,
+  {
+    padding: `${tokens.space[3]} ${tokens.space[4]}`,
+    background: tokens.colors.success,
+    fontSize: tokens.fontSize.sm,
+    whiteSpace: "nowrap",
+    selectors: {
+      "&:hover": {
+        background: tokens.colors.successHover,
+      },
+      "&:disabled": {
+        background: tokens.colors.gray400,
+        cursor: "not-allowed",
+      },
+    },
   },
-});
+]);
 
 export const commonFilters = style({
-  marginTop: "0.5rem",
+  marginTop: tokens.space[2],
 });
 
 export const commonFiltersLabel = style({
-  fontSize: "0.75rem",
-  color: "#6b7280",
-  marginBottom: "0.5rem",
+  fontSize: tokens.fontSize.xs,
+  color: tokens.colors.textMuted,
+  marginBottom: tokens.space[2],
   display: "block",
 });
 
-export const commonFilterButtons = style({
-  display: "flex",
-  gap: "0.5rem",
-  flexWrap: "wrap",
-});
-
-export const commonFilterButton = style({
-  padding: "0.25rem 0.75rem",
-  background: "#f3f4f6",
-  border: "1px solid #d1d5db",
-  borderRadius: "1rem",
-  fontSize: "0.75rem",
-  cursor: "pointer",
-  transition: "all 0.2s",
-  ":hover": {
-    background: "#e5e7eb",
-    borderColor: "#9ca3af",
+export const commonFilterButtons = style([
+  utils.flex,
+  utils.gap2,
+  {
+    flexWrap: "wrap",
   },
-  ":disabled": {
-    opacity: 0.5,
-    cursor: "not-allowed",
+]);
+
+export const commonFilterButton = style([
+  buttonStyles.ghost,
+  {
+    padding: `${tokens.space[1]} ${tokens.space[3]}`,
+    background: tokens.colors.gray100,
+    border: `1px solid ${tokens.colors.gray300}`,
+    borderRadius: tokens.borderRadius.full,
+    fontSize: tokens.fontSize.xs,
+    selectors: {
+      "&:hover": {
+        background: tokens.colors.gray200,
+        borderColor: tokens.colors.gray400,
+      },
+      "&:disabled": {
+        opacity: 0.5,
+        cursor: "not-allowed",
+      },
+    },
   },
-});
+]);
 
-export const filterItems = style({
-  display: "flex",
-  gap: "0.5rem",
-  flexWrap: "wrap",
-  marginTop: "0.75rem",
-});
+export const filterItems = style([
+  utils.flex,
+  utils.gap2,
+  {
+    flexWrap: "wrap",
+    marginTop: tokens.space[3],
+  },
+]);
 
-export const filterItem = style({
-  display: "inline-flex",
-  alignItems: "center",
-  gap: "0.5rem",
-  padding: "0.5rem 0.75rem",
-  background: "#eff6ff",
-  border: "1px solid #bfdbfe",
-  borderRadius: "1rem",
-  fontSize: "0.875rem",
-  color: "#1e40af",
-});
+export const filterItem = style([
+  badgeStyles.info,
+  utils.flex,
+  utils.gap2,
+  {
+    alignItems: "center",
+    background: tokens.colors.infoBg,
+    border: `1px solid ${tokens.colors.info}`,
+    borderRadius: tokens.borderRadius.full,
+    fontSize: tokens.fontSize.sm,
+    color: tokens.colors.info,
+  },
+]);
 
 export const removeTag = style({
   background: "none",
   border: "none",
-  color: "#6b7280",
+  color: tokens.colors.textMuted,
   cursor: "pointer",
-  fontSize: "1rem",
-  fontWeight: "bold",
+  fontSize: tokens.fontSize.base,
+  fontWeight: tokens.fontWeight.bold,
   padding: "0",
-  marginLeft: "0.25rem",
+  marginLeft: tokens.space[1],
   transition: "color 0.2s",
-  ":hover": {
-    color: "#ef4444",
+  selectors: {
+    "&:hover": {
+      color: tokens.colors.error,
+    },
   },
 });
 
 export const filterPreview = style({
-  marginTop: "1.5rem",
-  padding: "1rem",
-  background: "#f8fafc",
-  border: "1px solid #e2e8f0",
-  borderRadius: "0.5rem",
+  marginTop: tokens.space[6],
+  padding: tokens.space[4],
+  background: tokens.colors.gray50,
+  border: `1px solid ${tokens.colors.border}`,
+  borderRadius: tokens.borderRadius.lg,
 });
 
 export const filterPreviewTitle = style({
-  fontSize: "1rem",
-  fontWeight: 600,
-  color: "#111827",
-  marginBottom: "0.5rem",
+  fontSize: tokens.fontSize.base,
+  fontWeight: tokens.fontWeight.semibold,
+  color: tokens.colors.text,
+  marginBottom: tokens.space[2],
 });
 
 export const filterPreviewText = style({
-  fontSize: "0.875rem",
-  color: "#6b7280",
-  lineHeight: 1.5,
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.textMuted,
+  lineHeight: tokens.lineHeight.normal,
 });
 
 export const filterPreviewCode = style({
   fontFamily: "monospace",
-  background: "#f1f5f9",
-  padding: "0.125rem 0.25rem",
-  borderRadius: "0.25rem",
-  fontSize: "0.8125rem",
+  background: tokens.colors.gray100,
+  padding: `${tokens.space[1]} ${tokens.space[2]}`,
+  borderRadius: tokens.borderRadius.base,
+  fontSize: tokens.fontSize.sm,
 });
+
 export const filterLabel = style({
   display: "block",
-  fontWeight: 500,
-  color: "#111827",
-  marginBottom: "0.5rem",
+  fontWeight: tokens.fontWeight.medium,
+  color: tokens.colors.text,
+  marginBottom: tokens.space[2],
 });
 
 export const filterHelp = style({
-  color: "#6b7280",
-  fontSize: "0.875rem",
-  marginBottom: "0.75rem",
-  lineHeight: 1.4,
+  color: tokens.colors.textMuted,
+  fontSize: tokens.fontSize.sm,
+  marginBottom: tokens.space[3],
+  lineHeight: tokens.lineHeight.normal,
 });

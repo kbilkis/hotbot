@@ -1,46 +1,51 @@
 import { style } from "@vanilla-extract/css";
 
+import { tokens, utils } from "../theme/index.css";
+
 export const integrations = style({
-  padding: "4rem 0",
+  padding: `${tokens.space[16]} 0`,
   background: "transparent",
   position: "relative",
-  zIndex: 2,
 });
 
-export const integrationsTitle = style({
-  fontSize: "2rem",
-  fontWeight: 700,
-  textAlign: "center",
-  marginBottom: "3rem",
-  color: "#111827",
-});
+export const integrationsTitle = style([
+  utils.textCenter,
+  {
+    fontSize: "2rem",
+    fontWeight: tokens.fontWeight.bold,
+    marginBottom: tokens.space[12],
+    color: tokens.colors.text,
+  },
+]);
 
 export const integrationsGridLanding = style({
   display: "grid",
   gridTemplateColumns: "repeat(6, 1fr)",
-  gap: "2rem",
+  gap: tokens.space[8],
   alignItems: "center",
   justifyItems: "center",
   "@media": {
     "(max-width: 768px)": {
       gridTemplateColumns: "repeat(3, 1fr)",
-      gap: "1rem",
+      gap: tokens.space[4],
     },
   },
 });
 
-export const integrationItem = style({
-  position: "relative",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  padding: "1rem",
-  borderRadius: "0.5rem",
-  transition: "transform 0.2s ease",
-  ":hover": {
-    transform: "scale(1.05)",
+export const integrationItem = style([
+  utils.flexCenter,
+  {
+    position: "relative",
+    padding: tokens.space[4],
+    borderRadius: tokens.borderRadius.md,
+    transition: "transform 0.2s ease",
+    selectors: {
+      "&:hover": {
+        transform: "scale(1.05)",
+      },
+    },
   },
-});
+]);
 
 export const integrationLogo = style({
   height: "40px",
@@ -48,8 +53,10 @@ export const integrationLogo = style({
   objectFit: "contain",
   filter: "grayscale(100%)",
   transition: "filter 0.3s ease",
-  ":hover": {
-    filter: "grayscale(0%)",
+  selectors: {
+    "&:hover": {
+      filter: "grayscale(0%)",
+    },
   },
 });
 
@@ -57,10 +64,10 @@ export const comingSoonFlair = style({
   position: "absolute",
   top: "-8px",
   right: "-8px",
-  background: "#ff6b35",
-  color: "white",
+  background: tokens.colors.warning,
+  color: tokens.colors.white,
   fontSize: "10px",
-  fontWeight: 600,
+  fontWeight: tokens.fontWeight.semibold,
   padding: "2px 6px",
   borderRadius: "8px",
   textTransform: "uppercase",
