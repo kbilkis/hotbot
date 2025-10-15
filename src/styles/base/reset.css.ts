@@ -1,4 +1,4 @@
-import { globalStyle, keyframes } from "@vanilla-extract/css";
+import { globalStyle } from "@vanilla-extract/css";
 
 // Modern CSS Reset - Based on Josh Comeau's CSS Reset + Normalize.css
 // https://www.joshwcomeau.com/css/custom-css-reset/
@@ -30,8 +30,8 @@ globalStyle("body", {
   fontFamily: `-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif`,
-  color: "#1f2937",
-  background: "#f3f4f6",
+  color: "var(--color-text)",
+  background: "var(--color-background)",
   overflowX: "hidden",
 });
 
@@ -127,7 +127,7 @@ globalStyle('input[type="number"]', {
 globalStyle(
   "button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible, a:focus-visible",
   {
-    outline: "2px solid #ff8000",
+    outline: "2px solid var(--color-primary)",
     outlineOffset: "2px",
     borderRadius: "2px",
   }
@@ -169,46 +169,7 @@ globalStyle(":root", {
   },
 });
 
-// 22. CSS Custom Properties for theming
-globalStyle(":root", {
-  vars: {
-    "--font-family-sans": `-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif`,
-    "--font-family-mono": `"SF Mono", "Monaco", "Inconsolata", "Roboto Mono", "Consolas", monospace`,
-    "--color-primary": "#ff8000",
-    "--color-primary-hover": "#cc5500",
-    "--color-text": "#1f2937",
-    "--color-text-muted": "#6b7280",
-    "--color-background": "#f3f4f6",
-    "--color-surface": "#ffffff",
-    "--border-radius": "0.5rem",
-    "--shadow-sm": "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
-    "--shadow-md":
-      "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
-    "--shadow-lg":
-      "0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05)",
-    "--transition-fast": "0.15s ease-out",
-    "--transition-normal": "0.2s ease-out",
-    "--transition-slow": "0.3s ease-out",
-  },
-});
+// CSS Custom Properties are now handled by tokens.css.ts using createGlobalTheme
+// This provides better type safety and integration with vanilla-extract
 
-// 23. Utility keyframes
-export const spin = keyframes({
-  "0%": { transform: "rotate(0deg)" },
-  "100%": { transform: "rotate(360deg)" },
-});
-
-export const fadeIn = keyframes({
-  "0%": { opacity: 0, transform: "translateY(10px)" },
-  "100%": { opacity: 1, transform: "translateY(0)" },
-});
-
-export const slideInFromRight = keyframes({
-  "0%": { opacity: 0, transform: "translateX(20px)" },
-  "100%": { opacity: 1, transform: "translateX(0)" },
-});
-
-export const pulse = keyframes({
-  "0%, 100%": { opacity: 1 },
-  "50%": { opacity: 0.5 },
-});
+// Keyframes moved to src/styles/theme/animations.css.ts for better organization

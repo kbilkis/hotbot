@@ -49,6 +49,7 @@
     "preact-render-to-string": "^6.6.1",
     "react": "npm:@preact/compat",
     "react-dom": "npm:@preact/compat",
+    "react/jsx-runtime": "npm:@preact/compat",
     "stripe": "^18.5.0",
     "swr": "^2.3.6"
   },

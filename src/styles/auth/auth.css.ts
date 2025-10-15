@@ -1,178 +1,125 @@
-import { style, keyframes, globalStyle } from "@vanilla-extract/css";
+import { style, globalStyle } from "@vanilla-extract/css";
 
-// Keyframes
-const spin = keyframes({
-  "0%": { transform: "rotate(0deg)" },
-  "100%": { transform: "rotate(360deg)" },
-});
+import { spin, fadeIn } from "../theme/animations.css";
+import { tokens, buttonStyles, utils, iconStyles } from "../theme/index.css";
 
-const fadeIn = keyframes({
-  "0%": { opacity: 0, transform: "translateY(10px)" },
-  "100%": { opacity: 1, transform: "translateY(0)" },
-});
-
-// Auth Button Styles
-const authButton = style({
-  padding: "0.75rem 1.5rem",
-  borderRadius: "0.5rem",
-  border: "none",
-  fontSize: "0.875rem",
-  fontWeight: 600,
-  cursor: "pointer",
-  transition: "all 0.2s",
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "0.5rem",
-  background: "#ff8000",
-  color: "white",
-  ":hover": {
-    background: "#cc5500",
-    transform: "translateY(-1px)",
-  },
-  ":disabled": {
-    cursor: "not-allowed",
-    transform: "none",
-  },
-});
-
-export const authButtonLoading = style([
-  authButton,
+// Auth Section - Using Theme System
+export const authSection = style([
+  utils.flexBetween,
+  utils.gap4,
   {
-    background: "#64748b",
-    cursor: "not-allowed",
-    ":hover": {
-      background: "#64748b",
-      transform: "none",
+    "@media": {
+      "(max-width: 768px)": {
+        flexDirection: "column",
+        gap: tokens.space[2],
+        alignItems: "flex-end",
+      },
     },
   },
 ]);
-
-export const authButtonSignOut = style([
-  authButton,
-  {
-    background: "#ef4444",
-    ":hover": {
-      background: "#dc2626",
-    },
-  },
-]);
-
-export const authButtonSignIn = style([authButton]);
-
-// Auth Section
-export const authSection = style({
-  display: "flex",
-  alignItems: "center",
-  gap: "1rem",
-  "@media": {
-    "(max-width: 768px)": {
-      flexDirection: "column",
-      gap: "0.5rem",
-      alignItems: "flex-end",
-    },
-  },
-});
 
 export const userEmail = style({
-  fontSize: "0.875rem",
-  color: "#6b7280",
-  fontWeight: 500,
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.textMuted,
+  fontWeight: tokens.fontWeight.medium,
   "@media": {
     "(max-width: 768px)": {
-      fontSize: "0.75rem",
+      fontSize: tokens.fontSize.xs,
     },
   },
 });
 
-// Auth Callback Styles
-export const authCallbackContainer = style({
-  minHeight: "100vh",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)",
-  padding: "2rem",
-});
+// Auth Callback Styles - Using Theme System
+export const authCallbackContainer = style([
+  utils.flexCenter,
+  {
+    minHeight: "100vh",
+    background: `linear-gradient(135deg, ${tokens.colors.gray50} 0%, ${tokens.colors.gray200} 100%)`,
+    padding: tokens.space[8],
+  },
+]);
 
-export const authCallbackContent = style({
-  background: "white",
-  borderRadius: "1rem",
-  padding: "3rem",
-  boxShadow: "0 25px 50px rgba(0, 0, 0, 0.1)",
-  textAlign: "center",
-  maxWidth: "500px",
-  width: "100%",
-  animation: `${fadeIn} 0.5s ease-out`,
-});
+export const authCallbackContent = style([
+  utils.card,
+  utils.textCenter,
+  {
+    maxWidth: "500px",
+    width: "100%",
+    animation: `${fadeIn} 0.5s ease-out`,
+  },
+]);
 
 globalStyle(`${authCallbackContent} h2`, {
-  margin: "1rem 0 0.5rem 0",
-  fontSize: "1.5rem",
-  fontWeight: 600,
-  color: "#111827",
+  margin: `${tokens.space[4]} 0 ${tokens.space[2]} 0`,
+  fontSize: tokens.fontSize["2xl"],
+  fontWeight: tokens.fontWeight.semibold,
+  color: tokens.colors.text,
 });
 
 globalStyle(`${authCallbackContent} p`, {
-  margin: "0.5rem 0",
-  color: "#6b7280",
-  lineHeight: 1.6,
+  margin: `${tokens.space[2]} 0`,
+  color: tokens.colors.textMuted,
+  lineHeight: tokens.lineHeight.normal,
 });
 
-// Status Icons
-export const loadingSpinner = style({
-  fontSize: "3rem",
-  animation: `${spin} 2s linear infinite`,
-  marginBottom: "1rem",
-});
+// Status Icons - Using Theme System
+export const loadingSpinner = style([
+  iconStyles.xl,
+  {
+    animation: `${spin} 2s linear infinite`,
+    marginBottom: tokens.space[4],
+  },
+]);
 
-export const successIcon = style({
-  fontSize: "3rem",
-  color: "#10b981",
-  marginBottom: "1rem",
-  animation: `${fadeIn} 0.5s ease-out`,
-});
+export const successIcon = style([
+  iconStyles.success,
+  {
+    marginBottom: tokens.space[4],
+    animation: `${fadeIn} 0.5s ease-out`,
+  },
+]);
 
-export const errorIcon = style({
-  fontSize: "3rem",
-  color: "#ef4444",
-  marginBottom: "1rem",
-  animation: `${fadeIn} 0.5s ease-out`,
-});
+export const errorIcon = style([
+  iconStyles.error,
+  {
+    marginBottom: tokens.space[4],
+    animation: `${fadeIn} 0.5s ease-out`,
+  },
+]);
 
-// Loading States
+// Loading States - Using Theme System
 export const loadingText = style({
-  color: "#6b7280",
-  fontSize: "1rem",
-  fontWeight: 500,
+  color: tokens.colors.textMuted,
+  fontSize: tokens.fontSize.base,
+  fontWeight: tokens.fontWeight.medium,
 });
 
 export const successText = style({
-  color: "#10b981",
-  fontSize: "1rem",
-  fontWeight: 500,
+  color: tokens.colors.success,
+  fontSize: tokens.fontSize.base,
+  fontWeight: tokens.fontWeight.medium,
 });
 
 export const errorText = style({
-  color: "#ef4444",
-  fontSize: "1rem",
-  fontWeight: 500,
+  color: tokens.colors.error,
+  fontSize: tokens.fontSize.base,
+  fontWeight: tokens.fontWeight.medium,
 });
 
-// Responsive Design
+// Responsive Design - Using Theme System
 export const mobileOptimized = style({
   "@media": {
     "(max-width: 768px)": {
-      padding: "1rem",
+      padding: tokens.space[4],
     },
   },
 });
 
-// Mobile typography styles
+// Mobile typography styles - Using Theme System
 globalStyle(`${mobileOptimized} h1`, {
   "@media": {
     "(max-width: 768px)": {
-      fontSize: "1.5rem",
+      fontSize: tokens.fontSize["2xl"],
     },
   },
 });
@@ -180,7 +127,7 @@ globalStyle(`${mobileOptimized} h1`, {
 globalStyle(`${mobileOptimized} h2`, {
   "@media": {
     "(max-width: 768px)": {
-      fontSize: "1.25rem",
+      fontSize: tokens.fontSize.xl,
     },
   },
 });
@@ -188,7 +135,7 @@ globalStyle(`${mobileOptimized} h2`, {
 globalStyle(`${mobileOptimized} h3`, {
   "@media": {
     "(max-width: 768px)": {
-      fontSize: "1.125rem",
+      fontSize: tokens.fontSize.lg,
     },
   },
 });
@@ -196,97 +143,96 @@ globalStyle(`${mobileOptimized} h3`, {
 globalStyle(`${mobileOptimized} p`, {
   "@media": {
     "(max-width: 768px)": {
-      fontSize: "0.875rem",
+      fontSize: tokens.fontSize.sm,
     },
   },
 });
-// Upgrade Result Pages
-export const upgradeResultPage = style({
-  minHeight: "100vh",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  background: "linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)",
-  padding: "2rem",
-});
+// Upgrade Result Pages - Using Theme System
+export const upgradeResultPage = style([
+  utils.flexCenter,
+  {
+    minHeight: "100vh",
+    background: `linear-gradient(135deg, ${tokens.colors.gray50} 0%, ${tokens.colors.gray200} 100%)`,
+    padding: tokens.space[8],
+  },
+]);
 
-export const upgradeResultContainer = style({
-  background: "white",
-  borderRadius: "1rem",
-  padding: "3rem",
-  boxShadow: "0 25px 50px rgba(0, 0, 0, 0.1)",
-  textAlign: "center",
-  maxWidth: "600px",
-  width: "100%",
-  animation: `${fadeIn} 0.5s ease-out`,
-});
+export const upgradeResultContainer = style([
+  utils.card,
+  utils.textCenter,
+  {
+    maxWidth: "600px",
+    width: "100%",
+    animation: `${fadeIn} 0.5s ease-out`,
+  },
+]);
 
 const upgradeResultContent = style({});
 
 globalStyle(`${upgradeResultContent} h1`, {
-  margin: "1rem 0",
-  fontSize: "2rem",
-  fontWeight: 700,
-  color: "#111827",
+  margin: `${tokens.space[4]} 0`,
+  fontSize: tokens.fontSize["4xl"],
+  fontWeight: tokens.fontWeight.bold,
+  color: tokens.colors.text,
 });
 
 globalStyle(`${upgradeResultContent} h3`, {
-  margin: "1.5rem 0 1rem 0",
-  fontSize: "1.25rem",
-  fontWeight: 600,
-  color: "#374151",
+  margin: `${tokens.space[6]} 0 ${tokens.space[4]} 0`,
+  fontSize: tokens.fontSize.xl,
+  fontWeight: tokens.fontWeight.semibold,
+  color: tokens.colors.gray700,
 });
 
 globalStyle(`${upgradeResultContent} p`, {
-  margin: "1rem 0",
-  color: "#6b7280",
-  lineHeight: 1.6,
-  fontSize: "1rem",
+  margin: `${tokens.space[4]} 0`,
+  color: tokens.colors.textMuted,
+  lineHeight: tokens.lineHeight.normal,
+  fontSize: tokens.fontSize.base,
 });
 
 export const upgradeResultContentSuccess = style([upgradeResultContent]);
 
 globalStyle(`${upgradeResultContentSuccess} h1`, {
-  color: "#10b981",
+  color: tokens.colors.success,
 });
 
 export const upgradeResultContentCancel = style([upgradeResultContent]);
 
 globalStyle(`${upgradeResultContentCancel} h1`, {
-  color: "#ef4444",
+  color: tokens.colors.error,
 });
 
 export const upgradeSuccessIcon = style({
-  fontSize: "4rem",
-  color: "#10b981",
-  marginBottom: "1rem",
+  fontSize: tokens.fontSize["4xl"],
+  color: tokens.colors.success,
+  marginBottom: tokens.space[4],
   display: "block",
-  fontWeight: "bold",
+  fontWeight: tokens.fontWeight.bold,
 });
 
 export const cancelIcon = style({
-  fontSize: "4rem",
-  color: "#ef4444",
-  marginBottom: "1rem",
+  fontSize: tokens.fontSize["4xl"],
+  color: tokens.colors.error,
+  marginBottom: tokens.space[4],
   display: "block",
-  fontWeight: "bold",
+  fontWeight: tokens.fontWeight.bold,
 });
 
 export const featureList = style({
   textAlign: "left",
-  margin: "1.5rem 0",
-  padding: "1.5rem",
-  background: "#f8fafc",
-  borderRadius: "0.75rem",
-  border: "1px solid #e2e8f0",
+  margin: `${tokens.space[6]} 0`,
+  padding: tokens.space[6],
+  background: tokens.colors.gray50,
+  borderRadius: tokens.borderRadius.xl,
+  border: `1px solid ${tokens.colors.border}`,
 });
 
 globalStyle(`${featureList} li`, {
-  margin: "0.5rem 0",
-  color: "#374151",
-  fontSize: "0.875rem",
-  fontWeight: 500,
-  paddingLeft: "1rem",
+  margin: `${tokens.space[2]} 0`,
+  color: tokens.colors.gray700,
+  fontSize: tokens.fontSize.sm,
+  fontWeight: tokens.fontWeight.medium,
+  paddingLeft: tokens.space[4],
   position: "relative",
 });
 
@@ -294,52 +240,51 @@ globalStyle(`${featureList} li::before`, {
   content: '"✓"',
   position: "absolute",
   left: 0,
-  color: "#10b981",
-  fontWeight: "bold",
+  color: tokens.colors.success,
+  fontWeight: tokens.fontWeight.bold,
 });
 
 export const upgradeBenefits = style({
-  margin: "2rem 0",
-  padding: "1.5rem",
-  background: "#fef3c7",
-  borderRadius: "0.75rem",
-  border: "1px solid #fbbf24",
+  margin: `${tokens.space[8]} 0`,
+  padding: tokens.space[6],
+  background: tokens.colors.warningBg,
+  borderRadius: tokens.borderRadius.xl,
+  border: `1px solid ${tokens.colors.warning}`,
 });
 
 export const redirectText = style({
-  fontSize: "0.875rem",
-  color: "#9ca3af",
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.textLight,
   fontStyle: "italic",
-  margin: "2rem 0 1rem 0",
+  margin: `${tokens.space[8]} 0 ${tokens.space[4]} 0`,
 });
 
-export const actionButtons = style({
-  display: "flex",
-  gap: "1rem",
-  justifyContent: "center",
-  marginTop: "2rem",
-  "@media": {
-    "(max-width: 768px)": {
-      flexDirection: "column",
+export const actionButtons = style([
+  utils.flex,
+  utils.gap4,
+  {
+    justifyContent: "center",
+    marginTop: tokens.space[8],
+    "@media": {
+      "(max-width: 768px)": {
+        flexDirection: "column",
+      },
     },
   },
-});
+]);
 
-// Button Styles for Upgrade Pages
-export const btnPrimary = style({
-  padding: "0.75rem 2rem",
-  background: "linear-gradient(135deg, #ff8000 0%, #cc5500 100%)",
-  color: "white",
-  border: "none",
-  borderRadius: "0.5rem",
-  fontSize: "1rem",
-  fontWeight: 600,
-  cursor: "pointer",
-  transition: "all 0.2s",
-  textDecoration: "none",
-  display: "inline-block",
-  ":hover": {
-    transform: "translateY(-1px)",
-    boxShadow: "0 4px 12px rgba(255, 128, 0, 0.3)",
+// Button Styles for Upgrade Pages - Using Theme System
+export const btnPrimary = style([
+  buttonStyles.primary,
+  {
+    padding: `${tokens.space[3]} ${tokens.space[8]}`,
+    textDecoration: "none",
+    display: "inline-block",
+    selectors: {
+      "&:hover": {
+        transform: "translateY(-1px)",
+        boxShadow: `0 4px 12px ${tokens.colors.primaryLight}`,
+      },
+    },
   },
-});
+]);
