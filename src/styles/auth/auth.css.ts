@@ -12,7 +12,7 @@ const fadeIn = keyframes({
 });
 
 // Auth Button Styles
-export const authButton = style({
+const authButton = style({
   padding: "0.75rem 1.5rem",
   borderRadius: "0.5rem",
   border: "none",
@@ -221,7 +221,7 @@ export const upgradeResultContainer = style({
   animation: `${fadeIn} 0.5s ease-out`,
 });
 
-export const upgradeResultContent = style({});
+const upgradeResultContent = style({});
 
 globalStyle(`${upgradeResultContent} h1`, {
   margin: "1rem 0",
@@ -343,17 +343,3 @@ export const btnPrimary = style({
     boxShadow: "0 4px 12px rgba(255, 128, 0, 0.3)",
   },
 });
-
-export const btnSecondary = style([
-  btnPrimary,
-  {
-    background: "white",
-    color: "#374151",
-    border: "1px solid #d1d5db",
-    ":hover": {
-      borderColor: "#9ca3af",
-      background: "#f9fafb",
-      boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-    },
-  },
-]);

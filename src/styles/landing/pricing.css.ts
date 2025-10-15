@@ -121,7 +121,7 @@ export const featuresListItem = style({
   paddingLeft: "1rem",
 });
 
-export const pricingButton = style({
+const pricingButton = style({
   width: "100%",
   padding: "1rem",
   borderRadius: "0.5rem",

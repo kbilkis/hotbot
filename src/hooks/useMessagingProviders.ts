@@ -1,7 +1,7 @@
 import type { InferRequestType } from "hono/client";
 import useSWR from "swr";
 
-import { messagingApi } from "../lib/api/client";
+import { messagingApi } from "@/lib/api/client";
 
 export function useMessagingProviders(shouldFetch: boolean = true) {
   const $get = messagingApi.$get;

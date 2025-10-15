@@ -251,23 +251,6 @@ function parseCronIntervalHours(cronExpression: string): number {
 }
 
 /**
- * Get user's current usage with tier limits
- */
-export async function getUserUsageWithLimits(userId: string) {
-  const [tierInfo, currentUsage] = await Promise.all([
-    getUserTierInfo(userId),
-    getUserUsage(userId),
-  ]);
-
-  return {
-    tier: tierInfo.tier,
-    limits: tierInfo.limits,
-    usage: currentUsage,
-    subscription: tierInfo.subscription,
-  };
-}
-
-/**
  * Helper function to get user's current tier
  */
 export async function getUserTier(

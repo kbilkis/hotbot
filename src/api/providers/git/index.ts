@@ -1,14 +1,13 @@
 import { arktypeValidator } from "@hono/arktype-validator";
 import { Hono } from "hono";
 
-import { createErrorResponse } from "@/lib/errors/api-error";
-
-import { getCurrentUserId } from "../../../lib/auth/clerk";
+import { getCurrentUserId } from "@/lib/auth/clerk";
 import {
   getUserGitProviders,
   deleteGitProvider,
-} from "../../../lib/database/queries/providers";
-import { GitProviderQuerySchema } from "../../../lib/validation/provider-schemas";
+} from "@/lib/database/queries/providers";
+import { createErrorResponse } from "@/lib/errors/api-error";
+import { GitProviderQuerySchema } from "@/lib/validation/provider-schemas";
 
 import githubRoutes from "./github";
 import gitlabRoutes from "./gitlab";
@@ -80,4 +79,3 @@ const app = new Hono()
   });
 
 export default app;
-export type GitRoutesApiType = typeof app;

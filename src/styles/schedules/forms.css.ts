@@ -60,15 +60,6 @@ export const fieldError = style({
   fontWeight: 500,
 });
 
-export const optional = style({
-  color: "#6b7280",
-  fontWeight: 400,
-});
-
-export const required = style({
-  color: "#ef4444",
-});
-
 // Form Sections
 export const formSection = style({
   marginBottom: "2rem",
@@ -91,97 +82,6 @@ export const formRow = style({
     },
   },
 });
-
-// Input Groups
-export const inputGroup = style({
-  display: "flex",
-  gap: "0.5rem",
-  alignItems: "flex-start",
-});
-
-export const inputWithIcon = style({
-  position: "relative",
-});
-
-export const inputIcon = style({
-  position: "absolute",
-  left: "0.75rem",
-  top: "50%",
-  transform: "translateY(-50%)",
-  color: "#6b7280",
-});
-
-export const inputWithIconInput = style([
-  formInput,
-  {
-    paddingLeft: "2.5rem",
-  },
-]);
-
-// Buttons
-export const button = style({
-  padding: "0.75rem 1.5rem",
-  borderRadius: "0.5rem",
-  fontWeight: 600,
-  cursor: "pointer",
-  transition: "all 0.2s",
-  border: "none",
-  fontSize: "1rem",
-  display: "inline-flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "0.5rem",
-});
-
-export const buttonPrimary = style([
-  button,
-  {
-    background: "#ff8000",
-    color: "white",
-    ":hover": {
-      background: "#cc5500",
-      transform: "translateY(-1px)",
-    },
-    ":disabled": {
-      background: "#9ca3af",
-      cursor: "not-allowed",
-      transform: "none",
-    },
-  },
-]);
-
-export const buttonSecondary = style([
-  button,
-  {
-    background: "transparent",
-    color: "#6b7280",
-    border: "1px solid rgba(148, 163, 184, 0.3)",
-    ":hover": {
-      borderColor: "#ff8000",
-      color: "#ff8000",
-    },
-    ":disabled": {
-      opacity: 0.5,
-      cursor: "not-allowed",
-    },
-  },
-]);
-
-export const buttonSmall = style({
-  padding: "0.5rem 1rem",
-  fontSize: "0.875rem",
-});
-
-export const buttonDanger = style([
-  button,
-  {
-    background: "#ef4444",
-    color: "white",
-    ":hover": {
-      background: "#dc2626",
-    },
-  },
-]);
 
 export const loadingText = style({
   color: "#6b7280",

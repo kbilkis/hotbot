@@ -1,7 +1,7 @@
 // Slack API TypeScript types based on @slack/web-api
 // These types are derived from the official Slack Web API SDK
 
-export interface WebAPICallResult {
+interface WebAPICallResult {
   ok?: boolean;
   error?: string;
   needed?: string;
@@ -25,7 +25,7 @@ export interface OauthV2AccessResponse extends WebAPICallResult {
   token_type?: string;
 }
 
-export interface AuthedUser {
+interface AuthedUser {
   access_token?: string;
   expires_in?: number;
   id?: string;
@@ -34,12 +34,12 @@ export interface AuthedUser {
   token_type?: string;
 }
 
-export interface Enterprise {
+interface Enterprise {
   id?: string;
   name?: string;
 }
 
-export interface IncomingWebhook {
+interface IncomingWebhook {
   channel?: string;
   channel_id?: string;
   configuration_url?: string;
@@ -92,7 +92,7 @@ export interface Channel {
   user?: string;
 }
 
-export interface Properties {
+interface Properties {
   canvas?: Canvas;
   posting_restricted_to?: RestrictedTo;
   tabs?: Tab[];
@@ -100,30 +100,30 @@ export interface Properties {
   threads_restricted_to?: RestrictedTo;
 }
 
-export interface Canvas {
+interface Canvas {
   file_id?: string;
   is_empty?: boolean;
   quip_thread_id?: string;
 }
 
-export interface RestrictedTo {
+interface RestrictedTo {
   type?: string[];
   user?: string[];
 }
 
-export interface Tab {
+interface Tab {
   id?: string;
   label?: string;
   type?: string;
 }
 
-export interface Purpose {
+interface Purpose {
   creator?: string;
   last_set?: number;
   value?: string;
 }
 
-export interface ResponseMetadata {
+interface ResponseMetadata {
   next_cursor?: string;
 }
 
@@ -152,7 +152,7 @@ export interface ChatPostMessageResponse extends WebAPICallResult {
   ts?: string;
 }
 
-export interface ChatPostMessageResponseMessage {
+interface ChatPostMessageResponseMessage {
   app_id?: string;
   attachments?: unknown[];
   blocks?: unknown[];

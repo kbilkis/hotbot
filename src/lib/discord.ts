@@ -14,12 +14,7 @@ const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID!;
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET!;
 
 // Re-export commonly used types for convenience
-export type {
-  DiscordGuild,
-  DiscordChannel,
-  DiscordMessage,
-  DiscordEmbed,
-} from "../types/discord";
+export type { DiscordChannel } from "../types/discord";
 
 interface DiscordTokenResponse {
   accessToken: string;

@@ -1,5 +1,5 @@
-import { container } from "../../styles/landing/base.css";
-import * as styles from "../../styles/landing/pricing.css";
+import { container } from "@/styles/landing/base.css";
+import * as styles from "@/styles/landing/pricing.css";
 
 export default function PricingSection() {
   return (

@@ -1,6 +1,5 @@
 // Simple GitHub API functions
 import type {
-  GitHubUser,
   GitHubRepository,
   GitHubPullRequest,
   GitHubReview,
@@ -290,17 +289,4 @@ function applyPRFilters(
 
     return true;
   });
-}
-
-// Get user info
-export async function getGitHubUserInfo(
-  token: string
-): Promise<{ login: string; name: string; email: string }> {
-  const user = await githubApiRequest<GitHubUser>("/user", token);
-
-  return {
-    login: user.login,
-    name: user.name || user.login,
-    email: user.email || "",
-  };
 }

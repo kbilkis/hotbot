@@ -1,6 +1,6 @@
 import { useAuth, useUser, useClerk } from "@clerk/clerk-react";
 
-import * as authStyles from "../../styles/auth/auth.css";
+import * as authStyles from "@/styles/auth/auth.css";
 
 export default function AuthButton() {
   const { isLoaded, isSignedIn } = useAuth();

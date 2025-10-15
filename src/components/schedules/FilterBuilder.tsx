@@ -1,6 +1,6 @@
 import { useState } from "preact/hooks";
 
-import * as styles from "../../styles/schedules/filter-builder.css";
+import * as styles from "@/styles/schedules/filter-builder.css";
 
 interface PRFilters {
   labels: string[];

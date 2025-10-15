@@ -1,6 +1,6 @@
 import { useAuth, useClerk } from "@clerk/clerk-react";
 
-import * as authStyles from "../../styles/auth/auth.css";
+import * as authStyles from "@/styles/auth/auth.css";
 
 interface ProtectedRouteProps {
   children: preact.ComponentChildren;

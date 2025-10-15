@@ -1,7 +1,7 @@
 import type { InferRequestType } from "hono/client";
 import useSWR from "swr";
 
-import { subscriptionsApi } from "../lib/api/client";
+import { subscriptionsApi } from "@/lib/api/client";
 
 export function useSubscription(shouldFetch: boolean = true) {
   const $get = subscriptionsApi.current.$get;

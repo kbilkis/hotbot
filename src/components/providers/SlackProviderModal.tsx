@@ -1,16 +1,15 @@
 import { useEffect, useState } from "preact/hooks";
 import { mutate } from "swr";
 
+import { slackApi, messagingApi } from "@/lib/api/client";
+import * as channelStyles from "@/styles/providers/channels.css";
+import * as modalStyles from "@/styles/providers/modal.css";
 import type { SlackChannel } from "@/types/slack";
-
-import { slackApi, messagingApi } from "../../lib/api/client";
-import * as channelStyles from "../../styles/providers/channels.css";
-import * as modalStyles from "../../styles/providers/modal.css";
 import {
   getProviderColor,
   getProviderBgColor,
   getProviderAccentColor,
-} from "../../utils/providerColors";
+} from "@/utils/providerColors";
 
 interface SlackProviderModalProps {
   onClose: () => void;

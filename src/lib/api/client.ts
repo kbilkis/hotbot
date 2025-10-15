@@ -3,7 +3,7 @@ import { hc } from "hono/client";
 import api from "@/api/allRoutes";
 
 // Error response type that can come from middleware/global handlers
-export type ApiErrorResponse = {
+type ApiErrorResponse = {
   success: false;
   error: string;
   message: string;
@@ -25,18 +25,17 @@ type ExtendedClient<T> = {
 };
 
 // this is a trick to calculate the type when compiling
-export type Client = ReturnType<typeof hc<typeof api>>;
-export const hcWithType = (...args: Parameters<typeof hc>): Client =>
+type Client = ReturnType<typeof hc<typeof api>>;
+const hcWithType = (...args: Parameters<typeof hc>): Client =>
   hc<typeof api>(...args);
 
 // Create a typed Hono RPC client
 const client = hcWithType("/api");
 
 // Export the API client with extended response types
-export const apiClient = client as ExtendedClient<typeof client>;
+const apiClient = client as ExtendedClient<typeof client>;
 
 // Export specific API sections for easier imports (using extended client)
-export const providersApi = apiClient.providers;
 export const gitApi = apiClient.providers.git;
 export const githubApi = apiClient.providers.git.github;
 export const gitlabApi = apiClient.providers.git.gitlab;

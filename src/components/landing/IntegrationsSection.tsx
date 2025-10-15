@@ -1,5 +1,5 @@
-import { container } from "../../styles/landing/base.css";
-import * as styles from "../../styles/landing/integrations.css";
+import { container } from "@/styles/landing/base.css";
+import * as styles from "@/styles/landing/integrations.css";
 
 export default function IntegrationsSection() {
   return (

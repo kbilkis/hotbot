@@ -1,5 +1,5 @@
-import * as styles from "../../styles/landing/advanced.css";
-import { container } from "../../styles/landing/base.css";
+import * as styles from "@/styles/landing/advanced.css";
+import { container } from "@/styles/landing/base.css";
 
 // This component contains the remaining sections that are less critical for initial load
 export default function AdvancedSections() {

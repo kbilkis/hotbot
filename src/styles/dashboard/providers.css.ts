@@ -80,7 +80,7 @@ export const providerName = style({
   color: "#111827",
 });
 
-export const connectionStatus = style({
+const connectionStatus = style({
   fontSize: "0.75rem",
   fontWeight: 600,
   padding: "0.25rem 0.5rem",

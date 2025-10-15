@@ -3,25 +3,24 @@
 import { arktypeValidator } from "@hono/arktype-validator";
 import { Hono } from "hono";
 
+import { checkGitProviderLimits } from "@/lib/access-control/middleware";
 import { getCurrentUserId } from "@/lib/auth/clerk";
-import { createErrorResponse } from "@/lib/errors/api-error";
-
-import { checkGitProviderLimits } from "../../../lib/access-control/middleware";
 import {
   getUserGitProvider,
   upsertGitProvider,
-} from "../../../lib/database/queries/providers";
+} from "@/lib/database/queries/providers";
+import { createErrorResponse } from "@/lib/errors/api-error";
 import {
   getGitHubAuthUrl,
   exchangeGitHubToken,
   getGitHubRepositories,
-} from "../../../lib/github";
-import { OAuthStateManager } from "../../../lib/redis/oauth-state";
+} from "@/lib/github";
+import { OAuthStateManager } from "@/lib/redis/oauth-state";
 import {
   GitHubAuthUrlSchema,
   GitHubTokenExchangeSchema,
   ManualTokenSchema,
-} from "../../../lib/validation/provider-schemas";
+} from "@/lib/validation/provider-schemas";
 
 const app = new Hono()
   .post(
@@ -169,4 +168,3 @@ const app = new Hono()
   });
 
 export default app;
-export type GithubApiType = typeof app;

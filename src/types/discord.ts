@@ -148,22 +148,22 @@ export interface DiscordChannel {
 // https://discord.com/developers/docs/resources/channel#channel-object-channel-types
 export enum DiscordChannelType {
   GUILD_TEXT = 0,
-  DM = 1,
-  GUILD_VOICE = 2,
-  GROUP_DM = 3,
-  GUILD_CATEGORY = 4,
-  GUILD_ANNOUNCEMENT = 5,
-  ANNOUNCEMENT_THREAD = 10,
-  PUBLIC_THREAD = 11,
-  PRIVATE_THREAD = 12,
-  GUILD_STAGE_VOICE = 13,
-  GUILD_DIRECTORY = 14,
-  GUILD_FORUM = 15,
-  GUILD_MEDIA = 16,
+  // DM = 1,
+  // GUILD_VOICE = 2,
+  // GROUP_DM = 3,
+  // GUILD_CATEGORY = 4,
+  // GUILD_ANNOUNCEMENT = 5,
+  // ANNOUNCEMENT_THREAD = 10,
+  // PUBLIC_THREAD = 11,
+  // PRIVATE_THREAD = 12,
+  // GUILD_STAGE_VOICE = 13,
+  // GUILD_DIRECTORY = 14,
+  // GUILD_FORUM = 15,
+  // GUILD_MEDIA = 16,
 }
 
 // Supporting interfaces
-export interface DiscordRole {
+interface DiscordRole {
   id: string;
   name: string;
   color: number;
@@ -178,7 +178,7 @@ export interface DiscordRole {
   flags: number;
 }
 
-export interface DiscordRoleTags {
+interface DiscordRoleTags {
   bot_id?: string;
   integration_id?: string;
   premium_subscriber?: null;
@@ -187,7 +187,7 @@ export interface DiscordRoleTags {
   guild_connections?: null;
 }
 
-export interface DiscordEmoji {
+interface DiscordEmoji {
   id?: string | null;
   name?: string | null;
   roles?: string[];
@@ -198,7 +198,7 @@ export interface DiscordEmoji {
   available?: boolean;
 }
 
-export interface DiscordSticker {
+interface DiscordSticker {
   id: string;
   pack_id?: string;
   name: string;
@@ -212,26 +212,26 @@ export interface DiscordSticker {
   sort_value?: number;
 }
 
-export interface DiscordWelcomeScreen {
+interface DiscordWelcomeScreen {
   description?: string | null;
   welcome_channels: DiscordWelcomeScreenChannel[];
 }
 
-export interface DiscordWelcomeScreenChannel {
+interface DiscordWelcomeScreenChannel {
   channel_id: string;
   description: string;
   emoji_id?: string | null;
   emoji_name?: string | null;
 }
 
-export interface DiscordOverwrite {
+interface DiscordOverwrite {
   id: string;
   type: number;
   allow: string;
   deny: string;
 }
 
-export interface DiscordThreadMetadata {
+interface DiscordThreadMetadata {
   archived: boolean;
   auto_archive_duration: number;
   archive_timestamp: string;
@@ -240,7 +240,7 @@ export interface DiscordThreadMetadata {
   create_timestamp?: string | null;
 }
 
-export interface DiscordThreadMember {
+interface DiscordThreadMember {
   id?: string;
   user_id?: string;
   join_timestamp: string;
@@ -248,7 +248,7 @@ export interface DiscordThreadMember {
   member?: DiscordGuildMember;
 }
 
-export interface DiscordGuildMember {
+interface DiscordGuildMember {
   user?: DiscordUser;
   nick?: string | null;
   avatar?: string | null;
@@ -267,7 +267,7 @@ export interface DiscordGuildMember {
   } | null;
 }
 
-export interface DiscordForumTag {
+interface DiscordForumTag {
   id: string;
   name: string;
   moderated: boolean;
@@ -275,7 +275,7 @@ export interface DiscordForumTag {
   emoji_name?: string | null;
 }
 
-export interface DiscordDefaultReaction {
+interface DiscordDefaultReaction {
   emoji_id?: string | null;
   emoji_name?: string | null;
 }
@@ -290,7 +290,7 @@ export interface DiscordMessage {
   flags?: number;
 }
 
-export interface DiscordEmbed {
+interface DiscordEmbed {
   title?: string;
   type?: string;
   description?: string;
@@ -306,59 +306,59 @@ export interface DiscordEmbed {
   fields?: DiscordEmbedField[];
 }
 
-export interface DiscordEmbedFooter {
+interface DiscordEmbedFooter {
   text: string;
   icon_url?: string;
   proxy_icon_url?: string;
 }
 
-export interface DiscordEmbedImage {
+interface DiscordEmbedImage {
   url: string;
   proxy_url?: string;
   height?: number;
   width?: number;
 }
 
-export interface DiscordEmbedThumbnail {
+interface DiscordEmbedThumbnail {
   url: string;
   proxy_url?: string;
   height?: number;
   width?: number;
 }
 
-export interface DiscordEmbedVideo {
+interface DiscordEmbedVideo {
   url?: string;
   proxy_url?: string;
   height?: number;
   width?: number;
 }
 
-export interface DiscordEmbedProvider {
+interface DiscordEmbedProvider {
   name?: string;
   url?: string;
 }
 
-export interface DiscordEmbedAuthor {
+interface DiscordEmbedAuthor {
   name: string;
   url?: string;
   icon_url?: string;
   proxy_icon_url?: string;
 }
 
-export interface DiscordEmbedField {
+interface DiscordEmbedField {
   name: string;
   value: string;
   inline?: boolean;
 }
 
-export interface DiscordAllowedMentions {
+interface DiscordAllowedMentions {
   parse?: ("roles" | "users" | "everyone")[];
   roles?: string[];
   users?: string[];
   replied_user?: boolean;
 }
 
-export interface DiscordComponent {
+interface DiscordComponent {
   type: number;
   components?: DiscordComponent[];
   style?: number;
@@ -369,26 +369,18 @@ export interface DiscordComponent {
   disabled?: boolean;
 }
 
-export interface DiscordFile {
+interface DiscordFile {
   name: string;
   data: Buffer | Uint8Array;
   description?: string;
 }
 
-// Error response type
-// https://discord.com/developers/docs/reference#error-messages
-export interface DiscordErrorResponse {
-  code: number;
-  message: string;
-  errors?: DiscordValidationErrors;
-}
-
 // Discord validation error structure - can be deeply nested
-export interface DiscordValidationErrors {
+interface DiscordValidationErrors {
   [field: string]: DiscordFieldError | DiscordValidationErrors;
 }
 
-export interface DiscordFieldError {
+interface DiscordFieldError {
   _errors?: Array<{
     code: string;
     message: string;

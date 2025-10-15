@@ -1,6 +1,5 @@
 // GitLab API functions
 import type {
-  GitLabUser,
   GitLabProject,
   GitLabMergeRequestFromAPI,
   GitLabOAuthTokenResponse,
@@ -322,17 +321,4 @@ function applyMRFilters(
 
     return true;
   });
-}
-
-// Get user info
-export async function getGitLabUserInfo(
-  token: string
-): Promise<{ login: string; name: string; email: string }> {
-  const user = await gitlabApiRequest<GitLabUser>("/user", token);
-
-  return {
-    login: user.username,
-    name: user.name || user.username,
-    email: user.email || "",
-  };
 }

@@ -3,7 +3,7 @@
 
 import { Request, Response } from "@google-cloud/functions-framework";
 
-import { refreshExpiringTokens } from "../lib/oauth/scheduled-refresh";
+import { refreshExpiringTokens } from "@/lib/oauth/scheduled-refresh";
 
 import { wrapWithSentry } from "./sentry-helper";
 

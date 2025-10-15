@@ -1,4 +1,4 @@
-import * as styles from "../../styles/landing/hero.css";
+import * as styles from "@/styles/landing/hero.css";
 
 export default function HeroSection() {
   return (

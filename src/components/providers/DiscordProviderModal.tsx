@@ -1,15 +1,15 @@
 import { useState, useEffect } from "preact/hooks";
 import { mutate } from "swr";
 
-import { useDiscordGuilds, useDiscordChannels } from "../../hooks/useChannels";
-import { discordApi, messagingApi } from "../../lib/api/client";
-import * as channelStyles from "../../styles/providers/channels.css";
-import * as modalStyles from "../../styles/providers/modal.css";
+import { useDiscordGuilds, useDiscordChannels } from "@/hooks/useChannels";
+import { discordApi, messagingApi } from "@/lib/api/client";
+import * as channelStyles from "@/styles/providers/channels.css";
+import * as modalStyles from "@/styles/providers/modal.css";
 import {
   getProviderColor,
   getProviderBgColor,
   getProviderAccentColor,
-} from "../../utils/providerColors";
+} from "@/utils/providerColors";
 
 interface DiscordProviderModalProps {
   onClose: () => void;

@@ -1,15 +1,15 @@
 import { useState, useEffect } from "preact/hooks";
 import { mutate } from "swr";
 
-import { gitApi, githubApi, gitlabApi } from "../../lib/api/client";
-import { GitProviderData } from "../../lib/validation/provider-schemas";
-import * as modalStyles from "../../styles/providers/modal.css";
-import * as repoStyles from "../../styles/providers/repositories.css";
+import { gitApi, githubApi, gitlabApi } from "@/lib/api/client";
+import { GitProviderData } from "@/lib/validation/provider-schemas";
+import * as modalStyles from "@/styles/providers/modal.css";
+import * as repoStyles from "@/styles/providers/repositories.css";
 import {
   getProviderColor,
   getProviderBgColor,
   getProviderAccentColor,
-} from "../../utils/providerColors";
+} from "@/utils/providerColors";
 
 interface GitProviderModalProps {
   provider: GitProviderData;

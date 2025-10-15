@@ -5,8 +5,9 @@ import {
   getAllTimezones,
   convertCronToUTC,
   convertCronFromUTC,
-} from "../../lib/utils/timezone";
-import * as styles from "../../styles/schedules/cron-builder.css";
+} from "@/lib/utils/timezone";
+import * as styles from "@/styles/schedules/cron-builder.css";
+
 import Tooltip from "../ui/Tooltip";
 
 interface CronBuilderProps {

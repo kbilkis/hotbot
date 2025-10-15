@@ -2,14 +2,13 @@ import * as Sentry from "@sentry/cloudflare";
 import { Hono } from "hono";
 
 import { TierLimitError } from "@/lib/access-control/middleware";
-
-import { dbUserMiddleware, requireAuth } from "../lib/auth/clerk";
+import { dbUserMiddleware, requireAuth } from "@/lib/auth/clerk";
 import {
   webhookRateLimit,
   tunnelRateLimit,
   apiRateLimit,
   bodyLimits,
-} from "../lib/middleware/rate-limit";
+} from "@/lib/middleware/rate-limit";
 
 import providersRoutes from "./providers";
 import schedulesRoutes from "./schedules";
@@ -72,4 +71,3 @@ const api = new Hono()
   .route("/tawk", tawkRoutes);
 
 export default api;
-export type ApiType = typeof api;

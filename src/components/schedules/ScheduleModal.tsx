@@ -2,17 +2,16 @@ import CronExpressionParser from "cron-parser";
 import { useState, useEffect } from "preact/hooks";
 
 import { useChannels, useDiscordChannels } from "@/hooks/useChannels";
+import { useGitProviders } from "@/hooks/useGitProviders";
+import { useMessagingProviders } from "@/hooks/useMessagingProviders";
 import { useRepositories } from "@/hooks/useRepositories";
+import { discordApi, schedulesApi } from "@/lib/api/client";
 import { CronJob } from "@/lib/database/schema";
 import { DiscordChannel } from "@/lib/discord";
 import { getUserTimezoneOrFallback } from "@/lib/utils/timezone";
+import * as formStyles from "@/styles/schedules/forms.css";
+import * as styles from "@/styles/schedules/modal.css";
 import { SlackChannel } from "@/types/slack";
-
-import { useGitProviders } from "../../hooks/useGitProviders";
-import { useMessagingProviders } from "../../hooks/useMessagingProviders";
-import { discordApi, schedulesApi } from "../../lib/api/client";
-import * as formStyles from "../../styles/schedules/forms.css";
-import * as styles from "../../styles/schedules/modal.css";
 
 import CronBuilder from "./CronBuilder";
 import FilterBuilder from "./FilterBuilder";

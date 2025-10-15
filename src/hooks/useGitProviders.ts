@@ -1,7 +1,7 @@
 import type { InferRequestType } from "hono/client";
 import useSWR from "swr";
 
-import { gitApi } from "../lib/api/client";
+import { gitApi } from "@/lib/api/client";
 
 export function useGitProviders(shouldFetch: boolean = true) {
   const $get = gitApi.$get;

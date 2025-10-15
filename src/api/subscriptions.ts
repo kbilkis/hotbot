@@ -3,45 +3,13 @@ import { type } from "arktype";
 import { Hono } from "hono";
 
 import { getCurrentUserId, getCurrentUser } from "@/lib/auth/clerk";
-import { createErrorResponse, handleApiError } from "@/lib/errors/api-error";
-
 import {
   getSubscriptionByUserId,
   getUserUsage,
   upsertSubscription,
-} from "../lib/database/queries/subscriptions";
-import { createStripeService } from "../lib/stripe/service";
-
-interface SubscriptionUsage {
-  gitProvidersCount: number;
-  messagingProvidersCount: number;
-  cronJobsCount: number;
-}
-
-interface SubscriptionLimits {
-  gitProviders: number | null;
-  messagingProviders: number | null;
-  cronJobs: number | null;
-  minCronInterval: number;
-}
-
-interface SubscriptionBilling {
-  subscriptionId: string;
-  customerId: string;
-  currentPeriodStart: string | null;
-  currentPeriodEnd: string | null;
-  cancelAtPeriodEnd: boolean;
-}
-
-export interface SubscriptionDataDto {
-  tier: "free" | "pro";
-  status: string;
-  usage: SubscriptionUsage;
-  limits: SubscriptionLimits;
-  billing: SubscriptionBilling | null;
-  createdAt?: string;
-  updatedAt?: string;
-}
+} from "@/lib/database/queries/subscriptions";
+import { createErrorResponse, handleApiError } from "@/lib/errors/api-error";
+import { createStripeService } from "@/lib/stripe/service";
 
 // Validation schemas
 const CheckoutRequestSchema = type({
@@ -293,8 +261,7 @@ const subscriptions = new Hono()
       billing,
       createdAt: subscription.createdAt?.toISOString(),
       updatedAt: subscription.updatedAt?.toISOString(),
-    } as SubscriptionDataDto);
+    });
   });
 
 export default subscriptions;
-export type SubscriptionsApiType = typeof subscriptions;

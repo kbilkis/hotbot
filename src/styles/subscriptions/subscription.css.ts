@@ -27,7 +27,7 @@ export const tierBadgeContainer = style({
   alignItems: "center",
 });
 
-export const tierBadge = style({
+const tierBadge = style({
   padding: "0.25rem 0.75rem",
   borderRadius: "1rem",
   fontSize: "0.75rem",
@@ -52,7 +52,7 @@ export const tierBadgePro = style([
   },
 ]);
 
-export const statusBadge = style({
+const statusBadge = style({
   padding: "0.25rem 0.75rem",
   borderRadius: "1rem",
   fontSize: "0.75rem",

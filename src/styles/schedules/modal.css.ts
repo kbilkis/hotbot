@@ -80,12 +80,6 @@ export const modalBody = style({
   flex: 1,
 });
 
-export const modalDescription = style({
-  color: "#6b7280",
-  marginBottom: "2rem",
-  lineHeight: 1.6,
-});
-
 export const modalFooter = style({
   padding: "1rem 2rem 2rem",
   display: "flex",
@@ -130,94 +124,5 @@ export const cancelButton = style({
   ":hover": {
     borderColor: "#ff8000",
     color: "#ff8000",
-  },
-});
-
-// Schedule-specific form sections
-export const scheduleFormSection = style({
-  marginBottom: "2rem",
-  padding: "1.5rem",
-  background: "#f8fafc",
-  border: "1px solid #e2e8f0",
-  borderRadius: "0.75rem",
-});
-
-export const scheduleFormSectionTitle = style({
-  fontSize: "1.125rem",
-  fontWeight: 600,
-  color: "#111827",
-  marginBottom: "1rem",
-  display: "flex",
-  alignItems: "center",
-  gap: "0.5rem",
-});
-
-export const scheduleFormSectionIcon = style({
-  fontSize: "1.25rem",
-});
-
-export const repositoryList = style({
-  maxHeight: "200px",
-  overflowY: "auto",
-  border: "1px solid #e5e7eb",
-  borderRadius: "0.5rem",
-  padding: "0.5rem",
-});
-
-export const repositoryItem = style({
-  display: "flex",
-  alignItems: "center",
-  gap: "0.5rem",
-  padding: "0.5rem",
-  borderRadius: "0.25rem",
-  transition: "background 0.2s",
-  ":hover": {
-    background: "#f3f4f6",
-  },
-});
-
-export const repositoryCheckbox = style({
-  marginRight: "0.5rem",
-});
-
-export const repositoryName = style({
-  fontSize: "0.875rem",
-  color: "#374151",
-});
-
-export const channelSelect = style({
-  width: "100%",
-  padding: "0.75rem",
-  border: "1px solid #d1d5db",
-  borderRadius: "0.375rem",
-  fontSize: "0.875rem",
-  background: "white",
-  cursor: "pointer",
-  transition: "all 0.2s",
-  ":focus": {
-    outline: "none",
-    borderColor: "#ff8000",
-    boxShadow: "0 0 0 3px rgba(255, 128, 0, 0.1)",
-  },
-});
-
-export const escalationSettings = style({
-  display: "grid",
-  gridTemplateColumns: "1fr auto",
-  gap: "1rem",
-  alignItems: "end",
-});
-
-export const escalationDaysInput = style({
-  width: "80px",
-  padding: "0.5rem",
-  border: "1px solid #d1d5db",
-  borderRadius: "0.375rem",
-  fontSize: "0.875rem",
-  textAlign: "center",
-  ":focus": {
-    outline: "none",
-    borderColor: "#ff8000",
-    boxShadow: "0 0 0 3px rgba(255, 128, 0, 0.1)",
   },
 });

@@ -3,22 +3,21 @@ import { Hono } from "hono";
 
 import { getCurrentUserId } from "@/lib/auth/clerk";
 import {
+  deleteMessagingProvider,
+  getUserMessagingProviders,
+} from "@/lib/database/queries/providers";
+import {
   MessagingProvider,
   MessagingProviderType,
 } from "@/lib/database/schema";
 import { createErrorResponse } from "@/lib/errors/api-error";
-
-import {
-  deleteMessagingProvider,
-  getUserMessagingProviders,
-} from "../../../lib/database/queries/providers";
-import { MessagingProviderQuerySchema } from "../../../lib/validation/provider-schemas";
+import { MessagingProviderQuerySchema } from "@/lib/validation/provider-schemas";
 
 import discordRoutes from "./discord";
 import slackRoutes from "./slack";
 import teamsRoutes from "./teams";
 
-export interface MessagingProviderDTO {
+interface MessagingProviderDTO {
   id: string;
   type: MessagingProviderType;
   name: string;
@@ -120,4 +119,3 @@ const app = new Hono()
   .route("/discord", discordRoutes);
 
 export default app;
-export type MessagingApiType = typeof app;

@@ -1,9 +1,8 @@
 import type { InferRequestType } from "hono/client";
 import useSWR from "swr";
 
+import { githubApi, gitlabApi } from "@/lib/api/client";
 import { GitProviderData } from "@/lib/validation/provider-schemas";
-
-import { githubApi, gitlabApi } from "../lib/api/client";
 
 // GitHub repositories hook
 function useGitHubRepositories(shouldFetch: boolean = true) {

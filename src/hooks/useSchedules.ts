@@ -1,7 +1,7 @@
 import type { InferRequestType } from "hono/client";
 import useSWR from "swr";
 
-import { schedulesApi } from "../lib/api/client";
+import { schedulesApi } from "@/lib/api/client";
 
 export function useSchedules(shouldFetch: boolean = true) {
   const $get = schedulesApi.$get;

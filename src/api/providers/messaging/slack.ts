@@ -3,16 +3,15 @@
 import { arktypeValidator } from "@hono/arktype-validator";
 import { Hono } from "hono";
 
+import { checkMessagingProviderLimits } from "@/lib/access-control/middleware";
 import { getCurrentUserId } from "@/lib/auth/clerk";
-import { createErrorResponse } from "@/lib/errors/api-error";
-import { OAuthStateManager } from "@/lib/redis/oauth-state";
-
-import { checkMessagingProviderLimits } from "../../../lib/access-control/middleware";
 import {
   getUserMessagingProvider,
   upsertMessagingProvider,
-} from "../../../lib/database/queries/providers";
-import { expensiveRateLimit } from "../../../lib/middleware/rate-limit";
+} from "@/lib/database/queries/providers";
+import { createErrorResponse } from "@/lib/errors/api-error";
+import { expensiveRateLimit } from "@/lib/middleware/rate-limit";
+import { OAuthStateManager } from "@/lib/redis/oauth-state";
 import {
   getSlackAuthUrl,
   exchangeSlackToken,
@@ -20,14 +19,14 @@ import {
   sendSlackMessage,
   validateSlackToken,
   getSlackUserInfo,
-} from "../../../lib/slack";
+} from "@/lib/slack";
 import {
   SlackAuthUrlSchema,
   SlackTokenExchangeSchema,
   SlackSendMessageSchema,
   ManualTokenSchema,
   TestChannelSchema,
-} from "../../../lib/validation/provider-schemas";
+} from "@/lib/validation/provider-schemas";
 
 const app = new Hono()
   // Generate Slack OAuth authorization URL
@@ -288,4 +287,3 @@ const app = new Hono()
   });
 
 export default app;
-export type SlackApiType = typeof app;

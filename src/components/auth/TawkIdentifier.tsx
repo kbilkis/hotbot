@@ -2,7 +2,7 @@ import { useAuth, useUser } from "@clerk/clerk-react";
 import * as Sentry from "@sentry/react";
 import { useEffect } from "preact/hooks";
 
-import { tawkApi } from "../../lib/api/client";
+import { tawkApi } from "@/lib/api/client";
 
 declare global {
   interface Window {

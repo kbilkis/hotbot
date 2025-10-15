@@ -1,15 +1,14 @@
 import { Hono } from "hono";
 import Stripe from "stripe";
 
-import { handleApiError } from "@/lib/errors/api-error";
-
 import {
   getSubscriptionByStripeCustomerId,
   getSubscriptionByStripeSubscriptionId,
   syncSubscriptionFromStripe,
   updateSubscriptionByStripeSubscriptionId,
-} from "../lib/database/queries/subscriptions";
-import { createStripeService } from "../lib/stripe/service";
+} from "@/lib/database/queries/subscriptions";
+import { handleApiError } from "@/lib/errors/api-error";
+import { createStripeService } from "@/lib/stripe/service";
 
 const webhooks = new Hono()
   /**
@@ -447,4 +446,3 @@ async function handleTrialWillEnd(
 }
 
 export default webhooks;
-export type WebhooksApiType = typeof webhooks;

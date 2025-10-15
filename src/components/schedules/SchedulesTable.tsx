@@ -1,6 +1,5 @@
 import { CronJob } from "@/lib/database/schema";
-
-import * as styles from "../../styles/dashboard/schedules.css";
+import * as styles from "@/styles/dashboard/schedules.css";
 
 import ScheduleTableRow from "./ScheduleTableRow";
 

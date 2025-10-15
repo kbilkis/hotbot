@@ -1,6 +1,6 @@
 import { Hono } from "hono";
 
-import { getCurrentUser } from "../lib/auth/clerk";
+import { getCurrentUser } from "@/lib/auth/clerk";
 
 const tawkRoutes = new Hono().post("/hash", async (c) => {
   const user = getCurrentUser(c);

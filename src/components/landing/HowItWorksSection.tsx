@@ -1,5 +1,5 @@
-import { container } from "../../styles/landing/base.css";
-import * as styles from "../../styles/landing/sections.css";
+import { container } from "@/styles/landing/base.css";
+import * as styles from "@/styles/landing/sections.css";
 
 export default function HowItWorksSection() {
   return (

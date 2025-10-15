@@ -80,7 +80,7 @@ export const statusCell = style({
   gap: "0.5rem",
 });
 
-export const statusDot = style({
+const statusDot = style({
   width: "8px",
   height: "8px",
   borderRadius: "50%",
@@ -146,7 +146,7 @@ export const scheduleActions = style({
   gap: "0.5rem",
 });
 
-export const actionButton = style({
+const actionButton = style({
   background: "none",
   border: "none",
   color: "#6b7280",

@@ -38,7 +38,7 @@ export const barLabel = style({
   fontWeight: 500,
 });
 
-export const bar = style({
+const bar = style({
   width: "60px",
   backgroundColor: "#e5e7eb",
   borderRadius: "4px 4px 0 0",

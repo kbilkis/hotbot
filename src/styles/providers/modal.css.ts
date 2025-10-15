@@ -130,13 +130,6 @@ export const inputIcon = style({
   color: "#6b7280",
 });
 
-export const inputWithIconInput = style([
-  formInput,
-  {
-    paddingLeft: "2.5rem",
-  },
-]);
-
 export const required = style({
   color: "#ef4444",
 });
@@ -160,7 +153,7 @@ export const providerDisplay = style({
   marginBottom: "1rem",
 });
 
-export const connectionStatus = style({
+const connectionStatus = style({
   fontSize: "0.875rem",
   fontWeight: 600,
 });
@@ -178,7 +171,7 @@ export const teamName = style({
 });
 
 // Buttons
-export const button = style({
+const button = style({
   padding: "0.75rem 1.5rem",
   borderRadius: "0.5rem",
   fontWeight: 600,
@@ -236,7 +229,7 @@ export const cancelButton = style([
   },
 ]);
 
-export const oauthButton = style([
+const oauthButton = style([
   button,
   {
     background: "#24292f",

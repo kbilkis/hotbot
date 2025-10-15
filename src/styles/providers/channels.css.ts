@@ -100,7 +100,7 @@ export const testButtonTesting = style([
   },
 ]);
 
-export const testResult = style({
+const testResult = style({
   fontSize: "0.75rem",
   padding: "0.25rem 0.5rem",
   borderRadius: "0.25rem",
@@ -164,12 +164,6 @@ export const guildName = style({
   color: "#111827",
 });
 
-export const guildMemberCount = style({
-  fontSize: "0.75rem",
-  color: "#6b7280",
-  marginLeft: "auto",
-});
-
 export const guildChannels = style({
   paddingLeft: "1rem",
 });
@@ -179,36 +173,6 @@ export const guildChannelsTitle = style({
   fontWeight: 500,
   color: "#374151",
   marginBottom: "0.5rem",
-});
-
-// Access Level Selection
-export const accessLevelButtons = style({
-  display: "flex",
-  flexDirection: "column",
-  gap: "0.75rem",
-  marginBottom: "1rem",
-});
-
-export const accessLevelInfo = style({
-  background: "#f8fafc",
-  border: "1px solid #e2e8f0",
-  borderRadius: "0.5rem",
-  padding: "1rem",
-  marginBottom: "1rem",
-});
-
-export const accessOption = style({
-  fontSize: "0.875rem",
-  marginBottom: "0.5rem",
-  lineHeight: 1.4,
-  ":last-child": {
-    marginBottom: 0,
-  },
-});
-
-export const accessOptionStrong = style({
-  color: "#374151",
-  fontWeight: 600,
 });
 
 // Guild Selection

@@ -7,8 +7,7 @@ import {
 import { CronExpressionParser } from "cron-parser";
 
 import { CronJob } from "@/lib/database/schema";
-
-import * as styles from "../../styles/dashboard/schedules.css";
+import * as styles from "@/styles/dashboard/schedules.css";
 
 interface ScheduleTableRowProps {
   schedule: CronJob;

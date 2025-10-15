@@ -8,4 +8,3 @@ const app = new Hono()
   .route("/messaging", messagingRoutes);
 
 export default app;
-export type ProvidersApiType = typeof app;

@@ -1,7 +1,8 @@
-import { useBilling } from "../../hooks/useBilling";
-import { useSubscription } from "../../hooks/useSubscription";
-import { useUpgrade } from "../../hooks/useUpgrade";
-import * as subscriptionStyles from "../../styles/subscriptions/subscription.css";
+import { useBilling } from "@/hooks/useBilling";
+import { useSubscription } from "@/hooks/useSubscription";
+import { useUpgrade } from "@/hooks/useUpgrade";
+import * as subscriptionStyles from "@/styles/subscriptions/subscription.css";
+
 import Tooltip from "../ui/Tooltip";
 
 interface ProgressBarProps {

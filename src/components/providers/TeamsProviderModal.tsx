@@ -1,12 +1,12 @@
 import { useState, useEffect } from "preact/hooks";
 
-import * as channelStyles from "../../styles/providers/channels.css";
-import * as modalStyles from "../../styles/providers/modal.css";
+import * as channelStyles from "@/styles/providers/channels.css";
+import * as modalStyles from "@/styles/providers/modal.css";
 import {
   getProviderColor,
   getProviderBgColor,
   getProviderAccentColor,
-} from "../../utils/providerColors";
+} from "@/utils/providerColors";
 
 interface TeamsProviderModalProps {
   onClose: () => void;

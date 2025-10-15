@@ -1,9 +1,8 @@
 import type { InferRequestType } from "hono/client";
 import useSWR from "swr";
 
+import { discordApi, slackApi } from "@/lib/api/client";
 import { MessagingProviderType } from "@/lib/database/schema";
-
-import { discordApi, slackApi } from "../lib/api/client";
 
 // Hook for Discord guilds
 export function useDiscordGuilds(shouldFetch: boolean = true) {

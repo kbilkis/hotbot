@@ -3,7 +3,7 @@
 
 import { Request, Response } from "@google-cloud/functions-framework";
 
-import { processScheduledNotifications } from "../lib/notifications/processor";
+import { processScheduledNotifications } from "@/lib/notifications/processor";
 
 import { wrapWithSentry } from "./sentry-helper";
 

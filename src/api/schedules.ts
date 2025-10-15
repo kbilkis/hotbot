@@ -1,13 +1,11 @@
 import { arktypeValidator } from "@hono/arktype-validator";
 import { Hono } from "hono";
 
-import { getCurrentUserId } from "@/lib/auth/clerk";
-import { createErrorResponse } from "@/lib/errors/api-error";
-
 import {
   checkCronJobLimits,
   checkCronJobInterval,
-} from "../lib/access-control/middleware";
+} from "@/lib/access-control/middleware";
+import { getCurrentUserId } from "@/lib/auth/clerk";
 import {
   createCronJob,
   getUserCronJobs,
@@ -15,13 +13,14 @@ import {
   updateCronJob,
   deleteCronJob,
   toggleCronJobStatus,
-} from "../lib/database/queries/cron-jobs";
+} from "@/lib/database/queries/cron-jobs";
+import { createErrorResponse } from "@/lib/errors/api-error";
 import {
   CreateCronJobSchema,
   UpdateCronJobSchema,
   ToggleCronJobSchema,
   ListCronJobsQuerySchema,
-} from "../lib/validation/cron-job-schemas";
+} from "@/lib/validation/cron-job-schemas";
 
 const app = new Hono()
   // GET /api/schedules - List all cron jobs for the authenticated user
@@ -160,4 +159,3 @@ const app = new Hono()
   });
 
 export default app;
-export type ScheduledApiType = typeof app;

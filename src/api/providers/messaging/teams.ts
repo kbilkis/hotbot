@@ -27,4 +27,3 @@ const app = new Hono() // POST /connect - Initiate Teams connection
   });
 
 export default app;
-export type TeamsMessagingApiType = typeof app;

@@ -4,8 +4,8 @@ import { useGitProviders } from "@/hooks/useGitProviders";
 import { useMessagingProviders } from "@/hooks/useMessagingProviders";
 import { useSchedules } from "@/hooks/useSchedules";
 import { useSubscription } from "@/hooks/useSubscription";
+import * as styles from "@/styles/layout/layout.css";
 
-import * as styles from "../../styles/layout/layout.css";
 import AuthButton from "../auth/AuthButton";
 
 export default function Layout({

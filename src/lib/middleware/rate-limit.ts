@@ -2,11 +2,7 @@ import * as Sentry from "@sentry/cloudflare";
 import { Context, Next } from "hono";
 import { bodyLimit } from "hono/body-limit";
 
-export interface RateLimitBinding {
-  limit(options: { key: string }): Promise<{ success: boolean }>;
-}
-
-export type RateLimiterType =
+type RateLimiterType =
   | "API_RATE_LIMITER"
   | "WEBHOOK_RATE_LIMITER"
   | "EXPENSIVE_RATE_LIMITER"

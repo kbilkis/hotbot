@@ -1,13 +1,10 @@
 import { useState } from "preact/hooks";
 
 import { useMessagingProviders } from "@/hooks/useMessagingProviders";
+import * as styles from "@/styles/dashboard/providers.css";
+import { Provider } from "@/types/dashboard";
+import { getProviderColor, getProviderBgColor } from "@/utils/providerColors";
 
-import * as styles from "../../styles/dashboard/providers.css";
-import { Provider } from "../../types/dashboard";
-import {
-  getProviderColor,
-  getProviderBgColor,
-} from "../../utils/providerColors";
 import DiscordProviderModal from "../providers/DiscordProviderModal";
 import SlackProviderModal from "../providers/SlackProviderModal";
 import TeamsProviderModal from "../providers/TeamsProviderModal";

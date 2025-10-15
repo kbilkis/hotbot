@@ -1,6 +1,6 @@
 import { useState } from "preact/hooks";
 
-import { subscriptionsApi } from "../lib/api/client";
+import { subscriptionsApi } from "@/lib/api/client";
 
 interface BillingState {
   loading: boolean;

@@ -208,7 +208,7 @@ export const prStatus = style({
   flexWrap: "wrap",
 });
 
-export const statusItem = style({
+const statusItem = style({
   display: "flex",
   alignItems: "center",
   gap: "0.25rem",
@@ -437,7 +437,7 @@ export const chartBarBg = style({
   overflow: "hidden",
 });
 
-export const chartBarFill = style({
+const chartBarFill = style({
   height: "100%",
   borderRadius: "10px",
   transition: "width 0.3s ease",

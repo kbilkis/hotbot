@@ -1,6 +1,6 @@
-import { container } from "../../styles/landing/base.css";
-import * as chartStyles from "../../styles/landing/charts.css";
-import * as styles from "../../styles/landing/sections.css";
+import { container } from "@/styles/landing/base.css";
+import * as chartStyles from "@/styles/landing/charts.css";
+import * as styles from "@/styles/landing/sections.css";
 
 export default function ValuePropositionSection() {
   return (

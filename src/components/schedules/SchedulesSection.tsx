@@ -1,11 +1,10 @@
 import { useState } from "preact/hooks";
 
+import { useSchedules } from "@/hooks/useSchedules";
+import { schedulesApi } from "@/lib/api/client";
 import { CronJob } from "@/lib/database/schema";
-
-import { useSchedules } from "../../hooks/useSchedules";
-import { schedulesApi } from "../../lib/api/client";
-import * as baseStyles from "../../styles/dashboard/base.css";
-import * as styles from "../../styles/dashboard/schedules.css";
+import * as baseStyles from "@/styles/dashboard/base.css";
+import * as styles from "@/styles/dashboard/schedules.css";
 
 import ScheduleModal from "./ScheduleModal";
 import SchedulesTable from "./SchedulesTable";

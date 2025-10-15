@@ -1,7 +1,7 @@
 // GitHub API response types based on official GitHub REST API documentation
 // https://docs.github.com/en/rest/pulls/pulls
 
-export interface GitHubUser {
+interface GitHubUser {
   login: string;
   id: number;
   node_id: string;
@@ -24,7 +24,7 @@ export interface GitHubUser {
   email?: string;
 }
 
-export interface GitHubLabel {
+interface GitHubLabel {
   id: number;
   node_id: string;
   url: string;
@@ -34,7 +34,7 @@ export interface GitHubLabel {
   default: boolean;
 }
 
-export interface GitHubMilestone {
+interface GitHubMilestone {
   url: string;
   html_url: string;
   labels_url: string;
@@ -53,7 +53,7 @@ export interface GitHubMilestone {
   due_on?: string;
 }
 
-export interface GitHubTeam {
+interface GitHubTeam {
   id: number;
   node_id: string;
   name: string;
@@ -158,7 +158,7 @@ export interface GitHubRepository {
   network_count?: number;
 }
 
-export interface GitHubPullRequestHead {
+interface GitHubPullRequestHead {
   label: string;
   ref: string;
   sha: string;
@@ -166,7 +166,7 @@ export interface GitHubPullRequestHead {
   repo: GitHubRepository;
 }
 
-export interface GitHubPullRequestBase {
+interface GitHubPullRequestBase {
   label: string;
   ref: string;
   sha: string;

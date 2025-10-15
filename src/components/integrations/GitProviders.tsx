@@ -1,13 +1,10 @@
 import { useState } from "preact/hooks";
 
+import { useGitProviders } from "@/hooks/useGitProviders";
 import { GitProviderData } from "@/lib/validation/provider-schemas";
+import * as styles from "@/styles/dashboard/providers.css";
+import { getProviderColor, getProviderBgColor } from "@/utils/providerColors";
 
-import { useGitProviders } from "../../hooks/useGitProviders";
-import * as styles from "../../styles/dashboard/providers.css";
-import {
-  getProviderColor,
-  getProviderBgColor,
-} from "../../utils/providerColors";
 import GitProviderModal from "../providers/GitProviderModal";
 
 export default function GitProviders() {

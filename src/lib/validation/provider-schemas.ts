@@ -14,20 +14,6 @@ export const GitHubTokenExchangeSchema = type({
   state: "string",
 });
 
-const GitHubPRFiltersSchema = type({
-  repositories: "string[]?",
-  labels: "string[]?",
-  titleKeywords: "string[]?",
-  excludeAuthors: "string[]?",
-  minAge: "number?",
-  maxAge: "number?",
-});
-
-export const GitHubFetchPRsSchema = type({
-  repositories: "string[]?",
-  "filters?": GitHubPRFiltersSchema,
-});
-
 // GitLab specific schemas
 export const GitLabAuthUrlSchema = type({
   redirectUri: "string",
@@ -40,40 +26,16 @@ export const GitLabTokenExchangeSchema = type({
   state: "string",
 });
 
-const GitLabMRFiltersSchema = type({
-  repositories: "string[]?",
-  labels: "string[]?",
-  titleKeywords: "string[]?",
-  excludeAuthors: "string[]?",
-  minAge: "number?",
-  maxAge: "number?",
-});
-
-export const GitLabFetchMRsSchema = type({
-  repositories: "string[]?",
-  "filters?": GitLabMRFiltersSchema,
-});
-
 // Git provider schemas
 const GitProviderTypeSchema = type("'github'|'bitbucket'|'gitlab'");
 
-const GitProviderSchema = type({
+const _GitProviderSchema = type({
   id: "string",
   provider: GitProviderTypeSchema,
   name: "string",
   connected: "boolean",
   connectedAt: "string?", // ISO date string
   repositories: "string[]?",
-});
-
-const GitProvidersListSchema = type({
-  providers: GitProviderSchema.array(),
-});
-
-const _GitProviderResponseSchema = type({
-  success: "boolean",
-  message: "string?",
-  data: GitProvidersListSchema,
 });
 
 // Slack specific schemas
@@ -131,5 +93,4 @@ export const TestWebhookSchema = type({
 });
 
 // Extract TypeScript types from arktype schemas
-export type GitProviderData = typeof GitProviderSchema.infer;
-export type GitProviderResponseData = typeof _GitProviderResponseSchema.infer;
+export type GitProviderData = typeof _GitProviderSchema.infer;

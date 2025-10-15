@@ -1,6 +1,6 @@
 // GitLab API Response Types based on official documentation
 
-export interface GitLabUser {
+interface GitLabUser {
   id: number;
   username: string;
   name: string;
@@ -73,7 +73,7 @@ export interface GitLabOAuthTokenResponse {
   created_at: number;
 }
 
-export interface GitLabMergeRequestApproval {
+interface GitLabMergeRequestApproval {
   user: GitLabUser;
   approved_by: string; // This is actually the timestamp, not ID
 }
