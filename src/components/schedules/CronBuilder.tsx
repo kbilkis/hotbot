@@ -136,7 +136,11 @@ export default function CronBuilder({
             <button
               key={preset.value}
               type="button"
-              className={button({ color: "ghost", size: "sm" })}
+              className={button({
+                color: "ghost",
+                size: "sm",
+                alternative: true,
+              })}
               onClick={() => handlePresetClick(preset.value)}
             >
               {preset.label}

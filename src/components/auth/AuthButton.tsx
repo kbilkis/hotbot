@@ -10,7 +10,7 @@ export default function AuthButton() {
 
   if (!isLoaded) {
     return (
-      <button className={button({ color: "secondary", size: "md" })} disabled>
+      <button className={button({ color: "primary", size: "sm" })} disabled>
         Loading...
       </button>
     );
@@ -35,7 +35,7 @@ export default function AuthButton() {
 
   return (
     <button
-      className={button({ color: "primary", size: "md" })}
+      className={button({ color: "primary", size: "sm" })}
       onClick={() => clerk.openSignIn()}
     >
       Sign In

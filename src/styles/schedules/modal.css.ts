@@ -101,6 +101,7 @@ export const modalBody = style({
 export const modalFooter = style({
   padding: "1rem 2rem 2rem",
   display: "flex",
+  alignItems: "center",
   justifyContent: "flex-end",
   gap: "1rem",
   borderTop: "1px solid rgba(148, 163, 184, 0.1)",

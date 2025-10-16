@@ -1,5 +1,5 @@
 import * as styles from "@/styles/landing/advanced.css";
-import { utils } from "@/styles/theme/index.css";
+import { utils, button } from "@/styles/theme/index.css";
 
 // This component contains the remaining sections that are less critical for initial load
 export default function AdvancedSections() {
@@ -100,7 +100,12 @@ export default function AdvancedSections() {
               <div className={styles.slackMessages}>
                 <div className={styles.slackMessage}>
                   <div className={styles.messageAvatar}>
-                    <img src="/images/hotbot.svg" alt="HotBot" />
+                    <img
+                      src="/images/hotbot.svg"
+                      alt="HotBot"
+                      width="32"
+                      height="32"
+                    />
                   </div>
                   <div className={styles.messageContent}>
                     <div className={styles.messageHeader}>
@@ -149,7 +154,12 @@ export default function AdvancedSections() {
 
                 <div className={styles.slackMessage}>
                   <div className={styles.messageAvatar}>
-                    <img src="/images/hotbot.svg" alt="HotBot" />
+                    <img
+                      src="/images/hotbot.svg"
+                      alt="HotBot"
+                      width="32"
+                      height="32"
+                    />
                   </div>
                   <div className={styles.messageContent}>
                     <div className={styles.messageHeader}>
@@ -267,9 +277,11 @@ export default function AdvancedSections() {
             <div className={styles.testimonialAuthor}>
               <div className={styles.authorAvatar}>
                 <img
-                  src="/images/landing/hero.jpg"
+                  src="/images/landing/hero.webp"
                   alt="Staff Engineer avatar"
                   className={styles.avatarImage}
+                  width="48"
+                  height="48"
                 />
               </div>
               <div className={styles.authorInfo}>
@@ -307,71 +319,130 @@ export default function AdvancedSections() {
         </div>
       </section>
 
-      {/* Analytics Section */}
-      <section className={styles.analyticsSlice}>
-        <div className={utils.container}>
-          <h2 className={styles.sectionTitle}>Track what matters</h2>
-          <div className={styles.analyticsTilesGrid}>
-            <div className={styles.analyticsTile}>
-              <div className={styles.tileValue}>
-                1.2 days <span className={styles.trendArrow}>↓</span>
-              </div>
-              <div className={styles.tileLabel}>Median review time</div>
-            </div>
-            <div className={styles.analyticsTile}>
-              <div className={styles.tileValue}>
-                3 <span className={styles.trendArrow}>↓</span>
-              </div>
-              <div className={styles.tileLabel}>PRs awaiting review</div>
-            </div>
-            <div className={styles.analyticsTile}>
-              <div className={styles.tileValue}>
-                2 <span className={styles.trendArrow}>→</span>
-              </div>
-              <div className={styles.tileLabel}>Escalations this week</div>
-            </div>
-          </div>
-        </div>
-      </section>
-
       {/* FAQ Section */}
       <section className={styles.faq}>
         <div className={utils.container}>
           <h2 className={styles.sectionTitle}>Frequently asked questions</h2>
+
           <div className={styles.faqGrid}>
             <div className={styles.faqItem}>
-              <h3 className={styles.faqQuestion}>How do you control noise?</h3>
-              <p className={styles.faqAnswer}>
-                Smart defaults exclude drafts, WIP PRs, and bot-generated
-                content. Fully configurable.
-              </p>
-            </div>
-            <div className={styles.faqItem}>
               <h3 className={styles.faqQuestion}>
-                What permissions do you need?
+                🔒 What permissions do you need?
               </h3>
               <p className={styles.faqAnswer}>
-                Read-only access to repositories and PR metadata. No code access
+                Only read-only access to repository metadata and PR information.
+                We never access your actual code, and all data is encrypted in
+                transit and at rest.
+              </p>
+            </div>
+
+            <div className={styles.faqItem}>
+              <h3 className={styles.faqQuestion}>
+                ⚡ How quickly can we get started?
+              </h3>
+              <p className={styles.faqAnswer}>
+                Setup takes about 5 minutes. Connect your GitHub/GitLab account,
+                add HotBot to your Slack/Discord/Teams, configure your first
+                notification schedule, and you&apos;re done. No technical setup
                 required.
               </p>
             </div>
+
             <div className={styles.faqItem}>
               <h3 className={styles.faqQuestion}>
-                Do you create false positives?
+                🔇 How do you control notification noise?
               </h3>
               <p className={styles.faqAnswer}>
-                Built-in filters for draft status, labels, and reviewer
-                assignments minimize noise.
+                Smart defaults exclude drafts, WIP PRs, bot-generated content,
+                and already-reviewed PRs. You can customize filters by labels,
+                file paths, authors, and more. Most teams see 90% less
+                notification noise.
               </p>
             </div>
+
             <div className={styles.faqItem}>
               <h3 className={styles.faqQuestion}>
-                How customizable are the rules?
+                🎯 Do you create false positives?
               </h3>
               <p className={styles.faqAnswer}>
-                Full control over timing, conditions, escalation thresholds, and
-                stakeholder notifications.
+                Rarely. Built-in intelligence filters for draft status, WIP
+                labels, reviewer assignments, and team conventions. Our
+                algorithms learn your team&apos;s patterns to minimize
+                irrelevant notifications.
               </p>
+            </div>
+
+            <div className={styles.faqItem}>
+              <h3 className={styles.faqQuestion}>
+                ⚙️ How customizable are the escalation rules?
+              </h3>
+              <p className={styles.faqAnswer}>
+                Fully customizable. Set different thresholds for different
+                repos, exclude certain labels or authors, define escalation
+                chains (reviewer → team lead → manager), and customize timing
+                for each step.
+              </p>
+            </div>
+
+            <div className={styles.faqItem}>
+              <h3 className={styles.faqQuestion}>
+                💰 What if we need to cancel?
+              </h3>
+              <p className={styles.faqAnswer}>
+                Cancel anytime with one click. No contracts, no cancellation
+                fees. Your data is exported and deleted within 30 days. We also
+                offer a 14-day free trial on all paid plans.
+              </p>
+            </div>
+          </div>
+
+          <div
+            style={{
+              textAlign: "center",
+              marginTop: "3rem",
+              padding: "2rem",
+              background: "rgba(249, 250, 251, 0.8)",
+              borderRadius: "0.5rem",
+              border: "1px solid #e5e7eb",
+            }}
+          >
+            <h3
+              style={{
+                fontSize: "2rem",
+                fontWeight: "bold",
+                marginBottom: "1rem",
+                color: "#111827",
+              }}
+            >
+              Still have questions?
+            </h3>
+            <p
+              style={{
+                fontSize: "1.125rem",
+                color: "#6b7280",
+                marginBottom: "1.5rem",
+              }}
+            >
+              Our team is here to help you get the most out of HotBot.
+            </p>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "center",
+                gap: "1rem",
+                flexWrap: "wrap",
+              }}
+            >
+              <a href="mailto:hello@hotbot.sh">
+                <button className={button({ color: "outline" })}>
+                  Contact Support
+                </button>
+              </a>
+              <a href="/dashboard">
+                <button className={button({ color: "primary" })}>
+                  Start Free Trial
+                </button>
+              </a>
             </div>
           </div>
         </div>

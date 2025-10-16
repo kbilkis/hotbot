@@ -53,11 +53,12 @@ export const heroTitle = style({
   },
 });
 
-export const heroDescription = style({
+export const heroSubtitle = style({
   fontSize: tokens.fontSize.xl,
-  marginBottom: tokens.space[8],
-  color: tokens.colors.textMuted,
+  marginBottom: tokens.space[4],
+  color: tokens.colors.text,
   lineHeight: tokens.lineHeight.relaxed,
+  fontWeight: tokens.fontWeight.medium,
   "@media": {
     "(max-width: 768px)": {
       fontSize: "1.1rem",
@@ -65,9 +66,26 @@ export const heroDescription = style({
   },
 });
 
+export const heroDescription = style({
+  fontSize: tokens.fontSize.lg,
+  marginBottom: tokens.space[6],
+  color: tokens.colors.textMuted,
+  lineHeight: tokens.lineHeight.relaxed,
+  "@media": {
+    "(max-width: 768px)": {
+      fontSize: "1rem",
+    },
+  },
+});
+
+export const trustIcon = style({
+  fontSize: tokens.fontSize.base,
+});
+
 export const heroButtons = style([
   utils.flex,
   {
+    flexWrap: "wrap",
     gap: tokens.space[4],
     marginBottom: tokens.space[4],
     "@media": {
@@ -79,6 +97,31 @@ export const heroButtons = style([
     },
   },
 ]);
+
+export const secondaryButton = style({
+  textDecoration: "none",
+});
+
+export const heroGuarantee = style([
+  utils.flex,
+  {
+    alignItems: "center",
+    gap: tokens.space[2],
+    fontSize: tokens.fontSize.sm,
+    color: tokens.colors.textMuted,
+    fontWeight: tokens.fontWeight.medium,
+    "@media": {
+      "(max-width: 768px)": {
+        justifyContent: "center",
+      },
+    },
+  },
+]);
+
+export const guaranteeIcon = style({
+  color: tokens.colors.success,
+  fontSize: tokens.fontSize.base,
+});
 
 export const heroVisual = style([utils.flexCenter]);
 
@@ -105,6 +148,13 @@ export const slackScreenshot = style({
   width: "100%",
   height: "auto",
   display: "block",
+  // Ensure proper aspect ratio is maintained
+  aspectRatio: "1972 / 1182",
+  "@media": {
+    "(max-width: 768px)": {
+      aspectRatio: "563 / 1019",
+    },
+  },
 });
 
 export const analyticsTiles = style({

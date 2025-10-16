@@ -23,6 +23,34 @@ export const pricingTitle = style([
   },
 ]);
 
+export const pricingSubtitle = style([
+  utils.textCenter,
+  {
+    fontSize: tokens.fontSize.lg,
+    color: tokens.colors.textMuted,
+    marginBottom: tokens.space[6],
+    maxWidth: "600px",
+    margin: `0 auto ${tokens.space[6]}`,
+  },
+]);
+
+export const pricingGuarantee = style([
+  utils.flex,
+  utils.flexCenter,
+  {
+    gap: tokens.space[2],
+    marginBottom: tokens.space[8],
+    fontSize: tokens.fontSize.sm,
+    color: tokens.colors.textMuted,
+    fontWeight: tokens.fontWeight.medium,
+  },
+]);
+
+export const guaranteeIcon = style({
+  color: tokens.colors.success,
+  fontSize: tokens.fontSize.base,
+});
+
 export const pricingGrid = style({
   display: "grid",
   gridTemplateColumns: "repeat(auto-fit, minmax(300px, 1fr))",
@@ -63,6 +91,12 @@ export const pricingCardFeatured = style([
     borderColor: `${tokens.colors.primary}66`, // 40% opacity
     transform: "scale(1.05)",
     boxShadow: `0 25px 50px ${tokens.colors.primary}26`, // 15% opacity
+    selectors: {
+      "&:hover": {
+        transform: "scale(1.05) translateY(-4px) ",
+        boxShadow: tokens.boxShadow.xl,
+      },
+    },
     "@media": {
       "(max-width: 768px)": {
         transform: "none",
@@ -78,7 +112,7 @@ export const popularBadge = style({
   transform: "translateX(-50%)",
   background: tokens.colors.primary,
   color: tokens.colors.white,
-  padding: `${tokens.space[2]} ${tokens.space[4]}`,
+  padding: `${tokens.space[4]} ${tokens.space[4]} ${tokens.space[2]} `,
   borderRadius: tokens.borderRadius.lg,
   fontSize: tokens.fontSize.sm,
   fontWeight: tokens.fontWeight.semibold,
@@ -112,8 +146,67 @@ export const priceUnit = style({
 
 export const pricingDescription = style({
   color: tokens.colors.textMuted,
-  marginBottom: tokens.space[8],
+  marginBottom: tokens.space[4],
 });
+
+export const pricingValue = style([
+  utils.flex,
+  utils.flexCenter,
+  {
+    gap: tokens.space[2],
+    marginBottom: tokens.space[4],
+    fontSize: tokens.fontSize.sm,
+    color: tokens.colors.text,
+  },
+]);
+
+export const valueLabel = style({
+  fontWeight: tokens.fontWeight.semibold,
+  color: tokens.colors.textMuted,
+});
+
+export const priceComparison = style([
+  utils.textCenter,
+  {
+    marginBottom: tokens.space[2],
+  },
+]);
+
+export const priceNote = style({
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.textMuted,
+  fontStyle: "italic",
+});
+
+export const pricingROI = style([
+  utils.flex,
+  utils.flexCenter,
+  {
+    gap: tokens.space[2],
+    padding: `${tokens.space[2]} ${tokens.space[4]}`,
+    background: `linear-gradient(135deg, ${tokens.colors.success}15 0%, ${tokens.colors.success}25 100%)`,
+    borderRadius: tokens.borderRadius.full,
+    fontSize: tokens.fontSize.sm,
+    fontWeight: tokens.fontWeight.medium,
+    color: tokens.colors.success,
+    border: `1px solid ${tokens.colors.success}30`,
+    marginBottom: tokens.space[6],
+    alignItems: "flex-start",
+  },
+]);
+
+export const roiIcon = style({
+  fontSize: tokens.fontSize.base,
+});
+
+export const pricingNote = style([
+  utils.textCenter,
+  {
+    fontSize: tokens.fontSize.xs,
+    color: tokens.colors.textMuted,
+    marginTop: tokens.space[3],
+  },
+]);
 
 export const featuresList = style({
   listStyle: "none",

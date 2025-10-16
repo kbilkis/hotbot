@@ -128,15 +128,19 @@ export const button = recipe({
         },
       },
       secondary: {
-        background: tokens.colors.gray500,
-        color: tokens.colors.white,
+        background: tokens.colors.white,
+        color: tokens.colors.black,
+        border: `1px solid ${tokens.colors.success}`,
         selectors: {
           "&:hover": {
-            background: tokens.colors.gray600,
+            background: tokens.colors.successHover,
+            color: tokens.colors.white,
+            transform: "translateY(-1px)",
           },
           "&:disabled": {
             background: tokens.colors.gray400,
             cursor: "not-allowed",
+            transform: "none",
           },
         },
       },

@@ -1,11 +1,20 @@
 import * as styles from "@/styles/landing/pricing.css";
-import { utils , button } from "@/styles/theme/index.css";
+import { utils, button } from "@/styles/theme/index.css";
 
 export default function PricingSection() {
   return (
     <section className={styles.pricing}>
       <div className={utils.container}>
         <h2 className={styles.pricingTitle}>Simple, transparent pricing</h2>
+        <p className={styles.pricingSubtitle}>
+          Start free, scale as you grow. No per-user fees, no surprise charges.
+        </p>
+        <div className={styles.pricingGuarantee}>
+          <span className={styles.guaranteeIcon}>✅</span>
+          <span>
+            14-day free trial on all plans • Cancel anytime • No setup fees
+          </span>
+        </div>
         <div className={styles.pricingGrid}>
           <div className={styles.pricingCard}>
             <h3 className={styles.pricingCardTitle}>Free</h3>
@@ -13,8 +22,12 @@ export default function PricingSection() {
               $0<span className={styles.priceUnit}>/month</span>
             </div>
             <p className={styles.pricingDescription}>
-              Start free—full features for a small team
+              Perfect for small teams getting started
             </p>
+            <div className={styles.pricingValue}>
+              <span className={styles.valueLabel}>Great for:</span>
+              <span>Teams with 1-5 developers</span>
+            </div>
             <ul className={styles.featuresList}>
               <li className={styles.featuresListItem}>
                 ✓ 1 git provider (GitHub, GitLab, or Bitbucket)
@@ -32,9 +45,10 @@ export default function PricingSection() {
             </ul>
             <a href="/dashboard">
               <button className={button({ color: "outline" })}>
-                Get started
+                Start Free
               </button>
             </a>
+            <div className={styles.pricingNote}>No credit card required</div>
           </div>
 
           <div className={styles.pricingCardFeatured}>
@@ -43,10 +57,23 @@ export default function PricingSection() {
             <div className={styles.price}>
               $15<span className={styles.priceUnit}>/month</span>
             </div>
+            <div className={styles.priceComparison}>
+              <span className={styles.priceNote}>Less than $0.50/day</span>
+            </div>
             <p className={styles.pricingDescription}>
-              Scale by repos/channels, not surprises
+              Everything you need for growing engineering teams
             </p>
+            <div className={styles.pricingValue}>
+              <span className={styles.valueLabel}>Great for:</span>
+              <span>Teams with 5-50 developers</span>
+            </div>
+            <div className={styles.pricingROI}>
+              <span>💰 Saves 2+ hours per week per developer</span>
+            </div>
             <ul className={styles.featuresList}>
+              <li className={styles.featuresListItem}>
+                ✓ Everything in Free, plus:
+              </li>
               <li className={styles.featuresListItem}>
                 ✓ Unlimited git providers
               </li>
@@ -59,14 +86,19 @@ export default function PricingSection() {
               <li className={styles.featuresListItem}>
                 ✓ Any frequency (hourly, daily, etc.)
               </li>
-              <li className={styles.featuresListItem}>✓ Escalation rules</li>
+              <li className={styles.featuresListItem}>
+                ✓ Smart escalation rules
+              </li>
               <li className={styles.featuresListItem}>✓ Priority support</li>
             </ul>
             <a href="/dashboard">
               <button className={button({ color: "primary" })}>
-                Start free trial
+                Start 14-Day Free Trial
               </button>
             </a>
+            <div className={styles.pricingNote}>
+              No credit card required • Cancel anytime
+            </div>
           </div>
 
           <div className={styles.pricingCard}>
@@ -76,7 +108,6 @@ export default function PricingSection() {
             <ul className={styles.featuresList}>
               <li className={styles.featuresListItem}>✓ Everything in Pro</li>
               <li className={styles.featuresListItem}>✓ SSO integration</li>
-              <li className={styles.featuresListItem}>✓ Advanced analytics</li>
               <li className={styles.featuresListItem}>✓ Custom integrations</li>
               <li className={styles.featuresListItem}>✓ Dedicated support</li>
             </ul>

@@ -84,7 +84,13 @@ export const statusBadgePastDue = style([
 ]);
 
 // Subscription Content
-export const subscriptionContent = style([utils.flexCol, utils.gap8]);
+export const subscriptionContent = style([
+  utils.flexCol,
+  utils.gap8,
+  {
+    marginTop: tokens.space[4],
+  },
+]);
 
 // Usage Section
 export const usageSection = style([
@@ -283,9 +289,9 @@ globalStyle(`${billingInfo} h3`, {
 export const billingDetails = style([utils.flexCol, utils.gap3]);
 
 export const billingItem = style([
-  utils.flexBetween,
+  utils.flex,
   {
-    alignItems: "center",
+    gap: tokens.space[4],
     "@media": {
       "(max-width: 768px)": {
         flexDirection: "column",
@@ -386,11 +392,17 @@ export const errorDismiss = style({
   },
 });
 // Section Layout
-export const section = utils.section;
+export const section = style([
+  utils.section,
+  { padding: `${tokens.space[8]} ${tokens.space[8]} ${tokens.space[4]}` },
+]);
 
-export const sectionHeader = utils.sectionHeader;
+export const sectionHeader = style([
+  utils.sectionHeader,
+  { padding: "0px", border: "0px" },
+]);
 
-export const sectionContent = utils.sectionContent;
+export const sectionContent = style([utils.sectionContent, { padding: "0px" }]);
 
 globalStyle(`${sectionContent} h1`, {
   fontSize: tokens.fontSize["3xl"],

@@ -14,7 +14,7 @@ export const repositoriesLoading = style([
     background: tokens.colors.gray50,
     border: `1px solid ${tokens.colors.border}`,
     borderRadius: tokens.borderRadius.lg,
-    color: tokens.colors.gray500,
+    color: tokens.colors.textMuted,
     fontSize: tokens.fontSize.sm,
   },
 ]);
@@ -38,7 +38,7 @@ export const repositoriesEmpty = style([
     background: tokens.colors.gray50,
     border: `1px solid ${tokens.colors.border}`,
     borderRadius: tokens.borderRadius.lg,
-    color: tokens.colors.gray500,
+    color: tokens.colors.textMuted,
     fontSize: tokens.fontSize.sm,
   },
 ]);
@@ -49,7 +49,7 @@ export const repositoriesList = style({
 
 export const repositoriesCount = style({
   fontSize: tokens.fontSize.sm,
-  color: tokens.colors.gray500,
+  color: tokens.colors.textMuted,
   marginBottom: tokens.space[3],
 });
 

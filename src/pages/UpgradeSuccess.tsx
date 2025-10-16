@@ -18,7 +18,7 @@ export default function UpgradeSuccess() {
   }, []);
 
   return (
-    <div className={contentCard({ size: "medium" })}>
+    <div className={contentCard({ size: "fullPage" })}>
       <div className={authStyles.upgradeResultContentSuccess}>
         <div className={authStyles.upgradeSuccessIcon}>✓</div>
         <h1>Welcome to Pro!</h1>

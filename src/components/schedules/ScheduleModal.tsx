@@ -452,7 +452,9 @@ export default function ScheduleModal({
             <h3 className={formStyles.formSectionTitle}>Providers</h3>
             <div className={formStyles.formRow}>
               <div className={formStyles.formGroup}>
-                <label htmlFor="git-provider">Git Provider</label>
+                <label htmlFor="git-provider" className={formStyles.formLabel}>
+                  Git Provider
+                </label>
                 <select
                   id="git-provider"
                   className={`${formStyles.formSelect} ${
@@ -495,7 +497,9 @@ export default function ScheduleModal({
 
               {/* Repository Selection */}
               <div className={formStyles.formGroup}>
-                <label htmlFor="repositories">Repositories to Monitor</label>
+                <label htmlFor="repositories" className={formStyles.formLabel}>
+                  Repositories to Monitor
+                </label>
                 <div className={formStyles.repositorySelection}>
                   {loadingRepositories && formData.gitProviderId ? (
                     <div className={formStyles.loadingText}>
@@ -566,7 +570,12 @@ export default function ScheduleModal({
                 )}
               </div>
               <div className={formStyles.formGroup}>
-                <label htmlFor="messaging-provider">Messaging Provider</label>
+                <label
+                  htmlFor="messaging-provider"
+                  className={formStyles.formLabel}
+                >
+                  Messaging Provider
+                </label>
                 <select
                   id="messaging-provider"
                   className={`${formStyles.formSelect} ${
@@ -614,7 +623,12 @@ export default function ScheduleModal({
 
               {/* Channel Selection */}
               <div className={formStyles.formGroup}>
-                <label htmlFor="messaging-channel">Notification Channel</label>
+                <label
+                  htmlFor="messaging-channel"
+                  className={formStyles.formLabel}
+                >
+                  Notification Channel
+                </label>
                 <div className={formStyles.channelSelection}>
                   {!formData.messagingProviderId ? (
                     <div className={formStyles.selectProviderFirst}>
@@ -883,37 +897,35 @@ export default function ScheduleModal({
             </div>
           )}
 
-          <div>
-            <button
-              className={button({ color: "outline" })}
-              onClick={() => onClose()}
-              disabled={isSubmitting}
-            >
-              Cancel
-            </button>
-            <button
-              className={button({ color: "primary" })}
-              onClick={handleSubmit}
-              disabled={isSubmitting || !isFormValid()}
-              title={
-                isSubmitting
-                  ? "Saving schedule..."
-                  : !isFormValid()
-                  ? `Complete required fields: ${getValidationSummary().join(
-                      ", "
-                    )}`
-                  : schedule
-                  ? "Update this schedule"
-                  : "Create new schedule"
-              }
-            >
-              {isSubmitting
-                ? "Saving..."
+          <button
+            className={button({ color: "outline" })}
+            onClick={() => onClose()}
+            disabled={isSubmitting}
+          >
+            Cancel
+          </button>
+          <button
+            className={button({ color: "primary" })}
+            onClick={handleSubmit}
+            disabled={isSubmitting || !isFormValid()}
+            title={
+              isSubmitting
+                ? "Saving schedule..."
+                : !isFormValid()
+                ? `Complete required fields: ${getValidationSummary().join(
+                    ", "
+                  )}`
                 : schedule
-                ? "Update Schedule"
-                : "Create Schedule"}
-            </button>
-          </div>
+                ? "Update this schedule"
+                : "Create new schedule"
+            }
+          >
+            {isSubmitting
+              ? "Saving..."
+              : schedule
+              ? "Update Schedule"
+              : "Create Schedule"}
+          </button>
         </div>
       </div>
     </div>

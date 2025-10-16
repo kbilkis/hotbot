@@ -132,7 +132,7 @@ export const inputIcon = style({
   left: "0.75rem",
   top: "50%",
   transform: "translateY(-50%)",
-  color: "#6b7280",
+  color: tokens.colors.textMuted,
 });
 
 export const required = style({
@@ -230,7 +230,7 @@ export const helpSection = style({
 
 export const helpContent = style({
   fontSize: "0.75rem",
-  color: "#6b7280",
+  color: tokens.colors.textMuted,
   lineHeight: 1.4,
 });
 
@@ -270,7 +270,7 @@ export const loadingState = style({
   alignItems: "center",
   justifyContent: "center",
   padding: "2rem",
-  color: "#6b7280",
+  color: tokens.colors.textMuted,
   fontSize: "0.875rem",
 });
 
@@ -298,7 +298,7 @@ export const emptyState = style({
 
 export const itemCount = style({
   fontSize: "0.75rem",
-  color: "#6b7280",
+  color: tokens.colors.textMuted,
   marginBottom: "0.5rem",
   fontWeight: 500,
 });

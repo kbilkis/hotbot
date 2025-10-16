@@ -125,6 +125,7 @@ export const utils = {
     transition: "all 0.2s ease",
     border: "none",
     textDecoration: "none",
+    minWidth: "fit-content",
   }),
 
   // Input base styles
@@ -135,6 +136,7 @@ export const utils = {
     fontSize: tokens.fontSize.base,
     background: tokens.colors.surface,
     transition: "all 0.2s ease",
+    width: "100%",
     selectors: {
       "&:focus": {
         outline: "none",

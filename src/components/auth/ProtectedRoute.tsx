@@ -17,7 +17,7 @@ export default function ProtectedRoute({
 
   if (!isLoaded) {
     return (
-      <div className={contentCard()}>
+      <div className={contentCard({ size: "fullPage" })}>
         <div className={utils.spinnerLarge}></div>
       </div>
     );

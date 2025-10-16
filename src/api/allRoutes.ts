@@ -1,5 +1,6 @@
 import * as Sentry from "@sentry/cloudflare";
 import { Hono } from "hono";
+import { except } from "hono/combine";
 
 import { TierLimitError } from "@/lib/access-control/middleware";
 import { dbUserMiddleware, requireAuth } from "@/lib/auth/clerk";
@@ -53,7 +54,12 @@ const api = new Hono()
   .use("/tunnel/*", tunnelRateLimit(), bodyLimits.medium) // Tunnel requests are medium
   .route("/tunnel", tunnelRoutes)
 
-  .use(apiRateLimit(), bodyLimits.medium) // Default medium limit for API routes
+  .use(apiRateLimit()) // Default medium limit for API routes
+  .use(
+    "*",
+    // TODO: error on `hono/body-limit`
+    except((c) => c.req.method === "DELETE", bodyLimits.medium)
+  )
 
   // Public routes
   .get("/health", (c) => {

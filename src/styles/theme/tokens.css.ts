@@ -40,7 +40,7 @@ export const tokens = createGlobalTheme(":root", {
 
     // Text colors
     text: "#1f2937",
-    textMuted: "#6b7280",
+    textMuted: "#4b5563",
     textLight: "#9ca3af",
 
     // Border colors

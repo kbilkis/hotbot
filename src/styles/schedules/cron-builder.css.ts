@@ -99,6 +99,7 @@ export const cronDescription = style({
   fontSize: tokens.fontSize.sm,
   color: tokens.colors.textMuted,
   marginTop: tokens.space[2],
+  marginLeft: tokens.space[2],
   fontStyle: "italic",
 });
 

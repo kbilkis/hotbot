@@ -1,10 +1,10 @@
 import * as flowStyles from "@/styles/landing/flow.css";
 import * as styles from "@/styles/landing/sections.css";
-import { utils , button } from "@/styles/theme/index.css";
+import { utils, button } from "@/styles/theme/index.css";
 
 export default function HowItWorksSection() {
   return (
-    <section className={styles.howItWorks}>
+    <section id="how-it-works" className={styles.howItWorks}>
       <div className={utils.container}>
         <h2 className={styles.howItWorksTitle}>How it works</h2>
         <div className={styles.steps}>
@@ -36,7 +36,7 @@ export default function HowItWorksSection() {
 
         <div className={styles.integrationsDemoImage}>
           <img
-            src="/images/landing/integrations-demo.jpg"
+            src="/images/landing/integrations-demo.webp"
             alt="Integration setup showing connected GitHub repositories and Slack channels with configuration options"
             className={styles.integrationsScreenshot}
           />

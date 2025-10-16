@@ -27,6 +27,11 @@ export const flowProviders = style({
   alignItems: "center",
   gap: tokens.space[3],
   position: "relative",
+  "@media": {
+    "(max-width: 768px)": {
+      flexDirection: "row",
+    },
+  },
 });
 
 export const providerIcon = style([

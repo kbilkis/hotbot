@@ -35,7 +35,7 @@ export const comingSoonBadge = style({
 
 export const featureSubtitle = style({
   fontSize: "1.25rem",
-  color: "#6b7280",
+  color: tokens.colors.textMuted,
   textAlign: "center",
   marginBottom: "3rem",
   lineHeight: 1.6,
@@ -311,7 +311,7 @@ export const ruleSection = style({
 export const ruleLabel = style({
   fontSize: "0.875rem",
   fontWeight: 500,
-  color: "#6b7280",
+  color: tokens.colors.textMuted,
   minWidth: "80px",
 });
 
@@ -386,7 +386,7 @@ export const authorName = style({
 });
 
 export const authorTitle = style({
-  color: "#6b7280",
+  color: tokens.colors.textMuted,
   fontSize: "0.875rem",
 });
 
@@ -422,7 +422,7 @@ export const chartSection = style({
 
 export const chartLabel = style({
   fontSize: "0.875rem",
-  color: "#6b7280",
+  color: tokens.colors.textMuted,
   fontWeight: 500,
   minWidth: "60px",
 });
@@ -462,41 +462,6 @@ export const chartBarFillAfter = style([
   },
 ]);
 
-// Analytics Section
-export const analyticsSlice = style({
-  padding: "6rem 0",
-  position: "relative",
-  zIndex: 2,
-  background: "transparent",
-});
-
-export const analyticsTilesGrid = style({
-  display: "grid",
-  gridTemplateColumns: "repeat(3, 1fr)",
-  gap: "2rem",
-  maxWidth: "800px",
-  margin: "0 auto",
-  "@media": {
-    "(max-width: 768px)": {
-      gridTemplateColumns: "1fr",
-    },
-  },
-});
-
-export const analyticsTile = style({
-  background: "rgba(255, 255, 255, 0.9)",
-  border: "1px solid rgba(148, 163, 184, 0.3)",
-  borderRadius: "1rem",
-  padding: "2rem",
-  textAlign: "center",
-  boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)",
-  transition: "all 0.3s ease",
-  ":hover": {
-    transform: "translateY(-2px)",
-    boxShadow: "0 10px 20px rgba(0, 0, 0, 0.15)",
-  },
-});
-
 export const tileValue = style({
   fontSize: "2rem",
   fontWeight: 700,
@@ -511,7 +476,7 @@ export const trendArrow = style({
 
 export const tileLabel = style({
   fontSize: "0.875rem",
-  color: "#6b7280",
+  color: tokens.colors.textMuted,
   fontWeight: 500,
 });
 
@@ -547,15 +512,20 @@ export const faqItem = style({
   },
 });
 
-export const faqQuestion = style({
-  fontSize: "1.125rem",
-  fontWeight: 600,
-  color: "#111827",
-  marginBottom: "1rem",
-});
+export const faqQuestion = style([
+  utils.flex,
+  {
+    alignItems: "center",
+    gap: tokens.space[3],
+    fontSize: tokens.fontSize.lg,
+    fontWeight: tokens.fontWeight.semibold,
+    marginBottom: tokens.space[3],
+    color: tokens.colors.text,
+  },
+]);
 
 export const faqAnswer = style({
-  color: "#6b7280",
+  color: tokens.colors.textMuted,
   lineHeight: 1.6,
 });
 

@@ -32,7 +32,6 @@ export const providerCard = style([
     transition: "all 0.2s ease",
     selectors: {
       "&:hover": {
-        transform: "translateY(-2px)",
         boxShadow: tokens.boxShadow.md,
       },
     },

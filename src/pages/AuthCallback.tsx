@@ -108,7 +108,7 @@ export default function AuthCallback() {
   }, [provider, query]);
 
   return (
-    <div className={contentCard()}>
+    <div className={contentCard({ size: "fullPage" })}>
       {status === "loading" && (
         <>
           <div className={utils.spinnerLarge}></div>

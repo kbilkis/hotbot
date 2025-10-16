@@ -29,6 +29,14 @@ export async function SSRRender(url: string = "/") {
       content="A git provider integration helper to various messaging providers helping developers get their Pull Requests reviewed sooner"
     />
     <title>HotBot - Code Review helper</title>
+    
+    <!-- Preload critical resources for LCP -->
+    <link rel="preload" as="image" href="/images/landing/slack-case.webp" media="(min-width: 769px)" fetchpriority="high" />
+    <link rel="preload" as="image" href="/images/landing/slack-case-mobile.webp" media="(max-width: 768px)" fetchpriority="high" />    
+    <!-- DNS prefetch for external resources -->
+    <link rel="dns-prefetch" href="//clerk.com" />
+    <link rel="dns-prefetch" href="//tawk.to" />
+    
     <link href="/assets/main.css" rel="stylesheet" />
     ${linkArray
       .map((link: string) => `<link rel="prefetch" href="${link}" />`)

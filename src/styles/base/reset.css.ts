@@ -53,7 +53,6 @@ globalStyle("input, button, textarea, select", {
 // 7. Avoid text overflows
 globalStyle("p, h1, h2, h3, h4, h5, h6", {
   overflowWrap: "break-word",
-  hyphens: "auto",
 });
 
 // 8. Create a root stacking context
@@ -162,13 +161,41 @@ globalStyle("html", {
   },
 });
 
-// 21. Dark mode support preparation
+// 21. Force light color scheme for form controls
 globalStyle(":root", {
-  "@media": {
-    "(prefers-color-scheme: dark)": {
-      colorScheme: "dark",
-    },
-  },
+  colorScheme: "light", // Force light mode for form controls
+});
+
+// 22. Custom scrollbar styling (WebKit browsers)
+globalStyle("::-webkit-scrollbar", {
+  width: "8px",
+  height: "8px",
+});
+
+globalStyle("::-webkit-scrollbar-track", {
+  background: tokens.colors.gray100,
+  borderRadius: "4px",
+});
+
+globalStyle("::-webkit-scrollbar-thumb", {
+  background: tokens.colors.gray300,
+  borderRadius: "4px",
+  border: `1px solid ${tokens.colors.white}`,
+});
+
+globalStyle("::-webkit-scrollbar-thumb:hover", {
+  background: tokens.colors.gray400,
+});
+
+// 23. Checkbox and radio button styling
+globalStyle('input[type="checkbox"], input[type="radio"]', {
+  colorScheme: "light", // Force light appearance
+  accentColor: tokens.colors.primary, // Use brand color for checked state
+});
+
+// 24. Ensure all form controls use light color scheme
+globalStyle("input, textarea, select, button", {
+  colorScheme: "light",
 });
 
 // Global responsive typography (mobile-first approach)

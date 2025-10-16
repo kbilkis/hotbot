@@ -138,9 +138,7 @@ export default function MessagingProviders() {
             </div>
             <button
               className={
-                provider.type === "teams"
-                  ? button({ color: "secondary", size: "sm" })
-                  : provider.connected
+                provider.connected
                   ? button({ color: "secondary", size: "sm" })
                   : button({ color: "success", size: "sm" })
               }

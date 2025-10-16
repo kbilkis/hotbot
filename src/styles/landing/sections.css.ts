@@ -14,8 +14,19 @@ export const valueTitle = style([
   {
     fontSize: "2.5rem",
     fontWeight: tokens.fontWeight.bold,
-    marginBottom: tokens.space[12],
+    marginBottom: tokens.space[4],
     color: tokens.colors.text,
+  },
+]);
+
+export const valueSubtitle = style([
+  utils.textCenter,
+  {
+    fontSize: tokens.fontSize.lg,
+    color: tokens.colors.textMuted,
+    marginBottom: tokens.space[12],
+    maxWidth: "600px",
+    margin: `0 auto ${tokens.space[12]}`,
   },
 ]);
 
@@ -58,7 +69,33 @@ export const valueItemTitle = style({
   fontSize: tokens.fontSize.xl,
   fontWeight: tokens.fontWeight.semibold,
   color: tokens.colors.text,
-  marginBottom: tokens.space[2],
+  marginBottom: tokens.space[3],
+});
+
+export const valueItemDescription = style({
+  fontSize: tokens.fontSize.base,
+  color: tokens.colors.textMuted,
+  lineHeight: tokens.lineHeight.relaxed,
+  marginBottom: tokens.space[4],
+});
+
+export const valueItemBenefit = style([
+  utils.flex,
+  utils.flexCenter,
+  {
+    gap: tokens.space[2],
+    padding: `${tokens.space[2]} ${tokens.space[4]}`,
+    background: `linear-gradient(135deg, ${tokens.colors.success}15 0%, ${tokens.colors.success}25 100%)`,
+    borderRadius: tokens.borderRadius.full,
+    fontSize: tokens.fontSize.sm,
+    fontWeight: tokens.fontWeight.medium,
+    color: tokens.colors.success,
+    border: `1px solid ${tokens.colors.success}30`,
+  },
+]);
+
+export const benefitIcon = style({
+  fontSize: tokens.fontSize.base,
 });
 
 // Product Context Section
@@ -201,7 +238,7 @@ export const flowDiagram = style([
     "@media": {
       "(max-width: 768px)": {
         flexDirection: "column",
-        gap: tokens.space[8],
+        gap: tokens.space[0],
       },
     },
   },
@@ -247,6 +284,11 @@ export const digestItem = style([
     padding: tokens.space[4],
     background: tokens.colors.background,
     borderRadius: tokens.borderRadius.md,
+    "@media": {
+      "(max-width: 768px)": {
+        flexDirection: "column",
+      },
+    },
   },
 ]);
 

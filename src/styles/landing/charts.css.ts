@@ -40,7 +40,7 @@ export const chartBar = style({
 
 export const barLabel = style({
   fontSize: "0.875rem",
-  color: "#6b7280",
+  color: tokens.colors.textMuted,
   fontWeight: 500,
 });
 

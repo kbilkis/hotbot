@@ -97,9 +97,7 @@ export default function GitProviders() {
             </div>
             <button
               className={
-                provider.provider === "bitbucket"
-                  ? button({ color: "secondary", size: "sm" })
-                  : provider.connected
+                provider.connected
                   ? button({ color: "secondary", size: "sm" })
                   : button({ color: "success", size: "sm" })
               }

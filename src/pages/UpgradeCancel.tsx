@@ -4,7 +4,7 @@ import { button } from "../styles/theme/index.css";
 
 export default function UpgradeCancel() {
   return (
-    <div className={contentCard({ size: "medium" })}>
+    <div className={contentCard({ size: "fullPage" })}>
       <div className={authStyles.upgradeResultContentCancel}>
         <div className={authStyles.cancelIcon}>✕</div>
         <h1>Upgrade Cancelled</h1>

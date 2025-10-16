@@ -9,24 +9,54 @@ export default function ValuePropositionSection() {
         <h2 className={styles.valueTitle}>
           Ship faster by unblocking reviews.
         </h2>
+        <p className={styles.valueSubtitle}>
+          Stop losing momentum to forgotten PRs. HotBot keeps your team&apos;s
+          code flowing with intelligent automation that respects your workflow.
+        </p>
         <div className={styles.valueGrid}>
           <div className={styles.valueItem}>
             <div className={styles.valueIcon}>📅</div>
             <h3 className={styles.valueItemTitle}>
               Daily PR summaries before standup
             </h3>
+            <p className={styles.valueItemDescription}>
+              Get a complete picture of pending reviews delivered to your team
+              channel every morning. No more &quot;what needs review?&quot;
+              questions in standup.
+            </p>
+            <div className={styles.valueItemBenefit}>
+              <span className={styles.benefitIcon}>⚡</span>
+              <span>Save 15 minutes per standup</span>
+            </div>
           </div>
           <div className={styles.valueItem}>
             <div className={styles.valueIcon}>🎯</div>
             <h3 className={styles.valueItemTitle}>
               Targeted nudges, not noise
             </h3>
+            <p className={styles.valueItemDescription}>
+              Smart filters exclude drafts, WIP PRs, and already-reviewed code.
+              Only get notified about PRs that actually need your attention.
+            </p>
+            <div className={styles.valueItemBenefit}>
+              <span className={styles.benefitIcon}>🔇</span>
+              <span>90% less notification noise</span>
+            </div>
           </div>
           <div className={styles.valueItem}>
             <div className={styles.valueIcon}>⚙️</div>
             <h3 className={styles.valueItemTitle}>
               Configurable escalation that respects team norms
             </h3>
+            <p className={styles.valueItemDescription}>
+              Set custom thresholds for when to escalate stale PRs to team leads
+              or managers. Maintain team harmony while ensuring nothing gets
+              stuck.
+            </p>
+            <div className={styles.valueItemBenefit}>
+              <span className={styles.benefitIcon}>🎯</span>
+              <span>52% fewer stale PRs</span>
+            </div>
           </div>
         </div>
         <div className={chartStyles.beforeAfterChart}>

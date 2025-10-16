@@ -26,7 +26,7 @@ export const integrationsGridLanding = style({
   justifyItems: "center",
   "@media": {
     "(max-width: 768px)": {
-      gridTemplateColumns: "repeat(3, 1fr)",
+      gridTemplateColumns: "repeat(2, 1fr)",
       gap: tokens.space[4],
     },
   },

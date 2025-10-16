@@ -79,7 +79,7 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
         <div>
           <label className={styles.filterLabel}>Labels</label>
           <p className={styles.filterHelp}>
-            Filter PRs by GitHub labels (e.g., bug, URGENT, feature)
+            Filter PRs by labels (e.g., bug, URGENT, feature)
           </p>
           <div className={styles.filterInputGroup}>
             <input
@@ -107,7 +107,12 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
                 <button
                   key={label}
                   type="button"
-                  className={button({ color: "ghost", size: "xs", pill: true })}
+                  className={button({
+                    color: "ghost",
+                    size: "xs",
+                    alternative: true,
+                    pill: true,
+                  })}
                   onClick={() => addFilterItem("labels", label)}
                   disabled={value.labels.includes(label)}
                 >
@@ -165,7 +170,12 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
                 <button
                   key={keyword}
                   type="button"
-                  className={button({ color: "ghost", size: "xs", pill: true })}
+                  className={button({
+                    color: "ghost",
+                    size: "xs",
+                    alternative: true,
+                    pill: true,
+                  })}
                   onClick={() => addFilterItem("titleKeywords", keyword)}
                   disabled={value.titleKeywords.includes(keyword)}
                 >

@@ -126,8 +126,8 @@ globalStyle(`${landingPageEffect}::before`, {
   width: "100%",
   height: "100%",
   background: `
-    linear-gradient(rgba(209, 213, 219, 0.2) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(209, 213, 219, 0.2) 1px, transparent 1px),
+    linear-gradient(rgba(209, 213, 219, 0.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(209, 213, 219, 0.4) 1px, transparent 1px),
     radial-gradient(
       300px circle at var(--mouse-x, 50%) var(--mouse-y, 50%),
       rgba(255, 128, 0, 0.08) 0%,
@@ -178,6 +178,9 @@ export const contentCard = recipe({
       },
       medium: {
         maxWidth: "600px",
+      },
+      fullPage: {
+        maxWidth: "none",
       },
     },
   },
