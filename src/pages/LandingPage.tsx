@@ -6,7 +6,7 @@ import IntegrationsSection from "../components/landing/IntegrationsSection";
 import LazySection from "../components/landing/LazySection";
 import ValuePropositionSection from "../components/landing/ValuePropositionSection";
 import { useMouseTracking } from "../hooks/useMouseTracking";
-import { landingPage } from "../styles/landing/base.css";
+import { page, landingPageEffect } from "../styles/layout/layout.css";
 
 // Lazy load components for better performance
 const ProductContextSection = lazy(
@@ -26,7 +26,7 @@ export default function LandingPage() {
   useMouseTracking();
 
   return (
-    <div className={landingPage}>
+    <div className={`${page} ${landingPageEffect}`}>
       {/* Critical above-the-fold content */}
       <HeroSection />
       <IntegrationsSection />

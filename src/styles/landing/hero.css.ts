@@ -80,30 +80,6 @@ export const heroButtons = style([
   },
 ]);
 
-export const ctaPrimary = style({
-  background: tokens.colors.primary,
-  color: tokens.colors.white,
-  border: "none",
-  padding: `${tokens.space[4]} ${tokens.space[8]}`,
-  fontSize: "1.1rem",
-  borderRadius: tokens.borderRadius.md,
-  cursor: "pointer",
-  fontWeight: tokens.fontWeight.semibold,
-  transition: "all 0.2s ease",
-  selectors: {
-    "&:hover": {
-      background: tokens.colors.primaryHover,
-      transform: "translateY(-2px)",
-    },
-  },
-  "@media": {
-    "(max-width: 768px)": {
-      width: "100%",
-      maxWidth: "300px",
-    },
-  },
-});
-
 export const heroVisual = style([utils.flexCenter]);
 
 export const heroSplit = style([

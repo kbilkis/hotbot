@@ -1,12 +1,6 @@
 import { style, globalStyle } from "@vanilla-extract/css";
 
-import {
-  tokens,
-  buttonStyles,
-  badgeStyles,
-  utils,
-  iconStyles,
-} from "../theme/index.css";
+import { tokens, badgeStyles, utils, iconStyles } from "../theme/index.css";
 
 // Channel Management (Slack/Discord)
 export const channelsContainer = style({
@@ -83,38 +77,6 @@ export const channelDescription = style({
 });
 
 export const channelActions = style([utils.flex, utils.gap2]);
-
-export const testButton = style([
-  buttonStyles.primary,
-  {
-    padding: `${tokens.space[1]} ${tokens.space[3]}`,
-    background: tokens.colors.info,
-    fontSize: tokens.fontSize.xs,
-    selectors: {
-      "&:hover": {
-        background: tokens.colors.info,
-        opacity: "0.8",
-      },
-      "&:disabled": {
-        background: tokens.colors.gray400,
-        cursor: "not-allowed",
-      },
-    },
-  },
-]);
-
-export const testButtonTesting = style([
-  testButton,
-  {
-    background: tokens.colors.warning,
-    selectors: {
-      "&:hover": {
-        background: tokens.colors.warning,
-        opacity: "0.8",
-      },
-    },
-  },
-]);
 
 const testResult = style([
   badgeStyles.neutral,
@@ -197,37 +159,6 @@ export const guildChannelsTitle = style({
   marginBottom: tokens.space[2],
 });
 
-// Guild Selection
-export const selectGuildButton = style([
-  buttonStyles.primary,
-  {
-    padding: `${tokens.space[1]} ${tokens.space[3]}`,
-    background: tokens.colors.info,
-    fontSize: tokens.fontSize.xs,
-    selectors: {
-      "&:hover": {
-        background: "#2563eb",
-      },
-      "&:disabled": {
-        background: tokens.colors.gray400,
-        cursor: "not-allowed",
-      },
-    },
-  },
-]);
-
-export const selectGuildButtonSelected = style([
-  selectGuildButton,
-  {
-    background: tokens.colors.success,
-    selectors: {
-      "&:hover": {
-        background: tokens.colors.successHover,
-      },
-    },
-  },
-]);
-
 // Connection Method Tabs
 export const connectionMethodTabs = style([
   utils.flex,
@@ -291,20 +222,3 @@ globalStyle(`${discordSetupInfo} li`, {
   marginBottom: tokens.space[1],
   color: tokens.colors.textMuted,
 });
-
-export const webhookConnectButton = style([
-  buttonStyles.primary,
-  {
-    padding: `${tokens.space[3]} ${tokens.space[6]}`,
-    background: "#7c3aed", // Discord purple
-    selectors: {
-      "&:hover": {
-        background: "#6d28d9",
-      },
-      "&:disabled": {
-        background: tokens.colors.gray400,
-        cursor: "not-allowed",
-      },
-    },
-  },
-]);

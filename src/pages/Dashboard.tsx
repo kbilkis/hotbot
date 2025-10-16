@@ -1,11 +1,13 @@
+import { utils } from "@/styles/theme/utils.css";
+
 import IntegrationsSection from "../components/integrations/IntegrationsSection";
 import SchedulesSection from "../components/schedules/SchedulesSection";
-import * as styles from "../styles/dashboard/base.css";
+import { page } from "../styles/layout/layout.css";
 
 export default function Dashboard() {
   return (
-    <div className={styles.dashboard}>
-      <div className={styles.dashboardContainer}>
+    <div className={page}>
+      <div className={utils.container}>
         <IntegrationsSection />
         <SchedulesSection />
       </div>

@@ -1,5 +1,6 @@
 import { style } from "@vanilla-extract/css";
 
+import { spin } from "./animations.css";
 import { tokens } from "./tokens.css";
 
 // Common utility styles using design tokens
@@ -66,7 +67,18 @@ export const utils = {
     border: `2px solid transparent`,
     borderTop: `2px solid currentColor`,
     borderRadius: tokens.borderRadius.full,
-    animation: "spin 1s linear infinite",
+    animation: `${spin} 1s linear infinite`,
+  }),
+
+  // Large loading spinner for status pages
+  spinnerLarge: style({
+    width: tokens.fontSize["2xl"], // Same as iconStyles.xl
+    height: tokens.fontSize["2xl"],
+    border: `3px solid transparent`,
+    borderTop: `3px solid currentColor`,
+    borderRadius: tokens.borderRadius.full,
+    animation: `${spin} 1s linear infinite`,
+    marginBottom: tokens.space[4],
   }),
 
   // Card styles

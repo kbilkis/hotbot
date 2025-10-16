@@ -11,6 +11,7 @@ import { DiscordChannel } from "@/lib/discord";
 import { getUserTimezoneOrFallback } from "@/lib/utils/timezone";
 import * as formStyles from "@/styles/schedules/forms.css";
 import * as styles from "@/styles/schedules/modal.css";
+import { button } from "@/styles/theme/index.css";
 import { SlackChannel } from "@/types/slack";
 
 import CronBuilder from "./CronBuilder";
@@ -884,14 +885,14 @@ export default function ScheduleModal({
 
           <div>
             <button
-              className={styles.cancelButton}
+              className={button({ color: "outline" })}
               onClick={() => onClose()}
               disabled={isSubmitting}
             >
               Cancel
             </button>
             <button
-              className={styles.saveButton}
+              className={button({ color: "primary" })}
               onClick={handleSubmit}
               disabled={isSubmitting || !isFormValid()}
               title={

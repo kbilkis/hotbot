@@ -1,7 +1,7 @@
 import { style, globalStyle } from "@vanilla-extract/css";
 
-import { spin, fadeIn } from "../theme/animations.css";
-import { tokens, buttonStyles, utils, iconStyles } from "../theme/index.css";
+import { fadeIn } from "../theme/animations.css";
+import { tokens, utils, iconStyles } from "../theme/index.css";
 
 // Auth Section
 export const authSection = style([
@@ -46,6 +46,11 @@ export const authCallbackContent = style([
     maxWidth: "500px",
     width: "100%",
     animation: `${fadeIn} 0.5s ease-out`,
+    "@media": {
+      "(max-width: 768px)": {
+        padding: tokens.space[4],
+      },
+    },
   },
 ]);
 
@@ -62,25 +67,8 @@ globalStyle(`${authCallbackContent} p`, {
   lineHeight: tokens.lineHeight.normal,
 });
 
-// Status Icons
-export const loadingSpinner = style([
+export const statusIcon = style([
   iconStyles.xl,
-  {
-    animation: `${spin} 2s linear infinite`,
-    marginBottom: tokens.space[4],
-  },
-]);
-
-export const successIcon = style([
-  iconStyles.success,
-  {
-    marginBottom: tokens.space[4],
-    animation: `${fadeIn} 0.5s ease-out`,
-  },
-]);
-
-export const errorIcon = style([
-  iconStyles.error,
   {
     marginBottom: tokens.space[4],
     animation: `${fadeIn} 0.5s ease-out`,
@@ -106,47 +94,6 @@ export const errorText = style({
   fontWeight: tokens.fontWeight.medium,
 });
 
-// Responsive Design
-export const mobileOptimized = style({
-  "@media": {
-    "(max-width: 768px)": {
-      padding: tokens.space[4],
-    },
-  },
-});
-
-// Mobile typography styles
-globalStyle(`${mobileOptimized} h1`, {
-  "@media": {
-    "(max-width: 768px)": {
-      fontSize: tokens.fontSize["2xl"],
-    },
-  },
-});
-
-globalStyle(`${mobileOptimized} h2`, {
-  "@media": {
-    "(max-width: 768px)": {
-      fontSize: tokens.fontSize.xl,
-    },
-  },
-});
-
-globalStyle(`${mobileOptimized} h3`, {
-  "@media": {
-    "(max-width: 768px)": {
-      fontSize: tokens.fontSize.lg,
-    },
-  },
-});
-
-globalStyle(`${mobileOptimized} p`, {
-  "@media": {
-    "(max-width: 768px)": {
-      fontSize: tokens.fontSize.sm,
-    },
-  },
-});
 // Upgrade Result Pages
 export const upgradeResultPage = style([
   utils.flexCenter,
@@ -268,22 +215,6 @@ export const actionButtons = style([
     "@media": {
       "(max-width: 768px)": {
         flexDirection: "column",
-      },
-    },
-  },
-]);
-
-// Button Styles for Upgrade Pages
-export const btnPrimary = style([
-  buttonStyles.primary,
-  {
-    padding: `${tokens.space[3]} ${tokens.space[8]}`,
-    textDecoration: "none",
-    display: "inline-block",
-    selectors: {
-      "&:hover": {
-        transform: "translateY(-1px)",
-        boxShadow: `0 4px 12px ${tokens.colors.primaryLight}`,
       },
     },
   },

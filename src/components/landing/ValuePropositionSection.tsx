@@ -1,11 +1,11 @@
-import { container } from "@/styles/landing/base.css";
 import * as chartStyles from "@/styles/landing/charts.css";
 import * as styles from "@/styles/landing/sections.css";
+import { utils } from "@/styles/theme/index.css";
 
 export default function ValuePropositionSection() {
   return (
     <section className={styles.valueProposition}>
-      <div className={container}>
+      <div className={utils.container}>
         <h2 className={styles.valueTitle}>
           Ship faster by unblocking reviews.
         </h2>

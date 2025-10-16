@@ -1,10 +1,10 @@
-import { container } from "@/styles/landing/base.css";
 import * as styles from "@/styles/landing/pricing.css";
+import { utils , button } from "@/styles/theme/index.css";
 
 export default function PricingSection() {
   return (
     <section className={styles.pricing}>
-      <div className={container}>
+      <div className={utils.container}>
         <h2 className={styles.pricingTitle}>Simple, transparent pricing</h2>
         <div className={styles.pricingGrid}>
           <div className={styles.pricingCard}>
@@ -31,7 +31,7 @@ export default function PricingSection() {
               <li className={styles.featuresListItem}>✓ Community support</li>
             </ul>
             <a href="/dashboard">
-              <button className={styles.pricingButtonSecondary}>
+              <button className={button({ color: "outline" })}>
                 Get started
               </button>
             </a>
@@ -63,7 +63,7 @@ export default function PricingSection() {
               <li className={styles.featuresListItem}>✓ Priority support</li>
             </ul>
             <a href="/dashboard">
-              <button className={styles.pricingButtonPrimary}>
+              <button className={button({ color: "primary" })}>
                 Start free trial
               </button>
             </a>
@@ -81,7 +81,7 @@ export default function PricingSection() {
               <li className={styles.featuresListItem}>✓ Dedicated support</li>
             </ul>
             <a href="mailto:hello@hotbot.sh">
-              <button className={styles.pricingButtonSecondary}>
+              <button className={button({ color: "outline" })}>
                 Contact sales
               </button>
             </a>

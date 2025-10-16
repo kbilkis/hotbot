@@ -1,13 +1,6 @@
 import { style, globalStyle } from "@vanilla-extract/css";
 
-import { spin } from "../theme/animations.css";
-import {
-  tokens,
-  buttonStyles,
-  badgeStyles,
-  utils,
-  iconStyles,
-} from "../theme/index.css";
+import { tokens, badgeStyles, utils, iconStyles } from "../theme/index.css";
 
 // Subscription Header
 export const subscriptionHeader = style([
@@ -363,62 +356,6 @@ globalStyle(`${supportInfo} p`, {
   color: tokens.colors.textMuted,
 });
 
-// Buttons
-export const upgradeBtn = style([
-  buttonStyles.primary,
-  utils.flex,
-  utils.gap2,
-  {
-    padding: `${tokens.space[3]} ${tokens.space[8]}`,
-    alignItems: "center",
-    selectors: {
-      "&:hover": {
-        transform: "translateY(-1px)",
-        boxShadow: `0 4px 12px ${tokens.colors.primaryLight}`,
-      },
-      "&:disabled": {
-        opacity: 0.6,
-        cursor: "not-allowed",
-        transform: "none",
-        boxShadow: "none",
-      },
-    },
-  },
-]);
-
-export const manageBillingBtn = style([
-  buttonStyles.outline,
-  utils.flex,
-  utils.gap2,
-  {
-    padding: `${tokens.space[3]} ${tokens.space[6]}`,
-    alignItems: "center",
-    background: tokens.colors.white,
-    color: tokens.colors.gray700,
-    border: `1px solid ${tokens.colors.gray300}`,
-    selectors: {
-      "&:hover": {
-        borderColor: tokens.colors.gray400,
-        background: tokens.colors.gray50,
-      },
-      "&:disabled": {
-        opacity: 0.6,
-        cursor: "not-allowed",
-      },
-    },
-  },
-]);
-
-// Loading Spinner
-export const loadingSubscriptionSpinner = style([
-  utils.spinner,
-  {
-    width: tokens.space[4],
-    height: tokens.space[4],
-    animation: `${spin} 1s linear infinite`,
-  },
-]);
-
 // Error Message
 export const errorMessage = style([
   utils.flexBetween,
@@ -472,5 +409,3 @@ export const errorText = style({
   color: tokens.colors.error,
   fontWeight: tokens.fontWeight.medium,
 });
-
-export const btnOutline = buttonStyles.outline;

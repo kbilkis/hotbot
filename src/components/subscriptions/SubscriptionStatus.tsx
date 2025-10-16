@@ -2,6 +2,7 @@ import { useBilling } from "@/hooks/useBilling";
 import { useSubscription } from "@/hooks/useSubscription";
 import { useUpgrade } from "@/hooks/useUpgrade";
 import * as subscriptionStyles from "@/styles/subscriptions/subscription.css";
+import { button, utils } from "@/styles/theme/index.css";
 
 import Tooltip from "../ui/Tooltip";
 
@@ -275,15 +276,13 @@ export default function SubscriptionStatus() {
                 </div>
               )}
               <button
-                className={subscriptionStyles.upgradeBtn}
+                className={button({ color: "primary" })}
                 onClick={startUpgrade}
                 disabled={upgradeLoading}
               >
                 {upgradeLoading ? (
                   <>
-                    <span
-                      className={subscriptionStyles.loadingSubscriptionSpinner}
-                    ></span>
+                    <span className={utils.spinner}></span>
                     Processing...
                   </>
                 ) : (
@@ -308,17 +307,13 @@ export default function SubscriptionStatus() {
               )}
               <div className={subscriptionStyles.billingActions}>
                 <button
-                  className={subscriptionStyles.manageBillingBtn}
+                  className={button({ color: "ghost" })}
                   onClick={openBillingPortal}
                   disabled={billingLoading}
                 >
                   {billingLoading ? (
                     <>
-                      <span
-                        className={
-                          subscriptionStyles.loadingSubscriptionSpinner
-                        }
-                      ></span>
+                      <span className={utils.spinner}></span>
                       Opening...
                     </>
                   ) : (
@@ -331,7 +326,7 @@ export default function SubscriptionStatus() {
                       <p>Need to make changes to your subscription?</p>
                       <a
                         href="mailto:hello@hotbot.sh?subject=Subscription Management Request"
-                        className={subscriptionStyles.btnOutline}
+                        className={button({ color: "outline" })}
                       >
                         Contact Support
                       </a>

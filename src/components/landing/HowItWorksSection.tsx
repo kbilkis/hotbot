@@ -1,10 +1,11 @@
-import { container } from "@/styles/landing/base.css";
+import * as flowStyles from "@/styles/landing/flow.css";
 import * as styles from "@/styles/landing/sections.css";
+import { utils , button } from "@/styles/theme/index.css";
 
 export default function HowItWorksSection() {
   return (
     <section className={styles.howItWorks}>
-      <div className={container}>
+      <div className={utils.container}>
         <h2 className={styles.howItWorksTitle}>How it works</h2>
         <div className={styles.steps}>
           <div className={styles.step}>
@@ -42,38 +43,77 @@ export default function HowItWorksSection() {
         </div>
 
         <div className={styles.flowDiagram}>
-          <div className={styles.flowStep}>
-            <div className={styles.flowIcon}>
+          {/* Git Providers */}
+          <div className={flowStyles.flowProviders}>
+            <div className={flowStyles.providerIcon}>
               <img
                 src="/images/providers/github/GitHub_Invertocat_Dark.svg"
-                alt="GitHub icon"
+                alt="GitHub"
               />
             </div>
-            <div className={styles.flowLabel}>GitHub</div>
+            <div className={flowStyles.providerIcon}>
+              <img
+                src="/images/providers/gitlab/gitlab-logo-500-rgb.svg"
+                alt="GitLab"
+              />
+            </div>
+            <div className={flowStyles.providerIcon}>
+              <img
+                src="/images/providers/bitbucket/Bitbucket_mark_brand_RGB.svg"
+                alt="Bitbucket"
+              />
+            </div>
           </div>
-          <div className={styles.flowArrow}>→</div>
-          <div className={styles.flowStep}>
+
+          {/* Fluid Arrow */}
+          <div className={flowStyles.flowArrowContainer}>
+            <div className={flowStyles.fluidArrow}></div>
+          </div>
+
+          {/* HotBot Center */}
+          <div className={flowStyles.flowCenter}>
             <img
               src="/images/hotbot.svg"
-              alt="HotBot logo"
-              className={styles.integrationsScreenshot}
+              alt="HotBot"
+              className={flowStyles.hotbotLogo}
             />
           </div>
-          <div className={styles.flowArrow}>→</div>
-          <div className={styles.flowStep}>
-            <div className={styles.flowIcon}>
+
+          {/* Fluid Arrow */}
+          <div className={flowStyles.flowArrowContainer}>
+            <div className={flowStyles.fluidArrow}></div>
+          </div>
+
+          {/* Messaging Providers */}
+          <div className={flowStyles.flowProviders}>
+            <div className={flowStyles.providerIcon}>
               <img
                 src="/images/providers/slack/SLA-appIcon-iOS.png"
-                alt="Slack Icon"
+                alt="Slack"
+              />
+            </div>
+            <div className={flowStyles.providerIcon}>
+              <img
+                src="/images/providers/discord/Discord-Symbol-Blurple.svg"
+                alt="Discord"
+              />
+            </div>
+            <div className={flowStyles.providerIcon}>
+              <img
+                src="/images/providers/teams/icons8-microsoft-teams.svg"
+                alt="Microsoft Teams"
               />
             </div>
           </div>
         </div>
 
         <div className={styles.ctaRepeat}>
-          <button className={styles.ctaPrimary}>
+          <a
+            href="/dashboard"
+            className={button({ color: "primary", size: "lg" })}
+          >
             Add to your favorite messaging platform
-          </button>
+          </a>
         </div>
       </div>
     </section>

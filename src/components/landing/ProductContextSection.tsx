@@ -1,10 +1,10 @@
-import { container } from "@/styles/landing/base.css";
 import * as styles from "@/styles/landing/sections.css";
+import { utils } from "@/styles/theme/index.css";
 
 export default function ProductContextSection() {
   return (
     <section className={styles.productContext}>
-      <div className={container}>
+      <div className={utils.container}>
         <h2 className={styles.productContextTitle}>
           Designed to be read in seconds and acted on immediately.
         </h2>

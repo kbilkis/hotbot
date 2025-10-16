@@ -1,12 +1,6 @@
 import { style } from "@vanilla-extract/css";
 
-import {
-  tokens,
-  buttonStyles,
-  badgeStyles,
-  utils,
-  iconStyles,
-} from "../theme/index.css";
+import { tokens, badgeStyles, utils, iconStyles } from "../theme/index.css";
 
 export const providerSection = utils.card;
 
@@ -89,51 +83,5 @@ export const connectionStatusConnected = style([
   {
     background: tokens.colors.successBg,
     color: tokens.colors.success,
-  },
-]);
-
-export const connectButton = style([
-  buttonStyles.primary,
-  {
-    background: tokens.colors.success,
-    padding: `${tokens.space[2]} ${tokens.space[4]}`,
-    selectors: {
-      "&:hover": {
-        background: tokens.colors.successHover,
-        transform: "translateY(-1px)",
-      },
-    },
-  },
-]);
-
-export const connectButtonConnected = style([
-  buttonStyles.outline,
-  {
-    background: tokens.colors.white,
-    color: tokens.colors.success,
-    border: `1px solid ${tokens.colors.success}`,
-    selectors: {
-      "&:hover": {
-        color: tokens.colors.successHover,
-        borderColor: tokens.colors.successHover,
-        background: tokens.colors.white,
-      },
-    },
-  },
-]);
-
-export const connectButtonComingSoon = style([
-  buttonStyles.secondary,
-  {
-    backgroundColor: tokens.colors.gray100,
-    color: tokens.colors.gray400,
-    cursor: "not-allowed",
-    opacity: 0.6,
-    selectors: {
-      "&:hover": {
-        transform: "none",
-        background: tokens.colors.gray100,
-      },
-    },
   },
 ]);

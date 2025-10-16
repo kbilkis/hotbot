@@ -1,4 +1,4 @@
-import * as styles from "@/styles/dashboard/base.css";
+import * as styles from "@/styles/layout/layout.css";
 
 import GitProviders from "./GitProviders";
 import MessagingProviders from "./MessagingProviders";

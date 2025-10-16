@@ -1,6 +1,6 @@
 import { style } from "@vanilla-extract/css";
 
-import { tokens, buttonStyles, utils } from "../theme/index.css";
+import { tokens, utils } from "../theme/index.css";
 
 export const modalOverlay = style([
   utils.flexCenter,
@@ -66,23 +66,31 @@ export const modalTitle = style({
   margin: 0,
 });
 
-export const modalClose = style([
-  buttonStyles.ghost,
-  {
-    background: "none",
-    border: "none",
-    fontSize: tokens.fontSize["2xl"],
-    color: tokens.colors.textMuted,
-    cursor: "pointer",
-    padding: tokens.space[1],
-    borderRadius: tokens.borderRadius.base,
-    selectors: {
-      "&:hover": {
-        background: tokens.colors.gray100,
-      },
+export const modalClose = style({
+  background: "transparent",
+  color: tokens.colors.textMuted,
+  border: "none",
+  borderRadius: tokens.borderRadius.base,
+  cursor: "pointer",
+  padding: tokens.space[1],
+  fontSize: tokens.fontSize["2xl"],
+  fontWeight: tokens.fontWeight.medium,
+  transition: "all 0.2s ease",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  textDecoration: "none",
+  outline: "none",
+  selectors: {
+    "&:hover": {
+      background: tokens.colors.gray100,
+    },
+    "&:focus": {
+      outline: `2px solid ${tokens.colors.primary}`,
+      outlineOffset: "2px",
     },
   },
-]);
+});
 
 export const modalBody = style({
   padding: "1.5rem 2rem",
@@ -100,43 +108,6 @@ export const modalFooter = style({
   "@media": {
     "(max-width: 768px)": {
       flexDirection: "column",
-    },
-  },
-});
-
-export const saveButton = style({
-  background: tokens.colors.primary,
-  color: tokens.colors.white,
-  border: "none",
-  padding: `${tokens.space[3]} ${tokens.space[6]}`,
-  borderRadius: tokens.borderRadius.md,
-  fontWeight: tokens.fontWeight.semibold,
-  cursor: "pointer",
-  transition: "all 0.2s ease",
-  selectors: {
-    "&:hover": {
-      background: tokens.colors.primaryHover,
-    },
-    "&:disabled": {
-      background: tokens.colors.gray400,
-      cursor: "not-allowed",
-    },
-  },
-});
-
-export const cancelButton = style({
-  background: "transparent",
-  color: tokens.colors.textMuted,
-  border: `1px solid ${tokens.colors.border}`,
-  padding: `${tokens.space[3]} ${tokens.space[6]}`,
-  borderRadius: tokens.borderRadius.md,
-  fontWeight: tokens.fontWeight.medium,
-  cursor: "pointer",
-  transition: "all 0.2s ease",
-  selectors: {
-    "&:hover": {
-      borderColor: tokens.colors.primary,
-      color: tokens.colors.primary,
     },
   },
 });

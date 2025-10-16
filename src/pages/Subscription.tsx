@@ -1,10 +1,12 @@
+import { utils } from "@/styles/theme/utils.css";
+
 import SubscriptionStatus from "../components/subscriptions/SubscriptionStatus";
-import * as layoutStyles from "../styles/layout/layout.css";
+import { page } from "../styles/layout/layout.css";
 
 export default function Subscription() {
   return (
-    <div className={layoutStyles.dashboard}>
-      <div className={layoutStyles.dashboardContainer}>
+    <div className={page}>
+      <div className={utils.container}>
         <SubscriptionStatus />
       </div>
     </div>

@@ -1,6 +1,6 @@
 import { style, globalStyle } from "@vanilla-extract/css";
 
-import { tokens, buttonStyles, utils } from "../theme/index.css";
+import { tokens, utils } from "../theme/index.css";
 
 // Modal Structure
 export const modalOverlay = style([
@@ -47,23 +47,31 @@ export const modalTitle = style({
   margin: 0,
 });
 
-export const modalClose = style([
-  buttonStyles.ghost,
-  {
-    background: "none",
-    border: "none",
-    fontSize: tokens.fontSize["2xl"],
-    color: tokens.colors.textMuted,
-    cursor: "pointer",
-    padding: tokens.space[1],
-    borderRadius: tokens.borderRadius.base,
-    selectors: {
-      "&:hover": {
-        background: tokens.colors.gray100,
-      },
+export const modalClose = style({
+  background: "transparent",
+  color: tokens.colors.textMuted,
+  border: "none",
+  borderRadius: tokens.borderRadius.base,
+  cursor: "pointer",
+  padding: tokens.space[1],
+  fontSize: tokens.fontSize["2xl"],
+  fontWeight: tokens.fontWeight.medium,
+  transition: "all 0.2s ease",
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  textDecoration: "none",
+  outline: "none",
+  selectors: {
+    "&:hover": {
+      background: tokens.colors.gray100,
+    },
+    "&:focus": {
+      outline: `2px solid ${tokens.colors.primary}`,
+      outlineOffset: "2px",
     },
   },
-]);
+});
 
 export const modalBody = style({
   padding: `${tokens.space[6]} ${tokens.space[8]}`,
@@ -169,69 +177,6 @@ export const teamName = style({
   color: tokens.colors.textMuted,
 });
 
-// Buttons
-export const connectButton = buttonStyles.primary;
-export const disconnectButton = buttonStyles.danger;
-export const cancelButton = buttonStyles.outline;
-
-const oauthButton = style([
-  buttonStyles.primary,
-  {
-    background: "#24292f", // GitHub dark
-    selectors: {
-      "&:hover": {
-        background: "#1c2128",
-        transform: "translateY(-1px)",
-      },
-      "&:disabled": {
-        background: tokens.colors.gray400,
-        cursor: "not-allowed",
-      },
-    },
-  },
-]);
-
-export const oauthButtonPrimary = style([
-  oauthButton,
-  {
-    background: tokens.colors.success,
-    selectors: {
-      "&:hover": {
-        background: tokens.colors.successHover,
-      },
-    },
-  },
-]);
-
-// Provider Branding
-export const providerBranded = style({
-  background: "var(--provider-color, #4f46e5) !important",
-  borderColor: "var(--provider-color, #4f46e5) !important",
-  color: "white !important",
-  ":hover": {
-    background: "var(--provider-accent-color, #4338ca) !important",
-    borderColor: "var(--provider-accent-color, #4338ca) !important",
-    transform: "translateY(-1px)",
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
-  },
-  ":disabled": {
-    background: "var(--provider-bg-color, #f3f4f6) !important",
-    borderColor: "var(--provider-bg-color, #f3f4f6) !important",
-    color: "var(--provider-color, #6b7280) !important",
-    opacity: 0.6,
-    transform: "none",
-    boxShadow: "none",
-  },
-});
-
-export const oauthButtonContent = style({
-  display: "flex",
-  alignItems: "center",
-  gap: "0.5rem",
-  justifyContent: "center",
-  width: "100%",
-});
-
 export const providerLogoButton = style({
   height: "2rem",
 });
@@ -256,23 +201,6 @@ export const alternativeSection = style({
   borderTop: "1px solid rgba(148, 163, 184, 0.2)",
 });
 
-export const showAlternativeButton = style([
-  buttonStyles.ghost,
-  {
-    background: "transparent",
-    color: tokens.colors.textMuted,
-    border: `1px dashed ${tokens.colors.gray300}`,
-    fontSize: tokens.fontSize.sm,
-    padding: `${tokens.space[2]} ${tokens.space[4]}`,
-    selectors: {
-      "&:hover": {
-        borderColor: tokens.colors.primary,
-        color: tokens.colors.primary,
-      },
-    },
-  },
-]);
-
 export const manualConnectionWrapper = style({
   border: "1px solid rgba(148, 163, 184, 0.3)",
   borderRadius: "0.5rem",
@@ -290,43 +218,11 @@ export const alternativeHeader = style({
   color: "#374151",
 });
 
-export const hideAlternativeButton = style([
-  buttonStyles.ghost,
-  {
-    background: "transparent",
-    color: tokens.colors.textMuted,
-    border: "none",
-    fontSize: tokens.fontSize.xs,
-    padding: `${tokens.space[1]} ${tokens.space[2]}`,
-    selectors: {
-      "&:hover": {
-        color: tokens.colors.primary,
-      },
-    },
-  },
-]);
-
 export const manualConnectSection = style({
   display: "flex",
   flexDirection: "column",
   gap: "1rem",
 });
-
-export const manualConnectButton = style([
-  buttonStyles.primary,
-  {
-    background: tokens.colors.info,
-    selectors: {
-      "&:hover": {
-        background: "#2563eb",
-      },
-      "&:disabled": {
-        background: tokens.colors.gray400,
-        cursor: "not-allowed",
-      },
-    },
-  },
-]);
 
 export const helpSection = style({
   marginTop: "0.5rem",
@@ -399,14 +295,6 @@ export const emptyState = style({
   fontSize: "0.875rem",
   fontStyle: "italic",
 });
-
-export const retryButton = style([
-  buttonStyles.danger,
-  {
-    fontSize: tokens.fontSize.xs,
-    padding: `${tokens.space[1]} ${tokens.space[3]}`,
-  },
-]);
 
 export const itemCount = style({
   fontSize: "0.75rem",

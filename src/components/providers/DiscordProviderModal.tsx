@@ -5,11 +5,7 @@ import { useDiscordGuilds, useDiscordChannels } from "@/hooks/useChannels";
 import { discordApi, messagingApi } from "@/lib/api/client";
 import * as channelStyles from "@/styles/providers/channels.css";
 import * as modalStyles from "@/styles/providers/modal.css";
-import {
-  getProviderColor,
-  getProviderBgColor,
-  getProviderAccentColor,
-} from "@/utils/providerColors";
+import { button } from "@/styles/theme/index.css";
 
 interface DiscordProviderModalProps {
   onClose: () => void;
@@ -315,16 +311,16 @@ export default function DiscordProviderModal({
 
   return (
     <div className={modalStyles.modalOverlay} onClick={onClose}>
+      <button
+        className={button({ color: "discord" })}
+        onClick={handleManualConnect}
+        disabled={!webhookUrl.trim() || loading}
+      >
+        {loading ? "Connecting..." : "Connect with Webhook"}
+      </button>
       <div
         className={modalStyles.modalContent}
         onClick={(e) => e.stopPropagation()}
-        style={
-          {
-            "--provider-color": getProviderColor("discord"),
-            "--provider-bg-color": getProviderBgColor("discord"),
-            "--provider-accent-color": getProviderAccentColor("discord"),
-          } as preact.CSSProperties
-        }
       >
         <div className={modalStyles.modalHeader}>
           <h2 className={modalStyles.modalTitle}>Connect Discord</h2>
@@ -367,7 +363,7 @@ export default function DiscordProviderModal({
                   <div className={modalStyles.errorState}>
                     <span>Error loading servers: {guildsError}</span>
                     <button
-                      className={modalStyles.retryButton}
+                      className={button({ color: "danger", size: "xs" })}
                       onClick={refetchGuilds}
                       disabled={guildsLoading}
                     >
@@ -393,8 +389,8 @@ export default function DiscordProviderModal({
                             <button
                               className={
                                 selectedGuild === guild.id
-                                  ? channelStyles.selectGuildButtonSelected
-                                  : channelStyles.selectGuildButton
+                                  ? button({ color: "success", size: "xs" })
+                                  : button({ color: "info", size: "xs" })
                               }
                               onClick={() => setSelectedGuild(guild.id)}
                               disabled={selectedGuild === guild.id}
@@ -456,8 +452,14 @@ export default function DiscordProviderModal({
                                           <button
                                             className={
                                               testingChannel === channel.id
-                                                ? channelStyles.testButtonTesting
-                                                : channelStyles.testButton
+                                                ? button({
+                                                    color: "warning",
+                                                    size: "xs",
+                                                  })
+                                                : button({
+                                                    color: "info",
+                                                    size: "xs",
+                                                  })
                                             }
                                             onClick={() =>
                                               handleTestChannel(
@@ -520,28 +522,28 @@ export default function DiscordProviderModal({
               {/* Primary OAuth connection - always visible */}
               <div>
                 <button
-                  className={`${modalStyles.oauthButtonPrimary} ${modalStyles.providerBranded}`}
+                  className={button({ color: "discord" })}
                   onClick={handleOAuthConnect}
                   disabled={loading}
                 >
                   {loading ? (
-                    <span className={modalStyles.oauthButtonContent}>
+                    <>
                       Redirecting to{" "}
                       <img
                         src="/images/providers/discord/Discord-Logo-White.svg"
                         alt="Discord"
                         className={modalStyles.oauthButtonLogo}
                       />
-                    </span>
+                    </>
                   ) : (
-                    <span className={modalStyles.oauthButtonContent}>
+                    <>
                       Sign in with{" "}
                       <img
                         src="/images/providers/discord/Discord-Logo-White.svg"
                         alt="Discord"
                         className={modalStyles.oauthButtonLogo}
                       />
-                    </span>
+                    </>
                   )}
                 </button>
                 <small className={modalStyles.formHelp}>
@@ -554,7 +556,11 @@ export default function DiscordProviderModal({
               <div className={modalStyles.alternativeSection}>
                 {!showManualOption ? (
                   <button
-                    className={modalStyles.showAlternativeButton}
+                    className={button({
+                      color: "ghost",
+                      size: "sm",
+                      alternative: true,
+                    })}
                     onClick={() => {
                       setShowManualOption(true);
                       setConnectionMethod("manual");
@@ -568,7 +574,7 @@ export default function DiscordProviderModal({
                     <div className={modalStyles.alternativeHeader}>
                       <span>Alternative Connection Methods</span>
                       <button
-                        className={modalStyles.hideAlternativeButton}
+                        className={button({ color: "ghost", size: "xs" })}
                         onClick={() => {
                           setShowManualOption(false);
                           setConnectionMethod("oauth");
@@ -665,7 +671,7 @@ export default function DiscordProviderModal({
                           </div>
                         </div>
                         <button
-                          className={modalStyles.manualConnectButton}
+                          className={button({ color: "primary" })}
                           onClick={handleManualConnect}
                           disabled={!accessToken.trim() || loading}
                         >
@@ -718,7 +724,7 @@ export default function DiscordProviderModal({
                         </div>
 
                         <button
-                          className={channelStyles.webhookConnectButton}
+                          className={button({ color: "discord" })}
                           onClick={handleManualConnect}
                           disabled={!webhookUrl.trim() || loading}
                         >
@@ -727,7 +733,7 @@ export default function DiscordProviderModal({
 
                         {webhookUrl.trim() && (
                           <button
-                            className={channelStyles.testButton}
+                            className={button({ color: "info", size: "xs" })}
                             onClick={() =>
                               handleTestWebhook(webhookUrl, "Discord Server")
                             }
@@ -769,7 +775,7 @@ export default function DiscordProviderModal({
           <div className={modalStyles.modalFooterButtons}>
             {isConnected ? (
               <button
-                className={modalStyles.disconnectButton}
+                className={button({ color: "danger" })}
                 onClick={handleDisconnect}
                 disabled={loading}
               >
@@ -777,7 +783,7 @@ export default function DiscordProviderModal({
               </button>
             ) : (
               <button
-                className={modalStyles.cancelButton}
+                className={button({ color: "outline" })}
                 onClick={onClose}
                 disabled={loading}
               >

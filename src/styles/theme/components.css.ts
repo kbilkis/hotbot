@@ -1,87 +1,299 @@
 import { style, styleVariants } from "@vanilla-extract/css";
+import { recipe } from "@vanilla-extract/recipes";
 
 import { tokens } from "./tokens.css";
 import { utils } from "./utils.css";
 
-// Button component styles
-export const button = styleVariants({
-  primary: [
+// Removed customButtonColors function - Vanilla Extract doesn't support function exports
+
+// Button Recipe - Clean API for size + color variants
+export const button = recipe({
+  base: [
     utils.buttonBase,
     {
-      padding: `${tokens.space[3]} ${tokens.space[6]}`,
-      background: tokens.colors.primary,
-      color: tokens.colors.white,
-      selectors: {
-        "&:hover": {
-          background: tokens.colors.primaryHover,
-          transform: "translateY(-1px)",
-        },
-        "&:disabled": {
-          background: tokens.colors.gray400,
-          cursor: "not-allowed",
-          transform: "none",
-        },
-      },
+      fontWeight: tokens.fontWeight.medium,
+      transition: "all 0.2s ease",
+      textDecoration: "none", // Remove underline for links
+      display: "inline-flex", // Override inline-block for proper flex behavior
+      gap: "0.5rem", // Space between text and icons
     },
   ],
 
-  secondary: [
-    utils.buttonBase,
-    {
-      padding: `${tokens.space[3]} ${tokens.space[6]}`,
-      background: tokens.colors.gray500,
-      color: tokens.colors.white,
-      selectors: {
-        "&:hover": {
-          background: tokens.colors.gray600,
+  variants: {
+    // Color variants
+    color: {
+      primary: {
+        background: tokens.colors.primary,
+        color: tokens.colors.white,
+        selectors: {
+          "&:hover": {
+            background: tokens.colors.primaryHover,
+            transform: "translateY(-1px)",
+          },
+          "&:disabled": {
+            background: tokens.colors.gray400,
+            cursor: "not-allowed",
+            transform: "none",
+          },
         },
-        "&:disabled": {
-          background: tokens.colors.gray400,
-          cursor: "not-allowed",
+      },
+      discord: {
+        background: "#5865f2",
+        color: tokens.colors.white,
+        selectors: {
+          "&:hover": {
+            background: "#4752c4",
+            transform: "translateY(-1px)",
+          },
+          "&:disabled": {
+            background: tokens.colors.gray400,
+            cursor: "not-allowed",
+            transform: "none",
+          },
+        },
+      },
+      slack: {
+        background: "#4a154b",
+        color: tokens.colors.white,
+        selectors: {
+          "&:hover": {
+            background: "#611f69",
+            transform: "translateY(-1px)",
+          },
+          "&:disabled": {
+            background: tokens.colors.gray400,
+            cursor: "not-allowed",
+            transform: "none",
+          },
+        },
+      },
+      github: {
+        background: "#001C4D",
+        color: tokens.colors.white,
+        selectors: {
+          "&:hover": {
+            background: "#0969da",
+            transform: "translateY(-1px)",
+          },
+          "&:disabled": {
+            background: tokens.colors.gray400,
+            cursor: "not-allowed",
+            transform: "none",
+          },
+        },
+      },
+      gitlab: {
+        background: "#E24328",
+        color: tokens.colors.white,
+        selectors: {
+          "&:hover": {
+            background: "#FDA326",
+            transform: "translateY(-1px)",
+          },
+          "&:disabled": {
+            background: tokens.colors.gray400,
+            cursor: "not-allowed",
+            transform: "none",
+          },
+        },
+      },
+      bitbucket: {
+        background: "#0052cc",
+        color: tokens.colors.white,
+        selectors: {
+          "&:hover": {
+            background: "#0747a6",
+            transform: "translateY(-1px)",
+          },
+          "&:disabled": {
+            background: tokens.colors.gray400,
+            cursor: "not-allowed",
+            transform: "none",
+          },
+        },
+      },
+      teams: {
+        background: "#6264a7",
+        color: tokens.colors.white,
+        selectors: {
+          "&:hover": {
+            background: "#464775",
+            transform: "translateY(-1px)",
+          },
+          "&:disabled": {
+            background: tokens.colors.gray400,
+            cursor: "not-allowed",
+            transform: "none",
+          },
+        },
+      },
+      secondary: {
+        background: tokens.colors.gray500,
+        color: tokens.colors.white,
+        selectors: {
+          "&:hover": {
+            background: tokens.colors.gray600,
+          },
+          "&:disabled": {
+            background: tokens.colors.gray400,
+            cursor: "not-allowed",
+          },
+        },
+      },
+      danger: {
+        background: tokens.colors.error,
+        color: tokens.colors.white,
+        selectors: {
+          "&:hover": {
+            background: tokens.colors.errorHover,
+          },
+          "&:disabled": {
+            background: tokens.colors.gray400,
+            cursor: "not-allowed",
+          },
+        },
+      },
+      outline: {
+        background: "transparent",
+        color: tokens.colors.primary,
+        border: `1px solid ${tokens.colors.primary}`,
+        selectors: {
+          "&:hover": {
+            background: tokens.colors.primaryLight,
+          },
+          "&:disabled": {
+            background: "transparent",
+            color: tokens.colors.gray400,
+            borderColor: tokens.colors.gray400,
+            cursor: "not-allowed",
+          },
+        },
+      },
+      ghost: {
+        background: "transparent",
+        color: tokens.colors.text,
+        selectors: {
+          "&:hover": {
+            background: tokens.colors.gray100,
+          },
+          "&:disabled": {
+            background: "transparent",
+            color: tokens.colors.gray400,
+            cursor: "not-allowed",
+          },
+        },
+      },
+      success: {
+        background: tokens.colors.success,
+        color: tokens.colors.white,
+        selectors: {
+          "&:hover": {
+            background: tokens.colors.successHover,
+            transform: "translateY(-1px)",
+          },
+          "&:disabled": {
+            background: tokens.colors.gray400,
+            cursor: "not-allowed",
+            transform: "none",
+          },
+        },
+      },
+      info: {
+        background: tokens.colors.info,
+        color: tokens.colors.white,
+        selectors: {
+          "&:hover": {
+            background: "#2563eb",
+            transform: "translateY(-1px)",
+          },
+          "&:disabled": {
+            background: tokens.colors.gray400,
+            cursor: "not-allowed",
+            transform: "none",
+          },
+        },
+      },
+      warning: {
+        background: tokens.colors.warning,
+        color: tokens.colors.white,
+        selectors: {
+          "&:hover": {
+            background: tokens.colors.warning,
+            opacity: "0.8", // Warning uses opacity instead of darker color
+          },
+          "&:disabled": {
+            background: tokens.colors.gray400,
+            cursor: "not-allowed",
+          },
         },
       },
     },
-  ],
 
-  danger: [
-    utils.buttonBase,
-    {
-      padding: `${tokens.space[3]} ${tokens.space[6]}`,
-      background: tokens.colors.error,
-      color: tokens.colors.white,
-      selectors: {
-        "&:hover": {
-          background: tokens.colors.errorHover,
+    // Size variants
+    size: {
+      xs: {
+        padding: `${tokens.space[1]} ${tokens.space[3]}`,
+        fontSize: tokens.fontSize.xs,
+      },
+      sm: {
+        padding: `${tokens.space[2]} ${tokens.space[4]}`,
+        fontSize: tokens.fontSize.sm,
+      },
+      md: {
+        padding: `${tokens.space[3]} ${tokens.space[6]}`,
+        fontSize: tokens.fontSize.base,
+      },
+      lg: {
+        padding: `${tokens.space[4]} ${tokens.space[8]}`,
+        fontSize: tokens.fontSize.lg,
+      },
+      xl: {
+        padding: `${tokens.space[5]} ${tokens.space[10]}`,
+        fontSize: tokens.fontSize.xl,
+      },
+    },
+
+    // Alternative variant for dashed border buttons
+    alternative: {
+      true: {
+        border: `1px dashed ${tokens.colors.gray300}`,
+        background: "transparent",
+        color: tokens.colors.textMuted,
+        selectors: {
+          "&:hover": {
+            borderColor: tokens.colors.primary,
+            color: tokens.colors.primary,
+          },
         },
       },
     },
-  ],
 
-  outline: [
-    utils.buttonBase,
-    {
-      padding: `${tokens.space[2]} ${tokens.space[4]}`,
-      background: "transparent",
-      color: tokens.colors.primary,
-      border: `1px solid ${tokens.colors.primary}`,
-      selectors: {
-        "&:hover": {
-          background: tokens.colors.primaryLight,
-        },
+    // Pill variant for fully rounded buttons
+    pill: {
+      true: {
+        borderRadius: tokens.borderRadius.full,
       },
     },
-  ],
+  },
 
-  ghost: [
-    utils.buttonBase,
+  // Default values
+  defaultVariants: {
+    color: "primary",
+    size: "md",
+  },
+
+  // Special combinations for enhanced styling
+  compoundVariants: [
     {
-      padding: `${tokens.space[2]} ${tokens.space[4]}`,
-      background: "transparent",
-      color: tokens.colors.text,
-      selectors: {
-        "&:hover": {
-          background: tokens.colors.gray100,
-        },
+      variants: { color: "primary", size: "xl" },
+      style: {
+        boxShadow: `0 4px 12px ${tokens.colors.primary}40`,
+      },
+    },
+    {
+      variants: { color: "danger", size: "xl" },
+      style: {
+        boxShadow: `0 4px 12px ${tokens.colors.error}40`,
       },
     },
   ],
@@ -225,26 +437,6 @@ export const icon = styleVariants({
     width: tokens.fontSize["2xl"], // 1.5rem - explicit width for SVGs
     height: tokens.fontSize["2xl"], // 1.5rem - explicit height for SVGs
     fontSize: tokens.fontSize["3xl"], // 1.875rem - for icon fonts
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  success: {
-    width: tokens.fontSize["2xl"], // 1.5rem - explicit width for SVGs
-    height: tokens.fontSize["2xl"], // 1.5rem - explicit height for SVGs
-    fontSize: tokens.fontSize["3xl"], // 1.875rem - for icon fonts
-    color: tokens.colors.success,
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-
-  error: {
-    width: tokens.fontSize["2xl"], // 1.5rem - explicit width for SVGs
-    height: tokens.fontSize["2xl"], // 1.5rem - explicit height for SVGs
-    fontSize: tokens.fontSize["3xl"], // 1.875rem - for icon fonts
-    color: tokens.colors.error,
     display: "flex",
     alignItems: "center",
     justifyContent: "center",

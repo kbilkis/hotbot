@@ -5,7 +5,7 @@ export { animations } from "./animations.css";
 
 // Export components with clear naming to avoid HTML element conflicts
 export {
-  button as buttonStyles,
+  button,
   input as inputStyles,
   badge as badgeStyles,
   typography,

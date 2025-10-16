@@ -1,10 +1,10 @@
-import { container } from "@/styles/landing/base.css";
 import * as styles from "@/styles/landing/integrations.css";
+import { utils } from "@/styles/theme/index.css";
 
 export default function IntegrationsSection() {
   return (
     <section className={styles.integrations}>
-      <div className={container}>
+      <div className={utils.container}>
         <h2 className={styles.integrationsTitle}>Works with your stack</h2>
         <div className={styles.integrationsGridLanding}>
           <div className={styles.integrationItem}>

@@ -196,41 +196,16 @@ export const integrationsScreenshot = style({
 export const flowDiagram = style([
   utils.flexCenter,
   {
-    gap: tokens.space[8],
-    margin: `${tokens.space[12]} 0`,
+    gap: tokens.space[12],
+    margin: `${tokens.space[16]} 0`,
     "@media": {
       "(max-width: 768px)": {
         flexDirection: "column",
-        gap: tokens.space[4],
+        gap: tokens.space[8],
       },
     },
   },
 ]);
-
-export const flowStep = style([
-  utils.flexCol,
-  {
-    alignItems: "center",
-    gap: tokens.space[2],
-  },
-]);
-
-export const flowIcon = style([
-  utils.flexCenter,
-  {
-    width: "60px",
-    height: "60px",
-    borderRadius: tokens.borderRadius.full,
-    background: "rgba(255, 255, 255, 0.9)",
-    backdropFilter: "blur(10px)",
-    border: `1px solid ${tokens.colors.border}`,
-  },
-]);
-
-globalStyle(`${flowIcon} img`, {
-  width: "30px",
-  height: "30px",
-});
 
 export const flowArrow = style({
   fontSize: tokens.fontSize.xl,
@@ -256,23 +231,6 @@ export const ctaRepeat = style([
   },
 ]);
 
-export const ctaPrimary = style({
-  background: tokens.colors.primary,
-  color: tokens.colors.white,
-  border: "none",
-  padding: `${tokens.space[4]} ${tokens.space[8]}`,
-  fontSize: "1.1rem",
-  borderRadius: tokens.borderRadius.md,
-  cursor: "pointer",
-  fontWeight: tokens.fontWeight.semibold,
-  transition: "all 0.2s ease",
-  selectors: {
-    "&:hover": {
-      background: tokens.colors.primaryHover,
-      transform: "translateY(-2px)",
-    },
-  },
-});
 // Slack Digest Styles
 export const slackDigestFull = style([
   utils.flexCol,

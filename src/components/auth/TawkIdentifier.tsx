@@ -27,7 +27,7 @@ export default function TawkIdentifier() {
 
   useEffect(() => {
     // Skip if running on server (SSR)
-    if (typeof window === "undefined") return;
+    if (typeof window === "undefined" || !!import.meta.env?.DEV) return;
 
     const setTawkUser = async () => {
       // Simple polling to wait for Tawk.to to load

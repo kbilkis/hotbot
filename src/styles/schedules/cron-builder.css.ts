@@ -1,6 +1,6 @@
 import { style } from "@vanilla-extract/css";
 
-import { tokens, buttonStyles, utils } from "../theme/index.css";
+import { tokens, utils } from "../theme/index.css";
 
 export const cronBuilder = style([utils.flexCol, utils.gap6]);
 
@@ -14,28 +14,6 @@ export const presetButtons = style([
   {
     flexWrap: "wrap",
     marginTop: tokens.space[2],
-  },
-]);
-
-export const presetButton = style([
-  buttonStyles.ghost,
-  {
-    padding: `${tokens.space[2]} ${tokens.space[4]}`,
-    background: tokens.colors.gray100,
-    border: `1px solid ${tokens.colors.gray300}`,
-    borderRadius: tokens.borderRadius.md,
-    fontSize: tokens.fontSize.sm,
-    selectors: {
-      "&:hover": {
-        background: tokens.colors.gray200,
-        borderColor: tokens.colors.gray400,
-      },
-      "&:active": {
-        background: tokens.colors.primary,
-        borderColor: tokens.colors.primary,
-        color: tokens.colors.white,
-      },
-    },
   },
 ]);
 

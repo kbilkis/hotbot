@@ -3,6 +3,8 @@ import { useRoute, useLocation } from "preact-iso";
 import { mutate } from "swr";
 
 import * as authStyles from "../styles/auth/auth.css";
+import { contentCard } from "../styles/layout/layout.css";
+import { utils } from "../styles/theme/index.css";
 
 export default function AuthCallback() {
   const { params, query } = useRoute();
@@ -106,38 +108,34 @@ export default function AuthCallback() {
   }, [provider, query]);
 
   return (
-    <div className={authStyles.authCallbackContainer}>
-      <div
-        className={`${authStyles.authCallbackContent} ${authStyles.mobileOptimized}`}
-      >
-        {status === "loading" && (
-          <>
-            <div className={authStyles.loadingSpinner}>⏳</div>
-            <h2>Connecting your account...</h2>
-            <p className={authStyles.loadingText}>
-              Please wait while we complete the authorization process.
-            </p>
-          </>
-        )}
+    <div className={contentCard()}>
+      {status === "loading" && (
+        <>
+          <div className={utils.spinnerLarge}></div>
+          <h2>Connecting your account...</h2>
+          <p className={authStyles.loadingText}>
+            Please wait while we complete the authorization process.
+          </p>
+        </>
+      )}
 
-        {status === "success" && (
-          <>
-            <div className={authStyles.successIcon}>✅</div>
-            <h2>Successfully Connected!</h2>
-            <p className={authStyles.successText}>{message}</p>
-            <p>Redirecting you to the dashboard...</p>
-          </>
-        )}
+      {status === "success" && (
+        <>
+          <div className={authStyles.statusIcon}>✅</div>
+          <h2>Successfully Connected!</h2>
+          <p className={authStyles.successText}>{message}</p>
+          <p>Redirecting you to the dashboard...</p>
+        </>
+      )}
 
-        {status === "error" && (
-          <>
-            <div className={authStyles.errorIcon}>❌</div>
-            <h2>Connection Failed</h2>
-            <p className={authStyles.errorText}>{message}</p>
-            <p>Redirecting you back to the dashboard...</p>
-          </>
-        )}
-      </div>
+      {status === "error" && (
+        <>
+          <div className={authStyles.statusIcon}>❌</div>
+          <h2>Connection Failed</h2>
+          <p className={authStyles.errorText}>{message}</p>
+          <p>Redirecting you back to the dashboard...</p>
+        </>
+      )}
     </div>
   );
 }

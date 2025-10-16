@@ -1,6 +1,6 @@
 import { style } from "@vanilla-extract/css";
 
-import { tokens, buttonStyles, utils, iconStyles } from "../theme/index.css";
+import { tokens, utils, iconStyles } from "../theme/index.css";
 
 // Repository Management
 export const repositoriesSection = style({
@@ -40,15 +40,6 @@ export const repositoriesEmpty = style([
     borderRadius: tokens.borderRadius.lg,
     color: tokens.colors.gray500,
     fontSize: tokens.fontSize.sm,
-  },
-]);
-
-export const retryButton = style([
-  buttonStyles.danger,
-  {
-    marginLeft: tokens.space[2],
-    padding: `${tokens.space[1]} ${tokens.space[2]}`,
-    fontSize: tokens.fontSize.xs,
   },
 ]);
 
@@ -98,39 +89,3 @@ export const repoName = style({
   color: tokens.colors.gray700,
   fontFamily: "monospace",
 });
-
-export const showMoreButton = style([
-  buttonStyles.ghost,
-  {
-    width: "100%",
-    padding: tokens.space[2],
-    background: tokens.colors.gray50,
-    border: `1px solid ${tokens.colors.border}`,
-    borderRadius: tokens.borderRadius.base,
-    color: tokens.colors.textMuted,
-    fontSize: tokens.fontSize.sm,
-    marginTop: tokens.space[2],
-    selectors: {
-      "&:hover": {
-        background: tokens.colors.gray100,
-        color: tokens.colors.gray700,
-      },
-    },
-  },
-]);
-
-export const showLessButton = style([
-  showMoreButton,
-  {
-    background: tokens.colors.warningBg,
-    borderColor: tokens.colors.warning,
-    color: tokens.colors.warning,
-    selectors: {
-      "&:hover": {
-        background: tokens.colors.warningBg,
-        color: tokens.colors.warning,
-        opacity: "0.8",
-      },
-    },
-  },
-]);

@@ -10,22 +10,27 @@ export const smartWebhooks = style({
 });
 
 export const featureHeader = style([
-  utils.flexCenter,
+  utils.flex,
   {
+    alignItems: "flex-start",
+    justifyContent: "center",
     gap: tokens.space[4],
     marginBottom: tokens.space[8],
   },
 ]);
 
 export const comingSoonBadge = style({
-  background: tokens.colors.warning,
+  background: `linear-gradient(135deg, ${tokens.colors.warning}, ${tokens.colors.primary})`,
   color: tokens.colors.white,
   fontSize: tokens.fontSize.xs,
   fontWeight: tokens.fontWeight.semibold,
-  padding: `${tokens.space[1]} ${tokens.space[3]}`,
-  borderRadius: tokens.borderRadius.lg,
+  padding: `${tokens.space[2]} ${tokens.space[4]}`,
+  borderRadius: tokens.borderRadius.full,
   textTransform: "uppercase",
   letterSpacing: "0.5px",
+  boxShadow: `0 2px 8px ${tokens.colors.warning}40`,
+  border: `1px solid ${tokens.colors.white}20`,
+  whiteSpace: "nowrap",
 });
 
 export const featureSubtitle = style({
@@ -114,7 +119,6 @@ export const messageAvatar = style({
   width: "36px",
   height: "36px",
   borderRadius: "0.25rem",
-  overflow: "hidden",
   flexShrink: 0,
 });
 

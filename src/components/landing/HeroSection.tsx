@@ -1,4 +1,5 @@
 import * as styles from "@/styles/landing/hero.css";
+import { button } from "@/styles/theme/index.css";
 
 export default function HeroSection() {
   return (
@@ -14,7 +15,9 @@ export default function HeroSection() {
           </p>
           <div className={styles.heroButtons}>
             <a href="/dashboard">
-              <button className={styles.ctaPrimary}>Start integrating</button>
+              <button className={button({ color: "primary", size: "lg" })}>
+                Start integrating
+              </button>
             </a>
           </div>
         </div>

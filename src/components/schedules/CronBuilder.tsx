@@ -7,6 +7,7 @@ import {
   convertCronFromUTC,
 } from "@/lib/utils/timezone";
 import * as styles from "@/styles/schedules/cron-builder.css";
+import { button } from "@/styles/theme/index.css";
 
 import Tooltip from "../ui/Tooltip";
 
@@ -135,7 +136,7 @@ export default function CronBuilder({
             <button
               key={preset.value}
               type="button"
-              className={styles.presetButton}
+              className={button({ color: "ghost", size: "sm" })}
               onClick={() => handlePresetClick(preset.value)}
             >
               {preset.label}

@@ -2,11 +2,7 @@ import { useState, useEffect } from "preact/hooks";
 
 import * as channelStyles from "@/styles/providers/channels.css";
 import * as modalStyles from "@/styles/providers/modal.css";
-import {
-  getProviderColor,
-  getProviderBgColor,
-  getProviderAccentColor,
-} from "@/utils/providerColors";
+import { button } from "@/styles/theme/index.css";
 
 interface TeamsProviderModalProps {
   onClose: () => void;
@@ -76,11 +72,6 @@ export default function TeamsProviderModal({
       <div
         className={modalStyles.modalContent}
         onClick={(e) => e.stopPropagation()}
-        style={{
-          "--provider-color": getProviderColor("teams"),
-          "--provider-bg-color": getProviderBgColor("teams"),
-          "--provider-accent-color": getProviderAccentColor("teams"),
-        }}
       >
         <div className={modalStyles.modalHeader}>
           <h2 className={modalStyles.modalTitle}>Connect Microsoft Teams</h2>
@@ -148,7 +139,7 @@ export default function TeamsProviderModal({
         <div className={modalStyles.modalFooter}>
           {isConnected ? (
             <button
-              className={modalStyles.disconnectButton}
+              className={button({ color: "danger" })}
               onClick={handleDisconnect}
               disabled={loading}
             >
@@ -157,14 +148,14 @@ export default function TeamsProviderModal({
           ) : (
             <div className={modalStyles.modalFooterButtons}>
               <button
-                className={modalStyles.cancelButton}
+                className={button({ color: "outline" })}
                 onClick={onClose}
                 disabled={loading}
               >
                 Cancel
               </button>
               <button
-                className={`${modalStyles.connectButton} ${modalStyles.providerBranded}`}
+                className={button({ color: "teams" })}
                 onClick={handleConnect}
                 disabled={!webhookUrl.trim() || loading}
               >

@@ -36,12 +36,18 @@ export const integrationItem = style([
   utils.flexCenter,
   {
     position: "relative",
-    padding: tokens.space[4],
-    borderRadius: tokens.borderRadius.md,
-    transition: "transform 0.2s ease",
+    padding: tokens.space[6],
+    borderRadius: tokens.borderRadius.lg,
+    background: tokens.colors.white,
+    border: `1px solid ${tokens.colors.border}`,
+    boxShadow: tokens.boxShadow.sm,
+    transition: "all 0.2s ease",
+    width: "140px",
+    height: "80px",
     selectors: {
       "&:hover": {
-        transform: "scale(1.05)",
+        transform: "translateY(-2px)",
+        boxShadow: tokens.boxShadow.md,
       },
     },
   },
@@ -50,14 +56,9 @@ export const integrationItem = style([
 export const integrationLogo = style({
   height: "40px",
   width: "auto",
+  maxWidth: "80px",
   objectFit: "contain",
-  filter: "grayscale(100%)",
-  transition: "filter 0.3s ease",
-  selectors: {
-    "&:hover": {
-      filter: "grayscale(0%)",
-    },
-  },
+  transition: "transform 0.2s ease",
 });
 
 export const comingSoonFlair = style({

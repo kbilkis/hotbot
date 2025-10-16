@@ -3,6 +3,7 @@ import { useState } from "preact/hooks";
 import { useGitProviders } from "@/hooks/useGitProviders";
 import { GitProviderData } from "@/lib/validation/provider-schemas";
 import * as styles from "@/styles/dashboard/providers.css";
+import { button } from "@/styles/theme/index.css";
 import { getProviderColor, getProviderBgColor } from "@/utils/providerColors";
 
 import GitProviderModal from "../providers/GitProviderModal";
@@ -97,10 +98,10 @@ export default function GitProviders() {
             <button
               className={
                 provider.provider === "bitbucket"
-                  ? styles.connectButtonComingSoon
+                  ? button({ color: "secondary", size: "sm" })
                   : provider.connected
-                  ? styles.connectButtonConnected
-                  : styles.connectButton
+                  ? button({ color: "secondary", size: "sm" })
+                  : button({ color: "success", size: "sm" })
               }
               onClick={() => handleConnectProvider(provider)}
               disabled={provider.provider === "bitbucket"}

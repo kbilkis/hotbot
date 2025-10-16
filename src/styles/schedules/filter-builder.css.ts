@@ -1,6 +1,6 @@
 import { style } from "@vanilla-extract/css";
 
-import { tokens, buttonStyles, badgeStyles, utils } from "../theme/index.css";
+import { tokens, badgeStyles, utils } from "../theme/index.css";
 
 export const filterBuilder = style([utils.flexCol, utils.gap6]);
 
@@ -22,25 +22,6 @@ export const filterInput = style([
   },
 ]);
 
-export const addFilterButton = style([
-  buttonStyles.primary,
-  {
-    padding: `${tokens.space[3]} ${tokens.space[4]}`,
-    background: tokens.colors.success,
-    fontSize: tokens.fontSize.sm,
-    whiteSpace: "nowrap",
-    selectors: {
-      "&:hover": {
-        background: tokens.colors.successHover,
-      },
-      "&:disabled": {
-        background: tokens.colors.gray400,
-        cursor: "not-allowed",
-      },
-    },
-  },
-]);
-
 export const commonFilters = style({
   marginTop: tokens.space[2],
 });
@@ -57,27 +38,6 @@ export const commonFilterButtons = style([
   utils.gap2,
   {
     flexWrap: "wrap",
-  },
-]);
-
-export const commonFilterButton = style([
-  buttonStyles.ghost,
-  {
-    padding: `${tokens.space[1]} ${tokens.space[3]}`,
-    background: tokens.colors.gray100,
-    border: `1px solid ${tokens.colors.gray300}`,
-    borderRadius: tokens.borderRadius.full,
-    fontSize: tokens.fontSize.xs,
-    selectors: {
-      "&:hover": {
-        background: tokens.colors.gray200,
-        borderColor: tokens.colors.gray400,
-      },
-      "&:disabled": {
-        opacity: 0.5,
-        cursor: "not-allowed",
-      },
-    },
   },
 ]);
 

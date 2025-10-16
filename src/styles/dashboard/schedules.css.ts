@@ -1,7 +1,7 @@
 import { style } from "@vanilla-extract/css";
 
 import { spin } from "../theme/animations.css";
-import { tokens, buttonStyles, utils, iconStyles } from "../theme/index.css";
+import { tokens, utils, iconStyles } from "../theme/index.css";
 
 export const schedulesSection = style([
   utils.card,
@@ -14,8 +14,6 @@ export const schedulesSection = style([
     },
   },
 ]);
-
-export const createScheduleButton = buttonStyles.primary;
 
 export const schedulesTable = style({
   width: "100%",
@@ -240,20 +238,5 @@ export const errorMessage = style([
     border: `1px solid ${tokens.colors.error}`,
     borderRadius: tokens.borderRadius.lg,
     margin: `${tokens.space[4]} 0`,
-  },
-]);
-
-export const retryButton = style([
-  buttonStyles.danger,
-  {
-    marginLeft: tokens.space[2],
-    padding: `${tokens.space[1]} ${tokens.space[2]}`,
-    fontSize: tokens.fontSize.xs,
-    selectors: {
-      "&:disabled": {
-        background: tokens.colors.gray400,
-        cursor: "not-allowed",
-      },
-    },
   },
 ]);

@@ -1,5 +1,5 @@
 import * as styles from "@/styles/landing/advanced.css";
-import { container } from "@/styles/landing/base.css";
+import { utils } from "@/styles/theme/index.css";
 
 // This component contains the remaining sections that are less critical for initial load
 export default function AdvancedSections() {
@@ -7,7 +7,7 @@ export default function AdvancedSections() {
     <>
       {/* Smart Git Webhooks Section */}
       <section className={styles.smartWebhooks}>
-        <div className={container}>
+        <div className={utils.container}>
           <div className={styles.featureHeader}>
             <h2 className={styles.sectionTitle}>Smart Git Webhooks</h2>
             <div className={styles.comingSoonBadge}>Coming Soon</div>
@@ -205,7 +205,7 @@ export default function AdvancedSections() {
 
       {/* Features for Engineers Section */}
       <section className={styles.featuresEngineers}>
-        <div className={container}>
+        <div className={utils.container}>
           <h2 className={styles.sectionTitle}>Made for engineers</h2>
           <div className={styles.featuresEngineersContent}>
             <div className={styles.featuresList}>
@@ -259,7 +259,7 @@ export default function AdvancedSections() {
 
       {/* Social Proof Section */}
       <section className={styles.socialProof}>
-        <div className={container}>
+        <div className={utils.container}>
           <div className={styles.testimonialContent}>
             <blockquote className={styles.testimonialQuote}>
               &quot;PRs stopped languishing—reviews happen before lunch.&quot;
@@ -309,7 +309,7 @@ export default function AdvancedSections() {
 
       {/* Analytics Section */}
       <section className={styles.analyticsSlice}>
-        <div className={container}>
+        <div className={utils.container}>
           <h2 className={styles.sectionTitle}>Track what matters</h2>
           <div className={styles.analyticsTilesGrid}>
             <div className={styles.analyticsTile}>
@@ -336,7 +336,7 @@ export default function AdvancedSections() {
 
       {/* FAQ Section */}
       <section className={styles.faq}>
-        <div className={container}>
+        <div className={utils.container}>
           <h2 className={styles.sectionTitle}>Frequently asked questions</h2>
           <div className={styles.faqGrid}>
             <div className={styles.faqItem}>

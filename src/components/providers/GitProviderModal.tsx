@@ -5,11 +5,7 @@ import { gitApi, githubApi, gitlabApi } from "@/lib/api/client";
 import { GitProviderData } from "@/lib/validation/provider-schemas";
 import * as modalStyles from "@/styles/providers/modal.css";
 import * as repoStyles from "@/styles/providers/repositories.css";
-import {
-  getProviderColor,
-  getProviderBgColor,
-  getProviderAccentColor,
-} from "@/utils/providerColors";
+import { button } from "@/styles/theme/index.css";
 
 interface GitProviderModalProps {
   provider: GitProviderData;
@@ -284,15 +280,6 @@ export default function GitProviderModal({
       <div
         className={modalStyles.modalContent}
         onClick={(e) => e.stopPropagation()}
-        style={
-          {
-            "--provider-color": getProviderColor(provider.provider),
-            "--provider-bg-color": getProviderBgColor(provider.provider),
-            "--provider-accent-color": getProviderAccentColor(
-              provider.provider
-            ),
-          } as preact.CSSProperties
-        }
       >
         <div className={modalStyles.modalHeader}>
           <h2 className={modalStyles.modalTitle}>
@@ -335,7 +322,7 @@ export default function GitProviderModal({
                         Error loading repositories: {repositoriesError}
                       </span>
                       <button
-                        className={repoStyles.retryButton}
+                        className={button({ color: "danger", size: "xs" })}
                         onClick={fetchRepositories}
                         disabled={repositoriesLoading}
                       >
@@ -368,7 +355,10 @@ export default function GitProviderModal({
                           ))}
                           {repositories.length > 10 && !showAllRepositories && (
                             <button
-                              className={repoStyles.showMoreButton}
+                              className={button({
+                                color: "ghost",
+                                size: "sm",
+                              })}
                               onClick={() => setShowAllRepositories(true)}
                             >
                               ⋯ Show {repositories.length - 10} more
@@ -377,7 +367,10 @@ export default function GitProviderModal({
                           )}
                           {showAllRepositories && repositories.length > 10 && (
                             <button
-                              className={repoStyles.showLessButton}
+                              className={button({
+                                color: "ghost",
+                                size: "sm",
+                              })}
                               onClick={() => setShowAllRepositories(false)}
                             >
                               Show less
@@ -403,18 +396,14 @@ export default function GitProviderModal({
               {/* Primary OAuth connection - always visible */}
               <div>
                 <button
-                  className={`${modalStyles.oauthButtonPrimary} ${modalStyles.providerBranded}`}
+                  className={button({ color: provider.provider })}
                   onClick={handleOAuthConnect}
                   disabled={loading}
                 >
                   {loading ? (
-                    <span className={modalStyles.oauthButtonContent}>
-                      Redirecting to {config.logoDark || config.logo}
-                    </span>
+                    <>Redirecting to {config.logoDark || config.logo}</>
                   ) : (
-                    <span className={modalStyles.oauthButtonContent}>
-                      Sign in with {config.logo}
-                    </span>
+                    <>Sign in with {config.logo}</>
                   )}
                 </button>
                 <small className={modalStyles.formHelp}>
@@ -426,7 +415,11 @@ export default function GitProviderModal({
               <div className={modalStyles.alternativeSection}>
                 {!showManualOption ? (
                   <button
-                    className={modalStyles.showAlternativeButton}
+                    className={button({
+                      color: "ghost",
+                      size: "sm",
+                      alternative: true,
+                    })}
                     onClick={() => {
                       setShowManualOption(true);
                     }}
@@ -439,7 +432,7 @@ export default function GitProviderModal({
                     <div className={modalStyles.alternativeHeader}>
                       <span>Alternative: Personal Access Token</span>
                       <button
-                        className={modalStyles.hideAlternativeButton}
+                        className={button({ color: "ghost", size: "xs" })}
                         onClick={() => {
                           setShowManualOption(false);
                           setAccessToken("");
@@ -502,7 +495,7 @@ export default function GitProviderModal({
                         </div>
                       </div>
                       <button
-                        className={modalStyles.manualConnectButton}
+                        className={button({ color: "primary" })}
                         onClick={handleManualConnect}
                         disabled={!accessToken.trim() || loading}
                       >
@@ -525,7 +518,7 @@ export default function GitProviderModal({
           <div className={modalStyles.modalFooterButtons}>
             {isConnected ? (
               <button
-                className={modalStyles.disconnectButton}
+                className={button({ color: "danger" })}
                 onClick={handleDisconnect}
                 disabled={loading}
               >
@@ -533,7 +526,7 @@ export default function GitProviderModal({
               </button>
             ) : (
               <button
-                className={modalStyles.cancelButton}
+                className={button({ color: "outline" })}
                 onClick={onClose}
                 disabled={loading}
               >

@@ -171,6 +171,83 @@ globalStyle(":root", {
   },
 });
 
+// Global responsive typography (mobile-first approach)
+globalStyle("h1", {
+  fontSize: tokens.fontSize["2xl"], // Mobile default
+  fontWeight: tokens.fontWeight.bold,
+  lineHeight: tokens.lineHeight.tight,
+  "@media": {
+    "(min-width: 768px)": {
+      fontSize: tokens.fontSize["4xl"], // Desktop
+    },
+  },
+});
+
+globalStyle("h2", {
+  fontSize: tokens.fontSize.xl, // Mobile default
+  fontWeight: tokens.fontWeight.semibold,
+  lineHeight: tokens.lineHeight.tight,
+  "@media": {
+    "(min-width: 768px)": {
+      fontSize: tokens.fontSize["3xl"], // Desktop
+    },
+  },
+});
+
+globalStyle("h3", {
+  fontSize: tokens.fontSize.lg, // Mobile default
+  fontWeight: tokens.fontWeight.semibold,
+  lineHeight: tokens.lineHeight.tight,
+  "@media": {
+    "(min-width: 768px)": {
+      fontSize: tokens.fontSize["2xl"], // Desktop
+    },
+  },
+});
+
+globalStyle("h4", {
+  fontSize: tokens.fontSize.base, // Mobile default
+  fontWeight: tokens.fontWeight.semibold,
+  lineHeight: tokens.lineHeight.normal,
+  "@media": {
+    "(min-width: 768px)": {
+      fontSize: tokens.fontSize.xl, // Desktop
+    },
+  },
+});
+
+globalStyle("h5", {
+  fontSize: tokens.fontSize.sm, // Mobile default
+  fontWeight: tokens.fontWeight.semibold,
+  lineHeight: tokens.lineHeight.normal,
+  "@media": {
+    "(min-width: 768px)": {
+      fontSize: tokens.fontSize.lg, // Desktop
+    },
+  },
+});
+
+globalStyle("h6", {
+  fontSize: tokens.fontSize.xs, // Mobile default
+  fontWeight: tokens.fontWeight.semibold,
+  lineHeight: tokens.lineHeight.normal,
+  "@media": {
+    "(min-width: 768px)": {
+      fontSize: tokens.fontSize.base, // Desktop
+    },
+  },
+});
+
+globalStyle("p", {
+  fontSize: tokens.fontSize.sm, // Mobile default
+  lineHeight: tokens.lineHeight.normal,
+  "@media": {
+    "(min-width: 768px)": {
+      fontSize: tokens.fontSize.base, // Desktop
+    },
+  },
+});
+
 // CSS Custom Properties are now handled by tokens.css.ts using createGlobalTheme
 // This provides better type safety and integration with vanilla-extract
 

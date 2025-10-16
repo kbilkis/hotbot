@@ -3,8 +3,9 @@ import { useState } from "preact/hooks";
 import { useSchedules } from "@/hooks/useSchedules";
 import { schedulesApi } from "@/lib/api/client";
 import { CronJob } from "@/lib/database/schema";
-import * as baseStyles from "@/styles/dashboard/base.css";
 import * as styles from "@/styles/dashboard/schedules.css";
+import * as layoutStyles from "@/styles/layout/layout.css";
+import { button } from "@/styles/theme/index.css";
 
 import ScheduleModal from "./ScheduleModal";
 import SchedulesTable from "./SchedulesTable";
@@ -101,11 +102,11 @@ export default function SchedulesSection() {
 
   if (loading) {
     return (
-      <div className={baseStyles.section}>
-        <div className={baseStyles.sectionHeader}>
-          <div className={baseStyles.sectionContent}>
-            <h1 className={baseStyles.sectionTitle}>Schedules</h1>
-            <p className={baseStyles.sectionDescription}>
+      <div className={layoutStyles.section}>
+        <div className={layoutStyles.sectionHeader}>
+          <div className={layoutStyles.sectionContent}>
+            <h1 className={layoutStyles.sectionTitle}>Schedules</h1>
+            <p className={layoutStyles.sectionDescription}>
               Manage your notification schedules and create new ones.
             </p>
           </div>
@@ -121,38 +122,33 @@ export default function SchedulesSection() {
 
   if (error) {
     return (
-      <div className={baseStyles.section}>
-        <div className={baseStyles.sectionHeader}>
-          <div className={baseStyles.sectionContent}>
-            <h1 className={baseStyles.sectionTitle}>Schedules</h1>
-            <p className={baseStyles.sectionDescription}>
+      <div className={layoutStyles.section}>
+        <div className={layoutStyles.sectionHeader}>
+          <div className={layoutStyles.sectionContent}>
+            <h1 className={layoutStyles.sectionTitle}>Schedules</h1>
+            <p className={layoutStyles.sectionDescription}>
               Manage your notification schedules and create new ones.
             </p>
           </div>
         </div>
         <div className={styles.schedulesSection}>
-          <div className={styles.errorMessage}>
-            {error}
-            <button onClick={() => refetch()} className={styles.retryButton}>
-              Retry
-            </button>
-          </div>
+          <div className={styles.errorMessage}>{error}</div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className={baseStyles.section}>
-      <div className={baseStyles.sectionHeader}>
-        <div className={baseStyles.sectionContent}>
-          <h1 className={baseStyles.sectionTitle}>Schedules</h1>
-          <p className={baseStyles.sectionDescription}>
+    <div className={layoutStyles.section}>
+      <div className={layoutStyles.sectionHeader}>
+        <div className={layoutStyles.sectionContent}>
+          <h1 className={layoutStyles.sectionTitle}>Schedules</h1>
+          <p className={layoutStyles.sectionDescription}>
             Manage your notification schedules and create new ones.
           </p>
         </div>
         <button
-          className={styles.createScheduleButton}
+          className={button({ color: "primary" })}
           onClick={handleCreateSchedule}
         >
           + Create Schedule

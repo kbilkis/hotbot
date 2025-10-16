@@ -1,7 +1,7 @@
 import { useAuth, useClerk } from "@clerk/clerk-react";
 
-import * as authStyles from "@/styles/auth/auth.css";
-import { buttonStyles } from "@/styles/theme/index.css";
+import { contentCard } from "@/styles/layout/layout.css";
+import { button, utils } from "@/styles/theme/index.css";
 
 interface ProtectedRouteProps {
   children: preact.ComponentChildren;
@@ -17,8 +17,8 @@ export default function ProtectedRoute({
 
   if (!isLoaded) {
     return (
-      <div className={authStyles.authCallbackContainer}>
-        <div className={authStyles.loadingSpinner}>⏳</div>
+      <div className={contentCard()}>
+        <div className={utils.spinnerLarge}></div>
       </div>
     );
   }
@@ -26,19 +26,15 @@ export default function ProtectedRoute({
   if (!isSignedIn) {
     return (
       fallback || (
-        <div className={authStyles.authCallbackContainer}>
-          <div
-            className={`${authStyles.authCallbackContent} ${authStyles.mobileOptimized}`}
+        <div className={contentCard()}>
+          <h2>Authentication Required</h2>
+          <p>Please sign in to access this page.</p>
+          <button
+            className={button({ color: "primary", size: "md" })}
+            onClick={() => clerk.openSignIn()}
           >
-            <h2>Authentication Required</h2>
-            <p>Please sign in to access this page.</p>
-            <button
-              className={buttonStyles.primary}
-              onClick={() => clerk.openSignIn()}
-            >
-              Sign In
-            </button>
-          </div>
+            Sign In
+          </button>
         </div>
       )
     );

@@ -4,12 +4,8 @@ import { mutate } from "swr";
 import { slackApi, messagingApi } from "@/lib/api/client";
 import * as channelStyles from "@/styles/providers/channels.css";
 import * as modalStyles from "@/styles/providers/modal.css";
+import { button } from "@/styles/theme/index.css";
 import type { SlackChannel } from "@/types/slack";
-import {
-  getProviderColor,
-  getProviderBgColor,
-  getProviderAccentColor,
-} from "@/utils/providerColors";
 
 interface SlackProviderModalProps {
   onClose: () => void;
@@ -286,13 +282,6 @@ export default function SlackProviderModal({
       <div
         className={modalStyles.modalContent}
         onClick={(e) => e.stopPropagation()}
-        style={
-          {
-            "--provider-color": getProviderColor("slack"),
-            "--provider-bg-color": getProviderBgColor("slack"),
-            "--provider-accent-color": getProviderAccentColor("slack"),
-          } as preact.CSSProperties
-        }
       >
         <div className={modalStyles.modalHeader}>
           <h2 className={modalStyles.modalTitle}>Connect Slack</h2>
@@ -339,7 +328,7 @@ export default function SlackProviderModal({
                   <div className={modalStyles.errorState}>
                     <span>Error loading channels: {channelsError}</span>
                     <button
-                      className={modalStyles.retryButton}
+                      className={button({ color: "danger", size: "xs" })}
                       onClick={fetchChannels}
                       disabled={channelsLoading}
                     >
@@ -380,8 +369,8 @@ export default function SlackProviderModal({
                             <button
                               className={
                                 testingChannel === channel.id
-                                  ? channelStyles.testButtonTesting
-                                  : channelStyles.testButton
+                                  ? button({ color: "warning", size: "xs" })
+                                  : button({ color: "info", size: "xs" })
                               }
                               onClick={() =>
                                 handleTestChannel(channel.id, channel.name)
@@ -426,28 +415,28 @@ export default function SlackProviderModal({
               {/* Primary OAuth connection - always visible */}
               <div>
                 <button
-                  className={`${modalStyles.oauthButtonPrimary} ${modalStyles.providerBranded}`}
+                  className={button({ color: "slack" })}
                   onClick={handleOAuthConnect}
                   disabled={loading}
                 >
                   {loading ? (
-                    <span className={modalStyles.oauthButtonContent}>
+                    <>
                       Redirecting to{" "}
                       <img
                         src="images/providers/slack/SLA-Slack-from-Salesforce-logo-inverse.png"
                         alt="Slack"
                         className={modalStyles.oauthButtonLogo}
                       />
-                    </span>
+                    </>
                   ) : (
-                    <span className={modalStyles.oauthButtonContent}>
+                    <>
                       Sign in with{" "}
                       <img
                         src="images/providers/slack/SLA-Slack-from-Salesforce-logo-inverse.png"
                         alt="Slack"
                         className={modalStyles.oauthButtonLogo}
                       />
-                    </span>
+                    </>
                   )}
                 </button>
                 <small className={modalStyles.formHelp}>
@@ -460,7 +449,11 @@ export default function SlackProviderModal({
               <div className={modalStyles.alternativeSection}>
                 {!showManualOption ? (
                   <button
-                    className={modalStyles.showAlternativeButton}
+                    className={button({
+                      color: "ghost",
+                      size: "sm",
+                      alternative: true,
+                    })}
                     onClick={() => {
                       setShowManualOption(true);
                     }}
@@ -473,7 +466,7 @@ export default function SlackProviderModal({
                     <div className={modalStyles.alternativeHeader}>
                       <span>Alternative: Bot Token</span>
                       <button
-                        className={modalStyles.hideAlternativeButton}
+                        className={button({ color: "ghost", size: "xs" })}
                         onClick={() => {
                           setShowManualOption(false);
                           setAccessToken("");
@@ -549,7 +542,7 @@ export default function SlackProviderModal({
                         </div>
                       </div>
                       <button
-                        className={modalStyles.manualConnectButton}
+                        className={button({ color: "primary" })}
                         onClick={handleManualConnect}
                         disabled={!accessToken.trim() || loading}
                       >
@@ -572,7 +565,7 @@ export default function SlackProviderModal({
           <div className={modalStyles.modalFooterButtons}>
             {isConnected ? (
               <button
-                className={modalStyles.disconnectButton}
+                className={button({ color: "danger" })}
                 onClick={handleDisconnect}
                 disabled={loading}
               >
@@ -580,7 +573,7 @@ export default function SlackProviderModal({
               </button>
             ) : (
               <button
-                className={modalStyles.cancelButton}
+                className={button({ color: "outline" })}
                 onClick={onClose}
                 disabled={loading}
               >

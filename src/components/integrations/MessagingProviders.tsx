@@ -2,6 +2,7 @@ import { useState } from "preact/hooks";
 
 import { useMessagingProviders } from "@/hooks/useMessagingProviders";
 import * as styles from "@/styles/dashboard/providers.css";
+import { button } from "@/styles/theme/index.css";
 import { Provider } from "@/types/dashboard";
 import { getProviderColor, getProviderBgColor } from "@/utils/providerColors";
 
@@ -138,10 +139,10 @@ export default function MessagingProviders() {
             <button
               className={
                 provider.type === "teams"
-                  ? styles.connectButtonComingSoon
+                  ? button({ color: "secondary", size: "sm" })
                   : provider.connected
-                  ? styles.connectButtonConnected
-                  : styles.connectButton
+                  ? button({ color: "secondary", size: "sm" })
+                  : button({ color: "success", size: "sm" })
               }
               onClick={() => handleConnectProvider(provider)}
               disabled={provider.type === "teams"}

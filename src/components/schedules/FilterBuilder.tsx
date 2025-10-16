@@ -1,6 +1,7 @@
 import { useState } from "preact/hooks";
 
 import * as styles from "@/styles/schedules/filter-builder.css";
+import { button } from "@/styles/theme/index.css";
 
 interface PRFilters {
   labels: string[];
@@ -91,7 +92,7 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
             />
             <button
               type="button"
-              className={styles.addFilterButton}
+              className={button({ color: "success", size: "sm" })}
               onClick={() => addFilterItem("labels", labelInput)}
               disabled={!labelInput.trim()}
             >
@@ -106,7 +107,7 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
                 <button
                   key={label}
                   type="button"
-                  className={styles.commonFilterButton}
+                  className={button({ color: "ghost", size: "xs", pill: true })}
                   onClick={() => addFilterItem("labels", label)}
                   disabled={value.labels.includes(label)}
                 >
@@ -147,7 +148,7 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
             />
             <button
               type="button"
-              className={styles.addFilterButton}
+              className={button({ color: "success", size: "sm" })}
               onClick={() => addFilterItem("titleKeywords", keywordInput)}
               disabled={!keywordInput.trim()}
             >
@@ -164,7 +165,7 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
                 <button
                   key={keyword}
                   type="button"
-                  className={styles.commonFilterButton}
+                  className={button({ color: "ghost", size: "xs", pill: true })}
                   onClick={() => addFilterItem("titleKeywords", keyword)}
                   disabled={value.titleKeywords.includes(keyword)}
                 >
