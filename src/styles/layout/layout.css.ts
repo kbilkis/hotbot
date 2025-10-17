@@ -157,6 +157,8 @@ export const contentCard = recipe({
       right: 0,
       bottom: 0,
       display: "flex",
+      flexDirection: "column",
+      gap: tokens.space[4],
       alignItems: "center",
       justifyContent: "center",
       background: `linear-gradient(135deg, ${tokens.colors.gray50} 0%, ${tokens.colors.gray200} 100%)`,

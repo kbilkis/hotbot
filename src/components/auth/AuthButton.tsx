@@ -25,7 +25,6 @@ export default function AuthButton() {
         <button
           className={button({ color: "danger", size: "sm" })}
           onClick={() => clerk.signOut()}
-          disabled={true}
         >
           Sign Out
         </button>

@@ -26,7 +26,7 @@ export default function ProtectedRoute({
   if (!isSignedIn) {
     return (
       fallback || (
-        <div className={contentCard()}>
+        <div className={contentCard({ size: "fullPage" })}>
           <h2>Authentication Required</h2>
           <p>Please sign in to access this page.</p>
           <button
