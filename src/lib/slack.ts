@@ -131,12 +131,9 @@ export async function getSlackChannels(token: string): Promise<SlackChannel[]> {
     ),
   ]);
 
-  const channels: SlackChannel[] = [];
-
   // Process public channels
-  if (publicChannels.channels) {
-    channels.push(
-      ...publicChannels.channels
+  const processedPublicChannels = publicChannels.channels
+    ? publicChannels.channels
         .filter((channel: Channel) => !channel.is_archived)
         .map((channel: Channel) => ({
           id: channel.id!,
@@ -146,13 +143,11 @@ export async function getSlackChannels(token: string): Promise<SlackChannel[]> {
           isArchived: channel.is_archived,
           isMember: channel.is_member,
         }))
-    );
-  }
+    : [];
 
   // Process private channels
-  if (privateChannels.channels) {
-    channels.push(
-      ...privateChannels.channels
+  const processedPrivateChannels = privateChannels.channels
+    ? privateChannels.channels
         .filter((channel: Channel) => !channel.is_archived && channel.is_member)
         .map((channel: Channel) => ({
           id: channel.id!,
@@ -162,8 +157,10 @@ export async function getSlackChannels(token: string): Promise<SlackChannel[]> {
           isArchived: channel.is_archived,
           isMember: channel.is_member,
         }))
-    );
-  }
+    : [];
+
+  // Combine all channels
+  const channels = [...processedPublicChannels, ...processedPrivateChannels];
 
   return channels.sort((a, b) => a.name.localeCompare(b.name));
 }
@@ -207,17 +204,8 @@ export function formatSlackPRMessage(
     };
   }
 
-  const blocks: SlackBlock[] = [];
-
   // Header
   const title = scheduleName || "DAILY REMINDER FOR OPEN PULL REQUESTS";
-  blocks.push({
-    type: "section",
-    text: {
-      type: "mrkdwn",
-      text: `📋 *${title.toUpperCase()}*`,
-    },
-  });
 
   // Categorize PRs
   const categories = categorizePRs(pullRequests);
@@ -242,21 +230,31 @@ export function formatSlackPRMessage(
     )
     .join(" ");
 
-  blocks.push({
-    type: "section",
-    text: {
-      type: "mrkdwn",
-      text: `*${totalPRs} PRs:* ${summaryParts}`,
+  // Build initial blocks array
+  const blocks: SlackBlock[] = [
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `📋 *${title.toUpperCase()}*`,
+      },
     },
-  });
-
-  blocks.push({ type: "divider" });
+    {
+      type: "section",
+      text: {
+        type: "mrkdwn",
+        text: `*${totalPRs} PRs:* ${summaryParts}`,
+      },
+    },
+    { type: "divider" },
+  ];
 
   // Show each category with PRs - compact format with limits
   const maxBlocks = 45; // Leave room for header, summary, footer
   let blockCount = blocks.length;
   let totalPRsShown = 0;
   let truncated = false;
+  const categoryBlocks: SlackBlock[] = [];
 
   for (const category of categories) {
     if (category.prs.length === 0) continue;
@@ -266,18 +264,6 @@ export function formatSlackPRMessage(
       truncated = true;
       break;
     }
-
-    // Category header
-    blocks.push({
-      type: "section",
-      text: {
-        type: "mrkdwn",
-        text: `*${category.emoji} ${category.name.toUpperCase()} (${
-          category.prs.length
-        })*`,
-      },
-    });
-    blockCount++;
 
     // Limit PRs per category to prevent huge blocks
     const maxPRsPerCategory = 15;
@@ -290,8 +276,14 @@ export function formatSlackPRMessage(
         (Date.now() - new Date(pr.createdAt).getTime()) / (1000 * 60 * 60 * 24)
       );
 
-      const ageText =
-        ageInDays === 0 ? "today" : ageInDays === 1 ? "1d" : `${ageInDays}d`;
+      let ageText: string;
+      if (ageInDays === 0) {
+        ageText = "today";
+      } else if (ageInDays === 1) {
+        ageText = "1d";
+      } else {
+        ageText = `${ageInDays}d`;
+      }
 
       // Add labels if present
       const labels =
@@ -312,20 +304,31 @@ export function formatSlackPRMessage(
       return `• <${pr.url}|${truncatedTitle}>${labels}${lineCount} _${pr.author} • ${ageText}_`;
     });
 
-    // Add all PRs in a single block to reduce vertical space
-    blocks.push({
-      type: "section",
-      text: {
-        type: "mrkdwn",
-        text: prLines.join("\n"),
+    // Build blocks for this category
+    const currentCategoryBlocks: SlackBlock[] = [
+      // Category header
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: `*${category.emoji} ${category.name.toUpperCase()} (${
+            category.prs.length
+          })*`,
+        },
       },
-    });
-    blockCount++;
-    totalPRsShown += prsToShow.length;
+      // PRs block
+      {
+        type: "section",
+        text: {
+          type: "mrkdwn",
+          text: prLines.join("\n"),
+        },
+      },
+    ];
 
     // Add "more" indicator if needed
     if (hasMoreInCategory) {
-      blocks.push({
+      currentCategoryBlocks.push({
         type: "context",
         elements: [
           {
@@ -336,14 +339,20 @@ export function formatSlackPRMessage(
           },
         ],
       });
-      blockCount++;
     }
+
+    categoryBlocks.push(...currentCategoryBlocks);
+    blockCount += currentCategoryBlocks.length;
+    totalPRsShown += prsToShow.length;
   }
+
+  // Build footer blocks
+  const footerBlocks: SlackBlock[] = [];
 
   // Add truncation notice if we hit limits
   if (truncated) {
     const remainingPRs = pullRequests.length - totalPRsShown;
-    blocks.push({
+    footerBlocks.push({
       type: "context",
       elements: [
         {
@@ -355,7 +364,7 @@ export function formatSlackPRMessage(
   }
 
   // Footer guidance
-  blocks.push({
+  footerBlocks.push({
     type: "context",
     elements: [
       {
@@ -365,43 +374,61 @@ export function formatSlackPRMessage(
     ],
   });
 
+  // Combine all blocks
+  const allBlocks = [...blocks, ...categoryBlocks, ...footerBlocks];
+
   return {
     channel: "",
     text: `${title} (${totalPRs} PRs)${
       repositoryName ? ` in ${repositoryName}` : ""
     }`,
-    blocks,
+    blocks: allBlocks,
   };
 }
 
 function categorizePRs(prs: PullRequest[]): PRCategory[] {
-  const categories: PRCategory[] = [
-    { name: "Ready to Merge", emoji: "✅", prs: [] },
-    { name: "Needs Changes", emoji: "🔧", prs: [] },
-    { name: "Under Review", emoji: "👀", prs: [] },
-    { name: "Stale", emoji: "⏰", prs: [] },
-    { name: "Awaiting Review", emoji: "⏳", prs: [] },
-  ];
-
-  for (const pr of prs) {
+  // Separate PRs into categories using filter
+  const readyToMerge = prs.filter(
+    (pr) => pr.hasApprovals && !pr.hasChangesRequested
+  );
+  const needsChanges = prs.filter((pr) => pr.hasChangesRequested);
+  const stale = prs.filter((pr) => {
     const ageInDays = Math.floor(
       (Date.now() - new Date(pr.createdAt).getTime()) / (1000 * 60 * 60 * 24)
     );
+    return ageInDays >= 7 && !pr.hasApprovals && !pr.hasChangesRequested;
+  });
+  const underReview = prs.filter((pr) => {
+    const ageInDays = Math.floor(
+      (Date.now() - new Date(pr.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+    );
+    return (
+      ageInDays < 7 &&
+      !pr.hasApprovals &&
+      !pr.hasChangesRequested &&
+      pr.reviewers &&
+      pr.reviewers.length > 0
+    );
+  });
+  const awaitingReview = prs.filter((pr) => {
+    const ageInDays = Math.floor(
+      (Date.now() - new Date(pr.createdAt).getTime()) / (1000 * 60 * 60 * 24)
+    );
+    return (
+      ageInDays < 7 &&
+      !pr.hasApprovals &&
+      !pr.hasChangesRequested &&
+      (!pr.reviewers || pr.reviewers.length === 0)
+    );
+  });
 
-    if (pr.hasApprovals && !pr.hasChangesRequested) {
-      categories[0].prs.push(pr); // Ready to Merge
-    } else if (pr.hasChangesRequested) {
-      categories[1].prs.push(pr); // Needs Changes
-    } else if (ageInDays >= 7) {
-      categories[3].prs.push(pr); // Stale
-    } else if (pr.reviewers && pr.reviewers.length > 0) {
-      categories[2].prs.push(pr); // Under Review
-    } else {
-      categories[4].prs.push(pr); // Awaiting Review
-    }
-  }
-
-  return categories;
+  return [
+    { name: "Ready to Merge", emoji: "✅", prs: readyToMerge },
+    { name: "Needs Changes", emoji: "🔧", prs: needsChanges },
+    { name: "Under Review", emoji: "👀", prs: underReview },
+    { name: "Stale", emoji: "⏰", prs: stale },
+    { name: "Awaiting Review", emoji: "⏳", prs: awaitingReview },
+  ];
 }
 
 // Validate Slack token

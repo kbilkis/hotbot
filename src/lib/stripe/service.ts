@@ -15,8 +15,8 @@ interface StripeConfig {
  * Handles customer creation, subscription management, and webhook processing
  */
 export class StripeService {
-  private stripe: Stripe;
-  private config: StripeConfig;
+  private readonly stripe: Stripe;
+  private readonly config: StripeConfig;
 
   constructor(config: StripeConfig) {
     this.config = config;

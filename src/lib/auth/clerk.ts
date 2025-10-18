@@ -97,11 +97,11 @@ export function requireAuth() {
 }
 
 // Helper to get current user from context
-export function getCurrentUser(c: Context) {
-  return c.get("user") as UserInternal;
+export function getCurrentUser(c: Context): UserInternal {
+  return c.get("user");
 }
 
 // Helper to get current user ID from context
-export function getCurrentUserId(c: Context) {
-  return c.get("userId") as string;
+export function getCurrentUserId(c: Context): string {
+  return c.get("userId");
 }

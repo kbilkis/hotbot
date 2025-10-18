@@ -2,7 +2,7 @@ import { resolve } from "node:path";
 
 import { cloudflare } from "@cloudflare/vite-plugin";
 import devServer from "@hono/vite-dev-server";
-import { default as cloudflareAdapter } from "@hono/vite-dev-server/cloudflare";
+import { cloudflareAdapter } from "@hono/vite-dev-server/cloudflare";
 import { preact } from "@preact/preset-vite";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin";

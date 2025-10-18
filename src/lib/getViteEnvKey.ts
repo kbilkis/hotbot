@@ -4,7 +4,7 @@
  */
 export const getViteEnvKey = (key: string): string => {
   // Client-side (browser) - use import.meta.env
-  if (typeof window !== "undefined") {
+  if (globalThis?.window !== undefined) {
     return import.meta.env[key];
   }
 

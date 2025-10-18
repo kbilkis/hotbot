@@ -10,15 +10,12 @@ import { button } from "@/styles/theme/index.css";
 interface DiscordProviderModalProps {
   onClose: () => void;
   isConnected?: boolean;
-  connectedAt?: string;
-  username?: string;
 }
 
 export default function DiscordProviderModal({
   onClose,
   isConnected: initialIsConnected = false,
-  username: initialUsername = "",
-}: DiscordProviderModalProps) {
+}: Readonly<DiscordProviderModalProps>) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [selectedGuild, setSelectedGuild] = useState<string | null>(null);
@@ -34,7 +31,7 @@ export default function DiscordProviderModal({
   const [accessToken, setAccessToken] = useState("");
   const [webhookUrl, setWebhookUrl] = useState("");
   const [isConnected, setIsConnected] = useState(initialIsConnected);
-  const [username, setUsername] = useState(initialUsername);
+  const [username, setUsername] = useState("");
 
   // Use hooks for Discord data fetching
   const {
@@ -90,7 +87,7 @@ export default function DiscordProviderModal({
       setError(null);
 
       // Get the current URL for redirect
-      const redirectUri = `${window.location.origin}/auth/callback/discord`;
+      const redirectUri = `${globalThis.window.location.origin}/auth/callback/discord`;
 
       // Get OAuth authorization URL
       const response = await discordApi["auth-url"].$post({
@@ -104,7 +101,7 @@ export default function DiscordProviderModal({
       const data = await response.json();
       if (data.success) {
         // Redirect to Discord OAuth page
-        window.location.href = data.authUrl;
+        globalThis.window.location.href = data.authUrl;
       } else {
         const errorMessage =
           data.message || data.error || `Request failed: ${response.status}`;
@@ -344,7 +341,7 @@ export default function DiscordProviderModal({
 
           {isConnected && (
             <div className={modalStyles.formGroup}>
-              <label className={modalStyles.formLabel}>Available Servers</label>
+              <div className={modalStyles.formLabel}>Available Servers</div>
               <div>
                 {guildsLoading && (
                   <div className={modalStyles.loadingState}>
@@ -368,7 +365,7 @@ export default function DiscordProviderModal({
                 {!guildsLoading && !guildsError && guilds.length > 0 && (
                   <div>
                     <div className={modalStyles.itemCount}>
-                      {guilds.length} server{guilds.length !== 1 ? "s" : ""}{" "}
+                      {guilds.length} server{guilds.length === 1 ? "" : "s"}{" "}
                       available
                     </div>
                     <div className={channelStyles.guildsContainer}>
@@ -409,7 +406,7 @@ export default function DiscordProviderModal({
                                 <div>
                                   <div className={modalStyles.itemCount}>
                                     {channels.length} text channel
-                                    {channels.length !== 1 ? "s" : ""}
+                                    {channels.length === 1 ? "" : "s"}
                                   </div>
                                   <div
                                     className={channelStyles.channelsContainer}
@@ -547,22 +544,7 @@ export default function DiscordProviderModal({
 
               {/* Alternative connection options - hidden by default */}
               <div className={modalStyles.alternativeSection}>
-                {!showManualOption ? (
-                  <button
-                    className={button({
-                      color: "ghost",
-                      size: "sm",
-                      alternative: true,
-                    })}
-                    onClick={() => {
-                      setShowManualOption(true);
-                      setConnectionMethod("manual");
-                    }}
-                    disabled={loading}
-                  >
-                    Use bot token or webhook instead
-                  </button>
-                ) : (
+                {showManualOption ? (
                   <div className={modalStyles.manualConnectionWrapper}>
                     <div className={modalStyles.alternativeHeader}>
                       <span>Alternative Connection Methods</span>
@@ -753,6 +735,21 @@ export default function DiscordProviderModal({
                       </div>
                     )}
                   </div>
+                ) : (
+                  <button
+                    className={button({
+                      color: "ghost",
+                      size: "sm",
+                      alternative: true,
+                    })}
+                    onClick={() => {
+                      setShowManualOption(true);
+                      setConnectionMethod("manual");
+                    }}
+                    disabled={loading}
+                  >
+                    Use bot token or webhook instead
+                  </button>
                 )}
               </div>
             </div>

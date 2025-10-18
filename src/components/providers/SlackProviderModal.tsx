@@ -17,7 +17,7 @@ export default function SlackProviderModal({
   onClose,
   isConnected: initialIsConnected = false,
   teamName: initialTeamName = "",
-}: SlackProviderModalProps) {
+}: Readonly<SlackProviderModalProps>) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [channels, setChannels] = useState<SlackChannel[]>([]);
@@ -112,7 +112,7 @@ export default function SlackProviderModal({
       setError(null);
 
       // Get the current URL for redirect
-      const redirectUri = `${window.location.origin}/auth/callback/slack`;
+      const redirectUri = `${globalThis.window.location.origin}/auth/callback/slack`;
 
       // Get OAuth authorization URL
       const response = await slackApi["auth-url"].$post({
@@ -134,7 +134,7 @@ export default function SlackProviderModal({
         throw new Error(errorMessage);
       }
       // Redirect to Slack OAuth page
-      window.location.href = data.authUrl;
+      globalThis.window.location.href = data.authUrl;
     } catch (err) {
       console.error("Failed to initiate Slack OAuth:", err);
       setError(
@@ -300,23 +300,19 @@ export default function SlackProviderModal({
           {isConnected && (
             <div className={modalStyles.formGroup}>
               <div className={modalStyles.providerDisplay}>
-                <>
-                  <span className={modalStyles.connectionStatusConnected}>
-                    ✓ Connected
-                  </span>
-                  {teamName && (
-                    <span className={modalStyles.teamName}>to {teamName}</span>
-                  )}
-                </>
+                <span className={modalStyles.connectionStatusConnected}>
+                  ✓ Connected
+                </span>
+                {teamName && (
+                  <span className={modalStyles.teamName}>to {teamName}</span>
+                )}
               </div>
             </div>
           )}
 
           {isConnected && (
             <div className={modalStyles.formGroup}>
-              <label className={modalStyles.formLabel}>
-                Available Channels
-              </label>
+              <div className={modalStyles.formLabel}>Available Channels</div>
               <div>
                 {channelsLoading && (
                   <div className={modalStyles.loadingState}>
@@ -447,21 +443,7 @@ export default function SlackProviderModal({
 
               {/* Alternative connection option - hidden by default */}
               <div className={modalStyles.alternativeSection}>
-                {!showManualOption ? (
-                  <button
-                    className={button({
-                      color: "ghost",
-                      size: "sm",
-                      alternative: true,
-                    })}
-                    onClick={() => {
-                      setShowManualOption(true);
-                    }}
-                    disabled={loading}
-                  >
-                    Use bot token instead
-                  </button>
-                ) : (
+                {showManualOption ? (
                   <div className={modalStyles.manualConnectionWrapper}>
                     <div className={modalStyles.alternativeHeader}>
                       <span>Alternative: Bot Token</span>
@@ -550,6 +532,20 @@ export default function SlackProviderModal({
                       </button>
                     </div>
                   </div>
+                ) : (
+                  <button
+                    className={button({
+                      color: "ghost",
+                      size: "sm",
+                      alternative: true,
+                    })}
+                    onClick={() => {
+                      setShowManualOption(true);
+                    }}
+                    disabled={loading}
+                  >
+                    Use bot token instead
+                  </button>
                 )}
               </div>
             </div>

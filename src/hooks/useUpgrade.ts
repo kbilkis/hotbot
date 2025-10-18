@@ -18,7 +18,7 @@ export function useUpgrade() {
       setState({ loading: true, error: null });
 
       // Get current URL for success/cancel redirects
-      const baseUrl = window.location.origin;
+      const baseUrl = globalThis.window.location.origin;
       const successUrl = `${baseUrl}/upgrade/success`;
       const cancelUrl = `${baseUrl}/upgrade/cancel`;
 
@@ -38,7 +38,7 @@ export function useUpgrade() {
       const checkoutUrl = data.checkoutUrl;
       if (checkoutUrl) {
         // Redirect to Stripe Checkout
-        window.location.href = checkoutUrl;
+        globalThis.window.location.href = checkoutUrl;
       } else {
         console.error("Upgrade not available at this moment.");
         setState({

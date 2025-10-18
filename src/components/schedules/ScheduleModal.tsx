@@ -47,7 +47,7 @@ interface ValidationErrors {
 export default function ScheduleModal({
   onClose,
   schedule,
-}: ScheduleModalProps) {
+}: Readonly<ScheduleModalProps>) {
   const [formData, setFormData] = useState<CronJobFormData>({
     name: "Daily reminder for open Pull Requests",
     cronExpression: "0 16 * * *", // Default to 4 PM daily
@@ -181,8 +181,7 @@ export default function ScheduleModal({
   useEffect(() => {
     const findGuildForChannel = async () => {
       if (
-        schedule &&
-        schedule.messagingChannelId &&
+        schedule?.messagingChannelId &&
         isDiscordProvider &&
         !selectedDiscordGuild &&
         !loadingAllChannels
@@ -237,16 +236,16 @@ export default function ScheduleModal({
   // Auto-select first providers when creating a new schedule
   useEffect(() => {
     if (!schedule && !loadingProviders) {
-      const connectedGitProviders = gitProviders.filter((p) => p.connected);
-      const connectedMessagingProviders = messagingProviders.filter(
+      const connectedGitProviders = gitProviders.find((p) => p.connected);
+      const connectedMessagingProviders = messagingProviders.find(
         (p) => p.connected
       );
 
       setFormData((prev) => ({
         ...prev,
-        gitProviderId: prev.gitProviderId || connectedGitProviders[0]?.id || "",
+        gitProviderId: prev.gitProviderId || connectedGitProviders?.id || "",
         messagingProviderId:
-          prev.messagingProviderId || connectedMessagingProviders[0]?.id || "",
+          prev.messagingProviderId || connectedMessagingProviders?.id || "",
       }));
     }
   }, [schedule, loadingProviders, gitProviders, messagingProviders]);
@@ -851,7 +850,8 @@ export default function ScheduleModal({
                   onChange={(e) =>
                     setFormData((prev) => ({
                       ...prev,
-                      escalationDays: parseInt(e.currentTarget.value) || 3,
+                      escalationDays:
+                        Number.parseInt(e.currentTarget.value) || 3,
                     }))
                   }
                 />

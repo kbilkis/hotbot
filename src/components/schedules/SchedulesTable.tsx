@@ -17,7 +17,7 @@ export default function SchedulesTable({
   onDelete,
   onToggle,
   togglingScheduleId,
-}: SchedulesTableProps) {
+}: Readonly<SchedulesTableProps>) {
   if (schedules.length === 0) {
     return (
       <div className={styles.emptyState}>

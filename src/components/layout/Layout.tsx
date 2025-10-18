@@ -12,9 +12,9 @@ import MobileNav from "./MobileNav";
 
 export default function Layout({
   children,
-}: {
+}: Readonly<{
   children: preact.ComponentChildren;
-}) {
+}>) {
   const { isLoaded, isSignedIn } = useAuth();
 
   // Preload data if user is signed in for faster dashboard loads

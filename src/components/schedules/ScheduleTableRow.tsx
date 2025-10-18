@@ -54,7 +54,7 @@ export default function ScheduleTableRow({
   onDelete,
   onToggle,
   togglingScheduleId,
-}: ScheduleTableRowProps) {
+}: Readonly<ScheduleTableRowProps>) {
   const isToggling = togglingScheduleId === schedule.id;
 
   return (

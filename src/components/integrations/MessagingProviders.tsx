@@ -29,6 +29,13 @@ export default function MessagingProviders() {
     setSelectedProvider(null);
   };
 
+  const getButtonText = (provider: Provider) => {
+    if (provider.type === "teams") {
+      return "Coming Soon";
+    }
+    return provider.connected ? "Manage" : "Connect";
+  };
+
   // Default provider structure
   const defaultProviders = [
     {
@@ -145,11 +152,7 @@ export default function MessagingProviders() {
               onClick={() => handleConnectProvider(provider)}
               disabled={provider.type === "teams"}
             >
-              {provider.type === "teams"
-                ? "Coming Soon"
-                : provider.connected
-                ? "Manage"
-                : "Connect"}
+              {getButtonText(provider)}
             </button>
           </div>
         ))}

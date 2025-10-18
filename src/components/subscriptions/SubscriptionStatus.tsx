@@ -12,7 +12,7 @@ interface ProgressBarProps {
   label: string;
 }
 
-function ProgressBar({ current, max, label }: ProgressBarProps) {
+function ProgressBar({ current, max, label }: Readonly<ProgressBarProps>) {
   if (max === null) {
     return (
       <div className={subscriptionStyles.usageItem}>
@@ -282,8 +282,7 @@ export default function SubscriptionStatus() {
               >
                 {upgradeLoading ? (
                   <>
-                    <span className={utils.spinner}></span>
-                    Processing...
+                    <span className={utils.spinner}></span>Processing...
                   </>
                 ) : (
                   "Upgrade to Pro - $15/month"
@@ -313,8 +312,7 @@ export default function SubscriptionStatus() {
                 >
                   {billingLoading ? (
                     <>
-                      <span className={utils.spinner}></span>
-                      Opening...
+                      <span className={utils.spinner}></span>Opening...
                     </>
                   ) : (
                     "Manage Billing"

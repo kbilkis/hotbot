@@ -261,19 +261,17 @@ export async function sendDiscordChannelMessage(
 export function formatDiscordPRMessage(
   pullRequests: PullRequest[],
   repositoryName?: string,
-  scheduleName?: string
+  scheduleName: string = "DAILY REMINDER FOR OPEN PULL REQUESTS"
 ): DiscordMessage {
-  const title = scheduleName || "DAILY REMINDER FOR OPEN PULL REQUESTS";
-
   if (pullRequests.length === 0) {
     return {
-      content: `📋 **${title.toUpperCase()}**\n\n✅ All clear! No open pull requests${
+      content: `📋 **${scheduleName.toUpperCase()}**\n\n✅ All clear! No open pull requests${
         repositoryName ? ` in ${repositoryName}` : ""
       }`,
     };
   }
 
-  let content = `📋 **${title.toUpperCase()}**\n\n`;
+  let content = `📋 **${scheduleName.toUpperCase()}**\n\n`;
 
   // Categorize PRs
   const categories = categorizePRs(pullRequests);
@@ -329,8 +327,14 @@ export function formatDiscordPRMessage(
         (Date.now() - new Date(pr.createdAt).getTime()) / (1000 * 60 * 60 * 24)
       );
 
-      const ageText =
-        ageInDays === 0 ? "today" : ageInDays === 1 ? "1d" : `${ageInDays}d`;
+      let ageText: string;
+      if (ageInDays === 0) {
+        ageText = "today";
+      } else if (ageInDays === 1) {
+        ageText = "1d";
+      } else {
+        ageText = `${ageInDays}d`;
+      }
 
       // Add labels if present
       const labels =

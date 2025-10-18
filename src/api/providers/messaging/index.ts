@@ -53,7 +53,7 @@ const app = new Hono()
               type: "slack" as const,
               name: "Slack",
               connected: true as const,
-              connectedAt: providersByType.slack.createdAt!.toISOString(),
+              connectedAt: providersByType.slack.createdAt.toISOString(),
             },
           ]
         : []),
@@ -64,7 +64,7 @@ const app = new Hono()
               type: "teams" as const,
               name: "Microsoft Teams",
               connected: true as const,
-              connectedAt: providersByType.teams.createdAt!.toISOString(),
+              connectedAt: providersByType.teams.createdAt.toISOString(),
             },
           ]
         : []),
@@ -76,7 +76,7 @@ const app = new Hono()
           ? `Discord - ${provider.guildName}`
           : "Discord",
         connected: true as const,
-        connectedAt: provider.createdAt!.toISOString(),
+        connectedAt: provider.createdAt.toISOString(),
         guildId: provider.guildId,
         guildName: provider.guildName,
       })),

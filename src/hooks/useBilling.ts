@@ -18,7 +18,7 @@ export function useBilling() {
       setState({ loading: true, error: null });
 
       // Use current URL as return URL
-      const returnUrl = window.location.href;
+      const returnUrl = globalThis.window.location.href;
 
       const response = await subscriptionsApi.portal.$post({
         json: {
@@ -39,7 +39,7 @@ export function useBilling() {
       const portalUrl = data.portalUrl;
 
       // Redirect to Stripe Customer Portal
-      window.location.href = portalUrl;
+      globalThis.window.location.href = portalUrl;
     } catch (err) {
       console.error("Billing portal access failed:", err);
       setState({

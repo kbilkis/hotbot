@@ -201,15 +201,15 @@ async function getDetailedApprovalInfo(
 
     // Process approvals
     if (approvals.approved_by && approvals.approved_by.length > 0) {
-      approvals.approved_by.forEach((approval) => {
+      for (const approval of approvals.approved_by) {
         reviewStates[approval.user.username] = "APPROVED";
         hasApprovals = true;
-      });
+      }
     }
 
     // Process notes for change requests (look for specific patterns)
     if (Array.isArray(notes)) {
-      notes.forEach((note) => {
+      for (const note of notes) {
         if (note.system === false && note.body) {
           const body = note.body.toLowerCase();
           // Look for common change request patterns
@@ -223,7 +223,7 @@ async function getDetailedApprovalInfo(
             hasChangesRequested = true;
           }
         }
-      });
+      }
     }
 
     return {

@@ -11,7 +11,7 @@ interface ProtectedRouteProps {
 export default function ProtectedRoute({
   children,
   fallback,
-}: ProtectedRouteProps) {
+}: Readonly<ProtectedRouteProps>) {
   const { isLoaded, isSignedIn } = useAuth();
   const clerk = useClerk();
 

@@ -231,9 +231,10 @@ function parseCronIntervalHours(cronExpression: string): number {
   }
 
   // Every N hours pattern (e.g., "0 */6 * * *" for every 6 hours)
-  const hourMatch = hour.match(/^\*\/(\d+)$/);
+  const hourRegex = /^\*\/(\d+)$/;
+  const hourMatch = hourRegex.exec(hour);
   if (hourMatch) {
-    return parseInt(hourMatch[1], 10);
+    return Number.parseInt(hourMatch[1], 10);
   }
 
   // Weekly pattern (specific day of week)
@@ -277,23 +278,22 @@ export function formatLimitDescription(
   const limits = TIER_LIMITS[tier];
   const limit = limits[resourceType];
 
+  if (limit === null) {
+    return "Unlimited";
+  }
+
+  const pluralSuffix = limit === 1 ? "" : "s";
+
   switch (resourceType) {
     case "gitProviders":
-      return limit === null
-        ? "Unlimited"
-        : `${limit} provider${limit === 1 ? "" : "s"}`;
     case "messagingProviders":
-      return limit === null
-        ? "Unlimited"
-        : `${limit} provider${limit === 1 ? "" : "s"}`;
+      return `${limit} provider${pluralSuffix}`;
     case "cronJobs":
-      return limit === null
-        ? "Unlimited"
-        : `${limit} schedule${limit === 1 ? "" : "s"}`;
+      return `${limit} schedule${pluralSuffix}`;
     case "minCronInterval":
       return limit === 0
         ? "Any frequency"
-        : `Minimum ${limit} hour${limit === 1 ? "" : "s"}`;
+        : `Minimum ${limit} hour${pluralSuffix}`;
     default:
       return "Unknown";
   }

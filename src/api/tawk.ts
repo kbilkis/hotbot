@@ -6,13 +6,13 @@ const tawkRoutes = new Hono().post("/hash", async (c) => {
   const user = getCurrentUser(c);
 
   if (!user?.email) {
-    throw "User not authenticated or email not available";
+    throw new Error("User not authenticated or email not available");
   }
 
   const tawkApiKey = process.env.TAWK_API_KEY;
   if (!tawkApiKey) {
     console.error("TAWK_API_KEY not configured");
-    throw "Tawk.to not configured";
+    throw new Error("Tawk.to not configured");
   }
 
   // Generate HMAC-SHA256 hash as per Tawk.to documentation

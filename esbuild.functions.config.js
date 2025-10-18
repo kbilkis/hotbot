@@ -1,4 +1,4 @@
-import fs from "fs";
+import fs from "node:fs";
 
 import { sentryEsbuildPlugin } from "@sentry/esbuild-plugin";
 import esbuild from "esbuild";

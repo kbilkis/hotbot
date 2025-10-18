@@ -33,7 +33,7 @@ export default function CronBuilder({
   error,
   timezone = "UTC",
   onTimezoneChange,
-}: CronBuilderProps) {
+}: Readonly<CronBuilderProps>) {
   // Convert UTC cron expression to display timezone for editing
   const getDisplayCronExpression = (utcCron: string): string => {
     if (!utcCron || timezone === "UTC+0") return utcCron;
@@ -130,7 +130,7 @@ export default function CronBuilder({
   return (
     <div className={styles.cronBuilder}>
       <div className={styles.cronPresets}>
-        <label className={styles.cronLabel}>Quick Presets</label>
+        <div className={styles.cronLabel}>Quick Presets</div>
         <div className={styles.presetButtons}>
           {presetSchedules.map((preset) => (
             <button
@@ -151,7 +151,7 @@ export default function CronBuilder({
 
       <div className={styles.cronBuilderGrid}>
         <div className={styles.cronField}>
-          <label className={styles.cronLabel}>Minute</label>
+          <div className={styles.cronLabel}>Minute</div>
           <select
             className={styles.cronSelect}
             value={cronParts.minute}
@@ -169,7 +169,7 @@ export default function CronBuilder({
         </div>
 
         <div className={styles.cronField}>
-          <label className={styles.cronLabel}>Hour</label>
+          <div className={styles.cronLabel}>Hour</div>
           <select
             className={styles.cronSelect}
             value={cronParts.hour}
@@ -189,7 +189,7 @@ export default function CronBuilder({
         </div>
 
         <div className={styles.cronField}>
-          <label className={styles.cronLabel}>Day of Week</label>
+          <div className={styles.cronLabel}>Day of Week</div>
           <select
             className={styles.cronSelect}
             value={cronParts.dayOfWeek}

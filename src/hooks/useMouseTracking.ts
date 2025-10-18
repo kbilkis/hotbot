@@ -4,8 +4,8 @@ export function useMouseTracking() {
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
       const { clientX, clientY } = e;
-      const x = (clientX / window.innerWidth) * 100;
-      const y = (clientY / window.innerHeight) * 100;
+      const x = (clientX / globalThis.window.innerWidth) * 100;
+      const y = (clientY / globalThis.window.innerHeight) * 100;
 
       document.documentElement.style.setProperty("--mouse-x", `${x}%`);
       document.documentElement.style.setProperty("--mouse-y", `${y}%`);

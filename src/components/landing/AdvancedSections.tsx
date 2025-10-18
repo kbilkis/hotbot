@@ -114,9 +114,9 @@ export default function AdvancedSections() {
                     </div>
                     <div className={styles.prCard}>
                       <div className={styles.prHeader}>
-                        <a className={styles.prTitle}>
+                        <div className={styles.prTitle}>
                           🔧 Fix authentication timeout handling
-                        </a>
+                        </div>
                         <div className={styles.prMeta}>
                           <span className={styles.prAuthor}>by @sarah-dev</span>
                           <span className={styles.prNumber}>#1247</span>
@@ -168,9 +168,9 @@ export default function AdvancedSections() {
                     </div>
                     <div className={styles.prCard}>
                       <div className={styles.prHeader}>
-                        <a className={styles.prTitle}>
+                        <div className={styles.prTitle}>
                           ✨ Add dark mode toggle to user settings
-                        </a>
+                        </div>
                         <div className={styles.prMeta}>
                           <span className={styles.prAuthor}>by @jenny-ui</span>
                           <span className={styles.prNumber}>#1245</span>

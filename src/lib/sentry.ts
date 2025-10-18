@@ -5,7 +5,7 @@ import { getViteEnvKey } from "./getViteEnvKey";
 export function initSentryClient() {
   const environment = getViteEnvKey("VITE_ENVIRONMENT_DEPL");
 
-  if (typeof window === "undefined" || import.meta.env?.DEV) {
+  if (globalThis.window === undefined || import.meta.env?.DEV) {
     console.log("Sentry disabled in development environment");
     return;
   }
@@ -18,13 +18,13 @@ export function initSentryClient() {
       Sentry.replayIntegration(),
     ],
     sendDefaultPii: true,
-    tracesSampleRate: 1.0,
+    tracesSampleRate: 1,
     tracePropagationTargets: [
       /^https:\/\/hotbot\.sh\/api/,
       /^https:\/\/staging\.hotbot\.sh\/api/,
     ],
-    replaysSessionSampleRate: 1.0,
-    replaysOnErrorSampleRate: 1.0,
+    replaysSessionSampleRate: 1,
+    replaysOnErrorSampleRate: 1,
     enableLogs: true,
     tunnel: "/api/tunnel",
   });

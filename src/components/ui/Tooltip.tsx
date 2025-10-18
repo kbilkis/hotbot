@@ -6,7 +6,7 @@ interface TooltipProps {
   children?: preact.ComponentChildren;
 }
 
-export default function Tooltip({ text, children }: TooltipProps) {
+export default function Tooltip({ text, children }: Readonly<TooltipProps>) {
   const [isVisible, setIsVisible] = useState(false);
 
   return (

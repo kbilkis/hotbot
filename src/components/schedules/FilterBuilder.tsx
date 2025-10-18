@@ -13,7 +13,10 @@ interface FilterBuilderProps {
   onChange: (filters: PRFilters) => void;
 }
 
-export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
+export default function FilterBuilder({
+  value,
+  onChange,
+}: Readonly<FilterBuilderProps>) {
   const [labelInput, setLabelInput] = useState("");
   const [keywordInput, setKeywordInput] = useState("");
 
@@ -31,10 +34,10 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
     if (type === "titleKeywords") setKeywordInput("");
   };
 
-  const removeFilterItem = (type: keyof PRFilters, index: number) => {
+  const removeFilterItem = (type: keyof PRFilters, valueToRemove: string) => {
     const newFilters = {
       ...value,
-      [type]: value[type].filter((_, i) => i !== index),
+      [type]: value[type].filter((item) => item !== valueToRemove),
     };
     onChange(newFilters);
   };
@@ -77,7 +80,7 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
     <div className={styles.filterBuilder}>
       <div className={styles.filterSection}>
         <div>
-          <label className={styles.filterLabel}>Labels</label>
+          <div className={styles.filterLabel}>Labels</div>
           <p className={styles.filterHelp}>
             Filter PRs by labels (e.g., bug, URGENT, feature)
           </p>
@@ -123,12 +126,12 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
           </div>
 
           <div className={styles.filterItems}>
-            {value.labels.map((label, index) => (
-              <span key={index} className={styles.filterItem}>
+            {value.labels.map((label) => (
+              <span key={label} className={styles.filterItem}>
                 {label}
                 <button
                   type="button"
-                  onClick={() => removeFilterItem("labels", index)}
+                  onClick={() => removeFilterItem("labels", label)}
                   className={styles.removeTag}
                 >
                   ×
@@ -139,7 +142,7 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
         </div>
 
         <div>
-          <label className={styles.filterLabel}>Title Keywords</label>
+          <div className={styles.filterLabel}>Title Keywords</div>
           <div className={styles.filterInputGroup}>
             <input
               type="text"
@@ -186,12 +189,12 @@ export default function FilterBuilder({ value, onChange }: FilterBuilderProps) {
           </div>
 
           <div className={styles.filterItems}>
-            {value.titleKeywords.map((keyword, index) => (
-              <span key={index} className={styles.filterItem}>
+            {value.titleKeywords.map((keyword) => (
+              <span key={keyword} className={styles.filterItem}>
                 {keyword}
                 <button
                   type="button"
-                  onClick={() => removeFilterItem("titleKeywords", index)}
+                  onClick={() => removeFilterItem("titleKeywords", keyword)}
                   className={styles.removeTag}
                 >
                   ×

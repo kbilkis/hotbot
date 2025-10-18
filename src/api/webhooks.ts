@@ -158,7 +158,7 @@ function extractSubscriptionPeriod(subscription: Stripe.Subscription): {
   let earliestStart: number | undefined;
   let latestEnd: number | undefined;
 
-  items.forEach((item) => {
+  for (const item of items) {
     if (item.current_period_start) {
       if (!earliestStart || item.current_period_start < earliestStart) {
         earliestStart = item.current_period_start;
@@ -169,7 +169,7 @@ function extractSubscriptionPeriod(subscription: Stripe.Subscription): {
         latestEnd = item.current_period_end;
       }
     }
-  });
+  }
 
   const currentPeriodStart = safeTimestampToDate(earliestStart);
   const currentPeriodEnd = safeTimestampToDate(latestEnd);

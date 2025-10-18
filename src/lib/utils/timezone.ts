@@ -103,10 +103,10 @@ export function convertCronToUTC(
     const offset = parseUTCOffset(fromTimezone);
 
     // Get the hour from the cron expression (minute stays the same)
-    const hour = parseInt(parts[1]);
+    const hour = Number.parseInt(parts[1]);
 
     // Validate hour is a valid number
-    if (isNaN(hour)) {
+    if (Number.isNaN(hour)) {
       return cronExpression;
     }
 
@@ -134,13 +134,14 @@ export function convertCronToUTC(
 function parseUTCOffset(timezone: string): number {
   if (timezone === "UTC+0") return 0;
 
-  const match = timezone.match(/^UTC([+-])(\d+(?:\.\d+)?)$/);
+  const regex = /^UTC([+-])(\d+(?:\.\d+)?)$/;
+  const match = regex.exec(timezone);
   if (!match) {
     throw new Error(`Invalid timezone format: ${timezone}`);
   }
 
   const sign = match[1] === "+" ? 1 : -1;
-  const offset = parseFloat(match[2]);
+  const offset = Number.parseFloat(match[2]);
 
   return sign * offset;
 }
@@ -178,14 +179,16 @@ function convertComplexHourExpression(
   if (hourPart.includes(",")) {
     // Handle lists like "9,12,15"
     const hours = hourPart.split(",").map((h) => {
-      const hour = parseInt(h.trim());
-      return isNaN(hour) ? h : convertHourValue(hour, offset).toString();
+      const hour = Number.parseInt(h.trim());
+      return Number.isNaN(hour) ? h : convertHourValue(hour, offset).toString();
     });
     convertedHourPart = hours.join(",");
   } else if (hourPart.includes("-")) {
     // Handle ranges like "9-17"
-    const [start, end] = hourPart.split("-").map((h) => parseInt(h.trim()));
-    if (!isNaN(start) && !isNaN(end)) {
+    const [start, end] = hourPart
+      .split("-")
+      .map((h) => Number.parseInt(h.trim()));
+    if (!Number.isNaN(start) && !Number.isNaN(end)) {
       const convertedStart = convertHourValue(start, offset);
       const convertedEnd = convertHourValue(end, offset);
       convertedHourPart = `${convertedStart}-${convertedEnd}`;
@@ -232,10 +235,10 @@ export function convertCronFromUTC(
     const offset = parseUTCOffset(toTimezone);
 
     // Get the hour from the UTC cron expression (minute stays the same)
-    const hour = parseInt(parts[1]);
+    const hour = Number.parseInt(parts[1]);
 
     // Validate hour is a valid number
-    if (isNaN(hour)) {
+    if (Number.isNaN(hour)) {
       return utcCronExpression;
     }
 

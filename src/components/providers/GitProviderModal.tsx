@@ -15,7 +15,7 @@ interface GitProviderModalProps {
 export default function GitProviderModal({
   provider,
   onClose,
-}: GitProviderModalProps) {
+}: Readonly<GitProviderModalProps>) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [repositories, setRepositories] = useState<string[]>([]);
@@ -149,7 +149,7 @@ export default function GitProviderModal({
       setError(null);
 
       // Get the current URL for redirect
-      const redirectUri = `${window.location.origin}/auth/callback/${provider.provider}`;
+      const redirectUri = `${globalThis.window.location.origin}/auth/callback/${provider.provider}`;
 
       // Get provider-specific scopes
       const getScopes = () => {
@@ -181,7 +181,7 @@ export default function GitProviderModal({
         throw new Error(errorMessage);
       }
       // Redirect to OAuth page
-      window.location.href = data.authUrl;
+      globalThis.window.location.href = data.authUrl;
     } catch (err) {
       console.error("Failed to initiate OAuth:", err);
       setError(
@@ -306,9 +306,9 @@ export default function GitProviderModal({
                 </div>
               </div>
               <div className={modalStyles.formGroup}>
-                <label className={modalStyles.formLabel}>
+                <div className={modalStyles.formLabel}>
                   Accessible Repositories
-                </label>
+                </div>
                 <div className={repoStyles.repositoriesSection}>
                   {repositoriesLoading && (
                     <div className={repoStyles.repositoriesLoading}>
@@ -413,21 +413,7 @@ export default function GitProviderModal({
               </div>
               {/* Alternative connection option - hidden by default */}
               <div className={modalStyles.alternativeSection}>
-                {!showManualOption ? (
-                  <button
-                    className={button({
-                      color: "ghost",
-                      size: "sm",
-                      alternative: true,
-                    })}
-                    onClick={() => {
-                      setShowManualOption(true);
-                    }}
-                    disabled={loading}
-                  >
-                    Use personal access token instead
-                  </button>
-                ) : (
+                {showManualOption ? (
                   <div className={modalStyles.manualConnectionWrapper}>
                     <div className={modalStyles.alternativeHeader}>
                       <span>Alternative: Personal Access Token</span>
@@ -503,6 +489,20 @@ export default function GitProviderModal({
                       </button>
                     </div>
                   </div>
+                ) : (
+                  <button
+                    className={button({
+                      color: "ghost",
+                      size: "sm",
+                      alternative: true,
+                    })}
+                    onClick={() => {
+                      setShowManualOption(true);
+                    }}
+                    disabled={loading}
+                  >
+                    Use personal access token instead
+                  </button>
                 )}
               </div>
             </div>

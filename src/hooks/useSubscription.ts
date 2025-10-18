@@ -20,7 +20,7 @@ export function useSubscription(shouldFetch: boolean = true) {
   if (data && "success" in data) {
     if (data.success) {
       return {
-        subscription: data || null,
+        subscription: data ?? null,
         loading: isLoading,
         error: null,
         refetch: () => mutate(),
@@ -29,15 +29,15 @@ export function useSubscription(shouldFetch: boolean = true) {
       return {
         subscription: null,
         loading: isLoading,
-        error: data.error || null,
+        error: data.error ?? null,
         refetch: () => mutate(),
       };
     }
   } else {
     return {
-      subscription: data || null,
+      subscription: data ?? null,
       loading: isLoading,
-      error: error?.message || null,
+      error: error?.message ?? null,
       refetch: () => mutate(),
     };
   }

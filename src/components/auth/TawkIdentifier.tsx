@@ -27,19 +27,22 @@ export default function TawkIdentifier() {
 
   useEffect(() => {
     // Skip if running on server (SSR)
-    if (typeof window === "undefined" || !!import.meta.env?.DEV) return;
+    if (globalThis.window === undefined || !!import.meta.env?.DEV) return;
 
     const setTawkUser = async () => {
       // Simple polling to wait for Tawk.to to load
       let attempts = 0;
       const maxAttempts = 50; // 10 seconds max wait
 
-      while (!window.Tawk_API?.setAttributes && attempts < maxAttempts) {
+      while (
+        !globalThis.window.Tawk_API?.setAttributes &&
+        attempts < maxAttempts
+      ) {
         await new Promise((resolve) => setTimeout(resolve, 200));
         attempts++;
       }
 
-      if (!window.Tawk_API?.setAttributes) {
+      if (!globalThis.window.Tawk_API?.setAttributes) {
         Sentry.captureMessage(
           "Tawk.to failed to load after 10 seconds",
           "error"
@@ -63,7 +66,7 @@ export default function TawkIdentifier() {
           const data = await response.json();
           if (data.success) {
             // Secure mode with hash
-            window.Tawk_API.setAttributes({
+            globalThis.window.Tawk_API.setAttributes({
               name: userName,
               email: userEmail,
               userId: data.userId,

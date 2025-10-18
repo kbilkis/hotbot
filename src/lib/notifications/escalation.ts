@@ -55,7 +55,32 @@ export async function escalationProcessor(
   for (const pr of escalationCandidates) {
     const existingTracking = await getEscalationTracking(job.id, pr.id);
 
-    if (!existingTracking) {
+    if (existingTracking) {
+      // Check if we should re-escalate (e.g., every 7 days after first escalation)
+      const lastEscalatedAt = existingTracking.lastEscalatedAt;
+      if (lastEscalatedAt) {
+        const daysSinceLastEscalation =
+          (now - lastEscalatedAt.getTime()) / (1000 * 60 * 60 * 24);
+
+        if (daysSinceLastEscalation >= 7) {
+          prsToEscalate.push(pr);
+
+          // Update escalation tracking
+          await upsertEscalationTracking({
+            cronJobId: job.id,
+            pullRequestId: pr.id,
+            pullRequestUrl: pr.url,
+            escalationCount: (existingTracking.escalationCount || 0) + 1,
+          });
+
+          console.log(
+            `Re-escalating PR (count: ${
+              (existingTracking.escalationCount || 0) + 1
+            }): ${pr.title} (${pr.id})`
+          );
+        }
+      }
+    } else {
       // First time escalation
       prsToEscalate.push(pr);
 
@@ -68,29 +93,6 @@ export async function escalationProcessor(
       });
 
       console.log(`Escalating PR for first time: ${pr.title} (${pr.id})`);
-    } else {
-      // Check if we should re-escalate (e.g., every 7 days after first escalation)
-      const daysSinceLastEscalation =
-        (now - existingTracking.lastEscalatedAt!.getTime()) /
-        (1000 * 60 * 60 * 24);
-
-      if (daysSinceLastEscalation >= 7) {
-        prsToEscalate.push(pr);
-
-        // Update escalation tracking
-        await upsertEscalationTracking({
-          cronJobId: job.id,
-          pullRequestId: pr.id,
-          pullRequestUrl: pr.url,
-          escalationCount: (existingTracking.escalationCount || 0) + 1,
-        });
-
-        console.log(
-          `Re-escalating PR (count: ${
-            (existingTracking.escalationCount || 0) + 1
-          }): ${pr.title} (${pr.id})`
-        );
-      }
     }
   }
 

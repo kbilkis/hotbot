@@ -7,13 +7,12 @@ import { button } from "@/styles/theme/index.css";
 interface TeamsProviderModalProps {
   onClose: () => void;
   isConnected?: boolean;
-  connectedAt?: string;
 }
 
 export default function TeamsProviderModal({
   onClose,
   isConnected = false,
-}: TeamsProviderModalProps) {
+}: Readonly<TeamsProviderModalProps>) {
   const [webhookUrl, setWebhookUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);

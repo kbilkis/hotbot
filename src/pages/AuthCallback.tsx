@@ -43,7 +43,7 @@ export default function AuthCallback() {
           : `/api/providers/git/${provider}/exchange-token`;
 
         // Exchange code for token AND store in database (single API call)
-        const redirectUri = `${window.location.origin}/auth/callback/${provider}`;
+        const redirectUri = `${globalThis.window.location.origin}/auth/callback/${provider}`;
         const response = await fetch(apiEndpoint, {
           method: "POST",
           headers: {

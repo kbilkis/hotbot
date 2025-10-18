@@ -196,16 +196,20 @@ async function getDetailedReviewInfo(
     const reviewStates: Record<string, string> = {};
 
     // Process reviews to get latest state from each reviewer
-    reviews.forEach((review) => {
+    for (const review of reviews) {
       if (review.user && review.state !== "COMMENTED") {
         reviewers.add(review.user.login);
         reviewStates[review.user.login] = review.state;
       }
-    });
+    }
 
     // Add requested reviewers
-    checks.users?.forEach((user) => reviewers.add(user.login));
-    checks.teams?.forEach((team) => reviewers.add(`team:${team.name}`));
+    for (const user of checks.users || []) {
+      reviewers.add(user.login);
+    }
+    for (const team of checks.teams || []) {
+      reviewers.add(`team:${team.name}`);
+    }
 
     return {
       reviewers: Array.from(reviewers),

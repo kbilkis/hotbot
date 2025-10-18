@@ -57,7 +57,7 @@ export function useDiscordChannels(
 
   const { data, error, isLoading, mutate } = useSWR(
     shouldFetchData ? `discord-channels-${guildId}` : null,
-    shouldFetchData ? fetcher({ param: { guildId: guildId! } }) : null
+    shouldFetchData ? fetcher({ param: { guildId } }) : null
   );
 
   if (data?.success) {

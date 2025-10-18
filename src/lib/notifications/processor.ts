@@ -108,7 +108,7 @@ function filterDueJobs(jobs: CronJob[]): CronJob[] {
         prevRunMinute.getTime() === currentMinute.getTime() &&
         (!job.lastExecuted ||
           (job.lastExecuted !== null &&
-            (job.lastExecuted as Date).getTime() < prevRun.getTime()));
+            job.lastExecuted.getTime() < prevRun.getTime()));
 
       if (isDue) {
         console.log(
@@ -150,7 +150,7 @@ async function processJob(job: CronJob): Promise<void> {
         getMessagingProviderById(job.messagingProviderId),
         job.escalationProviderId
           ? getMessagingProviderById(job.escalationProviderId)
-          : null,
+          : Promise.resolve(null),
       ]);
 
     if (!gitProvider) {
