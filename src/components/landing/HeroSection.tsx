@@ -12,17 +12,12 @@ export default function HeroSection() {
           <p className={styles.heroSubtitle}>
             HotBot automatically tracks pull requests and sends intelligent
             daily summaries to your team&apos;s Slack, Discord, or Teams
-            channels—reducing review time by 38% on average.
-          </p>
-          <p className={styles.heroDescription}>
-            Stop chasing reviewers. Get standup-ready summaries, smart
-            escalation, and actionable insights that keep your development
-            velocity high.
+            channels—<strong>reducing review time by 38% on average</strong>.
           </p>
           <div className={styles.heroButtons}>
             <a href="/dashboard">
               <button className={button({ color: "primary", size: "lg" })}>
-                Start Free Trial - No Credit Card
+                Start Free Trial
               </button>
             </a>
             <a href="#how-it-works" className={styles.secondaryButton}>
@@ -33,7 +28,7 @@ export default function HeroSection() {
           </div>
           <div className={styles.heroGuarantee}>
             <span className={styles.guaranteeIcon}>✅</span>
-            <span>14-day free trial • Cancel anytime • Setup in 5 minutes</span>
+            <span>14-day free trial • No credit card • 5-minute setup</span>
           </div>
         </div>
         <div className={styles.heroVisual}>

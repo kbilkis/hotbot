@@ -6,6 +6,11 @@ export const hero = style({
   padding: `0 0 ${tokens.space[16]}`,
   position: "relative",
   background: "transparent",
+  "@media": {
+    "(max-width: 768px)": {
+      padding: `${tokens.space[4]} 0 ${tokens.space[12]}`,
+    },
+  },
 });
 
 export const heroContainer = style([
@@ -19,8 +24,9 @@ export const heroContainer = style([
     "@media": {
       "(max-width: 768px)": {
         gridTemplateColumns: "1fr",
-        gap: tokens.space[8],
+        gap: tokens.space[6],
         textAlign: "center",
+        padding: `0 ${tokens.space[4]}`,
       },
     },
   },
@@ -48,20 +54,26 @@ export const heroTitle = style({
   lineHeight: tokens.lineHeight.tight,
   "@media": {
     "(max-width: 768px)": {
-      fontSize: "2.5rem",
+      fontSize: "2rem",
+      lineHeight: "1.2",
+    },
+    "(max-width: 480px)": {
+      fontSize: "1.75rem",
     },
   },
 });
 
 export const heroSubtitle = style({
   fontSize: tokens.fontSize.xl,
-  marginBottom: tokens.space[4],
+  marginBottom: tokens.space[6],
   color: tokens.colors.text,
   lineHeight: tokens.lineHeight.relaxed,
   fontWeight: tokens.fontWeight.medium,
   "@media": {
     "(max-width: 768px)": {
       fontSize: "1.1rem",
+      marginBottom: tokens.space[8],
+      lineHeight: "1.5",
     },
   },
 });
@@ -87,12 +99,14 @@ export const heroButtons = style([
   {
     flexWrap: "wrap",
     gap: tokens.space[4],
-    marginBottom: tokens.space[4],
+    marginBottom: tokens.space[6],
     "@media": {
       "(max-width: 768px)": {
         justifyContent: "center",
         flexDirection: "column",
-        alignItems: "center",
+        alignItems: "stretch",
+        gap: tokens.space[4],
+        marginBottom: tokens.space[8],
       },
     },
   },
@@ -113,6 +127,9 @@ export const heroGuarantee = style([
     "@media": {
       "(max-width: 768px)": {
         justifyContent: "center",
+        flexWrap: "wrap",
+        textAlign: "center",
+        marginBottom: tokens.space[6],
       },
     },
   },
@@ -142,6 +159,12 @@ export const slackCaseImage = style({
   borderRadius: tokens.borderRadius.lg,
   overflow: "hidden",
   boxShadow: tokens.boxShadow.xl,
+  "@media": {
+    "(max-width: 768px)": {
+      maxWidth: "100%",
+      margin: "0 auto",
+    },
+  },
 });
 
 export const slackScreenshot = style({
@@ -161,6 +184,13 @@ export const analyticsTiles = style({
   display: "grid",
   gridTemplateColumns: "repeat(3, 1fr)",
   gap: tokens.space[4],
+  "@media": {
+    "(max-width: 768px)": {
+      gap: tokens.space[2],
+      maxWidth: "300px",
+      margin: "0 auto",
+    },
+  },
 });
 
 export const statTile = style([
@@ -172,6 +202,11 @@ export const statTile = style([
     borderRadius: tokens.borderRadius.md,
     padding: tokens.space[4],
     boxShadow: tokens.boxShadow.md,
+    "@media": {
+      "(max-width: 768px)": {
+        padding: tokens.space[3],
+      },
+    },
   },
 ]);
 

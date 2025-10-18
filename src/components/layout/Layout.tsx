@@ -8,6 +8,8 @@ import * as styles from "@/styles/layout/layout.css";
 
 import AuthButton from "../auth/AuthButton";
 
+import MobileNav from "./MobileNav";
+
 export default function Layout({
   children,
 }: {
@@ -52,6 +54,7 @@ export default function Layout({
             )}
             <AuthButton />
           </div>
+          <MobileNav />
         </nav>
       </header>
 

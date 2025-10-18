@@ -3,17 +3,7 @@ import { style } from "@vanilla-extract/css";
 import { spin } from "../theme/animations.css";
 import { tokens, utils, iconStyles } from "../theme/index.css";
 
-export const schedulesSection = style([
-  utils.card,
-  {
-    margin: `0 ${tokens.space[8]}`,
-    "@media": {
-      "(max-width: 768px)": {
-        margin: `0 ${tokens.space[4]}`,
-      },
-    },
-  },
-]);
+export const schedulesSection = style([utils.card]);
 
 export const schedulesTable = style({
   width: "100%",

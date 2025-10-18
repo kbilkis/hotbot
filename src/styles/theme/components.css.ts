@@ -250,6 +250,13 @@ export const button = recipe({
       lg: {
         padding: `${tokens.space[4]} ${tokens.space[8]}`,
         fontSize: tokens.fontSize.lg,
+        minHeight: "48px", // Better touch target for mobile
+        "@media": {
+          "(max-width: 768px)": {
+            padding: `${tokens.space[4]} ${tokens.space[6]}`,
+            fontSize: tokens.fontSize.base,
+          },
+        },
       },
       xl: {
         padding: `${tokens.space[5]} ${tokens.space[10]}`,

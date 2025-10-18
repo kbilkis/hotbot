@@ -311,13 +311,6 @@ export default function DiscordProviderModal({
 
   return (
     <div className={modalStyles.modalOverlay} onClick={onClose}>
-      <button
-        className={button({ color: "discord" })}
-        onClick={handleManualConnect}
-        disabled={!webhookUrl.trim() || loading}
-      >
-        {loading ? "Connecting..." : "Connect with Webhook"}
-      </button>
       <div
         className={modalStyles.modalContent}
         onClick={(e) => e.stopPropagation()}

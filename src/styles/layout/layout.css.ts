@@ -32,6 +32,11 @@ export const nav = style([
   utils.container,
   {
     alignItems: "center",
+    "@media": {
+      "(max-width: 768px)": {
+        padding: `0 ${tokens.space[4]}`,
+      },
+    },
   },
 ]);
 
@@ -52,9 +57,14 @@ export const logoImage = style({
   width: "auto",
   objectFit: "contain",
   transition: "transform 0.2s ease",
+  "@media": {
+    "(max-width: 768px)": {
+      height: "32px",
+    },
+  },
   selectors: {
     "&:hover": {
-      transform: "scale(1.15)",
+      transform: "scale(1.05)",
     },
   },
 });
@@ -66,7 +76,7 @@ export const navLinks = style([
     alignItems: "center",
     "@media": {
       "(max-width: 768px)": {
-        gap: tokens.space[4],
+        display: "none",
       },
     },
   },
@@ -77,6 +87,7 @@ export const navLink = style({
   textDecoration: "none",
   fontWeight: tokens.fontWeight.medium,
   transition: "color 0.2s",
+  whiteSpace: "nowrap",
   selectors: {
     "&:hover": {
       color: tokens.colors.primary,
@@ -87,6 +98,11 @@ export const navLink = style({
 export const main = style({
   paddingTop: "120px",
   flex: 1,
+  "@media": {
+    "(max-width: 768px)": {
+      paddingTop: "100px",
+    },
+  },
 });
 
 export const footer = style([
@@ -204,7 +220,6 @@ export const sectionHeader = style([
   utils.flexBetween,
   {
     alignItems: "flex-start",
-    padding: `0 ${tokens.space[8]}`,
     marginBottom: tokens.space[6],
     "@media": {
       "(max-width: 768px)": {
@@ -242,11 +257,9 @@ export const integrationsGrid = style({
   display: "grid",
   gridTemplateColumns: "1fr 1fr",
   gap: tokens.space[8],
-  padding: `0 ${tokens.space[8]}`,
   "@media": {
     "(max-width: 768px)": {
       gridTemplateColumns: "1fr",
-      padding: `0 ${tokens.space[4]}`,
     },
   },
 });

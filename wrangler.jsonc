@@ -11,7 +11,6 @@
       "custom_domain": true
     }
   ],
-
   "ratelimits": [
     {
       "name": "API_RATE_LIMITER",
@@ -96,6 +95,7 @@
     "directory": "./dist",
     "binding": "ASSETS"
   },
+  "placement": { "mode": "smart" },
   "upload_source_maps": true,
   "observability": {
     "logs": {

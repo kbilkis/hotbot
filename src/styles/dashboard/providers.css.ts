@@ -44,6 +44,14 @@ export const providerInfo = style([
   {
     alignItems: "center",
   },
+  {
+    "@media": {
+      "(max-width: 768px)": {
+        flexDirection: "column",
+        alignItems: "flex-start",
+      },
+    },
+  },
 ]);
 
 export const providerIcon = style([
@@ -61,6 +69,11 @@ export const providerLogo = style({
   minWidth: "40px",
   minHeight: "100px",
   objectFit: "contain",
+  "@media": {
+    "(max-width: 768px)": {
+      minHeight: "auto",
+    },
+  },
 });
 
 export const providerLogoGitlab = style([
