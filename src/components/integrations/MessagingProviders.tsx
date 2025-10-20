@@ -169,13 +169,13 @@ export default function MessagingProviders() {
           {selectedProvider.type === "teams" && (
             <TeamsProviderModal
               onClose={handleCloseModal}
-              isConnected={selectedProvider.connected}
+              provider={selectedProvider}
             />
           )}
           {selectedProvider.type === "discord" && (
             <DiscordProviderModal
               onClose={handleCloseModal}
-              isConnected={selectedProvider.connected}
+              provider={selectedProvider}
             />
           )}
         </>

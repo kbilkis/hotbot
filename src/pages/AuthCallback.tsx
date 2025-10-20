@@ -1,6 +1,8 @@
 import { useState, useEffect } from "preact/hooks";
 import { useRoute, useLocation } from "preact-iso";
-import { mutate } from "swr";
+
+import { useGitProviders } from "@/hooks/useGitProviders";
+import { useMessagingProviders } from "@/hooks/useMessagingProviders";
 
 import * as authStyles from "../styles/auth/auth.css";
 import { contentCard } from "../styles/layout/layout.css";
@@ -14,6 +16,9 @@ export default function AuthCallback() {
     "loading"
   );
   const [message, setMessage] = useState("");
+
+  const { refetch: refetchMessagingProviders } = useMessagingProviders();
+  const { refetch: refetchGitProviders } = useGitProviders();
 
   useEffect(() => {
     const handleCallback = async () => {
@@ -76,10 +81,11 @@ export default function AuthCallback() {
         console.log("Successfully connected provider:", result);
 
         // Invalidate SWR cache to refresh provider data
-        const cacheKey = isMessagingProvider
-          ? "/api/providers/messaging"
-          : "/api/providers/git";
-        await mutate(cacheKey);
+        if (isMessagingProvider) {
+          refetchMessagingProviders();
+        } else {
+          refetchGitProviders();
+        }
 
         setStatus("success");
         setMessage(`Successfully connected ${provider}!`);

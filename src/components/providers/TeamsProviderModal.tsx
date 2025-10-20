@@ -3,19 +3,21 @@ import { useState, useEffect } from "preact/hooks";
 import * as channelStyles from "@/styles/providers/channels.css";
 import * as modalStyles from "@/styles/providers/modal.css";
 import { button } from "@/styles/theme/index.css";
+import { Provider } from "@/types/dashboard";
 
 interface TeamsProviderModalProps {
   onClose: () => void;
-  isConnected?: boolean;
+  provider: Provider;
 }
 
 export default function TeamsProviderModal({
   onClose,
-  isConnected = false,
+  provider,
 }: Readonly<TeamsProviderModalProps>) {
   const [webhookUrl, setWebhookUrl] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const isConnected = provider.connected;
 
   useEffect(() => {
     const handleEscKey = (event: KeyboardEvent) => {
