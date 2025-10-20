@@ -34,6 +34,7 @@ export default function GitProviderModal({
   const providerName = providerNames[provider.provider];
 
   const handleConnectionSuccess = () => {
+    refetch();
     setError(null);
   };
 

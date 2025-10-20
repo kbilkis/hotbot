@@ -163,7 +163,7 @@ export default function MessagingProviders() {
           {selectedProvider.type === "slack" && (
             <SlackProviderModal
               onClose={handleCloseModal}
-              isConnected={selectedProvider.connected}
+              provider={selectedProvider}
             />
           )}
           {selectedProvider.type === "teams" && (

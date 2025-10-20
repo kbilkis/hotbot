@@ -1,6 +1,5 @@
 import { useState } from "preact/hooks";
 
-import { useGitProviders } from "@/hooks/useGitProviders";
 import { GitProviderData } from "@/lib/validation/provider-schemas";
 import * as modalStyles from "@/styles/providers/modal.css";
 import { button } from "@/styles/theme/index.css";
@@ -21,8 +20,6 @@ export default function GitConnectionMethods({
   const [loading, setLoading] = useState(false);
   const [showManualOption, setShowManualOption] = useState(false);
   const [accessToken, setAccessToken] = useState("");
-
-  const { refetch } = useGitProviders();
 
   const providerConfig = {
     github: {
@@ -171,12 +168,7 @@ export default function GitConnectionMethods({
       }
       console.log("Successfully connected git provider:", data);
 
-      // Refresh provider data
-      refetch();
-
-      // Clear the token input for security
       setAccessToken("");
-
       onConnectionSuccess();
     } catch (err) {
       console.error("Failed to connect git provider:", err);
@@ -197,9 +189,11 @@ export default function GitConnectionMethods({
           onClick={handleOAuthConnect}
           disabled={loading}
         >
-          {loading
-            ? `Redirecting to {config.logoDark || config.logo}`
-            : `Sign in with {config.logo}`}
+          {loading ? (
+            <>Redirecting to {config.logoDark || config.logo}</>
+          ) : (
+            <>Sign in with {config.logo}</>
+          )}
         </button>
         <small className={modalStyles.formHelp}>
           {`🔒 Secure OAuth 2.0 authorization - you'll be redirected to
