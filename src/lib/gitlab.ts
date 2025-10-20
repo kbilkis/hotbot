@@ -102,7 +102,7 @@ async function gitlabApiRequest<T>(
     throw new Error(`GitLab API error: ${response.status} ${errorText}`);
   }
 
-  return response.json() as Promise<T>;
+  return response.json();
 }
 
 // Get user projects (repositories)
