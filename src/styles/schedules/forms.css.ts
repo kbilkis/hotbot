@@ -14,6 +14,15 @@ export const formLabel = style({
   marginBottom: tokens.space[2],
 });
 
+export const formLabelRow = style([
+  utils.flex,
+  {
+    alignItems: "center",
+    justifyContent: "space-between",
+    marginBottom: tokens.space[2],
+  },
+]);
+
 export const formInput = utils.inputBase;
 
 export const formInputError = style([
@@ -54,13 +63,6 @@ export const fieldError = style({
 // Form Sections
 export const formSection = style({
   marginBottom: tokens.space[8],
-});
-
-export const formSectionTitle = style({
-  fontSize: tokens.fontSize.lg,
-  fontWeight: tokens.fontWeight.semibold,
-  color: tokens.colors.text,
-  marginBottom: tokens.space[4],
 });
 
 export const formRow = style({
@@ -162,4 +164,58 @@ export const discordSelection = style({
   display: "flex",
   flexDirection: "column",
   gap: "1rem",
+});
+
+// Refresh and Error Handling
+export const refreshButton = style({
+  background: "none",
+  border: "none",
+  cursor: "pointer",
+  fontSize: tokens.fontSize.lg,
+  color: tokens.colors.textMuted,
+  padding: tokens.space[1],
+  borderRadius: tokens.borderRadius.sm,
+  transition: "all 0.2s ease",
+  selectors: {
+    "&:hover:not(:disabled)": {
+      color: tokens.colors.primary,
+      background: tokens.colors.surfaceHover,
+    },
+    "&:disabled": {
+      opacity: 0.5,
+      cursor: "not-allowed",
+    },
+  },
+});
+
+export const errorState = style([
+  utils.textCenter,
+  {
+    padding: tokens.space[4],
+    border: `1px solid ${tokens.colors.error}`,
+    borderRadius: tokens.borderRadius.md,
+    background: `rgba(239, 68, 68, 0.05)`,
+  },
+]);
+
+export const errorMessage = style({
+  color: tokens.colors.error,
+  fontSize: tokens.fontSize.sm,
+  marginBottom: tokens.space[2],
+});
+
+export const retryButton = style({
+  background: tokens.colors.error,
+  color: tokens.colors.white,
+  border: "none",
+  padding: `${tokens.space[1]} ${tokens.space[3]}`,
+  borderRadius: tokens.borderRadius.sm,
+  fontSize: tokens.fontSize.sm,
+  cursor: "pointer",
+  transition: "all 0.2s ease",
+  selectors: {
+    "&:hover": {
+      background: tokens.colors.errorHover,
+    },
+  },
 });

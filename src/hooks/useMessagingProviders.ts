@@ -1,6 +1,7 @@
 import type { InferRequestType } from "hono/client";
 import useSWR from "swr";
 
+import { MessagingProviderDTO } from "@/api/providers/messaging";
 import { messagingApi } from "@/lib/api/client";
 
 export function useMessagingProviders(shouldFetch: boolean = true) {
@@ -30,7 +31,7 @@ export function useMessagingProviders(shouldFetch: boolean = true) {
       dataError = data.message || data.error;
     }
     return {
-      providers: [],
+      providers: [] as MessagingProviderDTO[],
       loading: isLoading,
       error: dataError || error?.message || null,
       refetch: () => mutate(),

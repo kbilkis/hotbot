@@ -72,6 +72,10 @@ export const GitProviderQuerySchema = type({
   type: "'github'|'bitbucket'|'gitlab'",
 });
 
+export const RepositoriesQuerySchema = type({
+  providerId: "string",
+});
+
 export const MessagingProviderQuerySchema = type({
   type: "'slack'|'teams'|'discord'",
 });
@@ -90,6 +94,12 @@ export const TestChannelSchema = type({
 export const TestWebhookSchema = type({
   webhookUrl: "string",
   message: "string",
+});
+
+// Channels query schema
+export const ChannelsQuerySchema = type({
+  providerId: "string",
+  "guildId?": "string", // Optional, for Discord guilds
 });
 
 // Extract TypeScript types from arktype schemas

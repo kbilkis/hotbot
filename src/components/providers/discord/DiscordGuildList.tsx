@@ -32,7 +32,7 @@ export default function DiscordGuildList() {
             <span>Error loading servers: {guildsError}</span>
             <button
               className={button({ color: "danger", size: "xs" })}
-              onClick={refetchGuilds}
+              onClick={() => refetchGuilds()}
               disabled={guildsLoading}
             >
               Retry
@@ -45,7 +45,7 @@ export default function DiscordGuildList() {
             <div className={modalStyles.itemCount}>
               {guilds.length} server{guilds.length === 1 ? "" : "s"} available
             </div>
-            <div className={channelStyles.guildsContainer}>
+            <div className={channelStyles.channelsContainer}>
               {guilds.map((guild) => (
                 <div key={guild.id} className={channelStyles.guildItem}>
                   <div className={channelStyles.guildHeader}>

@@ -1,12 +1,8 @@
 import { useState } from "preact/hooks";
 
+import { PRFilters } from "@/lib/schedules/validation";
 import * as styles from "@/styles/schedules/filter-builder.css";
 import { button } from "@/styles/theme/index.css";
-
-interface PRFilters {
-  labels: string[];
-  titleKeywords: string[];
-}
 
 interface FilterBuilderProps {
   value: PRFilters;

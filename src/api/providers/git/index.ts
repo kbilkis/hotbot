@@ -4,10 +4,16 @@ import { Hono } from "hono";
 import { getCurrentUserId } from "@/lib/auth/clerk";
 import {
   getUserGitProviders,
+  getUserGitProviderById,
   deleteGitProvider,
 } from "@/lib/database/queries/providers";
 import { createErrorResponse } from "@/lib/errors/api-error";
-import { GitProviderQuerySchema } from "@/lib/validation/provider-schemas";
+import { getGitHubRepositories } from "@/lib/github";
+import { getGitLabProjects } from "@/lib/gitlab";
+import {
+  GitProviderQuerySchema,
+  RepositoriesQuerySchema,
+} from "@/lib/validation/provider-schemas";
 
 import githubRoutes from "./github";
 import gitlabRoutes from "./gitlab";
@@ -15,6 +21,64 @@ import gitlabRoutes from "./gitlab";
 const app = new Hono()
   .route("/github", githubRoutes)
   .route("/gitlab", gitlabRoutes)
+  // GET /api/providers/git/repositories - Get repositories for a specific provider
+  .get(
+    "/repositories",
+    arktypeValidator("query", RepositoriesQuerySchema),
+    async (c) => {
+      const { providerId } = c.req.valid("query");
+      const userId = getCurrentUserId(c);
+
+      // Get the provider from database
+      const gitProvider = await getUserGitProviderById(userId, providerId);
+
+      if (!gitProvider) {
+        return createErrorResponse(
+          c,
+          404,
+          "Provider not found",
+          "Git provider not found or not connected"
+        );
+      }
+
+      let repositories: string[] = [];
+
+      // Call the appropriate provider API based on provider type
+      switch (gitProvider.provider) {
+        case "github":
+          repositories = await getGitHubRepositories(gitProvider.accessToken);
+          break;
+        case "gitlab":
+          repositories = await getGitLabProjects(gitProvider.accessToken);
+          break;
+        case "bitbucket":
+          // TODO: Implement when BitBucket API is available
+          return createErrorResponse(
+            c,
+            501,
+            "Provider not implemented",
+            "BitBucket provider is not yet implemented"
+          );
+        default:
+          return createErrorResponse(
+            c,
+            400,
+            "Unknown provider",
+            `Unknown provider type: ${gitProvider.provider}`
+          );
+      }
+
+      return c.json({
+        success: true,
+        message: "Repositories fetched successfully",
+        data: {
+          repositories,
+          providerId: gitProvider.id,
+          providerType: gitProvider.provider,
+        },
+      });
+    }
+  )
   // GET /api/providers/git - List all git providers for the current user
   .get("/", async (c) => {
     const userId = getCurrentUserId(c);

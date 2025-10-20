@@ -30,42 +30,6 @@ export const userEmail = style({
 });
 
 // Auth Callback Styles
-export const authCallbackContainer = style([
-  utils.flexCenter,
-  {
-    minHeight: "100vh",
-    background: `linear-gradient(135deg, ${tokens.colors.gray50} 0%, ${tokens.colors.gray200} 100%)`,
-    padding: tokens.space[8],
-  },
-]);
-
-export const authCallbackContent = style([
-  utils.card,
-  utils.textCenter,
-  {
-    maxWidth: "500px",
-    width: "100%",
-    animation: `${fadeIn} 0.5s ease-out`,
-    "@media": {
-      "(max-width: 768px)": {
-        padding: tokens.space[4],
-      },
-    },
-  },
-]);
-
-globalStyle(`${authCallbackContent} h2`, {
-  margin: `${tokens.space[4]} 0 ${tokens.space[2]} 0`,
-  fontSize: tokens.fontSize["2xl"],
-  fontWeight: tokens.fontWeight.semibold,
-  color: tokens.colors.text,
-});
-
-globalStyle(`${authCallbackContent} p`, {
-  margin: `${tokens.space[2]} 0`,
-  color: tokens.colors.textMuted,
-  lineHeight: tokens.lineHeight.normal,
-});
 
 export const statusIcon = style([
   iconStyles.xl,
@@ -101,16 +65,6 @@ export const upgradeResultPage = style([
     minHeight: "100vh",
     background: `linear-gradient(135deg, ${tokens.colors.gray50} 0%, ${tokens.colors.gray200} 100%)`,
     padding: tokens.space[8],
-  },
-]);
-
-export const upgradeResultContainer = style([
-  utils.card,
-  utils.textCenter,
-  {
-    maxWidth: "600px",
-    width: "100%",
-    animation: `${fadeIn} 0.5s ease-out`,
   },
 ]);
 

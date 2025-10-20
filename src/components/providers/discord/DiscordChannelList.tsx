@@ -25,10 +25,7 @@ export default function DiscordChannelList({
   );
   const [testResults, setTestResults] = useState<TestResults>({});
 
-  const { channels, loading: channelsLoading } = useDiscordChannels(
-    guildId,
-    !!guildId
-  );
+  const { channels, loading: channelsLoading } = useDiscordChannels(guildId);
 
   const handleTestChannel = async (channelId: string, channelName: string) => {
     try {

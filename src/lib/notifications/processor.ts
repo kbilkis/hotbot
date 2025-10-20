@@ -4,21 +4,21 @@
 
 import * as Sentry from "@sentry/google-cloud-serverless";
 import { CronExpressionParser } from "cron-parser";
-import { eq } from "drizzle-orm";
 
 import type { PullRequest } from "@/types/pull-request";
 
-import { db } from "../database/client";
 import {
   getActiveJobsForExecution,
   updateJobLastExecuted,
   createExecutionLog,
 } from "../database/queries/cron-jobs";
 import {
+  getGitProviderById,
+  getMessagingProviderById,
+} from "../database/queries/providers";
+import {
   GitProvider,
-  gitProviders,
   MessagingProvider,
-  messagingProviders,
   PRFilters,
   CronJob,
 } from "../database/schema";
@@ -304,30 +304,4 @@ async function sendNotification(
   throw new Error(
     `Unsupported messaging provider: ${messagingProvider.provider}`
   );
-}
-
-/**
- * Get git provider by ID
- */
-async function getGitProviderById(providerId: string) {
-  const [provider] = await db
-    .select()
-    .from(gitProviders)
-    .where(eq(gitProviders.id, providerId))
-    .limit(1);
-
-  return provider || null;
-}
-
-/**
- * Get messaging provider by ID
- */
-async function getMessagingProviderById(providerId: string) {
-  const [provider] = await db
-    .select()
-    .from(messagingProviders)
-    .where(eq(messagingProviders.id, providerId))
-    .limit(1);
-
-  return provider || null;
 }

@@ -103,7 +103,6 @@ export const testResultError = style([
 ]);
 
 // Guild Management (Discord)
-export const guildsContainer = channelsContainer;
 
 export const guildItem = style([
   utils.flexCol,

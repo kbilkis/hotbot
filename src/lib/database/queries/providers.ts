@@ -70,6 +70,39 @@ export async function getUserGitProvider(
 }
 
 /**
+ * Get git provider by ID
+ */
+export async function getGitProviderById(
+  providerId: string
+): Promise<GitProvider | null> {
+  const [provider] = await db
+    .select()
+    .from(gitProviders)
+    .where(eq(gitProviders.id, providerId))
+    .limit(1);
+
+  return provider || null;
+}
+
+/**
+ * Get git provider by ID for a user
+ */
+export async function getUserGitProviderById(
+  userId: string,
+  providerId: string
+): Promise<GitProvider | null> {
+  const [result] = await db
+    .select()
+    .from(gitProviders)
+    .where(
+      and(eq(gitProviders.userId, userId), eq(gitProviders.id, providerId))
+    )
+    .limit(1);
+
+  return result || null;
+}
+
+/**
  * Delete git provider connection
  */
 export async function deleteGitProvider(
@@ -161,6 +194,42 @@ export async function getUserMessagingProvider(
     .limit(1);
 
   return result || null;
+}
+
+/**
+ * Get messaging provider by ID
+ */
+export async function getMessagingProviderById(
+  providerId: string
+): Promise<MessagingProvider | null> {
+  const [provider] = await db
+    .select()
+    .from(messagingProviders)
+    .where(eq(messagingProviders.id, providerId))
+    .limit(1);
+
+  return provider || null;
+}
+
+/**
+ * Get messaging provider by ID and user ID (secure)
+ */
+export async function getUserMessagingProviderById(
+  userId: string,
+  providerId: string
+): Promise<MessagingProvider | null> {
+  const [provider] = await db
+    .select()
+    .from(messagingProviders)
+    .where(
+      and(
+        eq(messagingProviders.id, providerId),
+        eq(messagingProviders.userId, userId)
+      )
+    )
+    .limit(1);
+
+  return provider || null;
 }
 
 /**

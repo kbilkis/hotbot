@@ -4,20 +4,26 @@ import { Hono } from "hono";
 import { getCurrentUserId } from "@/lib/auth/clerk";
 import {
   deleteMessagingProvider,
+  getUserMessagingProviderById,
   getUserMessagingProviders,
 } from "@/lib/database/queries/providers";
 import {
   MessagingProvider,
   MessagingProviderType,
 } from "@/lib/database/schema";
+import { getDiscordChannels } from "@/lib/discord";
 import { createErrorResponse } from "@/lib/errors/api-error";
-import { MessagingProviderQuerySchema } from "@/lib/validation/provider-schemas";
+import { getSlackChannels } from "@/lib/slack";
+import {
+  MessagingProviderQuerySchema,
+  ChannelsQuerySchema,
+} from "@/lib/validation/provider-schemas";
 
 import discordRoutes from "./discord";
 import slackRoutes from "./slack";
 import teamsRoutes from "./teams";
 
-interface MessagingProviderDTO {
+export interface MessagingProviderDTO {
   id: string;
   type: MessagingProviderType;
   name: string;
@@ -88,6 +94,93 @@ const app = new Hono()
       data: { providers: messagingProviders },
     });
   })
+  // GET /api/providers/messaging/channels - Get channels for a specific provider
+  .get(
+    "/channels",
+    arktypeValidator("query", ChannelsQuerySchema),
+    async (c) => {
+      const { providerId, guildId } = c.req.valid("query");
+
+      const userId = getCurrentUserId(c);
+
+      // Get the messaging provider (secure - only returns if user owns it)
+      const messagingProvider = await getUserMessagingProviderById(
+        userId,
+        providerId
+      );
+
+      if (!messagingProvider) {
+        return createErrorResponse(
+          c,
+          404,
+          "Provider not found",
+          "Messaging provider not found or not connected"
+        );
+      }
+
+      let channels: Array<{
+        id: string;
+        name: string;
+        type?: string;
+        isGuild?: boolean;
+      }> = [];
+
+      switch (messagingProvider.provider) {
+        case "slack":
+          channels = await getSlackChannels(messagingProvider.accessToken);
+          break;
+
+        case "discord":
+          if (guildId) {
+            // Get channels for specific guild
+            const discordChannels = await getDiscordChannels(guildId);
+            channels = discordChannels.map((channel) => ({
+              id: channel.id,
+              name: channel.name || `Channel ${channel.id}`,
+              type: channel.type?.toString() || "text",
+            }));
+          } else {
+            // Get all connected guilds for this provider
+            const allProviders = await getUserMessagingProviders(
+              userId,
+              "discord"
+            );
+            channels = allProviders
+              .filter((p) => p.guildId && p.guildName)
+              .map((p) => ({
+                id: p.guildId!,
+                name: p.guildName!,
+                type: "guild",
+                isGuild: true,
+              }));
+          }
+          break;
+
+        case "teams":
+          // TODO: Teams not implemented yet
+          return createErrorResponse(
+            c,
+            501,
+            "Teams provider not implemented",
+            "Teams provider not implemented yet"
+          );
+
+        default:
+          return createErrorResponse(
+            c,
+            400,
+            "Unknown provider type",
+            `Unknown provider type: ${messagingProvider.provider}`
+          );
+      }
+
+      return c.json({
+        success: true,
+        message: "Channels fetched successfully",
+        data: { channels },
+      });
+    }
+  )
   // DELETE /api/providers/messaging - Disconnect messaging provider
   .delete(
     "/",

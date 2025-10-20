@@ -168,7 +168,7 @@ export default function SchedulesSection() {
       {showScheduleModal && (
         <ScheduleModal
           onClose={handleCloseModal}
-          schedule={editingSchedule || undefined}
+          scheduleToEdit={editingSchedule || undefined}
         />
       )}
     </div>
