@@ -49,7 +49,7 @@ export default function ProviderSection({
               .filter((provider) => provider.connected)
               .map((provider) => (
                 <option key={provider.id} value={provider.id}>
-                  {provider.name} ({provider.provider})
+                  {provider.name}
                 </option>
               ))}
             {!loadingProviders &&

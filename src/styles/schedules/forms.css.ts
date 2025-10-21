@@ -4,7 +4,7 @@ import { tokens, utils } from "../theme/index.css";
 
 // Form Groups and Inputs
 export const formGroup = style({
-  marginBottom: tokens.space[6],
+  marginBottom: tokens.space[2],
 });
 
 export const formLabel = style({
@@ -62,7 +62,7 @@ export const fieldError = style({
 
 // Form Sections
 export const formSection = style({
-  marginBottom: tokens.space[8],
+  marginBottom: tokens.space[2],
 });
 
 export const formRow = style({
