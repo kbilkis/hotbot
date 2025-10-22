@@ -19,7 +19,24 @@ export default function DiscordGuildList() {
 
   return (
     <div className={modalStyles.formGroup}>
-      <div className={modalStyles.formLabel}>Available Servers</div>
+      <div
+        className={modalStyles.formLabel}
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          alignItems: "center",
+        }}
+      >
+        <span>Available Servers</span>
+        <button
+          className={button({ color: "ghost", size: "xs" })}
+          onClick={() => refetchGuilds()}
+          disabled={guildsLoading}
+          title="Refresh servers"
+        >
+          🔄 Refresh
+        </button>
+      </div>
       <div>
         {guildsLoading && (
           <div className={modalStyles.loadingState}>

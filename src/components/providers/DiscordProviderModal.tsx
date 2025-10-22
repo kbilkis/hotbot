@@ -23,6 +23,7 @@ export default function DiscordProviderModal({
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [username, setUsername] = useState("");
+  const [fetchingUserData, setFetchingUserData] = useState(false);
   const { refetch } = useMessagingProviders();
   const isConnected = provider.connected;
 
@@ -35,15 +36,26 @@ export default function DiscordProviderModal({
 
   const fetchAdditionalData = async () => {
     try {
+      setFetchingUserData(true);
+      setError(null);
+
       const userResponse = await discordApi.user.$get();
       const userData = await userResponse.json();
-      if (userData.success && !username) {
+
+      if (userData.success) {
         setUsername(userData.data.username || "Discord User");
       } else {
-        throw new Error(userData.message);
+        throw new Error(userData.message || "Failed to fetch user data");
       }
     } catch (err) {
       console.error("Failed to fetch additional Discord info:", err);
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "Failed to load Discord user information";
+      setError(errorMessage);
+    } finally {
+      setFetchingUserData(false);
     }
   };
 
@@ -79,9 +91,11 @@ export default function DiscordProviderModal({
       onClose();
     } catch (err) {
       console.error("Failed to disconnect Discord:", err);
-      setError(
-        err instanceof Error ? err.message : "Failed to disconnect Discord"
-      );
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "An unexpected error occurred while disconnecting Discord";
+      setError(`Disconnect failed: ${errorMessage}`);
     } finally {
       setLoading(false);
     }
@@ -118,9 +132,32 @@ export default function DiscordProviderModal({
           : `Connect your Discord server to receive pull request notifications in your channels.`}
       </p>
 
-      <DiscordChannelSection isConnected={isConnected} username={username} />
+      {isConnected ? (
+        <>
+          {fetchingUserData && (
+            <div className={modalStyles.loadingState}>
+              <span>Loading Discord user information...</span>
+            </div>
+          )}
 
-      {!isConnected && (
+          {error && !fetchingUserData && (
+            <div className={modalStyles.errorState}>
+              <span>{error}</span>
+              <button
+                className={button({ color: "info", size: "xs" })}
+                onClick={fetchAdditionalData}
+                disabled={fetchingUserData}
+              >
+                Retry
+              </button>
+            </div>
+          )}
+
+          {!fetchingUserData && !error && (
+            <DiscordChannelSection username={username} />
+          )}
+        </>
+      ) : (
         <DiscordConnectionMethods
           onConnectionSuccess={handleConnectionSuccess}
           onError={handleConnectionError}

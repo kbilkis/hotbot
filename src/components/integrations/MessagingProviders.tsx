@@ -12,7 +12,7 @@ import TeamsProviderModal from "../providers/TeamsProviderModal";
 
 export default function MessagingProviders() {
   const [showModal, setShowModal] = useState(false);
-  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(
+  const [selectedProviderId, setSelectedProviderId] = useState<string | null>(
     null
   );
 
@@ -20,13 +20,13 @@ export default function MessagingProviders() {
   const { providers, loading, error } = useMessagingProviders();
 
   const handleConnectProvider = (provider: Provider) => {
-    setSelectedProvider(provider);
+    setSelectedProviderId(provider.id);
     setShowModal(true);
   };
 
   const handleCloseModal = () => {
     setShowModal(false);
-    setSelectedProvider(null);
+    setSelectedProviderId(null);
   };
 
   const getButtonText = (provider: Provider) => {
@@ -69,6 +69,11 @@ export default function MessagingProviders() {
         connectedAt: apiProvider?.connectedAt,
       };
     }
+  );
+
+  const selectedProvider = messagingProviders.find(
+    (provider) =>
+      provider.type === selectedProviderId || provider.id === selectedProviderId
   );
 
   if (loading) {
