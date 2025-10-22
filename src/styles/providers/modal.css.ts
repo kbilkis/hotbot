@@ -23,7 +23,7 @@ export const modalContent = style([
     background: tokens.colors.white,
     borderRadius: tokens.borderRadius["2xl"],
     boxShadow: tokens.boxShadow["2xl"],
-    maxWidth: "650px",
+    maxWidth: "850px",
     width: "90%",
     maxHeight: "90vh",
     overflow: "hidden",
@@ -305,8 +305,8 @@ export const itemCount = style({
 
 // Modal Footer
 export const modalFooterError = style({
-  width: "100%",
   marginBottom: "1rem",
+  marginRight: "auto",
 });
 
 export const modalFooterButtons = style({

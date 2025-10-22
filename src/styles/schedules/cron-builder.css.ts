@@ -2,7 +2,7 @@ import { style } from "@vanilla-extract/css";
 
 import { tokens, utils } from "../theme/index.css";
 
-export const cronBuilder = style([utils.flexCol, utils.gap6]);
+export const cronBuilder = style([utils.flexCol, utils.gap2]);
 
 export const cronPresets = style({
   marginBottom: tokens.space[4],
