@@ -8,7 +8,18 @@ import {
   DiscordChannelType,
   type DiscordMessage,
 } from "../types/discord";
-import type { PullRequest, PRCategory } from "../types/pull-request";
+import type { PullRequest } from "../types/pull-request";
+
+import {
+  categorizePRs,
+  formatAge,
+  truncateTitle,
+  formatLineCount,
+  formatLabels,
+  buildSummaryLine,
+  getDefaultTitle,
+  buildEmptyStateMessage,
+} from "./messaging/utils";
 
 const DISCORD_CLIENT_ID = process.env.DISCORD_CLIENT_ID!;
 const DISCORD_CLIENT_SECRET = process.env.DISCORD_CLIENT_SECRET!;
@@ -146,7 +157,7 @@ async function discordApiRequest<T>(
     throw new Error(`Discord API error: ${response.status} ${errorText}`);
   }
 
-  return response.json() as Promise<T>;
+  return response.json();
 }
 
 // Make Discord API request using bot token
@@ -263,38 +274,20 @@ export function formatDiscordPRMessage(
   repositoryName?: string,
   scheduleName: string = "DAILY REMINDER FOR OPEN PULL REQUESTS"
 ): DiscordMessage {
+  const title = getDefaultTitle(scheduleName);
+
   if (pullRequests.length === 0) {
     return {
-      content: `📋 **${scheduleName.toUpperCase()}**\n\n✅ All clear! No open pull requests${
-        repositoryName ? ` in ${repositoryName}` : ""
-      }`,
+      content: buildEmptyStateMessage(title, repositoryName),
     };
   }
 
-  let content = `📋 **${scheduleName.toUpperCase()}**\n\n`;
+  let content = `📋 **${title.toUpperCase()}**\n\n`;
 
-  // Categorize PRs
+  // Categorize PRs and build summary
   const categories = categorizePRs(pullRequests);
-
-  // Summary line
   const totalPRs = pullRequests.length;
-  const shortNames: Record<string, string> = {
-    "Ready to Merge": "ready",
-    "Needs Changes": "changes",
-    "Under Review": "review",
-    Stale: "stale",
-    "Awaiting Review": "waiting",
-  };
-
-  const summaryParts = categories
-    .filter((cat) => cat.prs.length > 0)
-    .map(
-      (cat) =>
-        `${cat.emoji}${cat.prs.length} ${
-          shortNames[cat.name] || cat.name.toLowerCase()
-        }`
-    )
-    .join(" ");
+  const summaryParts = buildSummaryLine(categories);
 
   content += `**${totalPRs} PRs:** ${summaryParts}\n\n`;
 
@@ -323,34 +316,10 @@ export function formatDiscordPRMessage(
 
     // List PRs in this category
     for (const pr of prsToShow) {
-      const ageInDays = Math.floor(
-        (Date.now() - new Date(pr.createdAt).getTime()) / (1000 * 60 * 60 * 24)
-      );
-
-      let ageText: string;
-      if (ageInDays === 0) {
-        ageText = "today";
-      } else if (ageInDays === 1) {
-        ageText = "1d";
-      } else {
-        ageText = `${ageInDays}d`;
-      }
-
-      // Add labels if present
-      const labels =
-        pr.labels && pr.labels.length > 0
-          ? ` [${pr.labels.slice(0, 3).join("] [")}]`
-          : "";
-
-      // Truncate long PR titles
-      const truncatedTitle =
-        pr.title.length > 60 ? pr.title.substring(0, 57) + "..." : pr.title;
-
-      // Add line count if available
-      const lineCount =
-        pr.additions !== undefined && pr.deletions !== undefined
-          ? ` (+${pr.additions}/-${pr.deletions})`
-          : "";
+      const ageText = formatAge(pr.createdAt);
+      const labels = formatLabels(pr.labels);
+      const truncatedTitle = truncateTitle(pr.title);
+      const lineCount = formatLineCount(pr.additions, pr.deletions);
 
       content += `• [${truncatedTitle}](${pr.url})${labels}${lineCount} *${pr.author} • ${ageText}*\n`;
     }
@@ -379,36 +348,6 @@ export function formatDiscordPRMessage(
   return {
     content,
   };
-}
-
-function categorizePRs(prs: PullRequest[]): PRCategory[] {
-  const categories: PRCategory[] = [
-    { name: "Ready to Merge", emoji: "✅", prs: [] },
-    { name: "Needs Changes", emoji: "🔧", prs: [] },
-    { name: "Under Review", emoji: "👀", prs: [] },
-    { name: "Stale", emoji: "⏰", prs: [] },
-    { name: "Awaiting Review", emoji: "⏳", prs: [] },
-  ];
-
-  for (const pr of prs) {
-    const ageInDays = Math.floor(
-      (Date.now() - new Date(pr.createdAt).getTime()) / (1000 * 60 * 60 * 24)
-    );
-
-    if (pr.hasApprovals && !pr.hasChangesRequested) {
-      categories[0].prs.push(pr); // Ready to Merge
-    } else if (pr.hasChangesRequested) {
-      categories[1].prs.push(pr); // Needs Changes
-    } else if (ageInDays >= 7) {
-      categories[3].prs.push(pr); // Stale
-    } else if (pr.reviewers && pr.reviewers.length > 0) {
-      categories[2].prs.push(pr); // Under Review
-    } else {
-      categories[4].prs.push(pr); // Awaiting Review
-    }
-  }
-
-  return categories;
 }
 
 // Validate Discord token and get token info

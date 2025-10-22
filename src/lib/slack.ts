@@ -1,5 +1,5 @@
 // Slack API functions for messaging provider integration
-import type { PullRequest, PRCategory } from "../types/pull-request";
+import type { PullRequest } from "../types/pull-request";
 import type {
   OauthV2AccessResponse,
   ConversationsListResponse,
@@ -12,6 +12,17 @@ import type {
   SlackTokenResponse,
   SlackUserInfo,
 } from "../types/slack";
+
+import {
+  categorizePRs,
+  formatAge,
+  truncateTitle,
+  formatLineCount,
+  formatLabels,
+  buildSummaryLine,
+  getDefaultTitle,
+  buildEmptyStateMessage,
+} from "./messaging/utils";
 
 const SLACK_CLIENT_ID = process.env.SLACK_CLIENT_ID!;
 const SLACK_CLIENT_SECRET = process.env.SLACK_CLIENT_SECRET!;
@@ -103,7 +114,7 @@ async function slackApiRequest<T extends { ok?: boolean; error?: string }>(
     );
   }
 
-  const data = (await response.json()) as T;
+  const data: T = await response.json();
 
   if (!data.ok) {
     if (data.error === "invalid_auth" || data.error === "token_revoked") {
@@ -194,41 +205,19 @@ export function formatSlackPRMessage(
   repositoryName?: string,
   scheduleName?: string
 ): SlackMessage {
+  const title = getDefaultTitle(scheduleName);
+
   if (pullRequests.length === 0) {
-    const title = scheduleName || "DAILY REMINDER FOR OPEN PULL REQUESTS";
     return {
       channel: "",
-      text: `📋 *${title.toUpperCase()}*\n\n✅ All clear! No open pull requests${
-        repositoryName ? ` in ${repositoryName}` : ""
-      }`,
+      text: buildEmptyStateMessage(title, repositoryName).replaceAll("**", "*"),
     };
   }
 
-  // Header
-  const title = scheduleName || "DAILY REMINDER FOR OPEN PULL REQUESTS";
-
-  // Categorize PRs
+  // Categorize PRs and build summary
   const categories = categorizePRs(pullRequests);
-
-  // Summary line with shortened names
   const totalPRs = pullRequests.length;
-  const shortNames: Record<string, string> = {
-    "Ready to Merge": "ready",
-    "Needs Changes": "changes",
-    "Under Review": "review",
-    Stale: "stale",
-    "Awaiting Review": "waiting",
-  };
-
-  const summaryParts = categories
-    .filter((cat) => cat.prs.length > 0)
-    .map(
-      (cat) =>
-        `${cat.emoji}${cat.prs.length} ${
-          shortNames[cat.name] || cat.name.toLowerCase()
-        }`
-    )
-    .join(" ");
+  const summaryParts = buildSummaryLine(categories);
 
   // Build initial blocks array
   const blocks: SlackBlock[] = [
@@ -272,34 +261,10 @@ export function formatSlackPRMessage(
 
     // Group all PRs in this category into a single block
     const prLines = prsToShow.map((pr) => {
-      const ageInDays = Math.floor(
-        (Date.now() - new Date(pr.createdAt).getTime()) / (1000 * 60 * 60 * 24)
-      );
-
-      let ageText: string;
-      if (ageInDays === 0) {
-        ageText = "today";
-      } else if (ageInDays === 1) {
-        ageText = "1d";
-      } else {
-        ageText = `${ageInDays}d`;
-      }
-
-      // Add labels if present
-      const labels =
-        pr.labels && pr.labels.length > 0
-          ? ` [${pr.labels.slice(0, 3).join("] [")}]` // Show up to 3 labels
-          : "";
-
-      // Truncate long PR titles
-      const truncatedTitle =
-        pr.title.length > 60 ? pr.title.substring(0, 57) + "..." : pr.title;
-
-      // Add line count if available
-      const lineCount =
-        pr.additions !== undefined && pr.deletions !== undefined
-          ? ` (+${pr.additions}/-${pr.deletions})`
-          : "";
+      const ageText = formatAge(pr.createdAt);
+      const labels = formatLabels(pr.labels);
+      const truncatedTitle = truncateTitle(pr.title);
+      const lineCount = formatLineCount(pr.additions, pr.deletions);
 
       return `• <${pr.url}|${truncatedTitle}>${labels}${lineCount} _${pr.author} • ${ageText}_`;
     });
@@ -384,51 +349,6 @@ export function formatSlackPRMessage(
     }`,
     blocks: allBlocks,
   };
-}
-
-function categorizePRs(prs: PullRequest[]): PRCategory[] {
-  // Separate PRs into categories using filter
-  const readyToMerge = prs.filter(
-    (pr) => pr.hasApprovals && !pr.hasChangesRequested
-  );
-  const needsChanges = prs.filter((pr) => pr.hasChangesRequested);
-  const stale = prs.filter((pr) => {
-    const ageInDays = Math.floor(
-      (Date.now() - new Date(pr.createdAt).getTime()) / (1000 * 60 * 60 * 24)
-    );
-    return ageInDays >= 7 && !pr.hasApprovals && !pr.hasChangesRequested;
-  });
-  const underReview = prs.filter((pr) => {
-    const ageInDays = Math.floor(
-      (Date.now() - new Date(pr.createdAt).getTime()) / (1000 * 60 * 60 * 24)
-    );
-    return (
-      ageInDays < 7 &&
-      !pr.hasApprovals &&
-      !pr.hasChangesRequested &&
-      pr.reviewers &&
-      pr.reviewers.length > 0
-    );
-  });
-  const awaitingReview = prs.filter((pr) => {
-    const ageInDays = Math.floor(
-      (Date.now() - new Date(pr.createdAt).getTime()) / (1000 * 60 * 60 * 24)
-    );
-    return (
-      ageInDays < 7 &&
-      !pr.hasApprovals &&
-      !pr.hasChangesRequested &&
-      (!pr.reviewers || pr.reviewers.length === 0)
-    );
-  });
-
-  return [
-    { name: "Ready to Merge", emoji: "✅", prs: readyToMerge },
-    { name: "Needs Changes", emoji: "🔧", prs: needsChanges },
-    { name: "Under Review", emoji: "👀", prs: underReview },
-    { name: "Stale", emoji: "⏰", prs: stale },
-    { name: "Awaiting Review", emoji: "⏳", prs: awaitingReview },
-  ];
 }
 
 // Validate Slack token
