@@ -16,6 +16,9 @@ export default function SchedulesSection() {
   const [togglingScheduleId, setTogglingScheduleId] = useState<string | null>(
     null
   );
+  const [testingScheduleId, setTestingScheduleId] = useState<string | null>(
+    null
+  );
 
   // Use SWR hook for schedules data
   const { schedules, loading, error, refetch } = useSchedules();
@@ -90,6 +93,38 @@ export default function SchedulesSection() {
     }
   };
 
+  const handleTestSchedule = async (scheduleId: string) => {
+    if (testingScheduleId) return; // Prevent multiple simultaneous tests
+
+    try {
+      setTestingScheduleId(scheduleId);
+
+      const response = await schedulesApi[":id"].test.$post({
+        param: {
+          id: scheduleId,
+        },
+      });
+
+      const data = await response.json();
+      if (!data.success) {
+        const errorMessage =
+          data.message || data.error || "Failed to test schedule";
+        throw new Error(errorMessage);
+      }
+
+      alert(
+        "Schedule executed successfully! Check your configured channels for notifications."
+      );
+    } catch (err) {
+      console.error("Failed to test schedule:", err);
+      const errorMessage =
+        err instanceof Error ? err.message : "Failed to test schedule";
+      alert(`Failed to test schedule: ${errorMessage}`);
+    } finally {
+      setTestingScheduleId(null);
+    }
+  };
+
   const handleCloseModal = (shouldRefresh = false) => {
     setShowScheduleModal(false);
     setEditingSchedule(null);
@@ -161,7 +196,9 @@ export default function SchedulesSection() {
           onEdit={handleEditSchedule}
           onDelete={handleDeleteSchedule}
           onToggle={handleToggleSchedule}
+          onTest={handleTestSchedule}
           togglingScheduleId={togglingScheduleId}
+          testingScheduleId={testingScheduleId}
         />
       </div>
 

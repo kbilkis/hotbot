@@ -8,7 +8,9 @@ interface SchedulesTableProps {
   onEdit: (schedule: CronJob) => void;
   onDelete: (scheduleId: string) => void;
   onToggle: (scheduleId: string) => void;
+  onTest: (scheduleId: string) => void;
   togglingScheduleId: string | null;
+  testingScheduleId: string | null;
 }
 
 export default function SchedulesTable({
@@ -16,7 +18,9 @@ export default function SchedulesTable({
   onEdit,
   onDelete,
   onToggle,
+  onTest,
   togglingScheduleId,
+  testingScheduleId,
 }: Readonly<SchedulesTableProps>) {
   if (schedules.length === 0) {
     return (
@@ -44,7 +48,9 @@ export default function SchedulesTable({
           onEdit={onEdit}
           onDelete={onDelete}
           onToggle={onToggle}
+          onTest={onTest}
           togglingScheduleId={togglingScheduleId}
+          testingScheduleId={testingScheduleId}
         />
       ))}
     </div>

@@ -14,7 +14,9 @@ interface ScheduleTableRowProps {
   onEdit: (schedule: CronJob) => void;
   onDelete: (scheduleId: string) => void;
   onToggle: (scheduleId: string) => void;
+  onTest: (scheduleId: string) => void;
   togglingScheduleId: string | null;
+  testingScheduleId: string | null;
 }
 
 const calculateNextExecution = (
@@ -53,9 +55,12 @@ export default function ScheduleTableRow({
   onEdit,
   onDelete,
   onToggle,
+  onTest,
   togglingScheduleId,
+  testingScheduleId,
 }: Readonly<ScheduleTableRowProps>) {
   const isToggling = togglingScheduleId === schedule.id;
+  const isTesting = testingScheduleId === schedule.id;
 
   return (
     <div className={styles.tableRow}>
@@ -98,6 +103,18 @@ export default function ScheduleTableRow({
             title="Edit schedule"
           >
             <PencilSquareIcon className={styles.scheduleActionIcon} />
+          </button>
+          <button
+            className={styles.testButton}
+            onClick={() => onTest(schedule.id)}
+            disabled={isTesting}
+            title={isTesting ? "Testing..." : "Test schedule now"}
+          >
+            {isTesting ? (
+              <div className={styles.loadingSpinnerButton} />
+            ) : (
+              <PlayIcon className={styles.scheduleActionIcon} />
+            )}
           </button>
           <button
             className={

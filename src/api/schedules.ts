@@ -15,6 +15,7 @@ import {
   toggleCronJobStatus,
 } from "@/lib/database/queries/cron-jobs";
 import { createErrorResponse } from "@/lib/errors/api-error";
+import { processJob as notificationProcessor } from "@/lib/notifications/processor";
 import {
   CreateCronJobSchema,
   UpdateCronJobSchema,
@@ -156,6 +157,40 @@ const app = new Hono()
       message: `Cron job ${isActive ? "enabled" : "disabled"} successfully`,
       job,
     });
+  })
+  // POST /api/schedules/:id/test - Trigger a cron job immediately for testing
+  .post("/:id/test", async (c) => {
+    const userId = getCurrentUserId(c);
+    const id = c.req.param("id");
+
+    // Verify the job exists and belongs to the user
+    const job = await getCronJobById(id, userId);
+
+    if (!job) {
+      return createErrorResponse(
+        c,
+        404,
+        "Cron job not found",
+        "Cron job not found"
+      );
+    }
+
+    try {
+      await notificationProcessor(job);
+
+      return c.json({
+        success: true,
+        message: "Schedule executed successfully",
+      });
+    } catch (error) {
+      console.error("Failed to execute schedule:", error);
+      return createErrorResponse(
+        c,
+        500,
+        "Failed to execute schedule",
+        error instanceof Error ? error.message : "Unknown error"
+      );
+    }
   });
 
 export default app;

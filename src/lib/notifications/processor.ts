@@ -133,7 +133,7 @@ function filterDueJobs(jobs: CronJob[]): CronJob[] {
 /**
  * Process a single cron job
  */
-async function processJob(job: CronJob): Promise<void> {
+export async function processJob(job: CronJob): Promise<void> {
   const startTime = Date.now();
   let pullRequestsFound = 0;
   let messagesSent = 0;

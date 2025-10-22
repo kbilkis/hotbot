@@ -11,7 +11,7 @@ export const schedulesTable = style({
 
 export const tableHeader = style({
   display: "grid",
-  gridTemplateColumns: "0.75fr 1fr 1.5fr 2fr 0.75fr",
+  gridTemplateColumns: "0.75fr 1fr 1.5fr 2fr 1.25fr",
   gap: tokens.space[4],
   padding: `${tokens.space[3]} 0`,
   borderBottom: `1px solid ${tokens.colors.border}`,
@@ -20,7 +20,7 @@ export const tableHeader = style({
   fontSize: tokens.fontSize.sm,
   "@media": {
     "(max-width: 1024px)": {
-      gridTemplateColumns: "1fr 2fr 1fr",
+      gridTemplateColumns: "1fr 2fr 1.25fr",
       gap: tokens.space[2],
     },
   },
@@ -28,7 +28,7 @@ export const tableHeader = style({
 
 export const tableRow = style({
   display: "grid",
-  gridTemplateColumns: "0.75fr 1fr 1.5fr 2fr 0.75fr",
+  gridTemplateColumns: "0.75fr 1fr 1.5fr 2fr 1.25fr",
   gap: tokens.space[4],
   padding: `${tokens.space[4]} 0`,
   borderBottom: `1px solid ${tokens.colors.borderLight}`,
@@ -41,7 +41,7 @@ export const tableRow = style({
   },
   "@media": {
     "(max-width: 1024px)": {
-      gridTemplateColumns: "1fr 2fr 1fr",
+      gridTemplateColumns: "1fr 2fr 1.25fr",
       gap: tokens.space[2],
     },
   },
@@ -118,7 +118,7 @@ export const actionsCell = style([
   },
 ]);
 
-export const scheduleActions = style([utils.flex, utils.gap2]);
+export const scheduleActions = style([utils.flex, utils.gap3]);
 
 const actionButton = style([
   utils.flexCenter,
@@ -127,9 +127,11 @@ const actionButton = style([
     border: "none",
     color: tokens.colors.textMuted,
     cursor: "pointer",
-    padding: tokens.space[2],
+    padding: tokens.space[0],
     borderRadius: tokens.borderRadius.base,
     transition: "all 0.2s",
+    minWidth: "36px",
+    minHeight: "36px",
     selectors: {
       "&:hover": {
         background: tokens.colors.gray100,
@@ -139,7 +141,7 @@ const actionButton = style([
   },
 ]);
 
-export const scheduleActionIcon = style([iconStyles.sm]);
+export const scheduleActionIcon = style([iconStyles.base]);
 
 export const editButton = style([
   actionButton,
@@ -148,6 +150,26 @@ export const editButton = style([
       "&:hover": {
         background: tokens.colors.infoBg,
         color: tokens.colors.info,
+      },
+    },
+  },
+]);
+
+export const testButton = style([
+  actionButton,
+  {
+    selectors: {
+      "&:hover": {
+        background: tokens.colors.primaryLight,
+        color: tokens.colors.primary,
+      },
+      "&:disabled": {
+        cursor: "not-allowed",
+        opacity: 0.5,
+      },
+      "&:disabled:hover": {
+        background: "none",
+        color: tokens.colors.textMuted,
       },
     },
   },
