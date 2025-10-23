@@ -53,10 +53,10 @@ export async function exchangeGitLabToken(code: string, redirectUri: string) {
     throw new Error(`GitLab token exchange failed: ${response.status}`);
   }
 
-  const data = (await response.json()) as GitLabOAuthTokenResponse & {
+  const data: GitLabOAuthTokenResponse & {
     error?: string;
     error_description?: string;
-  };
+  } = await response.json();
 
   if (data.error) {
     throw new Error(
@@ -263,6 +263,45 @@ function determinePipelineStatus(
   if (mr.merge_status === "can_be_merged") return "success";
   if (mr.merge_status === "cannot_be_merged") return "failure";
   return "pending";
+}
+
+// Revoke GitLab app authorization (removes the entire app authorization)
+export async function revokeGitLabToken(token: string): Promise<void> {
+  // GitLab's /oauth/revoke endpoint revokes the entire application authorization
+  // This means the user will need to re-authorize the app when reconnecting
+  const response = await fetch(`${GITLAB_BASE_URL}/oauth/revoke`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body: new URLSearchParams({
+      client_id: GITLAB_CLIENT_ID,
+      client_secret: GITLAB_CLIENT_SECRET,
+      token: token,
+    }),
+  });
+
+  if (!response.ok) {
+    // If the token is already invalid/revoked, GitLab might return an error
+    // We can consider this a success since the goal is achieved
+    if (response.status === 400) {
+      const errorData = (await response.json().catch(() => ({}))) as {
+        error?: string;
+      };
+      if (
+        errorData.error === "invalid_token" ||
+        errorData.error === "unsupported_token_type"
+      ) {
+        return;
+      }
+    }
+
+    const errorText = await response.text();
+    const error = new Error(
+      `GitLab app authorization revocation failed: ${response.status} ${errorText}`
+    );
+    throw error;
+  }
 }
 
 // Apply MR filters

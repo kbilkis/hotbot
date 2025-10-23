@@ -1,3 +1,4 @@
+import * as Sentry from "@sentry/react";
 import { useState, useEffect } from "preact/hooks";
 
 import { useMessagingProviders } from "@/hooks/useMessagingProviders";
@@ -45,15 +46,10 @@ export default function DiscordProviderModal({
       if (userData.success) {
         setUsername(userData.data.username || "Discord User");
       } else {
-        throw new Error(userData.message || "Failed to fetch user data");
+        throw userData.message || "Failed to fetch Discord user data";
       }
     } catch (err) {
-      console.error("Failed to fetch additional Discord info:", err);
-      const errorMessage =
-        err instanceof Error
-          ? err.message
-          : "Failed to load Discord user information";
-      setError(errorMessage);
+      Sentry.captureException(err);
     } finally {
       setFetchingUserData(false);
     }

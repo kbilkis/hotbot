@@ -1,4 +1,6 @@
 // Discord API functions for messaging provider integration
+import * as Sentry from "@sentry/cloudflare";
+
 import {
   type DiscordOAuth2TokenResponse,
   type DiscordOAuth2TokenInfo,
@@ -41,7 +43,7 @@ interface DiscordTokenResponse {
 export function getDiscordAuthUrl(
   state: string,
   redirectUri: string,
-  scopes: string[] = ["bot", "applications.commands"],
+  scopes: string[] = ["bot", "applications.commands", "identify"],
   permissions: string = "68608" // VIEW_CHANNEL (1024) + SEND_MESSAGES (2048) + READ_MESSAGE_HISTORY (65536)
 ): string {
   const params = new URLSearchParams({
@@ -375,6 +377,95 @@ export async function validateDiscordToken(token: string): Promise<boolean> {
   } catch (error) {
     console.error("Discord token validation failed:", error);
     return false;
+  }
+}
+
+// Leave Discord guild using bot token (removes bot from server)
+export async function leaveDiscordGuild(guildId: string): Promise<void> {
+  const botToken = process.env.DISCORD_BOT_TOKEN;
+  if (!botToken) {
+    throw new Error("Discord bot token not configured");
+  }
+
+  try {
+    // Use bot token to leave the guild - bots can remove themselves from guilds
+    // Don't use discordBotApiRequest because it sets JSON headers, but this endpoint expects no body
+    const response = await fetch(
+      `https://discord.com/api/v10/users/@me/guilds/${guildId}`,
+      {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bot ${botToken}`,
+          "User-Agent": "git-messaging-scheduler/1.0",
+        },
+      }
+    );
+
+    if (!response.ok) {
+      // If we're already not in the guild, that's fine
+      if (response.status === 404) {
+        return;
+      }
+
+      const errorText = await response.text();
+      throw new Error(`Discord Bot API error: ${response.status} ${errorText}`);
+    }
+  } catch (error) {
+    // If we're already not in the guild or don't have access, that's fine
+    if (error instanceof Error && error.message.includes("404")) {
+      return;
+    }
+    throw error;
+  }
+}
+
+// Revoke Discord token
+export async function revokeDiscordToken(
+  token: string,
+  guildId?: string
+): Promise<void> {
+  // First, try to leave the guild if we have a guildId
+  if (guildId) {
+    try {
+      await leaveDiscordGuild(guildId);
+    } catch (error) {
+      Sentry.captureException(error);
+    }
+  }
+  const credentials = Buffer.from(
+    `${DISCORD_CLIENT_ID}:${DISCORD_CLIENT_SECRET}`
+  ).toString("base64");
+
+  const response = await fetch("https://discord.com/api/oauth2/token/revoke", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+      Authorization: `Basic ${credentials}`,
+    },
+    body: new URLSearchParams({
+      token: token,
+      token_type_hint: "access_token",
+    }),
+  });
+
+  if (!response.ok) {
+    // If the token is already invalid/revoked, Discord might return an error
+    // We can consider this a success since the goal is achieved
+    if (response.status === 400) {
+      const errorText = await response.text();
+      if (
+        errorText.includes("invalid_token") ||
+        errorText.includes("token_revoked")
+      ) {
+        return;
+      }
+    }
+
+    const errorText = await response.text();
+    const error = new Error(
+      `Discord token revocation failed: ${response.status} ${errorText}`
+    );
+    throw error;
   }
 }
 

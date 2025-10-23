@@ -1,4 +1,6 @@
 // Simple GitHub API functions
+import * as Sentry from "@sentry/cloudflare";
+
 import type {
   GitHubRepository,
   GitHubPullRequest,
@@ -235,6 +237,73 @@ function determineStatus(pr: GitHubPullRequest): "open" | "closed" | "merged" {
     return pr.merged ? "merged" : "closed";
   }
   return "open";
+}
+
+// Revoke GitHub app authorization (more complete than just token revocation)
+export async function revokeGitHubToken(token: string): Promise<void> {
+  // Try to revoke the entire app authorization using Basic auth with client credentials
+  // This removes the app from the user's authorized applications
+  const response = await fetch(
+    `https://api.github.com/applications/${GITHUB_CLIENT_ID}/grant`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Basic ${Buffer.from(
+          `${GITHUB_CLIENT_ID}:${GITHUB_CLIENT_SECRET}`
+        ).toString("base64")}`,
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        access_token: token,
+      }),
+    }
+  );
+
+  if (response.ok || response.status === 404) {
+    // Success or already revoked
+    return;
+  }
+
+  // If that fails, fall back to token-only revocation
+  const errorText = await response.text();
+  Sentry.captureException(
+    "GitHub app authorization revocation failed: " + errorText
+  );
+
+  // Fallback: Just revoke the specific token (less complete but still useful)
+  const fallbackResponse = await fetch(
+    `https://api.github.com/applications/${GITHUB_CLIENT_ID}/token`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Basic ${Buffer.from(
+          `${GITHUB_CLIENT_ID}:${GITHUB_CLIENT_SECRET}`
+        ).toString("base64")}`,
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        access_token: token,
+      }),
+    }
+  );
+
+  if (!fallbackResponse.ok) {
+    // If the token is already invalid/revoked, GitHub returns 404
+    // We can consider this a success since the goal is achieved
+    if (fallbackResponse.status === 404) {
+      return;
+    }
+
+    const errorText = await fallbackResponse.text();
+    const error = new Error(
+      `GitHub token revocation failed: ${fallbackResponse.status} ${errorText}`
+    );
+    throw error;
+  }
 }
 
 // Apply PR filters

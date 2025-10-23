@@ -1,9 +1,11 @@
 import { arktypeValidator } from "@hono/arktype-validator";
+import * as Sentry from "@sentry/cloudflare";
 import { Hono } from "hono";
 
 import { getCurrentUserId } from "@/lib/auth/clerk";
 import {
   deleteMessagingProvider,
+  getUserMessagingProvider,
   getUserMessagingProviderById,
   getUserMessagingProviders,
 } from "@/lib/database/queries/providers";
@@ -11,9 +13,9 @@ import {
   MessagingProvider,
   MessagingProviderType,
 } from "@/lib/database/schema";
-import { getDiscordChannels } from "@/lib/discord";
+import { getDiscordChannels, revokeDiscordToken } from "@/lib/discord";
 import { createErrorResponse } from "@/lib/errors/api-error";
-import { getSlackChannels } from "@/lib/slack";
+import { getSlackChannels, revokeSlackToken } from "@/lib/slack";
 import {
   MessagingProviderQuerySchema,
   ChannelsQuerySchema,
@@ -189,14 +191,54 @@ const app = new Hono()
       const { type } = c.req.valid("query");
       const userId = getCurrentUserId(c);
 
+      // Get the provider first to retrieve the access token
+      const messagingProvider = await getUserMessagingProvider(userId, type);
+
+      if (!messagingProvider) {
+        return createErrorResponse(
+          c,
+          404,
+          "Provider not found",
+          `No connection found for ${type}`
+        );
+      }
+
+      // Revoke the token from the provider's API before deleting from database
+      try {
+        switch (type) {
+          case "slack":
+            await revokeSlackToken(messagingProvider.accessToken);
+            break;
+          case "discord":
+            await revokeDiscordToken(
+              messagingProvider.accessToken,
+              messagingProvider.guildId || undefined
+            );
+            break;
+          case "teams":
+            // TODO: Implement Teams token revocation when Teams support is added
+            console.warn("Teams token revocation not yet implemented");
+            break;
+          default:
+            console.warn(`Unknown provider type for token revocation: ${type}`);
+        }
+      } catch (error) {
+        // Log the error but continue with database deletion
+        // The token might already be invalid or the API might be down
+        console.error(`Failed to revoke ${type} token:`, error);
+
+        // Log to Sentry with request context - this is the only place we log this error
+        Sentry.captureException(error);
+      }
+
       const deleted = await deleteMessagingProvider(userId, type);
 
       if (!deleted) {
         return createErrorResponse(
           c,
-          404,
-          "Provider not found",
-          "Provider not found"
+          500,
+          "Database error",
+          `Failed to delete ${type} connection from database`
         );
       }
 

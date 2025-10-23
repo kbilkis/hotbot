@@ -1,4 +1,5 @@
 // Slack API functions for messaging provider integration
+
 import type { PullRequest } from "../types/pull-request";
 import type {
   OauthV2AccessResponse,
@@ -358,6 +359,35 @@ export async function validateSlackToken(token: string): Promise<boolean> {
     return true;
   } catch {
     return false;
+  }
+}
+
+// Revoke Slack token
+export async function revokeSlackToken(token: string): Promise<void> {
+  const response = await fetch("https://slack.com/api/auth.revoke", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${token}`,
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+  });
+
+  if (!response.ok) {
+    const error = new Error(
+      `Slack token revocation failed: ${response.status}`
+    );
+    throw error;
+  }
+
+  const data: { ok?: boolean; error?: string } = await response.json();
+
+  if (!data.ok) {
+    // If the token is already invalid/revoked, we can consider this a success
+    if (data.error === "invalid_auth" || data.error === "token_revoked") {
+      return;
+    }
+    const error = new Error(`Slack token revocation failed: ${data.error}`);
+    throw error;
   }
 }
 

@@ -25,7 +25,7 @@ export default function OAuthConnection({
       const response = await discordApi["auth-url"].$post({
         json: {
           redirectUri,
-          scopes: ["bot", "applications.commands"],
+          scopes: ["bot", "applications.commands", "identify"],
           permissions: "68608", // VIEW_CHANNEL + SEND_MESSAGES + READ_MESSAGE_HISTORY
         },
       });
