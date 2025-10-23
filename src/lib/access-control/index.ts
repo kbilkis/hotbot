@@ -2,6 +2,7 @@ import {
   getSubscriptionByUserId,
   getUserUsage,
 } from "../database/queries/subscriptions";
+import type { UserUsage } from "../database/queries/subscriptions";
 import type { Subscription, SubscriptionTierType } from "../database/schema";
 
 /**
@@ -10,6 +11,7 @@ import type { Subscription, SubscriptionTierType } from "../database/schema";
 interface TierLimits {
   gitProviders: number | null; // null = unlimited
   messagingProviders: number | null;
+  activeRepositories: number | null; // null = unlimited
   cronJobs: number | null;
   minCronInterval: number; // hours
 }
@@ -19,14 +21,16 @@ interface TierLimits {
  */
 export const TIER_LIMITS: Record<SubscriptionTierType, TierLimits> = {
   free: {
-    gitProviders: 1,
+    gitProviders: null, // unlimited providers
     messagingProviders: 1,
-    cronJobs: 1,
+    activeRepositories: 3, // limit active repositories
+    cronJobs: 2, // increased from 1
     minCronInterval: 24, // 24 hours minimum
   },
   pro: {
     gitProviders: null, // unlimited
     messagingProviders: null, // unlimited
+    activeRepositories: null, // unlimited
     cronJobs: null, // unlimited
     minCronInterval: 0, // no minimum
   },
@@ -47,11 +51,7 @@ interface UserTierInfo {
 export interface UsageValidationResult {
   allowed: boolean;
   reason?: string;
-  currentUsage?: {
-    gitProvidersCount: number;
-    messagingProvidersCount: number;
-    cronJobsCount: number;
-  };
+  currentUsage?: UserUsage;
   limits?: TierLimits;
 }
 
@@ -90,17 +90,8 @@ export async function canCreateGitProvider(
     return { allowed: true };
   }
 
-  // Check if user has reached the limit
-  if (currentUsage.gitProvidersCount >= limits.gitProviders) {
-    return {
-      allowed: false,
-      reason: `Free tier is limited to ${limits.gitProviders} git provider${
-        limits.gitProviders === 1 ? "" : "s"
-      }. Upgrade to Pro for unlimited providers.`,
-      currentUsage,
-      limits,
-    };
-  }
+  // Git providers are now unlimited for all tiers
+  // This function is kept for backward compatibility but always allows creation
 
   return { allowed: true, currentUsage, limits };
 }
@@ -165,6 +156,50 @@ export async function canCreateCronJob(
       reason: `Free tier is limited to ${limits.cronJobs} schedule${
         limits.cronJobs === 1 ? "" : "s"
       }. Upgrade to Pro for unlimited schedules.`,
+      currentUsage,
+      limits,
+    };
+  }
+
+  return { allowed: true, currentUsage, limits };
+}
+
+/**
+ * Check if user can create a schedule for a new repository
+ */
+export async function canCreateScheduleForRepository(
+  userId: string,
+  repositories: string[]
+): Promise<UsageValidationResult> {
+  const [tierInfo, currentUsage] = await Promise.all([
+    getUserTierInfo(userId),
+    getUserUsage(userId),
+  ]);
+
+  const { limits } = tierInfo;
+
+  // Pro tier has unlimited active repositories
+  if (limits.activeRepositories === null) {
+    return { allowed: true };
+  }
+
+  // Count how many new repositories would be added
+  const newRepositoriesCount = repositories.filter(
+    (repo) => !currentUsage.activeRepositories?.includes(repo)
+  ).length;
+
+  const totalActiveRepos =
+    currentUsage.activeRepositoriesCount + newRepositoriesCount;
+
+  // Check if user would exceed the limit
+  if (totalActiveRepos > limits.activeRepositories) {
+    return {
+      allowed: false,
+      reason: `Free tier is limited to ${
+        limits.activeRepositories
+      } active repositor${
+        limits.activeRepositories === 1 ? "y" : "ies"
+      }. Upgrade to Pro for unlimited repositories.`,
       currentUsage,
       limits,
     };
@@ -288,6 +323,8 @@ export function formatLimitDescription(
     case "gitProviders":
     case "messagingProviders":
       return `${limit} provider${pluralSuffix}`;
+    case "activeRepositories":
+      return `${limit} active repositor${limit === 1 ? "y" : "ies"}`;
     case "cronJobs":
       return `${limit} schedule${pluralSuffix}`;
     case "minCronInterval":

@@ -15,7 +15,7 @@ export default function UpgradeCancel() {
         <div className={authStyles.upgradeBenefits}>
           <h3>Pro Benefits You&apos;re Missing:</h3>
           <ul className={authStyles.featureList}>
-            <li>Unlimited Git providers</li>
+            <li>Unlimited active repositories</li>
             <li>Unlimited messaging providers</li>
             <li>Unlimited schedules</li>
             <li>Any schedule frequency (no 24-hour minimum)</li>

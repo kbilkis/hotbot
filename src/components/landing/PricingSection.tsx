@@ -30,16 +30,13 @@ export default function PricingSection() {
             </div>
             <ul className={styles.featuresList}>
               <li className={styles.featuresListItem}>
-                ✓ 1 git provider (GitHub, GitLab, or Bitbucket)
+                ✓ 3 active repositories
               </li>
               <li className={styles.featuresListItem}>
                 ✓ 1 messaging provider (Slack, Discord, or Teams)
               </li>
               <li className={styles.featuresListItem}>
-                ✓ 1 notification schedule
-              </li>
-              <li className={styles.featuresListItem}>
-                ✓ Daily notifications minimum
+                ✓ 2 notification schedules
               </li>
               <li className={styles.featuresListItem}>✓ Community support</li>
             </ul>
@@ -75,7 +72,7 @@ export default function PricingSection() {
                 ✓ Everything in Free, plus:
               </li>
               <li className={styles.featuresListItem}>
-                ✓ Unlimited git providers
+                ✓ Unlimited active repositories
               </li>
               <li className={styles.featuresListItem}>
                 ✓ Unlimited messaging providers

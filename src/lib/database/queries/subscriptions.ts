@@ -13,9 +13,11 @@ import {
 /**
  * Interface for user usage counts
  */
-interface UserUsage {
+export interface UserUsage {
   gitProvidersCount: number;
   messagingProvidersCount: number;
+  activeRepositoriesCount: number;
+  activeRepositories: string[];
   cronJobsCount: number;
 }
 
@@ -137,25 +139,48 @@ export async function upsertSubscription(
  */
 export async function getUserUsage(userId: string): Promise<UserUsage> {
   // Execute all count queries in parallel for better performance
-  const [gitProvidersResult, messagingProvidersResult, cronJobsResult] =
-    await Promise.all([
-      db
-        .select({ count: count() })
-        .from(gitProviders)
-        .where(eq(gitProviders.userId, userId)),
-      db
-        .select({ count: count() })
-        .from(messagingProviders)
-        .where(eq(messagingProviders.userId, userId)),
-      db
-        .select({ count: count() })
-        .from(cronJobs)
-        .where(eq(cronJobs.userId, userId)),
-    ]);
+  const [
+    gitProvidersResult,
+    messagingProvidersResult,
+    cronJobsResult,
+    userCronJobs,
+  ] = await Promise.all([
+    db
+      .select({ count: count() })
+      .from(gitProviders)
+      .where(eq(gitProviders.userId, userId)),
+    db
+      .select({ count: count() })
+      .from(messagingProviders)
+      .where(eq(messagingProviders.userId, userId)),
+    db
+      .select({ count: count() })
+      .from(cronJobs)
+      .where(eq(cronJobs.userId, userId)),
+    // Get all cron jobs to extract unique repositories
+    db
+      .select({ repositories: cronJobs.repositories })
+      .from(cronJobs)
+      .where(eq(cronJobs.userId, userId)),
+  ]);
+
+  // Extract unique repositories from all cron jobs
+  const allRepositories = new Set<string>();
+  for (const job of userCronJobs) {
+    if (job.repositories) {
+      for (const repo of job.repositories) {
+        allRepositories.add(repo);
+      }
+    }
+  }
+
+  const activeRepositories = Array.from(allRepositories);
 
   return {
     gitProvidersCount: gitProvidersResult[0]?.count ?? 0,
     messagingProvidersCount: messagingProvidersResult[0]?.count ?? 0,
+    activeRepositoriesCount: activeRepositories.length,
+    activeRepositories,
     cronJobsCount: cronJobsResult[0]?.count ?? 0,
   };
 }

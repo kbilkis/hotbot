@@ -170,9 +170,9 @@ export default function SubscriptionStatus() {
             </div>
             <div className={subscriptionStyles.usageGrid}>
               <ProgressBar
-                current={usage.gitProvidersCount}
-                max={limits.gitProviders}
-                label="Git Providers"
+                current={usage.activeRepositoriesCount}
+                max={limits.activeRepositories}
+                label="Active Repositories"
               />
               <ProgressBar
                 current={usage.messagingProvidersCount}
@@ -201,7 +201,7 @@ export default function SubscriptionStatus() {
               <div className={subscriptionStyles.subscriptionGrid}>
                 <div className={subscriptionStyles.subscriptionItem}>
                   <span className={subscriptionStyles.subscriptionIcon}>∞</span>
-                  <span>Unlimited Git Providers</span>
+                  <span>Unlimited Active Repositories</span>
                 </div>
                 <div className={subscriptionStyles.subscriptionItem}>
                   <span className={subscriptionStyles.subscriptionIcon}>∞</span>

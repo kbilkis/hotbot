@@ -27,7 +27,7 @@ export default function UpgradeSuccess() {
           to all Pro features including:
         </p>
         <ul className={authStyles.featureList}>
-          <li>Unlimited Git providers</li>
+          <li>Unlimited active repositories</li>
           <li>Unlimited messaging providers</li>
           <li>Unlimited schedules</li>
           <li>Any schedule frequency</li>

@@ -1,5 +1,4 @@
 import {
-  canCreateGitProvider,
   canCreateMessagingProvider,
   canCreateCronJob,
   validateCronInterval,
@@ -13,20 +12,6 @@ export class TierLimitError extends Error {
   constructor(message: string, public validationResult: UsageValidationResult) {
     super(message);
     this.name = "TierLimitError";
-  }
-}
-
-/**
- * Middleware to check git provider creation limits
- */
-export async function checkGitProviderLimits(userId: string): Promise<void> {
-  const validation = await canCreateGitProvider(userId);
-
-  if (!validation.allowed) {
-    throw new TierLimitError(
-      validation.reason || "Git provider limit exceeded",
-      validation
-    );
   }
 }
 

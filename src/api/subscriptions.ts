@@ -2,6 +2,7 @@ import { arktypeValidator } from "@hono/arktype-validator";
 import { type } from "arktype";
 import { Hono } from "hono";
 
+import { TIER_LIMITS } from "@/lib/access-control";
 import { getCurrentUserId, getCurrentUser } from "@/lib/auth/clerk";
 import {
   getSubscriptionByUserId,
@@ -215,31 +216,12 @@ const subscriptions = new Hono()
         tier: "free",
         status: "active",
         usage,
-        limits: {
-          gitProviders: 1,
-          messagingProviders: 1,
-          cronJobs: 1,
-          minCronInterval: 24,
-        },
+        limits: TIER_LIMITS.free,
         billing: null,
       });
     }
 
-    // Define tier limits
-    const tierLimits = {
-      free: {
-        gitProviders: 1,
-        messagingProviders: 1,
-        cronJobs: 1,
-        minCronInterval: 24,
-      },
-      pro: {
-        gitProviders: null, // unlimited
-        messagingProviders: null, // unlimited
-        cronJobs: null, // unlimited
-        minCronInterval: 0,
-      },
-    };
+    // Use centralized tier limits
 
     // Prepare billing information
     const billing = subscription.stripeSubscriptionId
@@ -257,7 +239,7 @@ const subscriptions = new Hono()
       tier: subscription.tier,
       status: subscription.status,
       usage,
-      limits: tierLimits[subscription.tier],
+      limits: TIER_LIMITS[subscription.tier],
       billing,
       createdAt: subscription.createdAt?.toISOString(),
       updatedAt: subscription.updatedAt?.toISOString(),

@@ -2,6 +2,11 @@ import { arktypeValidator } from "@hono/arktype-validator";
 import { Hono } from "hono";
 
 import {
+  canCreateScheduleForRepository,
+  getUserTier,
+  getTierLimits,
+} from "@/lib/access-control";
+import {
   checkCronJobLimits,
   checkCronJobInterval,
 } from "@/lib/access-control/middleware";
@@ -14,6 +19,7 @@ import {
   deleteCronJob,
   toggleCronJobStatus,
 } from "@/lib/database/queries/cron-jobs";
+import { getUserUsage } from "@/lib/database/queries/subscriptions";
 import { createErrorResponse } from "@/lib/errors/api-error";
 import { processJob as notificationProcessor } from "@/lib/notifications/processor";
 import {
@@ -61,6 +67,20 @@ const app = new Hono()
     // Check tier limits before creating cron job
     await checkCronJobLimits(userId);
 
+    // Check repository limits for the new schedule
+    const repositoryCheck = await canCreateScheduleForRepository(
+      userId,
+      jobData.repositories
+    );
+    if (!repositoryCheck.allowed) {
+      return createErrorResponse(
+        c,
+        403,
+        "Repository limit exceeded",
+        repositoryCheck.reason || "Repository limit exceeded"
+      );
+    }
+
     // Validate cron interval for user's tier
     await checkCronJobInterval(userId, jobData.cronExpression);
 
@@ -92,6 +112,56 @@ const app = new Hono()
 
     // Extract the update data (excluding id) - cron expression is already in UTC
     const { id: _, ...jobUpdates } = updateData;
+
+    // Check repository limits if repositories are being updated
+    if (jobUpdates.repositories) {
+      // Get the current job to exclude its repositories from the count
+      const currentJob = await getCronJobById(id, userId);
+      if (!currentJob) {
+        return createErrorResponse(
+          c,
+          404,
+          "Cron job not found",
+          "Cron job not found"
+        );
+      }
+
+      // Get current usage and calculate what the new usage would be
+      const currentUsage = await getUserUsage(userId);
+
+      // Remove current job's repositories from the active repositories count
+      const currentJobRepos = new Set(currentJob.repositories || []);
+      const otherActiveRepos = currentUsage.activeRepositories.filter(
+        (repo) => !currentJobRepos.has(repo)
+      );
+
+      // Calculate what the total active repository count would be after update
+      const allNewActiveRepos = new Set([
+        ...otherActiveRepos,
+        ...jobUpdates.repositories,
+      ]);
+      const newActiveRepoCount = allNewActiveRepos.size;
+
+      // Get tier limits and check against them
+      const tier = await getUserTier(userId);
+      const limits = getTierLimits(tier);
+
+      if (
+        limits.activeRepositories !== null &&
+        newActiveRepoCount > limits.activeRepositories
+      ) {
+        return createErrorResponse(
+          c,
+          403,
+          "Repository limit exceeded",
+          `Free tier is limited to ${
+            limits.activeRepositories
+          } active repositor${
+            limits.activeRepositories === 1 ? "y" : "ies"
+          }. Upgrade to Pro for unlimited repositories.`
+        );
+      }
+    }
 
     // Validate cron interval for user's tier if cronExpression is being updated
     if (jobUpdates.cronExpression) {

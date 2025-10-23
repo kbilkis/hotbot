@@ -3,7 +3,6 @@
 import { arktypeValidator } from "@hono/arktype-validator";
 import { Hono } from "hono";
 
-import { checkGitProviderLimits } from "@/lib/access-control/middleware";
 import { getCurrentUserId } from "@/lib/auth/clerk";
 import {
   getUserGitProvider,
@@ -62,9 +61,6 @@ const app = new Hono()
         );
       }
 
-      // Check tier limits before creating provider
-      await checkGitProviderLimits(userId);
-
       const tokenResponse = await exchangeGitLabToken(
         body.code,
         body.redirectUri
@@ -105,9 +101,6 @@ const app = new Hono()
     async (c) => {
       const { accessToken } = c.req.valid("json");
       const userId = getCurrentUserId(c);
-
-      // Check tier limits before creating provider
-      await checkGitProviderLimits(userId);
 
       // Validate the token by making a test API call
       const gitlabBaseUrl = process.env.GITLAB_BASE_URL || "https://gitlab.com";
