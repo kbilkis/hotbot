@@ -73,30 +73,6 @@ async function getUserTierInfo(userId: string): Promise<UserTierInfo> {
 }
 
 /**
- * Check if user can create a new git provider
- */
-export async function canCreateGitProvider(
-  userId: string
-): Promise<UsageValidationResult> {
-  const [tierInfo, currentUsage] = await Promise.all([
-    getUserTierInfo(userId),
-    getUserUsage(userId),
-  ]);
-
-  const { limits } = tierInfo;
-
-  // Pro tier has unlimited git providers
-  if (limits.gitProviders === null) {
-    return { allowed: true };
-  }
-
-  // Git providers are now unlimited for all tiers
-  // This function is kept for backward compatibility but always allows creation
-
-  return { allowed: true, currentUsage, limits };
-}
-
-/**
  * Check if user can create a new messaging provider
  */
 export async function canCreateMessagingProvider(
@@ -301,60 +277,4 @@ export async function getUserTier(
  */
 export function getTierLimits(tier: SubscriptionTierType): TierLimits {
   return TIER_LIMITS[tier];
-}
-
-/**
- * Get formatted limit description for UI display
- */
-export function formatLimitDescription(
-  tier: SubscriptionTierType,
-  resourceType: keyof TierLimits
-): string {
-  const limits = TIER_LIMITS[tier];
-  const limit = limits[resourceType];
-
-  if (limit === null) {
-    return "Unlimited";
-  }
-
-  const pluralSuffix = limit === 1 ? "" : "s";
-
-  switch (resourceType) {
-    case "gitProviders":
-    case "messagingProviders":
-      return `${limit} provider${pluralSuffix}`;
-    case "activeRepositories":
-      return `${limit} active repositor${limit === 1 ? "y" : "ies"}`;
-    case "cronJobs":
-      return `${limit} schedule${pluralSuffix}`;
-    case "minCronInterval":
-      return limit === 0
-        ? "Any frequency"
-        : `Minimum ${limit} hour${pluralSuffix}`;
-    default:
-      return "Unknown";
-  }
-}
-
-/**
- * Get usage percentage for a specific resource (for progress bars)
- */
-export function getUsagePercentage(
-  current: number,
-  limit: number | null
-): number {
-  if (limit === null) return 0; // Unlimited
-  if (limit === 0) return 100; // No limit allowed
-  return Math.min(100, (current / limit) * 100);
-}
-
-/**
- * Check if user is approaching their limit (80% threshold)
- */
-export function isApproachingLimit(
-  current: number,
-  limit: number | null
-): boolean {
-  if (limit === null) return false; // Unlimited
-  return getUsagePercentage(current, limit) >= 80;
 }

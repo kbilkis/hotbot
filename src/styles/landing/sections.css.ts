@@ -244,22 +244,6 @@ export const flowDiagram = style([
   },
 ]);
 
-export const flowArrow = style({
-  fontSize: tokens.fontSize.xl,
-  color: tokens.colors.textMuted,
-  "@media": {
-    "(max-width: 768px)": {
-      transform: "rotate(90deg)",
-    },
-  },
-});
-
-export const flowLabel = style({
-  fontSize: tokens.fontSize.sm,
-  color: tokens.colors.textMuted,
-  fontWeight: tokens.fontWeight.medium,
-});
-
 // CTA Repeat Section
 export const ctaRepeat = style([
   utils.textCenter,

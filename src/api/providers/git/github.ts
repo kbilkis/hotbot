@@ -1,6 +1,7 @@
 // GitHub provider API routes - simple functional approach
 
 import { arktypeValidator } from "@hono/arktype-validator";
+import { type } from "arktype";
 import { Hono } from "hono";
 
 import { getCurrentUserId } from "@/lib/auth/clerk";
@@ -68,9 +69,9 @@ const app = new Hono()
       const providerData = {
         userId,
         provider: "github" as const,
+        connectionType: "user_oauth" as const,
         accessToken: tokenResponse.accessToken,
         refreshToken: tokenResponse.refreshToken || null,
-        repositories: null, // Will be set later in schedule configuration
       };
 
       const savedProvider = await upsertGitProvider(providerData);
@@ -117,10 +118,10 @@ const app = new Hono()
       const providerData = {
         userId,
         provider: "github" as const,
+        connectionType: "user_oauth" as const,
         accessToken: accessToken,
         refreshToken: null,
         expiresAt: null,
-        repositories: null,
       };
 
       const savedProvider = await upsertGitProvider(providerData);
@@ -151,13 +152,66 @@ const app = new Hono()
       );
     }
 
-    const repositories = await getGitHubRepositories(gitProvider.accessToken);
+    const repositories = await getGitHubRepositories(
+      gitProvider.accessToken,
+      gitProvider.connectionType as "user_oauth" | "github_app"
+    );
 
     return c.json({
       success: true,
       message: "Repositories fetched successfully",
       data: { repositories },
     });
-  });
+  })
+  // POST /api/providers/git/github/app/connect - Connect via GitHub App installation
+  .post(
+    "/app/connect",
+    arktypeValidator("json", type({ installationId: "string" })),
+    async (c) => {
+      const { installationId } = c.req.valid("json");
+      const userId = getCurrentUserId(c);
+
+      try {
+        const { getGitHubAppInstallationToken } = await import("@/lib/github");
+
+        // Get installation token
+        const { token, expiresAt } = await getGitHubAppInstallationToken(
+          installationId
+        );
+
+        // Store the GitHub App connection
+        const providerData = {
+          userId,
+          provider: "github" as const,
+          connectionType: "github_app" as const,
+          accessToken: token,
+          refreshToken: null,
+          expiresAt: new Date(expiresAt),
+        };
+
+        const savedProvider = await upsertGitProvider(providerData);
+
+        return c.json({
+          success: true,
+          message: "Successfully connected via GitHub App",
+          provider: {
+            id: savedProvider.id,
+            provider: savedProvider.provider,
+            connected: true,
+            connectedAt: savedProvider.createdAt?.toISOString(),
+            installationId,
+          },
+        });
+      } catch (error) {
+        console.error("Failed to connect GitHub App:", error);
+        return createErrorResponse(
+          c,
+          500,
+          "Failed to connect GitHub App",
+          error instanceof Error ? error.message : "Unknown error"
+        );
+      }
+    }
+  );
 
 export default app;

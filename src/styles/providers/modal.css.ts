@@ -318,3 +318,71 @@ export const modalFooterButtons = style({
     },
   },
 });
+// Connection Type Selection
+export const connectionTypeSection = style({
+  marginBottom: tokens.space[6],
+  padding: tokens.space[4],
+  background: tokens.colors.gray50,
+  borderRadius: tokens.borderRadius.lg,
+  border: `1px solid ${tokens.colors.borderLight}`,
+});
+
+export const sectionTitle = style({
+  fontSize: tokens.fontSize.lg,
+  fontWeight: tokens.fontWeight.semibold,
+  color: tokens.colors.text,
+  margin: 0,
+  marginBottom: tokens.space[4],
+});
+
+export const connectionOptions = style({
+  display: "flex",
+  flexDirection: "column",
+  gap: tokens.space[3],
+});
+
+export const connectionOption = style({
+  display: "flex",
+  alignItems: "flex-start",
+  gap: tokens.space[3],
+  padding: tokens.space[4],
+  background: tokens.colors.white,
+  border: `2px solid ${tokens.colors.border}`,
+  borderRadius: tokens.borderRadius.lg,
+  cursor: "pointer",
+  transition: "all 0.2s ease",
+  selectors: {
+    "&:hover": {
+      borderColor: tokens.colors.primary,
+      background: tokens.colors.primaryLight,
+    },
+    "&:has(input:checked)": {
+      borderColor: tokens.colors.primary,
+      background: tokens.colors.primaryLight,
+    },
+  },
+});
+
+export const connectionOptionContent = style({
+  display: "flex",
+  flexDirection: "column",
+  gap: tokens.space[1],
+  flex: 1,
+});
+
+globalStyle(`${connectionOptionContent} strong`, {
+  fontSize: tokens.fontSize.base,
+  fontWeight: tokens.fontWeight.semibold,
+  color: tokens.colors.text,
+});
+
+globalStyle(`${connectionOptionContent} span`, {
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.textMuted,
+});
+
+globalStyle(`${connectionOptionContent} small`, {
+  fontSize: tokens.fontSize.xs,
+  color: tokens.colors.success,
+  fontWeight: tokens.fontWeight.medium,
+});

@@ -14,6 +14,9 @@ import type {
 const GITHUB_CLIENT_ID = process.env.GITHUB_CLIENT_ID!;
 const GITHUB_CLIENT_SECRET = process.env.GITHUB_CLIENT_SECRET!;
 
+const GITHUB_APP_ID = process.env.GITHUB_APP_ID!;
+const GITHUB_APP_PRIVATE_KEY = process.env.GITHUB_APP_PRIVATE_KEY!;
+
 // Generate GitHub OAuth URL
 export function getGitHubAuthUrl(
   state: string,
@@ -98,31 +101,55 @@ async function githubApiRequest<T>(
     throw new Error(`GitHub API error: ${response.status} ${errorText}`);
   }
 
-  return response.json() as Promise<T>;
+  return response.json();
 }
 
 // Get user repositories
-export async function getGitHubRepositories(token: string): Promise<string[]> {
-  const repos = await githubApiRequest<GitHubRepository[]>(
+// Get repositories for OAuth connections
+async function getGitHubOAuthRepositories(token: string): Promise<string[]> {
+  const userRepos = await githubApiRequest<GitHubRepository[]>(
     "/user/repos?type=all&sort=updated&per_page=100",
     token
   );
 
-  return repos
+  return userRepos
     .filter((repo) => !repo.archived && !repo.disabled)
     .map((repo) => repo.full_name);
+}
+
+// Get repositories for GitHub App connections
+async function getGitHubAppRepositories(token: string): Promise<string[]> {
+  const installationRepos = await githubApiRequest<{
+    repositories: GitHubRepository[];
+  }>("/installation/repositories", token);
+
+  return installationRepos.repositories
+    .filter((repo) => !repo.archived && !repo.disabled)
+    .map((repo) => repo.full_name);
+}
+
+// Main function that delegates to the appropriate method based on connection type
+export async function getGitHubRepositories(
+  token: string,
+  connectionType: "user_oauth" | "github_app"
+): Promise<string[]> {
+  return connectionType === "github_app"
+    ? await getGitHubAppRepositories(token)
+    : await getGitHubOAuthRepositories(token);
 }
 
 // Get pull requests for repositories
 export async function getGitHubPullRequests(
   token: string,
   repositories?: string[],
-  filters?: PRFilters
+  filters?: PRFilters,
+  connectionType: "user_oauth" | "github_app" = "user_oauth"
 ): Promise<GitHubPR[]> {
   const allPRs: GitHubPR[] = [];
 
   // If no repositories specified, get all accessible repositories
-  const reposToCheck = repositories || (await getGitHubRepositories(token));
+  const reposToCheck =
+    repositories || (await getGitHubRepositories(token, connectionType));
 
   // Fetch PRs from each repository
   for (const repo of reposToCheck) {
@@ -362,4 +389,75 @@ function applyPRFilters(
 
     return true;
   });
+}
+// ============================================================================
+// GitHub App Authentication Functions
+// ============================================================================
+
+/**
+ * Generate a JWT for GitHub App authentication
+ * JWTs are short-lived (max 10 minutes) and used to get installation tokens
+ */
+async function generateGitHubAppJWT(): Promise<string> {
+  const now = Math.floor(Date.now() / 1000);
+
+  // Create JWT payload
+  const payload = {
+    iat: now, // Issued at time
+    exp: now + 600, // Expires in 10 minutes (GitHub's max)
+    iss: GITHUB_APP_ID, // Issuer (GitHub App ID)
+  };
+
+  // Dynamic import to avoid module resolution issues
+  const jwt = await import("jsonwebtoken");
+
+  // Sign JWT with RSA private key (jsonwebtoken handles RSA format natively)
+  const token = jwt.default.sign(payload, GITHUB_APP_PRIVATE_KEY, {
+    algorithm: "RS256",
+  });
+
+  return token;
+}
+
+/**
+ * Get an installation access token for a specific GitHub App installation
+ * These tokens are short-lived (1 hour) and scoped to the installation
+ */
+export async function getGitHubAppInstallationToken(
+  installationId: string
+): Promise<{
+  token: string;
+  expiresAt: string;
+}> {
+  const jwt = await generateGitHubAppJWT();
+
+  const response = await fetch(
+    `https://api.github.com/app/installations/${installationId}/access_tokens`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "User-Agent": "git-messaging-scheduler/1.0",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `Failed to get installation token: ${response.status} ${errorText}`
+    );
+  }
+
+  const data = (await response.json()) as {
+    token: string;
+    expires_at: string;
+  };
+
+  return {
+    token: data.token,
+    expiresAt: data.expires_at,
+  };
 }

@@ -74,7 +74,6 @@ const app = new Hono()
         expiresAt: tokenResponse.expiresIn
           ? new Date(Date.now() + tokenResponse.expiresIn * 1000)
           : null,
-        repositories: null, // Will be set later in schedule configuration
       };
 
       const savedProvider = await upsertGitProvider(providerData);
@@ -103,8 +102,7 @@ const app = new Hono()
       const userId = getCurrentUserId(c);
 
       // Validate the token by making a test API call
-      const gitlabBaseUrl = process.env.GITLAB_BASE_URL || "https://gitlab.com";
-      const testResponse = await fetch(`${gitlabBaseUrl}/api/v4/user`, {
+      const testResponse = await fetch(`https://gitlab.com/api/v4/user`, {
         headers: {
           Authorization: `Bearer ${accessToken}`,
           "User-Agent": "git-messaging-scheduler/1.0",
@@ -128,7 +126,6 @@ const app = new Hono()
         accessToken: accessToken,
         refreshToken: null,
         expiresAt: null,
-        repositories: null,
       };
 
       const savedProvider = await upsertGitProvider(providerData);

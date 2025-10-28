@@ -93,7 +93,7 @@ export default function AuthCallback() {
         // Redirect to dashboard after a short delay
         setTimeout(() => {
           location.route("/dashboard");
-        }, 2000);
+        }, 4000);
       } catch (err) {
         console.error("OAuth callback failed:", err);
         setStatus("error");

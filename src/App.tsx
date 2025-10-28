@@ -8,6 +8,7 @@ import TawkIdentifier from "./components/auth/TawkIdentifier";
 import Layout from "./components/layout/Layout";
 import { getViteEnvKey } from "./lib/getViteEnvKey";
 import { initSentryClient } from "./lib/sentry";
+import GitHubAppCallback from "./pages/auth/callback/github-app";
 import AuthCallback from "./pages/AuthCallback";
 import Dashboard from "./pages/Dashboard";
 import LandingPage from "./pages/LandingPage";
@@ -51,6 +52,14 @@ function App() {
                 component={() => (
                   <ProtectedRoute>
                     <Subscription />
+                  </ProtectedRoute>
+                )}
+              />
+              <Route
+                path="/auth/callback/github-app"
+                component={() => (
+                  <ProtectedRoute>
+                    <GitHubAppCallback />
                   </ProtectedRoute>
                 )}
               />

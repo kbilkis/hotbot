@@ -130,7 +130,6 @@ async function refreshGitLabToken(refreshToken: string): Promise<{
 }> {
   const GITLAB_CLIENT_ID = process.env.GITLAB_CLIENT_ID!;
   const GITLAB_CLIENT_SECRET = process.env.GITLAB_CLIENT_SECRET!;
-  const GITLAB_BASE_URL = process.env.GITLAB_BASE_URL || "https://gitlab.com";
 
   const params = new URLSearchParams({
     client_id: GITLAB_CLIENT_ID,
@@ -139,7 +138,7 @@ async function refreshGitLabToken(refreshToken: string): Promise<{
     grant_type: "refresh_token",
   });
 
-  const response = await fetch(`${GITLAB_BASE_URL}/oauth/token`, {
+  const response = await fetch(`https://gitlab.com/oauth/token`, {
     method: "POST",
     headers: {
       Accept: "application/json",

@@ -154,7 +154,7 @@ const app = new Hono()
           c,
           403,
           "Repository limit exceeded",
-          `Free tier is limited to ${
+          `Your ${tier} tier is limited to ${
             limits.activeRepositories
           } active repositor${
             limits.activeRepositories === 1 ? "y" : "ies"

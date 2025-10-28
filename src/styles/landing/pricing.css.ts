@@ -195,10 +195,6 @@ export const pricingROI = style([
   },
 ]);
 
-export const roiIcon = style({
-  fontSize: tokens.fontSize.base,
-});
-
 export const pricingNote = style([
   utils.textCenter,
   {

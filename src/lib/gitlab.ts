@@ -11,7 +11,7 @@ import type {
 
 const GITLAB_CLIENT_ID = process.env.GITLAB_CLIENT_ID!;
 const GITLAB_CLIENT_SECRET = process.env.GITLAB_CLIENT_SECRET!;
-const GITLAB_BASE_URL = process.env.GITLAB_BASE_URL || "https://gitlab.com";
+const GITLAB_BASE_URL = "https://gitlab.com";
 
 // Generate GitLab OAuth URL
 export function getGitLabAuthUrl(
@@ -282,25 +282,13 @@ export async function revokeGitLabToken(token: string): Promise<void> {
   });
 
   if (!response.ok) {
-    // If the token is already invalid/revoked, GitLab might return an error
-    // We can consider this a success since the goal is achieved
-    if (response.status === 400) {
-      const errorData = (await response.json().catch(() => ({}))) as {
-        error?: string;
-      };
-      if (
-        errorData.error === "invalid_token" ||
-        errorData.error === "unsupported_token_type"
-      ) {
-        return;
-      }
+    // If the token is already invalid/revoked, that's fine - goal achieved
+    if (response.status === 400 || response.status === 401) {
+      return;
     }
 
-    const errorText = await response.text();
-    const error = new Error(
-      `GitLab app authorization revocation failed: ${response.status} ${errorText}`
-    );
-    throw error;
+    // For other errors, throw with status code
+    throw new Error(`GitLab token revocation failed: ${response.status}`);
   }
 }
 

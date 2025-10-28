@@ -46,9 +46,17 @@ export default function DiscordProviderModal({
       if (userData.success) {
         setUsername(userData.data.username || "Discord User");
       } else {
-        throw userData.message || "Failed to fetch Discord user data";
+        throw new Error(
+          userData.message || "Failed to fetch Discord user data"
+        );
       }
     } catch (err) {
+      console.error("Failed to fetch Discord user data:", err);
+      const errorMessage =
+        err instanceof Error
+          ? err.message
+          : "An unexpected error occurred while fetching Discord user data";
+      setError(`Failed to load user data: ${errorMessage}`);
       Sentry.captureException(err);
     } finally {
       setFetchingUserData(false);

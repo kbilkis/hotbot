@@ -46,7 +46,7 @@ export function categorizePRs(prs: PullRequest[]): PRCategory[] {
 /**
  * Calculate age of PR in days
  */
-export function calculateAgeInDays(createdAt: string): number {
+function calculateAgeInDays(createdAt: string): number {
   return Math.floor(
     (Date.now() - new Date(createdAt).getTime()) / (1000 * 60 * 60 * 24)
   );

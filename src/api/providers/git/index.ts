@@ -48,7 +48,10 @@ const app = new Hono()
       // Call the appropriate provider API based on provider type
       switch (gitProvider.provider) {
         case "github":
-          repositories = await getGitHubRepositories(gitProvider.accessToken);
+          repositories = await getGitHubRepositories(
+            gitProvider.accessToken,
+            gitProvider.connectionType as "user_oauth" | "github_app"
+          );
           break;
         case "gitlab":
           repositories = await getGitLabProjects(gitProvider.accessToken);
@@ -108,7 +111,6 @@ const app = new Hono()
         name: provider.name,
         connected: !!connected,
         connectedAt: connected?.createdAt?.toISOString(),
-        repositories: connected?.repositories || [],
       };
     });
 

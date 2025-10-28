@@ -462,24 +462,6 @@ export const chartBarFillAfter = style([
   },
 ]);
 
-export const tileValue = style({
-  fontSize: "2rem",
-  fontWeight: 700,
-  color: "#111827",
-  marginBottom: "0.5rem",
-});
-
-export const trendArrow = style({
-  fontSize: "1.25rem",
-  marginLeft: "0.5rem",
-});
-
-export const tileLabel = style({
-  fontSize: "0.875rem",
-  color: tokens.colors.textMuted,
-  fontWeight: 500,
-});
-
 // FAQ Section
 export const faq = style({
   padding: "6rem 0",

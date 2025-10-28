@@ -1,0 +1,1 @@
+ALTER TABLE `git_providers` ADD `connection_type` text DEFAULT 'user_oauth' NOT NULL;

@@ -149,39 +149,3 @@ async function sendEscalationNotification(
     `Unsupported escalation provider: ${escalationProvider.provider}`
   );
 }
-
-/**
- * Calculate the age of a pull request in days
- */
-export function calculatePRAge(createdAt: string): number {
-  const now = Date.now();
-  const prCreated = new Date(createdAt).getTime();
-  return Math.floor((now - prCreated) / (1000 * 60 * 60 * 24));
-}
-
-/**
- * Check if a pull request should be escalated based on age and escalation settings
- */
-export function shouldEscalatePR(
-  pr: PullRequest,
-  escalationDays: number,
-  lastEscalatedAt?: Date
-): boolean {
-  const prAge = calculatePRAge(pr.createdAt);
-
-  // PR must be older than escalation threshold
-  if (prAge < escalationDays) {
-    return false;
-  }
-
-  // If never escalated, escalate now
-  if (!lastEscalatedAt) {
-    return true;
-  }
-
-  // Re-escalate every 7 days after first escalation
-  const daysSinceLastEscalation =
-    (Date.now() - lastEscalatedAt.getTime()) / (1000 * 60 * 60 * 24);
-
-  return daysSinceLastEscalation >= 7;
-}

@@ -58,16 +58,6 @@ export const errorText = style({
   fontWeight: tokens.fontWeight.medium,
 });
 
-// Upgrade Result Pages
-export const upgradeResultPage = style([
-  utils.flexCenter,
-  {
-    minHeight: "100vh",
-    background: `linear-gradient(135deg, ${tokens.colors.gray50} 0%, ${tokens.colors.gray200} 100%)`,
-    padding: tokens.space[8],
-  },
-]);
-
 const upgradeResultContent = style({});
 
 globalStyle(`${upgradeResultContent} h1`, {

@@ -228,7 +228,8 @@ async function fetchPullRequests(job: CronJob, gitProvider: GitProvider) {
     return await getGitHubPullRequests(
       gitProvider.accessToken,
       job.repositories,
-      job.prFilters as PRFilters
+      job.prFilters as PRFilters,
+      gitProvider.connectionType as "user_oauth" | "github_app"
     );
   }
 

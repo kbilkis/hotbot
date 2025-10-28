@@ -193,9 +193,6 @@ export const methodTabActive = style([
   },
 ]);
 
-// Webhook Section
-export const webhookConnectSection = style([utils.flexCol, utils.gap4]);
-
 export const discordSetupInfo = style({
   background: tokens.colors.gray50,
   border: `1px solid ${tokens.colors.border}`,

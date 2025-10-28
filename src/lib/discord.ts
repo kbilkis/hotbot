@@ -381,41 +381,33 @@ export async function validateDiscordToken(token: string): Promise<boolean> {
 }
 
 // Leave Discord guild using bot token (removes bot from server)
-export async function leaveDiscordGuild(guildId: string): Promise<void> {
+async function leaveDiscordGuild(guildId: string): Promise<void> {
   const botToken = process.env.DISCORD_BOT_TOKEN;
   if (!botToken) {
     throw new Error("Discord bot token not configured");
   }
 
-  try {
-    // Use bot token to leave the guild - bots can remove themselves from guilds
-    // Don't use discordBotApiRequest because it sets JSON headers, but this endpoint expects no body
-    const response = await fetch(
-      `https://discord.com/api/v10/users/@me/guilds/${guildId}`,
-      {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bot ${botToken}`,
-          "User-Agent": "git-messaging-scheduler/1.0",
-        },
-      }
-    );
-
-    if (!response.ok) {
-      // If we're already not in the guild, that's fine
-      if (response.status === 404) {
-        return;
-      }
-
-      const errorText = await response.text();
-      throw new Error(`Discord Bot API error: ${response.status} ${errorText}`);
+  // Use bot token to leave the guild - bots can remove themselves from guilds
+  // Don't use discordBotApiRequest because it sets JSON headers, but this endpoint expects no body
+  const response = await fetch(
+    `https://discord.com/api/v10/users/@me/guilds/${guildId}`,
+    {
+      method: "DELETE",
+      headers: {
+        Authorization: `Bot ${botToken}`,
+        "User-Agent": "git-messaging-scheduler/1.0",
+      },
     }
-  } catch (error) {
-    // If we're already not in the guild or don't have access, that's fine
-    if (error instanceof Error && error.message.includes("404")) {
+  );
+
+  if (!response.ok) {
+    // If we're already not in the guild, that's fine
+    if (response.status === 404) {
       return;
     }
-    throw error;
+
+    const errorText = await response.text();
+    throw new Error(`Discord Bot API error: ${response.status} ${errorText}`);
   }
 }
 

@@ -15,6 +15,20 @@
       "when": 1759487281781,
       "tag": "0001_naive_major_mapleleaf",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1761667475902,
+      "tag": "0002_jazzy_solo",
+      "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1761672645038,
+      "tag": "0003_milky_agent_brand",
+      "breakpoints": true
     }
   ]
 }

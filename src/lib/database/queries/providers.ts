@@ -30,7 +30,6 @@ export async function upsertGitProvider(
         accessToken: providerData.accessToken,
         refreshToken: providerData.refreshToken,
         expiresAt: providerData.expiresAt,
-        repositories: providerData.repositories,
         updatedAt: new Date(),
       },
     })

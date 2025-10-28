@@ -20,6 +20,11 @@ const auditTimestamps = () => ({
 
 // Define enum values as constants for type safety
 export const GIT_PROVIDERS = ["github", "bitbucket", "gitlab"] as const;
+export const GIT_CONNECTION_TYPES = [
+  "user_oauth", // Personal OAuth (GitHub/GitLab/Bitbucket individual accounts)
+  "group_oauth", // Group/Organization OAuth (GitLab group-owned apps - future)
+  "github_app", // GitHub App installations (organization-wide with webhooks)
+] as const;
 export const MESSAGING_PROVIDERS = ["slack", "teams", "discord"] as const;
 export const EXECUTION_STATUSES = ["success", "error", "partial"] as const;
 export const SUBSCRIPTION_TIERS = ["free", "pro"] as const;
@@ -35,6 +40,7 @@ export const SUBSCRIPTION_STATUSES = [
 
 // Types automatically derived from the const arrays above
 export type GitProviderType = (typeof GIT_PROVIDERS)[number];
+export type GitConnectionType = (typeof GIT_CONNECTION_TYPES)[number];
 export type MessagingProviderType = (typeof MESSAGING_PROVIDERS)[number];
 export type ExecutionStatusType = (typeof EXECUTION_STATUSES)[number];
 export type SubscriptionTierType = (typeof SUBSCRIPTION_TIERS)[number];
@@ -77,10 +83,12 @@ export const gitProviders = sqliteTable(
       .references(() => users.id, { onDelete: "cascade" })
       .notNull(),
     provider: text({ enum: GIT_PROVIDERS }).notNull(),
+    connectionType: text("connection_type", { enum: GIT_CONNECTION_TYPES })
+      .notNull()
+      .default("user_oauth"),
     accessToken: text("access_token").notNull(),
     refreshToken: text("refresh_token"),
     expiresAt: integer("expires_at", { mode: "timestamp" }),
-    repositories: text("repositories", { mode: "json" }).$type<string[]>(),
     ...auditTimestamps(),
   },
   (table) => [

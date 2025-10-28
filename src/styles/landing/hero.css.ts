@@ -78,22 +78,6 @@ export const heroSubtitle = style({
   },
 });
 
-export const heroDescription = style({
-  fontSize: tokens.fontSize.lg,
-  marginBottom: tokens.space[6],
-  color: tokens.colors.textMuted,
-  lineHeight: tokens.lineHeight.relaxed,
-  "@media": {
-    "(max-width: 768px)": {
-      fontSize: "1rem",
-    },
-  },
-});
-
-export const trustIcon = style({
-  fontSize: tokens.fontSize.base,
-});
-
 export const heroButtons = style([
   utils.flex,
   {

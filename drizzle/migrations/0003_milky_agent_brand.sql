@@ -1,0 +1,1 @@
+ALTER TABLE `git_providers` DROP COLUMN `repositories`;
