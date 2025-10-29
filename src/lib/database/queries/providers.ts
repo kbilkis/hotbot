@@ -30,6 +30,7 @@ export async function upsertGitProvider(
         accessToken: providerData.accessToken,
         refreshToken: providerData.refreshToken,
         expiresAt: providerData.expiresAt,
+        installationId: providerData.installationId,
         updatedAt: new Date(),
       },
     })
@@ -253,4 +254,60 @@ export async function deleteMessagingProvider(
   const result = await db.delete(messagingProviders).where(and(...conditions));
 
   return result.rowsAffected > 0;
+}
+/**
+ * Check if a GitHub App installation is already owned by another user
+ * Returns the owner's information if installation is claimed, null if available
+ */
+async function getGitHubInstallationOwner(
+  installationId: string
+): Promise<{ userId: string; id: string } | null> {
+  if (!installationId) {
+    return null;
+  }
+
+  const [existingInstallation] = await db
+    .select({
+      userId: gitProviders.userId,
+      id: gitProviders.id,
+    })
+    .from(gitProviders)
+    .where(
+      and(
+        eq(gitProviders.installationId, installationId),
+        eq(gitProviders.provider, "github"),
+        eq(gitProviders.connectionType, "github_app")
+      )
+    )
+    .limit(1);
+
+  return existingInstallation || null;
+}
+/**
+ * Check if a user can connect a GitHub App installation
+ * Returns true if installation is available or already owned by the user
+ */
+export async function canConnectGitHubInstallation(
+  userId: string,
+  installationId: string
+): Promise<{
+  canConnect: boolean;
+  reason?: string;
+  existingOwner?: string;
+}> {
+  const existingOwner = await getGitHubInstallationOwner(installationId);
+
+  if (!existingOwner) {
+    return { canConnect: true };
+  }
+
+  if (existingOwner.userId === userId) {
+    return { canConnect: true, reason: "already_owned" };
+  }
+
+  return {
+    canConnect: false,
+    reason: "owned_by_another_user",
+    existingOwner: existingOwner.userId,
+  };
 }

@@ -86,14 +86,6 @@ export default function GitHubAppCallback() {
           <div style={{ fontSize: "48px", marginBottom: "20px" }}>✅</div>
           <h2>GitHub App Connected!</h2>
           <p>{message}</p>
-          <div>
-            <p>You now have access to:</p>
-            <ul style={{ textAlign: "left", marginTop: "16px" }}>
-              <li>Real-time webhook notifications</li>
-              <li>Higher API rate limits</li>
-              <li>Organization-wide repository access</li>
-            </ul>
-          </div>
           <p>Redirecting you to the dashboard...</p>
         </>
       )}

@@ -8,12 +8,16 @@ import { getCurrentUserId } from "@/lib/auth/clerk";
 import {
   getUserGitProvider,
   upsertGitProvider,
+  canConnectGitHubInstallation,
 } from "@/lib/database/queries/providers";
 import { createErrorResponse } from "@/lib/errors/api-error";
 import {
   getGitHubAuthUrl,
   exchangeGitHubToken,
   getGitHubRepositories,
+  getGitHubAppInstallationDetails,
+  getGitHubAppInstallationToken,
+  getGitHubAppRepositoriesByInstallation,
 } from "@/lib/github";
 import { OAuthStateManager } from "@/lib/redis/oauth-state";
 import {
@@ -152,10 +156,26 @@ const app = new Hono()
       );
     }
 
-    const repositories = await getGitHubRepositories(
-      gitProvider.accessToken,
-      gitProvider.connectionType as "user_oauth" | "github_app"
-    );
+    let repositories: string[];
+
+    if (gitProvider.connectionType === "github_app") {
+      if (!gitProvider.installationId) {
+        return createErrorResponse(
+          c,
+          500,
+          "Invalid GitHub App connection",
+          "Missing installation ID"
+        );
+      }
+      repositories = await getGitHubAppRepositoriesByInstallation(
+        gitProvider.installationId
+      );
+    } else {
+      repositories = await getGitHubRepositories(
+        gitProvider.accessToken,
+        "user_oauth"
+      );
+    }
 
     return c.json({
       success: true,
@@ -171,46 +191,69 @@ const app = new Hono()
       const { installationId } = c.req.valid("json");
       const userId = getCurrentUserId(c);
 
-      try {
-        const { getGitHubAppInstallationToken } = await import("@/lib/github");
+      // SECURITY: Verify installation ownership before granting access
+      // Step 1: Get installation details to verify it exists and we have access
+      const installationDetails = await getGitHubAppInstallationDetails(
+        installationId
+      );
 
-        // Get installation token
-        const { token, expiresAt } = await getGitHubAppInstallationToken(
-          installationId
+      // Step 2: Check if installation is already owned by another user
+      const connectionCheck = await canConnectGitHubInstallation(
+        userId,
+        installationId
+      );
+
+      if (!connectionCheck.canConnect) {
+        console.warn(
+          `Security violation: User ${userId} attempted to connect installation ${installationId} already owned by user ${connectionCheck.existingOwner}`
         );
-
-        // Store the GitHub App connection
-        const providerData = {
-          userId,
-          provider: "github" as const,
-          connectionType: "github_app" as const,
-          accessToken: token,
-          refreshToken: null,
-          expiresAt: new Date(expiresAt),
-        };
-
-        const savedProvider = await upsertGitProvider(providerData);
-
-        return c.json({
-          success: true,
-          message: "Successfully connected via GitHub App",
-          provider: {
-            id: savedProvider.id,
-            provider: savedProvider.provider,
-            connected: true,
-            connectedAt: savedProvider.createdAt?.toISOString(),
-            installationId,
-          },
-        });
-      } catch (error) {
-        console.error("Failed to connect GitHub App:", error);
         return createErrorResponse(
           c,
-          500,
-          "Failed to connect GitHub App",
-          error instanceof Error ? error.message : "Unknown error"
+          409,
+          "Installation already connected",
+          "This GitHub App installation is already connected to another account. Each installation can only be connected once."
         );
       }
+
+      if (connectionCheck.reason === "already_owned") {
+        console.log(
+          `User ${userId} reconnecting to their own installation ${installationId}`
+        );
+      }
+
+      // Step 3: Verify installation exists and we can access it
+      // This will fail if the installation doesn't exist or our app isn't installed
+      await getGitHubAppInstallationToken(installationId);
+
+      // Log for security audit purposes
+      console.log(
+        `User ${userId} connecting to GitHub App installation ${installationId} for account ${installationDetails.account.login} (${installationDetails.account.type})`
+      );
+
+      // Store the GitHub App connection (no access token - we generate on-demand)
+      const providerData = {
+        userId,
+        provider: "github" as const,
+        connectionType: "github_app" as const,
+        accessToken: "", // Placeholder - tokens are generated on-demand
+        refreshToken: null,
+        expiresAt: null, // No expiration for the connection itself
+        installationId,
+      };
+
+      const savedProvider = await upsertGitProvider(providerData);
+
+      return c.json({
+        success: true,
+        message: "Successfully connected via GitHub App",
+        provider: {
+          id: savedProvider.id,
+          provider: savedProvider.provider,
+          connected: true,
+          connectedAt: savedProvider.createdAt?.toISOString(),
+          installationId,
+        },
+      });
     }
   );
 

@@ -5,6 +5,10 @@
 import * as Sentry from "@sentry/google-cloud-serverless";
 import { CronExpressionParser } from "cron-parser";
 
+import {
+  getGitHubAppPullRequestsByInstallation,
+  getGitHubPullRequests,
+} from "@/lib/github";
 import type { PullRequest } from "@/types/pull-request";
 
 import {
@@ -23,7 +27,6 @@ import {
   CronJob,
 } from "../database/schema";
 import { formatDiscordPRMessage, sendDiscordChannelMessage } from "../discord";
-import { getGitHubPullRequests } from "../github";
 import { getGitLabMergeRequests } from "../gitlab";
 import { formatSlackPRMessage, sendSlackMessage } from "../slack";
 
@@ -225,12 +228,23 @@ export async function processJob(job: CronJob): Promise<void> {
  */
 async function fetchPullRequests(job: CronJob, gitProvider: GitProvider) {
   if (gitProvider.provider === "github") {
-    return await getGitHubPullRequests(
-      gitProvider.accessToken,
-      job.repositories,
-      job.prFilters as PRFilters,
-      gitProvider.connectionType as "user_oauth" | "github_app"
-    );
+    if (gitProvider.connectionType === "github_app") {
+      if (!gitProvider.installationId) {
+        throw new Error("GitHub App connection missing installation ID");
+      }
+      return await getGitHubAppPullRequestsByInstallation(
+        gitProvider.installationId,
+        job.repositories,
+        job.prFilters as PRFilters
+      );
+    } else {
+      return await getGitHubPullRequests(
+        gitProvider.accessToken,
+        job.repositories,
+        job.prFilters as PRFilters,
+        "user_oauth"
+      );
+    }
   }
 
   if (gitProvider.provider === "gitlab") {

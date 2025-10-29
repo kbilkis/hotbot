@@ -1,5 +1,6 @@
 // Simple GitHub API functions
 import * as Sentry from "@sentry/cloudflare";
+import jwt from "jsonwebtoken";
 
 import type {
   GitHubRepository,
@@ -267,8 +268,221 @@ function determineStatus(pr: GitHubPullRequest): "open" | "closed" | "merged" {
 }
 
 // Revoke GitHub app authorization (more complete than just token revocation)
-export async function revokeGitHubToken(token: string): Promise<void> {
-  // Try to revoke the entire app authorization using Basic auth with client credentials
+export async function revokeGitHubToken(
+  token: string,
+  connectionType: "user_oauth" | "github_app" = "user_oauth",
+  installationId?: string
+): Promise<void> {
+  // GitHub App - uninstall the app from the user's account/organization
+  if (connectionType === "github_app") {
+    if (!installationId) {
+      throw new Error("Installation ID is required to revoke GitHub App");
+    }
+
+    await revokeGitHubAppInstallation(installationId);
+    console.log(
+      `Successfully uninstalled GitHub App installation ${installationId}`
+    );
+    return;
+  }
+
+  // OAuth token revocation
+  await revokeGitHubOAuthToken(token);
+  console.log("Successfully revoked GitHub OAuth token");
+}
+
+// Apply PR filters
+function applyPRFilters(
+  pullRequests: GitHubPR[],
+  filters?: PRFilters
+): GitHubPR[] {
+  if (!filters) return pullRequests;
+
+  return pullRequests.filter((pr) => {
+    // Filter by repositories
+    if (filters.repositories && filters.repositories.length > 0) {
+      if (!filters.repositories.includes(pr.repository)) {
+        return false;
+      }
+    }
+
+    // Filter by labels
+    if (filters.labels && filters.labels.length > 0) {
+      const hasMatchingLabel = filters.labels.some((label) =>
+        pr.labels.some((prLabel) =>
+          prLabel.toLowerCase().includes(label.toLowerCase())
+        )
+      );
+      if (!hasMatchingLabel) return false;
+    }
+
+    // Filter by title keywords
+    if (filters.titleKeywords && filters.titleKeywords.length > 0) {
+      const hasMatchingKeyword = filters.titleKeywords.some((keyword) =>
+        pr.title.toLowerCase().includes(keyword.toLowerCase())
+      );
+      if (!hasMatchingKeyword) return false;
+    }
+
+    // Filter by excluded authors
+    if (filters.excludeAuthors && filters.excludeAuthors.length > 0) {
+      if (filters.excludeAuthors.includes(pr.author)) {
+        return false;
+      }
+    }
+
+    // Filter by age
+    if (filters.minAge !== undefined || filters.maxAge !== undefined) {
+      const prAgeInDays =
+        (Date.now() - new Date(pr.createdAt).getTime()) / (1000 * 60 * 60 * 24);
+
+      if (filters.minAge !== undefined && prAgeInDays < filters.minAge) {
+        return false;
+      }
+
+      if (filters.maxAge !== undefined && prAgeInDays > filters.maxAge) {
+        return false;
+      }
+    }
+
+    return true;
+  });
+}
+
+/**
+ * Generate a JWT for GitHub App authentication
+ * JWTs are short-lived (max 10 minutes) and used to get installation tokens
+ */
+async function generateGitHubAppJWT(): Promise<string> {
+  const now = Math.floor(Date.now() / 1000);
+
+  // Create JWT payload
+  const payload = {
+    iat: now, // Issued at time
+    exp: now + 600, // Expires in 10 minutes (GitHub's max)
+    iss: GITHUB_APP_ID, // Issuer (GitHub App ID)
+  };
+
+  // Sign JWT with RSA private key (jsonwebtoken handles RSA format natively)
+  const token = jwt.sign(payload, GITHUB_APP_PRIVATE_KEY, {
+    algorithm: "RS256",
+  });
+
+  return token;
+}
+
+/**
+ * Get an installation access token for a specific GitHub App installation
+ * These tokens are short-lived (1 hour) and scoped to the installation
+ */
+export async function getGitHubAppInstallationToken(
+  installationId: string
+): Promise<{
+  token: string;
+  expiresAt: string;
+}> {
+  const jwt = await generateGitHubAppJWT();
+
+  const response = await fetch(
+    `https://api.github.com/app/installations/${installationId}/access_tokens`,
+    {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "User-Agent": "git-messaging-scheduler/1.0",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `Failed to get installation token: ${response.status} ${errorText}`
+    );
+  }
+
+  const data: {
+    token: string;
+    expires_at: string;
+  } = await response.json();
+  return {
+    token: data.token,
+    expiresAt: data.expires_at,
+  };
+}
+/**
+ * Get installation details for ownership verification
+ * Returns installation info including the account that owns it
+ */
+export async function getGitHubAppInstallationDetails(
+  installationId: string
+): Promise<{
+  id: number;
+  account: {
+    login: string;
+    id: number;
+    type: "User" | "Organization";
+  };
+}> {
+  const jwt = await generateGitHubAppJWT();
+
+  const response = await fetch(
+    `https://api.github.com/app/installations/${installationId}`,
+    {
+      headers: {
+        Authorization: `Bearer ${jwt}`,
+        Accept: "application/vnd.github+json",
+        "X-GitHub-Api-Version": "2022-11-28",
+        "User-Agent": "git-messaging-scheduler/1.0",
+      },
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    throw new Error(
+      `Failed to get installation details: ${response.status} ${errorText}`
+    );
+  }
+
+  return await response.json();
+}
+
+/**
+ * Get repositories for a GitHub App installation (generates token on-demand)
+ */
+export async function getGitHubAppRepositoriesByInstallation(
+  installationId: string
+): Promise<string[]> {
+  const { token } = await getGitHubAppInstallationToken(installationId);
+  return await getGitHubAppRepositories(token);
+}
+
+/**
+ * Get pull requests for a GitHub App installation (generates token on-demand)
+ */
+export async function getGitHubAppPullRequestsByInstallation(
+  installationId: string,
+  repositories?: string[],
+  filters?: PRFilters
+): Promise<GitHubPR[]> {
+  const { token } = await getGitHubAppInstallationToken(installationId);
+  return await getGitHubPullRequests(
+    token,
+    repositories,
+    filters,
+    "github_app"
+  );
+}
+
+/**
+ * Revoke a GitHub OAuth token and app authorization
+ * This removes the app from the user's authorized applications
+ */
+async function revokeGitHubOAuthToken(token: string): Promise<void> {
+  // Try to revoke the entire app authorization first
   // This removes the app from the user's authorized applications
   const response = await fetch(
     `https://api.github.com/applications/${GITHUB_CLIENT_ID}/grant`,
@@ -333,108 +547,18 @@ export async function revokeGitHubToken(token: string): Promise<void> {
   }
 }
 
-// Apply PR filters
-function applyPRFilters(
-  pullRequests: GitHubPR[],
-  filters?: PRFilters
-): GitHubPR[] {
-  if (!filters) return pullRequests;
-
-  return pullRequests.filter((pr) => {
-    // Filter by repositories
-    if (filters.repositories && filters.repositories.length > 0) {
-      if (!filters.repositories.includes(pr.repository)) {
-        return false;
-      }
-    }
-
-    // Filter by labels
-    if (filters.labels && filters.labels.length > 0) {
-      const hasMatchingLabel = filters.labels.some((label) =>
-        pr.labels.some((prLabel) =>
-          prLabel.toLowerCase().includes(label.toLowerCase())
-        )
-      );
-      if (!hasMatchingLabel) return false;
-    }
-
-    // Filter by title keywords
-    if (filters.titleKeywords && filters.titleKeywords.length > 0) {
-      const hasMatchingKeyword = filters.titleKeywords.some((keyword) =>
-        pr.title.toLowerCase().includes(keyword.toLowerCase())
-      );
-      if (!hasMatchingKeyword) return false;
-    }
-
-    // Filter by excluded authors
-    if (filters.excludeAuthors && filters.excludeAuthors.length > 0) {
-      if (filters.excludeAuthors.includes(pr.author)) {
-        return false;
-      }
-    }
-
-    // Filter by age
-    if (filters.minAge !== undefined || filters.maxAge !== undefined) {
-      const prAgeInDays =
-        (Date.now() - new Date(pr.createdAt).getTime()) / (1000 * 60 * 60 * 24);
-
-      if (filters.minAge !== undefined && prAgeInDays < filters.minAge) {
-        return false;
-      }
-
-      if (filters.maxAge !== undefined && prAgeInDays > filters.maxAge) {
-        return false;
-      }
-    }
-
-    return true;
-  });
-}
-// ============================================================================
-// GitHub App Authentication Functions
-// ============================================================================
-
 /**
- * Generate a JWT for GitHub App authentication
- * JWTs are short-lived (max 10 minutes) and used to get installation tokens
+ * Revoke a GitHub App installation (uninstall the app)
  */
-async function generateGitHubAppJWT(): Promise<string> {
-  const now = Math.floor(Date.now() / 1000);
-
-  // Create JWT payload
-  const payload = {
-    iat: now, // Issued at time
-    exp: now + 600, // Expires in 10 minutes (GitHub's max)
-    iss: GITHUB_APP_ID, // Issuer (GitHub App ID)
-  };
-
-  // Dynamic import to avoid module resolution issues
-  const jwt = await import("jsonwebtoken");
-
-  // Sign JWT with RSA private key (jsonwebtoken handles RSA format natively)
-  const token = jwt.default.sign(payload, GITHUB_APP_PRIVATE_KEY, {
-    algorithm: "RS256",
-  });
-
-  return token;
-}
-
-/**
- * Get an installation access token for a specific GitHub App installation
- * These tokens are short-lived (1 hour) and scoped to the installation
- */
-export async function getGitHubAppInstallationToken(
+async function revokeGitHubAppInstallation(
   installationId: string
-): Promise<{
-  token: string;
-  expiresAt: string;
-}> {
+): Promise<void> {
   const jwt = await generateGitHubAppJWT();
 
   const response = await fetch(
-    `https://api.github.com/app/installations/${installationId}/access_tokens`,
+    `https://api.github.com/app/installations/${installationId}`,
     {
-      method: "POST",
+      method: "DELETE",
       headers: {
         Authorization: `Bearer ${jwt}`,
         Accept: "application/vnd.github+json",
@@ -447,17 +571,7 @@ export async function getGitHubAppInstallationToken(
   if (!response.ok) {
     const errorText = await response.text();
     throw new Error(
-      `Failed to get installation token: ${response.status} ${errorText}`
+      `Failed to revoke GitHub App installation: ${response.status} ${errorText}`
     );
   }
-
-  const data = (await response.json()) as {
-    token: string;
-    expires_at: string;
-  };
-
-  return {
-    token: data.token,
-    expiresAt: data.expires_at,
-  };
 }

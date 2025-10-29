@@ -141,7 +141,11 @@ const app = new Hono()
     try {
       switch (type) {
         case "github":
-          await revokeGitHubToken(gitProvider.accessToken);
+          await revokeGitHubToken(
+            gitProvider.accessToken,
+            gitProvider.connectionType as "user_oauth" | "github_app",
+            gitProvider.installationId || undefined
+          );
           break;
         case "gitlab":
           await revokeGitLabToken(gitProvider.accessToken);

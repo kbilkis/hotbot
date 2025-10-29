@@ -89,15 +89,20 @@ export const gitProviders = sqliteTable(
     accessToken: text("access_token").notNull(),
     refreshToken: text("refresh_token"),
     expiresAt: integer("expires_at", { mode: "timestamp" }),
+    installationId: text("installation_id"), // For GitHub App installations
     ...auditTimestamps(),
   },
   (table) => [
     // Unique constraint: one provider per user
     unique().on(table.userId, table.provider),
+    // Unique constraint: one installation per GitHub App (prevents installation hijacking)
+    unique("unique_github_installation").on(table.installationId),
     // Index on userId for user-specific queries
     index("git_providers_user_id_idx").on(table.userId),
     // Index on expiresAt for token refresh queries
     index("git_providers_expires_at_idx").on(table.expiresAt),
+    // Index on installationId for installation ownership queries
+    index("git_providers_installation_id_idx").on(table.installationId),
   ]
 );
 

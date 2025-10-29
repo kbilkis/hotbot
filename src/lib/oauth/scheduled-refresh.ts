@@ -249,8 +249,6 @@ async function refreshGitProviderToken(
       refreshResult = await refreshGitLabToken(providerData.refreshToken);
       break;
     case "github":
-      // GitHub tokens don't expire by default, but if you're using GitHub Apps
-      // you might need to implement refresh logic here
       return true;
     case "bitbucket":
       // Implement Bitbucket refresh if needed

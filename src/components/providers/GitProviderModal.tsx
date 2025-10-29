@@ -9,6 +9,7 @@ import { button } from "@/styles/theme/index.css";
 import Modal from "../ui/Modal";
 
 import GitConnectionMethods from "./git/GitConnectionMethods";
+import GitHubConnectionMethods from "./git/GitHubConnectionMethods";
 import GitRepositorySection from "./git/GitRepositorySection";
 
 interface GitProviderModalProps {
@@ -115,11 +116,20 @@ export default function GitProviderModal({
         </>
       )}
       {!isConnected && (
-        <GitConnectionMethods
-          provider={provider}
-          onConnectionSuccess={handleConnectionSuccess}
-          onError={handleConnectionError}
-        />
+        <>
+          {provider.provider === "github" ? (
+            <GitHubConnectionMethods
+              onConnectionSuccess={handleConnectionSuccess}
+              onError={handleConnectionError}
+            />
+          ) : (
+            <GitConnectionMethods
+              provider={provider}
+              onConnectionSuccess={handleConnectionSuccess}
+              onError={handleConnectionError}
+            />
+          )}
+        </>
       )}
     </Modal>
   );

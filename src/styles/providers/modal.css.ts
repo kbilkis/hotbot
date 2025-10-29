@@ -113,7 +113,12 @@ export const formLabel = style({
   marginBottom: tokens.space[2],
 });
 
-export const formInput = utils.inputBase;
+export const formInput = style([
+  utils.inputBase,
+  {
+    paddingLeft: tokens.space[8],
+  },
+]);
 
 export const formHelp = style({
   display: "block",
@@ -303,7 +308,6 @@ export const itemCount = style({
   fontWeight: 500,
 });
 
-// Modal Footer
 export const modalFooterError = style({
   marginBottom: "1rem",
   marginRight: "auto",
@@ -318,7 +322,7 @@ export const modalFooterButtons = style({
     },
   },
 });
-// Connection Type Selection
+
 export const connectionTypeSection = style({
   marginBottom: tokens.space[6],
   padding: tokens.space[4],
@@ -328,11 +332,11 @@ export const connectionTypeSection = style({
 });
 
 export const sectionTitle = style({
-  fontSize: tokens.fontSize.lg,
-  fontWeight: tokens.fontWeight.semibold,
+  fontSize: tokens.fontSize.xl,
+  fontWeight: tokens.fontWeight.bold,
   color: tokens.colors.text,
   margin: 0,
-  marginBottom: tokens.space[4],
+  marginBottom: tokens.space[2],
 });
 
 export const connectionOptions = style({
@@ -385,4 +389,104 @@ globalStyle(`${connectionOptionContent} small`, {
   fontSize: tokens.fontSize.xs,
   color: tokens.colors.success,
   fontWeight: tokens.fontWeight.medium,
+});
+
+export const sectionDescription = style({
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.textMuted,
+  margin: 0,
+  marginBottom: tokens.space[5],
+  lineHeight: "1.4",
+  fontWeight: tokens.fontWeight.normal,
+});
+
+export const personalAccountSection = style({
+  marginTop: tokens.space[6],
+  padding: tokens.space[4],
+  background: tokens.colors.gray50,
+  borderRadius: tokens.borderRadius.lg,
+  border: `1px solid ${tokens.colors.border}`,
+});
+
+export const tokenSection = style({
+  marginTop: tokens.space[4],
+});
+
+export const tokenDetails = style({
+  border: `1px solid ${tokens.colors.border}`,
+  borderRadius: tokens.borderRadius.md,
+  overflow: "hidden",
+});
+
+export const tokenSummary = style({
+  padding: tokens.space[3],
+  background: tokens.colors.gray50,
+  cursor: "pointer",
+  fontSize: tokens.fontSize.sm,
+  fontWeight: tokens.fontWeight.medium,
+  color: tokens.colors.textMuted,
+  userSelect: "none",
+  ":hover": {
+    background: tokens.colors.gray100,
+  },
+});
+
+export const tokenContent = style({
+  padding: tokens.space[4],
+  background: tokens.colors.white,
+  borderTop: `1px solid ${tokens.colors.border}`,
+});
+
+export const personalAccountHeader = style({
+  display: "flex",
+  justifyContent: "space-between",
+  alignItems: "center",
+  marginBottom: tokens.space[4],
+});
+
+export const personalAccountTitle = style({
+  fontSize: tokens.fontSize.base,
+  fontWeight: tokens.fontWeight.medium,
+  color: tokens.colors.textMuted,
+  margin: 0,
+});
+
+export const personalAccountOptions = style({
+  display: "flex",
+  flexDirection: "column",
+  gap: tokens.space[3],
+});
+
+export const tokenInputGroup = style({
+  display: "flex",
+  gap: tokens.space[2],
+  alignItems: "center",
+});
+
+export const tokenInput = style({
+  flex: 1,
+  padding: `${tokens.space[2]} ${tokens.space[3]}`,
+  border: `1px solid ${tokens.colors.border}`,
+  borderRadius: tokens.borderRadius.md,
+  fontSize: tokens.fontSize.sm,
+  color: tokens.colors.text,
+  background: tokens.colors.white,
+  ":focus": {
+    outline: "none",
+    borderColor: tokens.colors.borderFocus,
+    boxShadow: `0 0 0 3px ${tokens.colors.primaryLight}`,
+  },
+  "::placeholder": {
+    color: tokens.colors.textLight,
+  },
+});
+
+export const tokenHelp = style({
+  fontSize: tokens.fontSize.xs,
+  color: tokens.colors.textMuted,
+  marginTop: tokens.space[2],
+});
+
+export const primarySection = style({
+  marginBottom: tokens.space[8],
 });

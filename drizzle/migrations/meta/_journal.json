@@ -29,6 +29,20 @@
       "when": 1761672645038,
       "tag": "0003_milky_agent_brand",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "6",
+      "when": 1761676466496,
+      "tag": "0004_lively_human_robot",
+      "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "6",
+      "when": 1761748430654,
+      "tag": "0005_next_thena",
+      "breakpoints": true
     }
   ]
 }

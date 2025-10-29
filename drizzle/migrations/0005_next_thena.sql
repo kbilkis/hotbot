@@ -1,0 +1,2 @@
+CREATE INDEX `git_providers_installation_id_idx` ON `git_providers` (`installation_id`);--> statement-breakpoint
+CREATE UNIQUE INDEX `unique_github_installation` ON `git_providers` (`installation_id`);

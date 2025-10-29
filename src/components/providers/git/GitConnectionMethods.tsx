@@ -18,9 +18,9 @@ export default function GitConnectionMethods({
   onError,
 }: Readonly<GitConnectionMethodsProps>) {
   const [loading, setLoading] = useState(false);
-  const [connectionType, setConnectionType] = useState<
-    "oauth" | "app" | "manual"
-  >("oauth");
+  const [connectionType, setConnectionType] = useState<"oauth" | "app">(
+    "oauth"
+  );
   const [accessToken, setAccessToken] = useState("");
 
   const providerConfig = {
@@ -173,30 +173,6 @@ export default function GitConnectionMethods({
     }
   };
 
-  const handleGitHubAppInstall = () => {
-    try {
-      setLoading(true);
-      onError("");
-
-      const appName = "hotbot-sh";
-
-      const installUrl = `https://github.com/apps/${appName}/installations/new`;
-
-      console.log("GitHub App installation URL:", installUrl);
-
-      // Redirect to GitHub App installation page
-      globalThis.location.href = installUrl;
-    } catch (err) {
-      console.error("Failed to initiate GitHub App installation:", err);
-      onError(
-        err instanceof Error
-          ? err.message
-          : "Failed to start GitHub App installation"
-      );
-      setLoading(false);
-    }
-  };
-
   return (
     <div className={modalStyles.formGroup}>
       {/* Connection Type Selection - Only for GitHub */}
@@ -245,6 +221,9 @@ export default function GitConnectionMethods({
       {/* OAuth Connection */}
       {connectionType === "oauth" && (
         <div>
+          <h5 className={modalStyles.sectionTitle}>
+            Quick Setup (Recommended)
+          </h5>
           <button
             className={button({ color: provider.provider })}
             onClick={handleOAuthConnect}
@@ -266,17 +245,12 @@ export default function GitConnectionMethods({
       {/* GitHub App Connection */}
       {provider.provider === "github" && connectionType === "app" && (
         <div>
-          <button
+          <a
+            href="https://github.com/apps/hotbot-sh/installations/new"
             className={button({ color: "primary" })}
-            onClick={handleGitHubAppInstall}
-            disabled={loading}
           >
-            {loading ? (
-              <>Installing GitHub App...</>
-            ) : (
-              <>Install & Connect GitHub App</>
-            )}
-          </button>
+            Install & Connect GitHub App
+          </a>
           <small className={modalStyles.formHelp}>
             🔒 You&apos;ll be redirected to GitHub to install our app on your
             organization or personal account. After installation, you&apos;ll be
@@ -285,84 +259,53 @@ export default function GitConnectionMethods({
         </div>
       )}
 
-      {/* Manual Token Option */}
-      {(connectionType === "oauth" || connectionType === "manual") && (
+      {/* Personal Access Token Option - Only for Personal Account */}
+      {connectionType === "oauth" && (
         <div className={modalStyles.alternativeSection}>
-          {connectionType === "manual" ? (
-            <div className={modalStyles.manualConnectionWrapper}>
-              <div className={modalStyles.alternativeHeader}>
-                <span>Personal Access Token</span>
-                <button
-                  className={button({ color: "ghost", size: "xs" })}
-                  onClick={() => {
-                    setConnectionType("oauth");
-                    setAccessToken("");
-                    onError("");
-                  }}
-                  disabled={loading}
-                >
-                  ← Back to OAuth
-                </button>
+          <div className={modalStyles.manualConnectSection}>
+            <h5 className={modalStyles.sectionTitle}>
+              Or use a Personal Access Token
+            </h5>
+            <div className={modalStyles.formGroup}>
+              <label htmlFor="access-token" className={modalStyles.formLabel}>
+                Personal Access Token (optional)
+              </label>
+              <div className={modalStyles.inputWithIcon}>
+                <span className={modalStyles.inputIcon}>🔑</span>
+                <input
+                  id="access-token"
+                  type="password"
+                  className={modalStyles.formInput}
+                  placeholder={config.placeholder}
+                  value={accessToken}
+                  onChange={(e) => setAccessToken(e.currentTarget.value)}
+                />
               </div>
-
-              <div className={modalStyles.manualConnectSection}>
-                <div className={modalStyles.formGroup}>
-                  <label
-                    htmlFor="access-token"
-                    className={modalStyles.formLabel}
+              <div className={modalStyles.helpSection}>
+                <div className={modalStyles.helpContent}>
+                  Alternative to OAuth:{" "}
+                  <a
+                    href={getClassicTokenUrl()}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={modalStyles.helpLink}
                   >
-                    Personal Access Token{" "}
-                    <span className={modalStyles.required}>*</span>
-                  </label>
-                  <div className={modalStyles.inputWithIcon}>
-                    <span className={modalStyles.inputIcon}>🔑</span>
-                    <input
-                      id="access-token"
-                      type="password"
-                      className={modalStyles.formInput}
-                      placeholder={config.placeholder}
-                      value={accessToken}
-                      onChange={(e) => setAccessToken(e.currentTarget.value)}
-                    />
-                  </div>
-                  <div className={modalStyles.helpSection}>
-                    <div className={modalStyles.helpContent}>
-                      <a
-                        href={getClassicTokenUrl()}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className={modalStyles.helpLink}
-                      >
-                        Create a personal access token
-                      </a>{" "}
-                      with repository access permissions.
-                    </div>
-                  </div>
+                    Create a personal access token
+                  </a>{" "}
+                  for manual authentication.
                 </div>
-                <button
-                  className={button({ color: "primary" })}
-                  onClick={handleManualConnect}
-                  disabled={!accessToken.trim() || loading}
-                >
-                  {loading ? "Connecting..." : `Connect with Token`}
-                </button>
               </div>
             </div>
-          ) : (
-            <button
-              className={button({
-                color: "ghost",
-                size: "sm",
-                alternative: true,
-              })}
-              onClick={() => {
-                setConnectionType("manual");
-              }}
-              disabled={loading}
-            >
-              Use personal access token instead
-            </button>
-          )}
+            {accessToken.trim() && (
+              <button
+                className={button({ color: "secondary" })}
+                onClick={handleManualConnect}
+                disabled={loading}
+              >
+                {loading ? "Connecting..." : `Connect with Token`}
+              </button>
+            )}
+          </div>
         </div>
       )}
     </div>

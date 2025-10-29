@@ -1,0 +1,1 @@
+ALTER TABLE `git_providers` ADD `installation_id` text;
