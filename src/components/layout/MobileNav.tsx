@@ -1,7 +1,8 @@
 import { useAuth } from "@clerk/clerk-react";
 import { useState } from "preact/hooks";
 
-import * as styles from "../../styles/layout/mobile-nav.css";
+import * as styles from "@/styles/layout/mobile-nav.css";
+
 import AuthButton from "../auth/AuthButton";
 
 export default function MobileNav() {

@@ -1,9 +1,9 @@
 import { useEffect } from "preact/hooks";
 import { useLocation } from "preact-iso";
 
-import * as authStyles from "../styles/auth/auth.css";
-import { contentCard } from "../styles/layout/layout.css";
-import { button } from "../styles/theme/index.css";
+import * as authStyles from "@/styles/auth/auth.css";
+import { contentCard } from "@/styles/layout/layout.css";
+import { button } from "@/styles/theme/index.css";
 
 export default function UpgradeSuccess() {
   const location = useLocation();

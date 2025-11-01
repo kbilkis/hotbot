@@ -1,7 +1,7 @@
 import { style, globalStyle } from "@vanilla-extract/css";
 
 import { fadeIn } from "../theme/animations.css";
-import { tokens, utils, iconStyles } from "../theme/index.css";
+import { tokens, utils, icon } from "../theme/index.css";
 
 // Auth Section
 export const authSection = style([
@@ -32,7 +32,7 @@ export const userEmail = style({
 // Auth Callback Styles
 
 export const statusIcon = style([
-  iconStyles.xl,
+  icon.xl,
   {
     marginBottom: tokens.space[4],
     animation: `${fadeIn} 0.5s ease-out`,

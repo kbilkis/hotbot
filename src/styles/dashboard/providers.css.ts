@@ -1,6 +1,6 @@
 import { style } from "@vanilla-extract/css";
 
-import { tokens, badgeStyles, utils, iconStyles } from "../theme/index.css";
+import { tokens, badge, utils, icon } from "../theme/index.css";
 
 export const providerSection = utils.card;
 
@@ -55,7 +55,7 @@ export const providerInfo = style([
 ]);
 
 export const providerIcon = style([
-  iconStyles.base,
+  icon.base,
   {
     width: tokens.space[6],
     height: tokens.space[6],
@@ -88,7 +88,7 @@ export const providerName = style({
   color: tokens.colors.text,
 });
 
-const connectionStatus = badgeStyles.neutral;
+const connectionStatus = badge.neutral;
 
 export const connectionStatusConnected = style([
   connectionStatus,

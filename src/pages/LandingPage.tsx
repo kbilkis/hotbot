@@ -7,9 +7,8 @@ import PricingSection from "@/components/landing/PricingSection";
 import ProductContextSection from "@/components/landing/ProductContextSection";
 import SocialProofSection from "@/components/landing/SocialProofSection";
 import ValuePropositionSection from "@/components/landing/ValuePropositionSection";
-
-import { useMouseTracking } from "../hooks/useMouseTracking";
-import { page, landingPageEffect } from "../styles/layout/layout.css";
+import { useMouseTracking } from "@/hooks/useMouseTracking";
+import { page, landingPageEffect } from "@/styles/layout/layout.css";
 
 export default function LandingPage() {
   useMouseTracking();

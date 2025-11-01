@@ -1,6 +1,6 @@
 import { style } from "@vanilla-extract/css";
 
-import { tokens, utils, iconStyles } from "../theme/index.css";
+import { tokens, utils, icon } from "../theme/index.css";
 
 // Repository Management
 export const repositoriesSection = style({
@@ -78,7 +78,7 @@ export const repositoryItem = style([
 ]);
 
 export const repoIcon = style([
-  iconStyles.base,
+  icon.base,
   {
     color: tokens.colors.textMuted,
   },

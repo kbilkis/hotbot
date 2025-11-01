@@ -1,6 +1,6 @@
 import { style, globalStyle } from "@vanilla-extract/css";
 
-import { tokens, badgeStyles, utils, iconStyles } from "../theme/index.css";
+import { tokens, badge, utils, icon } from "../theme/index.css";
 
 // Subscription Header
 export const subscriptionHeader = style([
@@ -27,7 +27,7 @@ export const tierBadgeContainer = style([
 
 // Tier Badges
 const tierBadgeBase = style([
-  badgeStyles.neutral,
+  badge.neutral,
   {
     textTransform: "uppercase",
     letterSpacing: "0.05em",
@@ -52,7 +52,7 @@ export const tierBadgePro = style([
 
 // Status Badges
 const statusBadgeBase = style([
-  badgeStyles.neutral,
+  badge.neutral,
   {
     textTransform: "uppercase",
     letterSpacing: "0.05em",
@@ -264,7 +264,7 @@ export const subscriptionItem = style([
 ]);
 
 export const subscriptionIcon = style([
-  iconStyles.base,
+  icon.base,
   {
     fontSize: tokens.fontSize.xl,
     color: tokens.colors.success,

@@ -1,6 +1,6 @@
 import { style, globalStyle } from "@vanilla-extract/css";
 
-import { tokens, badgeStyles, utils, iconStyles } from "../theme/index.css";
+import { tokens, badge, utils, icon } from "../theme/index.css";
 
 // Channel Management (Slack/Discord)
 export const channelsContainer = style({
@@ -58,7 +58,7 @@ export const channelInfo = style([
 ]);
 
 export const channelIcon = style([
-  iconStyles.base,
+  icon.base,
   {
     color: tokens.colors.textMuted,
   },
@@ -79,7 +79,7 @@ export const channelDescription = style({
 export const channelActions = style([utils.flex, utils.gap2]);
 
 const testResult = style([
-  badgeStyles.neutral,
+  badge.neutral,
   {
     fontSize: tokens.fontSize.xs,
     fontWeight: tokens.fontWeight.medium,

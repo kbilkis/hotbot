@@ -1,7 +1,7 @@
 import { style } from "@vanilla-extract/css";
 
 import { spin } from "../theme/animations.css";
-import { tokens, utils, iconStyles } from "../theme/index.css";
+import { tokens, utils, icon } from "../theme/index.css";
 
 export const schedulesSection = style([utils.card]);
 
@@ -141,7 +141,7 @@ const actionButton = style([
   },
 ]);
 
-export const scheduleActionIcon = style([iconStyles.base]);
+export const scheduleActionIcon = style([icon.base]);
 
 export const editButton = style([
   actionButton,

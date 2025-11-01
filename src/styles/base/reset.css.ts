@@ -274,8 +274,3 @@ globalStyle("p", {
     },
   },
 });
-
-// CSS Custom Properties are now handled by tokens.css.ts using createGlobalTheme
-// This provides better type safety and integration with vanilla-extract
-
-// Keyframes moved to src/styles/theme/animations.css.ts for better organization

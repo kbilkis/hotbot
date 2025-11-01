@@ -105,9 +105,6 @@ importers:
       '@google-cloud/functions-framework':
         specifier: ^3.5.1
         version: 3.5.1
-      '@hono/vite-dev-server':
-        specifier: ^0.23.0
-        version: 0.23.0(hono@4.9.9)(miniflare@4.20251008.0)(wrangler@4.40.2(@cloudflare/workers-types@4.20250927.0))
       '@preact/preset-vite':
         specifier: ^2.10.2
         version: 2.10.2(@babel/core@7.28.4)(preact@10.27.2)(vite@7.1.7(@types/node@22.18.7)(jiti@2.6.0)(lightningcss@1.30.2)(tsx@4.20.6))
@@ -130,8 +127,8 @@ importers:
         specifier: ^8.44.0
         version: 8.45.0(eslint@9.36.0(jiti@2.6.0))(typescript@5.9.2)
       '@vanilla-extract/vite-plugin':
-        specifier: 5.1.2-vite-hmr-fix-20250911065547
-        version: 5.1.2-vite-hmr-fix-20250911065547(@types/node@22.18.7)(jiti@2.6.0)(lightningcss@1.30.2)(tsx@4.20.6)(vite@7.1.7(@types/node@22.18.7)(jiti@2.6.0)(lightningcss@1.30.2)(tsx@4.20.6))
+        specifier: ^5.1.1
+        version: 5.1.1(@types/node@22.18.7)(jiti@2.6.0)(lightningcss@1.30.2)(tsx@4.20.6)(vite@7.1.7(@types/node@22.18.7)(jiti@2.6.0)(lightningcss@1.30.2)(tsx@4.20.6))
       '@vitejs/plugin-react':
         specifier: ^5.0.3
         version: 5.0.4(vite@7.1.7(@types/node@22.18.7)(jiti@2.6.0)(lightningcss@1.30.2)(tsx@4.20.6))
@@ -1021,25 +1018,6 @@ packages:
     engines: {node: '>=16.x.x'}
     peerDependencies:
       hono: '>=3.0.0'
-
-  '@hono/node-server@1.19.5':
-    resolution: {integrity: sha512-iBuhh+uaaggeAuf+TftcjZyWh2GEgZcVGXkNtskLVoWaXhnJtC5HLHrU8W1KHDoucqO1MswwglmkWLFyiDn4WQ==}
-    engines: {node: '>=18.14.1'}
-    peerDependencies:
-      hono: ^4
-
-  '@hono/vite-dev-server@0.23.0':
-    resolution: {integrity: sha512-tHV86xToed9Up0j/dubQW2PDP4aYNFDSfQrjcV6Ra7bqCGrxhtg/zZBmbgSco3aTxKOEPzDXKK+6seAAfsbIXw==}
-    engines: {node: '>=18.14.1'}
-    peerDependencies:
-      hono: '*'
-      miniflare: '*'
-      wrangler: '*'
-    peerDependenciesMeta:
-      miniflare:
-        optional: true
-      wrangler:
-        optional: true
 
   '@humanfs/core@0.19.1':
     resolution: {integrity: sha512-5DyQ4+1JEUzejeK1JGICcideyfUbGixgS9jNgex5nqkW+cY7WZhxBigmieN5Qnw9ZosSNVC9KQKyb+GUaGyKUA==}
@@ -2135,8 +2113,8 @@ packages:
   '@vanilla-extract/babel-plugin-debug-ids@1.2.2':
     resolution: {integrity: sha512-MeDWGICAF9zA/OZLOKwhoRlsUW+fiMwnfuOAqFVohL31Agj7Q/RBWAYweqjHLgFBCsdnr6XIfwjJnmb2znEWxw==}
 
-  '@vanilla-extract/compiler@0.4.0-vite-hmr-fix-20250911065547':
-    resolution: {integrity: sha512-MzEQOzqenAmTpwn0HUlc0eXe2kxg/O+TNKf4lkOvrsCdr9hBwGQk4r8uRT4ejpbJC98G520qZIfJmHO7JBmhrw==}
+  '@vanilla-extract/compiler@0.3.1':
+    resolution: {integrity: sha512-KZ67DZQu58dMo7Jv4PNMPG5TbMOXB68xxVYV2cRJvUdPeiOmX0FOaPgEsYBAZUgd/oLEx4IyV0AvlvsxJ1akfQ==}
 
   '@vanilla-extract/css@1.17.4':
     resolution: {integrity: sha512-m3g9nQDWPtL+sTFdtCGRMI1Vrp86Ay4PBYq1Bo7Bnchj5ElNtAJpOqD+zg+apthVA4fB7oVpMWNjwpa6ElDWFQ==}
@@ -2152,8 +2130,8 @@ packages:
     peerDependencies:
       '@vanilla-extract/css': ^1.0.0
 
-  '@vanilla-extract/vite-plugin@5.1.2-vite-hmr-fix-20250911065547':
-    resolution: {integrity: sha512-8C7Bs6oNepusY6KVR5PGXAGTvF2WtRj6vY9LfQJi5LrD0ebdThFRq/xhhfSLcf10FldxSGQWFgg9IhM9Yusl7g==}
+  '@vanilla-extract/vite-plugin@5.1.1':
+    resolution: {integrity: sha512-Nd1worqkHrd8XED4ZAA7Wmkd3pCqCwpmzCBVF8v6T1BSLHGXQE5HYflVgygw0CsIAbFRMS6zQBIk4F4/r/YKIw==}
     peerDependencies:
       vite: ^5.0.0 || ^6.0.0 || ^7.0.0
 
@@ -5333,19 +5311,6 @@ snapshots:
       - react
       - react-dom
 
-  '@hono/node-server@1.19.5(hono@4.9.9)':
-    dependencies:
-      hono: 4.9.9
-
-  '@hono/vite-dev-server@0.23.0(hono@4.9.9)(miniflare@4.20251008.0)(wrangler@4.40.2(@cloudflare/workers-types@4.20250927.0))':
-    dependencies:
-      '@hono/node-server': 1.19.5(hono@4.9.9)
-      hono: 4.9.9
-      minimatch: 9.0.5
-    optionalDependencies:
-      miniflare: 4.20251008.0
-      wrangler: 4.40.2(@cloudflare/workers-types@4.20250927.0)
-
   '@humanfs/core@0.19.1': {}
 
   '@humanfs/node@0.16.7':
@@ -6504,7 +6469,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  '@vanilla-extract/compiler@0.4.0-vite-hmr-fix-20250911065547(@types/node@22.18.7)(jiti@2.6.0)(lightningcss@1.30.2)(tsx@4.20.6)':
+  '@vanilla-extract/compiler@0.3.1(@types/node@22.18.7)(jiti@2.6.0)(lightningcss@1.30.2)(tsx@4.20.6)':
     dependencies:
       '@vanilla-extract/css': 1.17.4
       '@vanilla-extract/integration': 8.0.4
@@ -6564,9 +6529,9 @@ snapshots:
     dependencies:
       '@vanilla-extract/css': 1.17.4
 
-  '@vanilla-extract/vite-plugin@5.1.2-vite-hmr-fix-20250911065547(@types/node@22.18.7)(jiti@2.6.0)(lightningcss@1.30.2)(tsx@4.20.6)(vite@7.1.7(@types/node@22.18.7)(jiti@2.6.0)(lightningcss@1.30.2)(tsx@4.20.6))':
+  '@vanilla-extract/vite-plugin@5.1.1(@types/node@22.18.7)(jiti@2.6.0)(lightningcss@1.30.2)(tsx@4.20.6)(vite@7.1.7(@types/node@22.18.7)(jiti@2.6.0)(lightningcss@1.30.2)(tsx@4.20.6))':
     dependencies:
-      '@vanilla-extract/compiler': 0.4.0-vite-hmr-fix-20250911065547(@types/node@22.18.7)(jiti@2.6.0)(lightningcss@1.30.2)(tsx@4.20.6)
+      '@vanilla-extract/compiler': 0.3.1(@types/node@22.18.7)(jiti@2.6.0)(lightningcss@1.30.2)(tsx@4.20.6)
       '@vanilla-extract/integration': 8.0.4
       vite: 7.1.7(@types/node@22.18.7)(jiti@2.6.0)(lightningcss@1.30.2)(tsx@4.20.6)
     transitivePeerDependencies:

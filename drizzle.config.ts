@@ -2,7 +2,7 @@ import { config } from "dotenv";
 import { defineConfig } from "drizzle-kit";
 
 config({
-  path: ".env",
+  path: process.env.ENV_FILE || ".env",
   override: true,
 });
 

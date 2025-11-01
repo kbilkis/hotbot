@@ -1,8 +1,6 @@
 import { resolve } from "node:path";
 
 import { cloudflare } from "@cloudflare/vite-plugin";
-import devServer from "@hono/vite-dev-server";
-import { cloudflareAdapter } from "@hono/vite-dev-server/cloudflare";
 import { preact } from "@preact/preset-vite";
 import { sentryVitePlugin } from "@sentry/vite-plugin";
 import { vanillaExtractPlugin } from "@vanilla-extract/vite-plugin";
@@ -16,27 +14,8 @@ export default defineConfig(({ mode }) => {
     vanillaExtractPlugin({
       identifiers: mode === "production" ? "short" : "debug",
     }),
+    cloudflare(),
   ];
-
-  // In development, use @hono/vite-dev-server to run the Hono app
-  if (mode === "development") {
-    process.env = env;
-    plugins.push(
-      devServer({
-        entry: "./server.ts",
-        adapter: cloudflareAdapter,
-        exclude: [
-          // Exclude everything that doesn't start with /api
-          // This means Hono only handles /api/* routes, Vite handles everything else
-          /^(?!\/api)/,
-        ],
-        handleHotUpdate: () => {},
-      })
-    );
-  } else {
-    // In production, use the cloudflare plugin
-    plugins.push(cloudflare());
-  }
 
   if (env.ANALYZE === "true") {
     plugins.push(
@@ -58,7 +37,7 @@ export default defineConfig(({ mode }) => {
   return {
     plugins,
     server: {
-      allowedHosts: env.ZROK_SHARE ? [env.ZROK_SHARE] : undefined,
+      allowedHosts: env.PUBLIC_SHARE ? [env.PUBLIC_SHARE] : undefined,
     },
     build: {
       manifest: true,

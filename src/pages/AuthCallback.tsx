@@ -3,10 +3,9 @@ import { useRoute, useLocation } from "preact-iso";
 
 import { useGitProviders } from "@/hooks/useGitProviders";
 import { useMessagingProviders } from "@/hooks/useMessagingProviders";
-
-import * as authStyles from "../styles/auth/auth.css";
-import { contentCard } from "../styles/layout/layout.css";
-import { utils } from "../styles/theme/index.css";
+import * as authStyles from "@/styles/auth/auth.css";
+import { contentCard } from "@/styles/layout/layout.css";
+import { utils } from "@/styles/theme/index.css";
 
 export default function AuthCallback() {
   const { params, query } = useRoute();

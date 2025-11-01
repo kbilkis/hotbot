@@ -1,6 +1,6 @@
 import { style } from "@vanilla-extract/css";
 
-import { tokens, badgeStyles, utils } from "../theme/index.css";
+import { tokens, badge, utils } from "../theme/index.css";
 
 export const filterBuilder = style([utils.flexCol, utils.gap6]);
 
@@ -51,7 +51,7 @@ export const filterItems = style([
 ]);
 
 export const filterItem = style([
-  badgeStyles.info,
+  badge.info,
   utils.flex,
   utils.gap2,
   {

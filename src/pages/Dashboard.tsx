@@ -1,8 +1,7 @@
+import IntegrationsSection from "@/components/integrations/IntegrationsSection";
+import SchedulesSection from "@/components/schedules/SchedulesSection";
+import { page } from "@/styles/layout/layout.css";
 import { utils } from "@/styles/theme/utils.css";
-
-import IntegrationsSection from "../components/integrations/IntegrationsSection";
-import SchedulesSection from "../components/schedules/SchedulesSection";
-import { page } from "../styles/layout/layout.css";
 
 export default function Dashboard() {
   return (

@@ -1,7 +1,6 @@
+import SubscriptionStatus from "@/components/subscriptions/SubscriptionStatus";
+import { page } from "@/styles/layout/layout.css";
 import { utils } from "@/styles/theme/utils.css";
-
-import SubscriptionStatus from "../components/subscriptions/SubscriptionStatus";
-import { page } from "../styles/layout/layout.css";
 
 export default function Subscription() {
   return (
